@@ -8,7 +8,7 @@ public class MovementInput
      * The speed at which the player is strafing. Postive numbers to the left and negative to the right.
      */
     public float moveStrafe;
-    public float field_192832_b;
+    public float moveForward;
     public boolean forwardKeyDown;
     public boolean backKeyDown;
     public boolean leftKeyDown;
@@ -22,6 +22,6 @@ public class MovementInput
 
     public Vec2f getMoveVector()
     {
-        return new Vec2f(this.moveStrafe, this.field_192832_b);
+        return new Vec2f(this.moveStrafe, this.moveForward);
     }
 }

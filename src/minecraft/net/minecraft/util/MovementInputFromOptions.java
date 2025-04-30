@@ -14,11 +14,11 @@ public class MovementInputFromOptions extends MovementInput
     public void updatePlayerMoveState()
     {
         this.moveStrafe = 0.0F;
-        this.field_192832_b = 0.0F;
+        this.moveForward = 0.0F;
 
         if (this.gameSettings.keyBindForward.isKeyDown())
         {
-            ++this.field_192832_b;
+            ++this.moveForward;
             this.forwardKeyDown = true;
         }
         else
@@ -28,7 +28,7 @@ public class MovementInputFromOptions extends MovementInput
 
         if (this.gameSettings.keyBindBack.isKeyDown())
         {
-            --this.field_192832_b;
+            --this.moveForward;
             this.backKeyDown = true;
         }
         else
@@ -62,7 +62,7 @@ public class MovementInputFromOptions extends MovementInput
         if (this.sneak)
         {
             this.moveStrafe = (float)((double)this.moveStrafe * 0.3D);
-            this.field_192832_b = (float)((double)this.field_192832_b * 0.3D);
+            this.moveForward = (float)((double)this.moveForward * 0.3D);
         }
     }
 }

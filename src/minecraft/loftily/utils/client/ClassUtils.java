@@ -1,0 +1,42 @@
+package loftily.utils.client;
+
+import org.apache.logging.log4j.core.config.plugins.util.ResolverUtil;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ClassUtils {
+    public static <T> List<Class<? extends T>> resolvePackage(String packagePath, Class<T> klass) {
+        ResolverUtil resolver = new ResolverUtil();
+        resolver.setClassLoader(klass.getClassLoader());
+
+        resolver.findInPackage(new ResolverUtil.Test() {
+            @Override public boolean matches(Class<?> type) { return true; }
+            @Override public boolean matches(URI uri) { return true; }
+            @Override public boolean doesMatchClass() { return true; }
+            @Override public boolean doesMatchResource() { return true; }
+        }, packagePath);
+
+        List<Class<? extends T>> list = new ArrayList<>();
+
+        for (Class<?> resolved : resolver.getClasses()) {
+            for (Method method : resolved.getDeclaredMethods()) {
+                if (Modifier.isNative(method.getModifiers())) {
+                    String methodName = method.getDeclaringClass().getTypeName() + "." + method.getName();
+                    throw new UnsatisfiedLinkError(methodName + "\n\tat " + methodName + "(Native Method)");
+                }
+            }
+
+            if (klass.isAssignableFrom(resolved)
+                    && !resolved.isInterface()
+                    && !Modifier.isAbstract(resolved.getModifiers())) {
+                list.add(resolved.asSubclass(klass));
+            }
+        }
+
+        return list;
+    }
+}

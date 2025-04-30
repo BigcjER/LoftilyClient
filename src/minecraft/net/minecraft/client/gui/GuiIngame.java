@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import javax.annotation.Nullable;
+
+import loftily.Client;
+import loftily.event.impl.render.Render2DEvent;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -394,6 +397,8 @@ public class GuiIngame extends Gui
         {
             this.overlayPlayerList.updatePlayerList(false);
         }
+
+        Client.INSTANCE.getEventManager().call(new Render2DEvent());
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.disableLighting();

@@ -41,6 +41,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
+
+import loftily.Client;
+import loftily.event.impl.client.KeyboardEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -603,7 +606,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
         this.checkGLError("Post startup");
         this.ingameGUI = new GuiIngame(this);
 
-        ClienT
+        Client.INSTANCE.init();
 
         if (this.serverName != null)
         {
@@ -2051,6 +2054,8 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
             if (flag)
             {
+                Client.INSTANCE.getEventManager().call(new KeyboardEvent(i));
+
                 if (i == 62 && this.entityRenderer != null)
                 {
                     this.entityRenderer.switchUseShader();
