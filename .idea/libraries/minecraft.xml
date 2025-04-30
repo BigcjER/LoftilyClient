@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="minecraft">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/libs/minecraft" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/libs/minecraft" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/libs/minecraft" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/libs/minecraft" recursive="false" type="SOURCES" />
+  </library>
+</component>
