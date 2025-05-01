@@ -25,6 +25,8 @@ jobs:
           mkdir -p out
           javac -cp "libs/client/*:libs/minecraft/*" \
           -d out \
+          -sourcepath src/minecraft \
+          -Xlint:unchecked \
           src/minecraft/**/*.java
 
       - name: Package JAR
