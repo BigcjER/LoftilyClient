@@ -1,10 +1,8 @@
 package loftily;
 
 import de.florianmichael.viamcp.ViaMCP;
-import loftily.event.impl.client.KeyboardEvent;
 import loftily.module.ModuleManager;
 import lombok.Getter;
-import net.lenni0451.lambdaevents.EventHandler;
 import net.lenni0451.lambdaevents.LambdaManager;
 import net.lenni0451.lambdaevents.generator.LambdaMetaFactoryGenerator;
 import org.apache.logging.log4j.LogManager;
@@ -33,6 +31,6 @@ public enum Client {
     }
 
     public String getTitle() {
-        return String.format("%s %s",Name,Version);
+        return String.format("%s %s", Name, Version);
     }
 }
