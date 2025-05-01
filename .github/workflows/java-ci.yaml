@@ -20,6 +20,10 @@ jobs:
           java-version: '8'
           distribution: 'temurin'
 
+      - name: Extract client libs
+        run: |
+          find libs/client -name "*.jar" -exec unzip -qn {} -d out/libs/ \;
+
       - name: Copy resources
         run: |
           mkdir -p out/assets
