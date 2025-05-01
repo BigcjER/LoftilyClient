@@ -18,25 +18,23 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '8'
-          distribution: 'zulu'
+          distribution: 'temurin'
+
+      - name: Copy resources
+        run: |
+          mkdir -p out/assets
+          cp -r src/minecraft/assets/* out/assets/
 
       - name: Compile sources
         run: |
+          ls -R libs/
           mkdir -p out
-          javac -cp "libs/client/*:libs/minecraft/*" \
-          -d out \
-          -sourcepath src/minecraft \
-          -Xlint:unchecked \
-          src/minecraft/**/*.java
+          javac -cp "libs/client/*:libs/minecraft/*" \ -d out \ src/minecraft/**/*.java
 
       - name: Package JAR
         run: |
           mkdir -p artifacts
           jar cf artifacts/Loftily.jar -C out .
-
-      - name: Copy resources
-        run: |
-          cp -r src/minecraft/assets/ out/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
