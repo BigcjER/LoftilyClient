@@ -27,10 +27,11 @@ jobs:
 
       - name: Compile sources
         run: |
-          ls -R libs/
           mkdir -p out
-          javac -cp "libs/client/*:libs/minecraft/*" \ -d out \ src/minecraft/**/*.java
-
+          javac -cp "libs/client/*:libs/minecraft/*" \
+          -d out \
+          -sourcepath src/minecraft \
+          $(find src/minecraft -name "*.java")
       - name: Package JAR
         run: |
           mkdir -p artifacts
