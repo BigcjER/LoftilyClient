@@ -32,15 +32,15 @@ jobs:
           -d out \
           -sourcepath src/minecraft \
           $(find src/minecraft -name "*.java")
+
       - name: Package JAR
         run: |
-          mkdir -p artifacts
-          jar cf artifacts/Loftily.jar -C out .
+          jar cf Loftily.jar -C out .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: Loftily
           path:
-            artifacts/Loftily.jar
+            Loftily.jar
             Loftily.json
