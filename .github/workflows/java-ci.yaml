@@ -20,18 +20,20 @@ jobs:
           java-version: '8'
           distribution: 'temurin'
 
-      - name: Extract client libs
+      - name: Create directory
         run: |
-          find libs/client -name "*.jar" -exec unzip -qn {} -d out/libs/ \;
+          mkdir -p out/assets
 
       - name: Copy resources
         run: |
-          mkdir -p out/assets
           cp -r src/minecraft/assets/* out/assets/
+
+      - name: Extract client libs
+        run: |
+          find libs/client -name "*.jar" -exec unzip -qn {} -d out/ \;
 
       - name: Compile sources
         run: |
-          mkdir -p out
           javac -cp "libs/client/*:libs/minecraft/*" \
           -d out \
           -sourcepath src/minecraft \
