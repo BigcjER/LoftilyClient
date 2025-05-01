@@ -12,10 +12,6 @@ import org.lwjgl.input.Keyboard;
 public class Test extends Module {
     @EventHandler
     public void onUpdate(UpdateEvent event){
-        if(!MoveUtils.isMoving()){
-            MoveUtils.stop();
-            return;
-        }
-        MoveUtils.setSpeed(1);
+
     }
 }

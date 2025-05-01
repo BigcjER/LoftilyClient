@@ -8,6 +8,7 @@ import net.lenni0451.lambdaevents.LambdaManager;
 import net.lenni0451.lambdaevents.generator.LambdaMetaFactoryGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.opengl.Display;
 
 @Getter
 public enum Client {
@@ -23,5 +24,11 @@ public enum Client {
     public void init() {
         eventManager = LambdaManager.basic(new LambdaMetaFactoryGenerator());
         moduleManager = new ModuleManager();
+
+        Display.setTitle(getTitle());
+    }
+
+    public String getTitle() {
+        return String.format("%s %s",Name,Version);
     }
 }

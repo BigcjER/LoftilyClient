@@ -1,0 +1,46 @@
+name: Java CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'zulu'
+          cache: 'none'
+
+      - name: Compile sources
+        run: |
+          mkdir -p out
+          javac -cp "libs/client/*:libs/minecraft/*" \
+          -d out \
+          src/minecraft/**/*.java
+
+      - name: Package JAR
+        run: |
+          mkdir -p artifacts
+          jar cf artifacts/Loftily.jar -C out .
+
+      - name: Copy resources
+        run: |
+          cp -r src/minecraft/assets/ out/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Loftily
+          path:
+            artifacts/Loftily.jar
+            Loftily.json
