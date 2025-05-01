@@ -1,5 +1,6 @@
 package loftily;
 
+import de.florianmichael.viamcp.ViaMCP;
 import loftily.event.impl.client.KeyboardEvent;
 import loftily.module.ModuleManager;
 import lombok.Getter;
@@ -24,6 +25,9 @@ public enum Client {
     public void init() {
         eventManager = LambdaManager.basic(new LambdaMetaFactoryGenerator());
         moduleManager = new ModuleManager();
+
+        ViaMCP.create();
+        ViaMCP.INSTANCE.initAsyncSlider();
 
         Display.setTitle(getTitle());
     }

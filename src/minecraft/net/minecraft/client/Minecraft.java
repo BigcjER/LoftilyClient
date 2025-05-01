@@ -689,7 +689,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
     private void createDisplay() throws LWJGLException
     {
         Display.setResizable(true);
-        Display.setTitle("Initializing...");
+        Display.setTitle(Client.INSTANCE.getTitle());
 
         try
         {
@@ -2054,7 +2054,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
             if (flag)
             {
-                Client.INSTANCE.getEventManager().call(new KeyboardEvent(i));
 
                 if (i == 62 && this.entityRenderer != null)
                 {
@@ -2065,6 +2064,10 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
                 if (this.currentScreen == null)
                 {
+                    KeyboardEvent event = new KeyboardEvent(i);
+                    Client.INSTANCE.getEventManager().call(event);
+                    if(event.isCancelled()) return;
+
                     if (i == 1)
                     {
                         this.displayInGameMenu();

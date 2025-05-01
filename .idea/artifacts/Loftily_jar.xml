@@ -4,6 +4,9 @@
     <root id="archive" name="Loftily.jar">
       <element id="module-output" name="LoftilyClient" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/client/LambdaEvents-2.4.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/client/ViaBackwards-5.2.0-downgraded.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/client/ViaRewind-4.0.4-downgraded.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/client/ViaVersion-5.2.0-downgraded.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
