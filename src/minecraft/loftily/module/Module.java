@@ -2,6 +2,7 @@ package loftily.module;
 
 import loftily.Client;
 import loftily.core.AbstractModule;
+import loftily.file.impl.ModuleConfig;
 import loftily.value.impl.mode.Mode;
 import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
@@ -14,7 +15,7 @@ public abstract class Module extends AbstractModule {
     private boolean toggled;
     @Setter
     private int key;
-
+    
     public Module() {
         if (!this.getClass().isAnnotationPresent(ModuleInfo.class)) {
             throw new RuntimeException(String.format("ModuleInfo not found in %s!", this.getClass().getSimpleName()));
@@ -26,10 +27,15 @@ public abstract class Module extends AbstractModule {
             this.moduleCategory = moduleInfo.category();
         }
     }
-
+    
+    public void setToggled(boolean toggled, boolean save) {
+        this.toggled = toggled;
+        if (save) Client.INSTANCE.getConfigManager().get(ModuleConfig.class).write();
+    }
+    
     public void toggle() {
-        toggled = !toggled;
-
+        setToggled(!toggled, true);
+        
         /* register mode */
         this.values.stream()
                 .filter(value -> value instanceof ModeValue)
@@ -37,7 +43,7 @@ public abstract class Module extends AbstractModule {
                 .flatMap(modeValue -> modeValue.getModes().stream()
                         .filter(mode -> !(mode instanceof StringMode) && mode.equals(modeValue.getValue())))
                 .forEach(toggled ? Mode::register : Mode::unregister);
-
+        
         if (toggled) {
             Client.INSTANCE.getEventManager().register(this);
             if (mc.player != null) {

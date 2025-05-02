@@ -1,6 +1,7 @@
 package net.minecraft.client.entity;
 
 import loftily.Client;
+import loftily.event.impl.client.ChatEvent;
 import loftily.event.impl.player.MotionEvent;
 import loftily.event.impl.player.RotationEvent;
 import loftily.event.impl.world.UpdateEvent;
@@ -310,6 +311,10 @@ public class EntityPlayerSP extends AbstractClientPlayer {
      * Sends a chat message from the player.
      */
     public void sendChatMessage(String message) {
+        ChatEvent event = new ChatEvent(message);
+        Client.INSTANCE.getEventManager().call(event);
+        if(event.isCancelled()) return;
+        
         this.connection.sendPacket(new CPacketChatMessage(message));
     }
 
@@ -377,10 +382,8 @@ public class EntityPlayerSP extends AbstractClientPlayer {
      * Adds a value to a statistic field.
      */
     public void addStat(StatBase stat, int amount) {
-        if (stat != null) {
-            if (stat.isIndependent) {
-                super.addStat(stat, amount);
-            }
+        if (stat.isIndependent) {
+            super.addStat(stat, amount);
         }
     }
 

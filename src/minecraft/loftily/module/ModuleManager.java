@@ -8,25 +8,27 @@ import loftily.value.impl.mode.ModeValue;
 import net.lenni0451.lambdaevents.EventHandler;
 
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ModuleManager extends AbstractManager<Module> {
     public ModuleManager() {
         super("impl", Module.class);
-
+        
         for (Module module : this) {
             Field[] fields = module.getClass().getDeclaredFields();
-
+            
             for (Field field : fields) {
                 if (Value.class.isAssignableFrom(field.getType())) {
                     try {
                         field.setAccessible(true);
-
+                        
                         if (field.getType().isAssignableFrom(ModeValue.class)) {
                             module.getValues().add((Value<?>) field.get(module));
                             ((ModeValue) field.get(module)).initModes();
                             continue;
                         }
-
+                        
                         module.getValues().add((Value<?>) field.get(module));
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
@@ -34,16 +36,27 @@ public class ModuleManager extends AbstractManager<Module> {
                 }
             }
         }
-
+        
         Client.INSTANCE.getEventManager().register(this);
     }
-
-    @EventHandler
-    public void onKeyboard(KeyboardEvent event) {
-        for (Module module : this) {
-            if (module.getKey() == event.getKey()) {
-                module.toggle();
-            }
-        }
+    
+    @EventHandler(priority = 10)
+    public void onKey(KeyboardEvent event) {
+        this.stream()
+                .filter(module -> module.getKey() == event.getKey())
+                .forEach(Module::toggle);
+    }
+    
+    public Module get(String moduleName) {
+        return this.stream()
+                .filter(module -> moduleName.equalsIgnoreCase(module.getName()))
+                .findFirst()
+                .orElse(null);
+    }
+    
+    public List<Module> get(ModuleCategory category) {
+        return this.stream()
+                .filter(module -> module.getModuleCategory() == category)
+                .collect(Collectors.toList());
     }
 }

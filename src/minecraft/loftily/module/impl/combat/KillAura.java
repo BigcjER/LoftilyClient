@@ -7,4 +7,5 @@ import org.lwjgl.input.Keyboard;
 
 @ModuleInfo(name = "KillAura", key = Keyboard.KEY_R, category = ModuleCategory.Combat)
 public class KillAura extends Module {
+
 }

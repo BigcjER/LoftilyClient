@@ -9,12 +9,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface ModuleInfo {
     ModuleCategory category();
-
+    
     String name();
-
+    
     int key() default 0;
-
+    
     boolean autoEnabled() default false;
-
+    
     boolean canEnabled() default true;
 }
