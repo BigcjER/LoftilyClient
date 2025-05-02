@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unchecked")
-
 public abstract class AbstractManager<T> extends ArrayList<T> {
     public AbstractManager(String itemsPackage, Class<T> superClass) {
         if (itemsPackage == null) return;

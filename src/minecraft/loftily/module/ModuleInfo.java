@@ -14,7 +14,7 @@ public @interface ModuleInfo {
     
     int key() default 0;
     
-    boolean autoEnabled() default false;
+    boolean defaultToggled() default false;
     
-    boolean canEnabled() default true;
+    boolean canBeToggled() default true;
 }

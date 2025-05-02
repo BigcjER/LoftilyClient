@@ -6,10 +6,8 @@ import net.minecraft.util.text.TextFormatting;
 
 public class MessageUtils implements MinecraftInstance {
     public static void clientMessageWithWaterMark(Object message) {
-        clientMessage(String.format("%s%s%s %s",
-                TextFormatting.YELLOW + "[",
-                TextFormatting.DARK_AQUA + Client.Name,
-                TextFormatting.YELLOW + "]",
+        clientMessage(String.format("%s %s",
+                Client.StringPreFix,
                 TextFormatting.WHITE + message.toString()));
     }
     

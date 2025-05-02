@@ -23,7 +23,7 @@ public class FontManager {
             this.fontName = fontName;
         }
         
-        public FontRenderer size(float fontSize) {
+        public FontRenderer of(float fontSize) {
             fontSize = Math.max(0, Math.min(62, fontSize));
             
             return FontCache

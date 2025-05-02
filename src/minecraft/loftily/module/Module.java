@@ -11,6 +11,7 @@ import lombok.Setter;
 
 @Getter
 public abstract class Module extends AbstractModule {
+    private boolean defaultToggled, canBeToggled;
     private ModuleCategory moduleCategory;
     private boolean toggled;
     @Setter
@@ -25,18 +26,15 @@ public abstract class Module extends AbstractModule {
             this.name = moduleInfo.name();
             this.key = moduleInfo.key();
             this.moduleCategory = moduleInfo.category();
+            this.defaultToggled = moduleInfo.defaultToggled();
+            this.canBeToggled = moduleInfo.canBeToggled();
         }
     }
     
     public void setToggled(boolean toggled, boolean save) {
         this.toggled = toggled;
-        if (save) Client.INSTANCE.getConfigManager().get(ModuleConfig.class).write();
-    }
-    
-    public void toggle() {
-        setToggled(!toggled, true);
         
-        /* register mode */
+        /* 注册Modes */
         this.values.stream()
                 .filter(value -> value instanceof ModeValue)
                 .map(value -> (ModeValue) value)
@@ -57,5 +55,12 @@ public abstract class Module extends AbstractModule {
                 onToggle();
             }
         }
+        
+        if (save) Client.INSTANCE.getConfigManager().get(ModuleConfig.class).write();
+        
+    }
+    
+    public void toggle() {
+        setToggled(!toggled, true);
     }
 }

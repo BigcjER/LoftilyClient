@@ -44,7 +44,7 @@ public class CommandManager extends AbstractManager<Command> {
     
     public Command get(String commandName) {
         return this.stream()
-                .filter(command -> command.getName().stream()
+                .filter(command -> command.getCommand().stream()
                         .anyMatch(name -> name.equalsIgnoreCase(commandName)))
                 .findFirst()
                 .orElse(null);

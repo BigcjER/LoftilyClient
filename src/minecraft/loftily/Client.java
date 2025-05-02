@@ -8,6 +8,7 @@ import loftily.module.ModuleManager;
 import lombok.Getter;
 import net.lenni0451.lambdaevents.LambdaManager;
 import net.lenni0451.lambdaevents.generator.LambdaMetaFactoryGenerator;
+import net.minecraft.util.text.TextFormatting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
@@ -19,6 +20,10 @@ public enum Client {
     public static final String Name = "Loftily";
     public static final String Version = "v0.1";
     public static final Logger Logger = LogManager.getLogger(Client.class);
+    public static final String StringPreFix = String.format("%s%s%s",
+            TextFormatting.YELLOW + "[",
+            TextFormatting.DARK_AQUA + Name,
+            TextFormatting.YELLOW + "]");
     
     private ModuleManager moduleManager;
     private LambdaManager eventManager;

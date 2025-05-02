@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 public abstract class AbstractModule implements MinecraftInstance {
-    protected final List<Value<?>> values = new ArrayList<>();
+    protected final List<Value> values = new ArrayList<>();
     protected String name;
     
     public void onEnable() {

@@ -5,7 +5,6 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import loftily.Client;
-import loftily.file.ConfigManager;
 import loftily.file.Config;
 import loftily.module.Module;
 import org.lwjgl.input.Keyboard;
@@ -26,7 +25,7 @@ public class ModuleConfig extends Config {
         try (FileReader reader = new FileReader(configFile)) {
             JsonElement jsonElement = new JsonParser().parse(reader);
             
-            if(jsonElement instanceof JsonNull) {
+            if (jsonElement instanceof JsonNull) {
                 write();
                 return;
             }
@@ -71,9 +70,17 @@ public class ModuleConfig extends Config {
         
         try (FileWriter writer = new FileWriter(configFile)) {
             writer.write(GSON.toJson(json));
+            Client.Logger.info("Written ModuleConfig to {}", configFile.getName());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
     
+    public void load(File configFile) {
+        write();
+        Client.INSTANCE.getModuleManager().getAll().forEach(module -> module.setToggled(false, false));
+        this.configFile = configFile;
+        read();
+        Client.INSTANCE.getConfigManager().get(ClientSettingsConfig.class).write();
+    }
 }
