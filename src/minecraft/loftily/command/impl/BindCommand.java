@@ -17,7 +17,7 @@ public class BindCommand extends Command {
         /* .bind list */
         if (args[1].equalsIgnoreCase("list")) {
             StringBuilder bindList = new StringBuilder("Bound Modules:\n");
-            for (Module module : Client.INSTANCE.getModuleManager().getAll()) {
+            for (Module module : Client.INSTANCE.getModuleManager()) {
                 int key = module.getKey();
                 if (key != Keyboard.KEY_NONE) {
                     String keyName = Keyboard.getKeyName(key);

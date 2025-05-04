@@ -1,8 +1,8 @@
 package loftily.utils.player;
 
-import loftily.utils.client.MinecraftInstance;
+import loftily.utils.client.ClientUtils;
 
-public class MoveUtils implements MinecraftInstance {
+public class MoveUtils implements ClientUtils {
     public static double getDirection() {
         float rotationYaw = mc.player.rotationYaw;
         if (mc.player.movementInput.moveForward < 0F)

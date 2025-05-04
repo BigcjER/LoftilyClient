@@ -36,8 +36,4 @@ public abstract class AbstractManager<T> extends ArrayList<T> {
                     return null;
                 });
     }
-    
-    public List<T> getAll() {
-        return this;
-    }
 }

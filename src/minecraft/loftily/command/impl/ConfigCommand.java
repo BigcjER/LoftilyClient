@@ -2,8 +2,8 @@ package loftily.command.impl;
 
 import loftily.Client;
 import loftily.command.Command;
-import loftily.file.ConfigManager;
-import loftily.file.impl.ModuleConfig;
+import loftily.config.ConfigManager;
+import loftily.config.impl.ModuleConfig;
 import loftily.settings.ClientSettings;
 import loftily.utils.client.MessageUtils;
 import net.minecraft.util.text.Style;
@@ -41,6 +41,7 @@ public class ConfigCommand extends Command {
                         throw new RuntimeException(e);
                     }
                     break;
+                
                 case "list":
                     List<File> configFiles = Arrays.asList(
                             Objects.requireNonNull(ConfigManager.configDir.listFiles((dir, name) -> name.endsWith(".json"))));
@@ -69,6 +70,10 @@ public class ConfigCommand extends Command {
                         mc.ingameGUI.getChatGUI().printChatMessage(textWithWaterMark);
                     }
                     break;
+                
+                default:
+                    MessageUtils.clientMessageWithWaterMark("Usage: \n" + usage());
+                    break;
             }
             return;
         }
@@ -88,6 +93,7 @@ public class ConfigCommand extends Command {
                     }
                     MessageUtils.clientMessageWithWaterMark(TextFormatting.RED + String.format("Configuration %s not found!", configName));
                     break;
+                
                 case "save":
                     File originFile = moduleConfig.getConfigFile();
                     moduleConfig.write();
@@ -104,16 +110,20 @@ public class ConfigCommand extends Command {
                     }
                     moduleConfig.write();
                     
-                    Client.INSTANCE.getModuleManager().getAll().forEach(module -> module.getValues().forEach(value -> value.setValue(value.getDefaultValue())));
-                    Client.INSTANCE.getModuleManager().getAll().forEach(module -> {
+                    Client.INSTANCE.getModuleManager().forEach(module -> module.getValues().forEach(value -> value.setValue(value.getDefaultValue())));
+                    Client.INSTANCE.getModuleManager().forEach(module -> {
                         if (!module.isDefaultToggled() || !module.isToggled()) module.setToggled(false, false);
                     });
                     
                     moduleConfig.setConfigFile(new File(ConfigManager.configDir, configName + ".json"));
                     moduleConfig.write();
-                    ClientSettings.lastConfig.set(moduleConfig.getConfigFile().getName());
+                    ClientSettings.lastModuleConfig.set(moduleConfig.getConfigFile().getName());
                     
                     MessageUtils.clientMessageWithWaterMark(TextFormatting.GREEN + String.format("Configuration %s created.", configName));
+                    break;
+                
+                default:
+                    MessageUtils.clientMessageWithWaterMark("Usage: \n" + usage());
                     break;
             }
         }
@@ -121,8 +131,8 @@ public class ConfigCommand extends Command {
     
     @Override
     public String usage() {
-        return "\n" +
+        return
                 ".config <load/save/create> <ConfigName> \n" +
-                ".config <folder/list>";
+                        ".config <folder/list>";
     }
 }

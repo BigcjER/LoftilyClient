@@ -1,12 +1,13 @@
 package loftily.module;
 
 import loftily.Client;
+import loftily.config.impl.ModuleConfig;
 import loftily.core.AbstractModule;
-import loftily.file.impl.ModuleConfig;
 import loftily.value.impl.mode.Mode;
 import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 @Getter
@@ -33,6 +34,13 @@ public abstract class Module extends AbstractModule {
     
     public void setToggled(boolean toggled, boolean save) {
         this.toggled = toggled;
+        
+        if (!canBeToggled) {
+            if (toggled && mc.player != null) onEnable();
+            this.toggled = false;
+            if (mc.player != null) onDisable();
+            return;
+        }
         
         /* 注册Modes */
         this.values.stream()
@@ -62,5 +70,10 @@ public abstract class Module extends AbstractModule {
     
     public void toggle() {
         setToggled(!toggled, true);
+    }
+    
+    @NonNull
+    public String getTag() {
+        return "";
     }
 }

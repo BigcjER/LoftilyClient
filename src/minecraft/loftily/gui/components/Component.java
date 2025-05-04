@@ -1,7 +1,10 @@
 package loftily.gui.components;
 
-public abstract class Component {
-    public float x, y, width, height;
+import loftily.utils.client.ClientUtils;
+
+public abstract class Component implements ClientUtils {
+    public float width, height;
+    protected float x, y;
     
     public Component(float width, float height) {
         this.width = width;

@@ -36,7 +36,7 @@ public class CommandManager extends AbstractManager<Command> {
                 command.execCommand(args);
                 return;
             }
-            MessageUtils.clientMessageWithWaterMark("Usage: " + command.usage());
+            MessageUtils.clientMessageWithWaterMark("Usage: \n" + command.usage());
             return;
         }
         MessageUtils.clientMessageWithWaterMark(TextFormatting.RED + "Unknown command! Please enter .help to view help.");

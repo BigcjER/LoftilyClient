@@ -7,13 +7,14 @@ import java.util.Map;
 
 
 public class FontManager {
-    public static FontWrapper NotoSans;
-    private static Map<String, Map<Float, FontRenderer>> FontCache;
+    private static final Map<String, Map<Float, FontRenderer>> FontCache = new HashMap<>();
     
-    public static void init() {
-        FontCache = new HashMap<>();
-        
+    public static FontWrapper NotoSans;
+    public static FontWrapper MaterialSymbolsSharp;
+    
+    static {
         NotoSans = new FontWrapper("NotoSansSC-Regular.ttf");
+        MaterialSymbolsSharp = new FontWrapper("MaterialSymbolsSharp[FILL,GRAD,opsz,wght].ttf");
     }
     
     public static class FontWrapper {

@@ -1,11 +1,16 @@
 package loftily.settings;
 
 import loftily.Client;
-import loftily.file.impl.ClientSettingsConfig;
+import loftily.config.impl.ClientSettingsConfig;
 
 public class ClientSettings {
-    public static final FieldProxy<String> lastConfig = new FieldProxy<>(
+    public static final FieldProxy<String> lastModuleConfig = new FieldProxy<>(
             "default.json",
+            (oldVal, newVal) -> save()
+    );
+    
+    public static final FieldProxy<String> lastThemeConfig = new FieldProxy<>(
+            "default.css",
             (oldVal, newVal) -> save()
     );
     

@@ -4,7 +4,7 @@ import loftily.Client;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
-public class MessageUtils implements MinecraftInstance {
+public class MessageUtils implements ClientUtils {
     public static void clientMessageWithWaterMark(Object message) {
         clientMessage(String.format("%s %s",
                 Client.StringPreFix,

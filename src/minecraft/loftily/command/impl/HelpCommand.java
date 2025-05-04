@@ -13,7 +13,7 @@ public class HelpCommand extends Command {
     @Override
     public void execCommand(String[] args) {
         MessageUtils.clientMessage("\n");
-        for (Command command : Client.INSTANCE.getCommandManager().getAll()) {
+        for (Command command : Client.INSTANCE.getCommandManager()) {
             String className = command.getClass().getSimpleName();
             String usage = command.usage() != null ? command.usage() : "";
             String[] usageLines = usage.split("\n");

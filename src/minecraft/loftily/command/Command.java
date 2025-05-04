@@ -1,6 +1,6 @@
 package loftily.command;
 
-import loftily.utils.client.MinecraftInstance;
+import loftily.utils.client.ClientUtils;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Getter
-public abstract class Command implements MinecraftInstance {
+public abstract class Command implements ClientUtils {
     protected final List<Integer> validLength;
     private final List<String> command;
     

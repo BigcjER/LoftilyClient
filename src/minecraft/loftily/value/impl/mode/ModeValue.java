@@ -33,9 +33,9 @@ public class ModeValue extends Value<Mode> {
     
     public void update(Mode value) {
         if (getValue().getParent() != null && getValue().getParent().isToggled()) {
-            getValue().unregister();
+            if (!(getValue() instanceof StringMode)) getValue().unregister();
             setValue(value);
-            getValue().register();
+            if (!(getValue() instanceof StringMode)) getValue().register();
         } else {
             setValue(value);
         }

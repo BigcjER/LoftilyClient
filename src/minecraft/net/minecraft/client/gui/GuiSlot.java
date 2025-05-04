@@ -1,6 +1,6 @@
 package net.minecraft.client.gui;
 
-import loftily.gui.components.Scrollable;
+import loftily.gui.components.interaction.Scrollable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;

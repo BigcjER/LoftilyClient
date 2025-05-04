@@ -1,6 +1,6 @@
 package loftily.gui.font;
 
-import loftily.utils.client.MinecraftInstance;
+import loftily.utils.client.ClientUtils;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 
@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 
-public class FontRenderer implements MinecraftInstance {
+public class FontRenderer implements ClientUtils {
     private static final int[] colorCode;
     
     static {
@@ -82,6 +82,10 @@ public class FontRenderer implements MinecraftInstance {
     }
     
     public final float drawCenteredString(final String text, final float x, final float y, final int color) {
+        return (float) this.drawString(text, x - this.getStringWidth(text) / 2, y, color);
+    }
+    
+    public final float drawCenteredString(final String text, final float x, final float y, final Color color) {
         return (float) this.drawString(text, x - this.getStringWidth(text) / 2, y, color);
     }
     
@@ -165,6 +169,10 @@ public class FontRenderer implements MinecraftInstance {
     
     public int drawString(final String str, final float x, final float y, final int color) {
         return this.drawString(str, x, y, color, false);
+    }
+    
+    public int drawString(final String str, final float x, final float y, final Color color) {
+        return this.drawString(str, x, y, color.getRGB(), false);
     }
     
     public int drawString(final String str, final float x, final float y) {

@@ -27,6 +27,7 @@ public class MultiBooleanValue extends Value<Map<String, Boolean>> {
      */
     @Deprecated
     public void setValue(Map<String, Boolean> value) {
+        throw new UnsupportedOperationException("Use setValue(String, boolean) instead");
     }
     
     public boolean getValue(String key) {

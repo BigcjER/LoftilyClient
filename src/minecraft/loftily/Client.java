@@ -2,10 +2,12 @@ package loftily;
 
 import de.florianmichael.viamcp.ViaMCP;
 import loftily.command.CommandManager;
-import loftily.file.ConfigManager;
-import loftily.gui.font.FontManager;
+import loftily.config.ConfigManager;
+import loftily.gui.clickgui.ClickGui;
+import loftily.gui.theme.Theme;
 import loftily.module.ModuleManager;
 import lombok.Getter;
+import lombok.Setter;
 import net.lenni0451.lambdaevents.LambdaManager;
 import net.lenni0451.lambdaevents.generator.LambdaMetaFactoryGenerator;
 import net.minecraft.util.text.TextFormatting;
@@ -29,15 +31,17 @@ public enum Client {
     private LambdaManager eventManager;
     private ConfigManager configManager;
     private CommandManager commandManager;
+    private ClickGui clickGui;
+    @Setter
+    private Theme theme;
     
     public void init() {
-        FontManager.init();
-        
         eventManager = LambdaManager.basic(new LambdaMetaFactoryGenerator());
         moduleManager = new ModuleManager();
         configManager = new ConfigManager();
         configManager.init();/* late init I think */
         commandManager = new CommandManager();
+        clickGui = new ClickGui();
         
         ViaMCP.create();
         ViaMCP.INSTANCE.initAsyncSlider();

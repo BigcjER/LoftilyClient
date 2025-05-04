@@ -14,6 +14,11 @@ import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
+
+import loftily.Client;
+import loftily.gui.animation.Animation;
+import loftily.gui.animation.Easing;
+import loftily.module.impl.render.ZoomModifier;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.material.Material;
@@ -592,6 +597,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
     /**
      * Changes the field of view of the player depending on if they are underwater or not
      */
+    Animation zoomAnimation = new Animation(Easing.Linear,100);
     private float getFOVModifier(float partialTicks, boolean useFOVSetting)
     {
         if (this.debugView)
@@ -620,6 +626,16 @@ public class EntityRenderer implements IResourceManagerReloadListener
                 GameSettings gamesettings = this.mc.gameSettings;
                 flag = GameSettings.isKeyDown(this.mc.gameSettings.ofKeyBindZoom);
             }
+            ZoomModifier zoomModifier = Client.INSTANCE.getModuleManager().get(ZoomModifier.class);
+            
+            if(zoomModifier.animation.getValue() && zoomModifier.isToggled()) {
+                zoomAnimation.setEasing(flag ? zoomModifier.zoomInEasing.getValueByEasing() : zoomModifier.zoomOutEasing.getValueByEasing());
+                zoomAnimation.setDuration(flag ? zoomModifier.zoomInEasingDuring.getValue().longValue() : zoomModifier.zoomOutEasingDuring.getValue().longValue());
+                zoomAnimation.run(flag ? zoomModifier.zoomMultiplier.getValue() : 1);
+                f /= zoomAnimation.getValuef();
+            } else {
+                zoomAnimation.setValue(1);
+            }
 
             if (flag)
             {
@@ -629,11 +645,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
                     this.mc.gameSettings.smoothCamera = true;
                     this.mc.renderGlobal.displayListEntitiesDirty = true;
                 }
-
-                if (Config.zoomMode)
-                {
-                    f /= 4.0F;
-                }
+                if(!zoomModifier.isToggled()) f /= 4;
             }
             else if (Config.zoomMode)
             {
