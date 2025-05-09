@@ -41,7 +41,7 @@ public class ConfigCommand extends Command {
                         throw new RuntimeException(e);
                     }
                     break;
-                
+                    
                 case "list":
                     List<File> configFiles = Arrays.asList(
                             Objects.requireNonNull(ConfigManager.configDir.listFiles((dir, name) -> name.endsWith(".json"))));
@@ -71,6 +71,12 @@ public class ConfigCommand extends Command {
                     }
                     break;
                 
+                case "reload":
+                    if(moduleConfig.getConfigFile().exists()) moduleConfig.read();
+                    else moduleConfig.write();
+                    MessageUtils.clientMessageWithWaterMark("Configuration reloaded.");
+                    break;
+                    
                 default:
                     MessageUtils.clientMessageWithWaterMark("Usage: \n" + usage());
                     break;
@@ -133,6 +139,6 @@ public class ConfigCommand extends Command {
     public String usage() {
         return
                 ".config <load/save/create> <ConfigName> \n" +
-                        ".config <folder/list>";
+                ".config <folder/list/reload>";
     }
 }
