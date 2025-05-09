@@ -1,9 +1,11 @@
 package loftily.gui.components;
 
 import loftily.utils.client.ClientUtils;
+import lombok.Getter;
 
+@Getter
 public abstract class Component implements ClientUtils {
-    public float width, height;
+    protected final float width, height;
     protected float x, y;
     
     public Component(float width, float height) {
@@ -30,6 +32,11 @@ public abstract class Component implements ClientUtils {
     }
     
     public void updateScreen() {
+    }
+    
+    public void setCenteredPosition(float x, float y,float containerWidth,float containerHeight) {
+        this.x = x + containerWidth / 2 - width / 2;
+        this.y = y + containerHeight / 2 - height / 2;
     }
     
     public void setPosition(float x, float y) {

@@ -8,18 +8,18 @@ public class Timer
      * How many full ticks have turned over since the last call to updateTimer(), capped at 10.
      */
     public int elapsedTicks;
-    public float field_194147_b;
-    public float field_194148_c;
+    public float renderPartialTicks;
+    public float elapsedPartialTicks;
 
     /**
      * The time reported by the system clock at the last sync, in milliseconds
      */
     private long lastSyncSysClock;
-    private float field_194149_e;
+    private float ticksPerSecond;
 
     public Timer(float tps)
     {
-        this.field_194149_e = 1000.0F / tps;
+        this.ticksPerSecond = 1000.0F / tps;
         this.lastSyncSysClock = Minecraft.getSystemTime();
     }
 
@@ -29,10 +29,10 @@ public class Timer
     public void updateTimer()
     {
         long i = Minecraft.getSystemTime();
-        this.field_194148_c = (float)(i - this.lastSyncSysClock) / this.field_194149_e;
+        this.elapsedPartialTicks = (float)(i - this.lastSyncSysClock) / this.ticksPerSecond;
         this.lastSyncSysClock = i;
-        this.field_194147_b += this.field_194148_c;
-        this.elapsedTicks = (int)this.field_194147_b;
-        this.field_194147_b -= (float)this.elapsedTicks;
+        this.renderPartialTicks += this.elapsedPartialTicks;
+        this.elapsedTicks = (int)this.renderPartialTicks;
+        this.renderPartialTicks -= (float)this.elapsedTicks;
     }
 }

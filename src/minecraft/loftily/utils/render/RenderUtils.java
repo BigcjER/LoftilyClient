@@ -1,6 +1,5 @@
 package loftily.utils.render;
 
-import loftily.gui.theme.Theme;
 import loftily.utils.client.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -46,15 +45,6 @@ public class RenderUtils implements ClientUtils {
         GlStateManager.disableBlend();
     }
     
-    public static void drawRoundedRectBoarded(float x, float y, float width, float height, Theme theme, Runnable inner) {
-        RenderUtils.drawRoundedRect(x - 4, y - 4, width + 8, height + 8, 18, theme.getOutlineVariant());
-        Runnable innerRect = () -> RenderUtils.drawRoundedRect(x, y, width, height, 14.5f, theme.getBackground());
-        innerRect.run();
-        
-        RenderUtils.startGlStencil(innerRect);
-        inner.run();
-        RenderUtils.stopGlStencil();
-    }
     
     public static void resetColor() {
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);

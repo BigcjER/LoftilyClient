@@ -4,10 +4,8 @@ import de.florianmichael.viamcp.ViaMCP;
 import loftily.command.CommandManager;
 import loftily.config.ConfigManager;
 import loftily.gui.clickgui.ClickGui;
-import loftily.gui.theme.Theme;
 import loftily.module.ModuleManager;
 import lombok.Getter;
-import lombok.Setter;
 import net.lenni0451.lambdaevents.LambdaManager;
 import net.lenni0451.lambdaevents.generator.LambdaMetaFactoryGenerator;
 import net.minecraft.util.text.TextFormatting;
@@ -32,8 +30,6 @@ public enum Client {
     private ConfigManager configManager;
     private CommandManager commandManager;
     private ClickGui clickGui;
-    @Setter
-    private Theme theme;
     
     public void init() {
         eventManager = LambdaManager.basic(new LambdaMetaFactoryGenerator());
