@@ -24,7 +24,7 @@ public class ModuleConfig extends Config {
     @Override
     public void read() {
         try (FileReader reader = new FileReader(configFile)) {
-            JsonElement jsonElement = new JsonParser().parse(reader);
+            JsonElement jsonElement = JsonParser.parseReader(reader);
             
             if (jsonElement instanceof JsonNull) {
                 write();

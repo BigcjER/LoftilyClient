@@ -9,16 +9,6 @@ public class ClientSettings {
             (oldVal, newVal) -> save()
     );
     
-    public static final FieldProxy<String> lastThemeConfig = new FieldProxy<>(
-            "default.css",
-            (oldVal, newVal) -> save()
-    );
-    
-    public static final FieldProxy<Boolean> isDarkMode = new FieldProxy<>(
-            false,
-            (oldVal, newVal) -> save()
-    );
-    
     private static void save() {
         Client.INSTANCE.getConfigManager().get(ClientSettingsConfig.class).write();
     }

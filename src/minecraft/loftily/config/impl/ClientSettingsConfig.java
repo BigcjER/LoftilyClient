@@ -22,7 +22,7 @@ public class ClientSettingsConfig extends Config {
         super(new File(ConfigManager.rootDir, "ClientSettings.json"));
     }
     
-    //确保比ModuleConfig和ThemeConfig先加载
+    //确保比ModuleConfig先加载
     @Override
     protected int getPriority() {
         return 10;
@@ -40,7 +40,7 @@ public class ClientSettingsConfig extends Config {
     @Override
     public void read() {
         try (FileReader reader = new FileReader(configFile)) {
-            JsonObject json = new JsonParser().parse(reader).getAsJsonObject();
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             
             for (Field field : ClientSettings.class.getDeclaredFields()) {
                 if (!Modifier.isStatic(field.getModifiers())) continue;

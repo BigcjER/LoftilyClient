@@ -16,6 +16,61 @@
     {
       "downloads": {
         "artifact": {
+          "path": "com/viaversion/viarewind/4.0.4/ViaRewind-4.0.4-downgraded.jar",
+          "sha1": "cdefaae6a0fdb582bab9ffac3888c88b1f2e4511",
+          "size": 385455,
+          "url": "https://ci.viaversion.com/job/ViaRewind-Java8/10/artifact/build/libs/ViaRewind-4.0.4-downgraded.jar"
+        }
+      },
+      "name": "com.viaversion.viarewind:ViaRewind:4.0.4"
+    },
+    {
+      "downloads": {
+        "artifact": {
+          "path": "com/viaversion/viabackwards/5.2.0/ViaBackwards-5.2.0-downgraded.jar",
+          "sha1": "5ce245f8d5fb85402f6e9124c0be7241c765ae4f",
+          "size": 1254347,
+          "url": "https://ci.viaversion.com/job/ViaBackwards-Java8/15/artifact/build/libs/ViaBackwards-5.2.0-downgraded.jar"
+        }
+      },
+      "name": "com.viaversion.viabackwards:ViaBackwards:5.2.0"
+    },
+    {
+      "downloads": {
+        "artifact": {
+          "path": "com/viaversion/viaversion/5.2.0/ViaVersion-5.2.0-downgraded.jar",
+          "sha1": "b4e214d8a6204316b30bdc33155cb9c3b381ea80",
+          "size": 5103867,
+          "url": "https://ci.viaversion.com/job/ViaVersion-Java8/20/artifact/build/libs/ViaVersion-5.2.0-downgraded.jar"
+        }
+      },
+      "name": "com.viaversion.viaversion:ViaVersion:5.2.0"
+    },
+    {
+      "downloads": {
+        "artifact": {
+          "path": "net/lenni0451/LambdaEvents/2.4.2/LambdaEvents-2.4.2.jar",
+          "sha1": "1a211a284d3f57ac73cf6bf5fc657754ef836ab9",
+          "size": 45006,
+          "url": "https://repo1.maven.org/maven2/net/lenni0451/LambdaEvents/2.4.2/LambdaEvents-2.4.2.jar"
+        }
+      },
+      "name": "net.lenni0451:LambdaEvents:2.4.2"
+    },
+    {
+      "downloads": {
+        "artifact": {
+          "path": "java3d/vecmath/1.5.2/vecmath-1.5.2.jar",
+          "sha1": "79846ba34cbd89e2422d74d53752f993dcc2ccaf",
+          "size": 318956,
+          "url": "https://libraries.minecraft.net/java3d/vecmath/1.5.2/vecmath-1.5.2.jar"
+        }
+      },
+      "name": "java3d:vecmath:1.5.2"
+    },
+    {
+      "downloads": {
+        "artifact": {
           "path": "com/mojang/patchy/1.3.9/patchy-1.3.9.jar",
           "sha1": "eb8bb7b66fa0e2152b1b40b3856e82f7619439ee",
           "size": 23581,
@@ -214,13 +269,13 @@
     {
       "downloads": {
         "artifact": {
-          "path": "com/google/code/gson/gson/2.8.0/gson-2.8.0.jar",
-          "sha1": "c4ba5371a29ac9b2ad6129b1d39ea38750043eff",
-          "size": 231952,
-          "url": "https://libraries.minecraft.net/com/google/code/gson/gson/2.8.0/gson-2.8.0.jar"
+          "path": "com/google/code/gson/gson/2.11.0/gson-2.11.0.jar",
+          "sha1": "527175ca6d81050b53bdd4c457a6d6e017626b0e",
+          "size": 298435,
+          "url": "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar"
         }
       },
-      "name": "com.google.code.gson:gson:2.8.0"
+      "name": "com.google.code.gson:gson:2.11.0"
     },
     {
       "downloads": {
