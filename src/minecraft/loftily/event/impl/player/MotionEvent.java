@@ -1,12 +1,12 @@
 package loftily.event.impl.player;
 
-import loftily.event.Event;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class MotionEvent extends Event {
+public class MotionEvent {
     private final Type type;
     private double x, y, z;
     private boolean onGround;
