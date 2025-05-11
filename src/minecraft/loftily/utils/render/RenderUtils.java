@@ -2,9 +2,11 @@ package loftily.utils.render;
 
 import loftily.utils.client.ClientUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -45,13 +47,49 @@ public class RenderUtils implements ClientUtils {
         GlStateManager.disableBlend();
     }
     
-    
-    public static void resetColor() {
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+    public static void drawRectHW(int x, int y, int width, int height, Color color) {
+        drawRect(x, y, x + width, y + height, color.getRGB());
     }
     
-    public static void drawRectHW(int x, int y, int width, int height, Color color) {
-        Gui.drawRect(x, y, x + width, y + height, color.getRGB());
+    public static void drawRectHW(float x, float y, float width, float height, Color color) {
+        drawRect(x, y, x + width, y + height, color.getRGB());
+    }
+    
+    public static void drawRectHW(double x, double y, double width, double height, Color color) {
+        drawRect(x, y, x + width, y + height, color.getRGB());
+    }
+    
+    public static void drawRect(double left, double top, double right, double bottom, int color) {
+        if (left < right) {
+            double i = left;
+            left = right;
+            right = i;
+        }
+        
+        if (top < bottom) {
+            double j = top;
+            top = bottom;
+            bottom = j;
+        }
+        
+        float alpha = (float) (color >> 24 & 255) / 255.0F;
+        float red = (float) (color >> 16 & 255) / 255.0F;
+        float green = (float) (color >> 8 & 255) / 255.0F;
+        float blue = (float) (color & 255) / 255.0F;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.color(red, green, blue, alpha);
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
+        bufferbuilder.pos(left, bottom, 0.0D).endVertex();
+        bufferbuilder.pos(right, bottom, 0.0D).endVertex();
+        bufferbuilder.pos(right, top, 0.0D).endVertex();
+        bufferbuilder.pos(left, top, 0.0D).endVertex();
+        tessellator.draw();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
     }
     
     public static void startGlStencil(Runnable stencil) {
@@ -79,5 +117,9 @@ public class RenderUtils implements ClientUtils {
     
     public static boolean isHovering(int mouseX, int mouseY, float x, float y, float width, float height) {
         return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
+    }
+    
+    public static void resetColor() {
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
     }
 }

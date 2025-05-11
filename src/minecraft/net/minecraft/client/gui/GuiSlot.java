@@ -1,6 +1,6 @@
 package net.minecraft.client.gui;
 
-import loftily.gui.components.interaction.Scrollable;
+import loftily.gui.interaction.Scrollable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -238,9 +238,9 @@ public abstract class GuiSlot
             BufferBuilder bufferbuilder = tessellator.getBuffer();
             this.drawContainerBackground(tessellator);
             
-            scrollable.max = this.getMaxScroll();
+            scrollable.setMax(this.getMaxScroll());
             scrollable.updateScroll();
-            amountScrolled = (float) -scrollable.value;
+            amountScrolled = -scrollable.getValuef();
             
             int k = this.left + this.width / 2 - this.getListWidth() / 2 + 2;
             int l = this.top + 4 - (int)this.amountScrolled;

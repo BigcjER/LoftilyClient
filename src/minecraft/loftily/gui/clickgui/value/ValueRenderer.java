@@ -1,16 +1,20 @@
-package loftily.gui.components;
+package loftily.gui.clickgui.value;
 
-import loftily.utils.client.ClientUtils;
-import lombok.Getter;
+import loftily.gui.font.FontManager;
+import loftily.gui.font.FontRenderer;
+import loftily.value.Value;
 
-@Getter
-public abstract class Component implements ClientUtils {
-    protected final float width, height;
+public abstract class ValueRenderer<V extends Value<?>> {
+    protected float width, height;
     protected float x, y;
+    protected V value;
     
-    public Component(float width, float height) {
-        this.width = width;
+    protected FontRenderer font = FontManager.NotoSans.of(16);
+    
+    public ValueRenderer(V value, float height) {
+        this.width = 0;
         this.height = height;
+        this.value = value;
     }
     
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -34,7 +38,7 @@ public abstract class Component implements ClientUtils {
     public void updateScreen() {
     }
     
-    public void setCenteredPosition(float x, float y,float containerWidth,float containerHeight) {
+    public void setCenteredPosition(float x, float y, float containerWidth, float containerHeight) {
         this.x = x + containerWidth / 2 - width / 2;
         this.y = y + containerHeight / 2 - height / 2;
     }

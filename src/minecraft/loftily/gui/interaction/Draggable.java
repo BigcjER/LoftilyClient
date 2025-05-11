@@ -1,4 +1,4 @@
-package loftily.gui.components.interaction;
+package loftily.gui.interaction;
 
 import loftily.utils.client.ClientUtils;
 import loftily.utils.render.RenderUtils;

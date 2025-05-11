@@ -3,18 +3,6 @@ package net.minecraft.client.renderer;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.gson.JsonSyntaxException;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.io.IOException;
-import java.nio.FloatBuffer;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import javax.annotation.Nullable;
-import javax.imageio.ImageIO;
-
 import loftily.Client;
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
@@ -25,12 +13,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiDownloadTerrain;
-import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.MapItemRenderer;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.advancements.GuiScreenAdvancements;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -67,33 +50,14 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EntitySelectors;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.MouseFilter;
-import net.minecraft.util.ReportedException;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ScreenShotHelper;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.Biome;
-import optifine.Config;
-import optifine.CustomColors;
-import optifine.Lagometer;
-import optifine.RandomMobs;
-import optifine.Reflector;
-import optifine.ReflectorForge;
-import optifine.TextureUtils;
-
+import optifine.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
@@ -105,6 +69,18 @@ import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.glu.Project;
 import shadersmod.client.Shaders;
 import shadersmod.client.ShadersRender;
+
+import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.io.IOException;
+import java.nio.FloatBuffer;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 public class EntityRenderer implements IResourceManagerReloadListener
 {
@@ -629,6 +605,11 @@ public class EntityRenderer implements IResourceManagerReloadListener
             ZoomModifier zoomModifier = Client.INSTANCE.getModuleManager().get(ZoomModifier.class);
             
             if(zoomModifier.animation.getValue() && zoomModifier.isToggled()) {
+                if (!Config.zoomMode) {
+                    Config.zoomMode = true;
+                    this.mc.gameSettings.smoothCamera = zoomModifier.smoothCamera.getValue();
+                    this.mc.renderGlobal.displayListEntitiesDirty = true;
+                }
                 zoomAnimation.setEasing(flag ? zoomModifier.zoomInEasing.getValueByEasing() : zoomModifier.zoomOutEasing.getValueByEasing());
                 zoomAnimation.setDuration(flag ? zoomModifier.zoomInEasingDuring.getValue().longValue() : zoomModifier.zoomOutEasingDuring.getValue().longValue());
                 zoomAnimation.run(flag ? zoomModifier.zoomMultiplier.getValue() : 1);
@@ -645,7 +626,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
                     this.mc.gameSettings.smoothCamera = true;
                     this.mc.renderGlobal.displayListEntitiesDirty = true;
                 }
-                if(!zoomModifier.isToggled()) f /= 4;
+                if (!zoomModifier.isToggled() || !zoomModifier.animation.getValue()) f /= 4;
             }
             else if (Config.zoomMode)
             {
