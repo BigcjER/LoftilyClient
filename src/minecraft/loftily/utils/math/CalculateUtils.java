@@ -1,6 +1,7 @@
 package loftily.utils.math;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -12,6 +13,10 @@ public class CalculateUtils {
         double y = MathHelper.clamp(vec3.yCoord, box.minY, box.maxY);
         double z = MathHelper.clamp(vec3.zCoord, box.minZ, box.maxZ);
         return new Vec3d(x, y, z);
+    }
+
+    public static double getClosetDistance(EntityLivingBase player, EntityLivingBase target) {
+        return player.getEyes().distanceTo(getClosestPoint(player.getEyes(),target.getHitBox()));
     }
     
     public static double getDistanceToEntity(Entity target, Entity entityIn) {

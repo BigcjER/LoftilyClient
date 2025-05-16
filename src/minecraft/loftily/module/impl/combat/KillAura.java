@@ -7,6 +7,7 @@ import loftily.handlers.impl.TargetsHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
+import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.timer.DelayTimer;
 import loftily.value.impl.BooleanValue;
@@ -132,7 +133,7 @@ public class KillAura extends Module {
         if (mc.player == null) return null;
         
         if (target != null) {
-            if (mc.player.getDistanceToEntity(target) <= rotationRange.getValue()) {
+            if (CalculateUtils.getClosetDistance(mc.player,target) <= rotationRange.getValue()) {
                 if (mode.is("Single")) return target;
                 
                 if (mode.is("Switch")) {
@@ -152,7 +153,7 @@ public class KillAura extends Module {
         
         switch (targetSortingMode.getValue().getName()) {
             case "Range":
-                targets.sort((Comparator.comparingDouble(entityLivingBase -> mc.player.getDistanceToEntity(entityLivingBase))));
+                targets.sort((Comparator.comparingDouble(entityLivingBase -> CalculateUtils.getClosetDistance(mc.player,entityLivingBase))));
                 break;
             case "HurtTime":
                 targets.sort((Comparator.comparingInt(entityLivingBase -> entityLivingBase.hurtTime)));
@@ -190,11 +191,11 @@ public class KillAura extends Module {
         
         while (canAttackTimes > 0) {
             canAttackTimes--;
-            if (mc.player.getDistanceToEntity(target) <= attackRange.getValue()) {
+            if (CalculateUtils.getClosetDistance(mc.player,target) <= attackRange.getValue()) {
                 mc.player.swingArm(EnumHand.MAIN_HAND);
                 mc.playerController.attackEntity(mc.player, target);
             } else {
-                if (mc.player.getDistanceToEntity(target) <= swingRange.getValue()) {
+                if (CalculateUtils.getClosetDistance(mc.player,target) <= swingRange.getValue()) {
                     mc.player.swingArm(EnumHand.MAIN_HAND);
                 }
             }
