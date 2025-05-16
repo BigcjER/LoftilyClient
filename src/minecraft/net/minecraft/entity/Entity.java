@@ -11,6 +11,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
+
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
@@ -317,6 +318,13 @@ public abstract class Entity implements ICommandSender
         this.dataManager.register(SILENT, Boolean.valueOf(false));
         this.dataManager.register(NO_GRAVITY, Boolean.valueOf(false));
         this.entityInit();
+    }
+
+    public Vec3d getEyes(){
+        return getPositionEyes(1f);
+    }
+    public AxisAlignedBB getHitBox(){
+        return boundingBox.expand(getCollisionBorderSize(),getCollisionBorderSize(),getCollisionBorderSize());
     }
 
     public int getEntityId()

@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Getter
 public class TargetsHandler extends Handler {
-    private static final List<EntityLivingBase> targets = new ArrayList<>();
+    public static final List<EntityLivingBase> targets = new ArrayList<>();
     
     public static List<EntityLivingBase> getTargets(double range) {
         return targets.stream()
