@@ -22,13 +22,14 @@ public class ModuleButton extends Component {
     public final ValuePanel valuePanel;
     private final Animation animation;
     public boolean binding, hovering;
-    private Ripple clickRippleAnimation;
+    private final Ripple clickRippleAnimation;
     
     public ModuleButton(float width, float height, Module module) {
         super(width, height);
         this.module = module;
         this.animation = new Animation(Easing.EaseOutQuint, 300);
         this.valuePanel = new ValuePanel(module);
+        this.clickRippleAnimation = new Ripple();
     }
     
     @Override
@@ -39,12 +40,7 @@ public class ModuleButton extends Component {
         
         //Ripple
         RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CornerRadius, new Color(0, 0, 0)));
-        if (clickRippleAnimation != null) {
-            clickRippleAnimation.drawRippleEffect();
-            if (clickRippleAnimation.isFinished()) {
-                clickRippleAnimation = null;
-            }
-        }
+        clickRippleAnimation.draw();
         RenderUtils.stopGlStencil();
         
         //binding
@@ -89,7 +85,7 @@ public class ModuleButton extends Component {
         }
         
         if (hovering) {
-            clickRippleAnimation = new Ripple(mouseX, mouseY, width + 120, 800, 35);
+            clickRippleAnimation.add(mouseX, mouseY, width + 120, 800, 35);
             switch (mouseButton) {
                 case 0:
                     if (module.isCanBeToggled()) module.toggle();

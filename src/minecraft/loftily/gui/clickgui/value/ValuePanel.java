@@ -34,7 +34,7 @@ public class ValuePanel {
         this.animation = new Animation(Easing.EaseOutQuart, 250);
         this.scrollable = new Scrollable(6);
         
-        for (Value<?> value : module.getValues()) {
+        for (Value<?, ?> value : module.getValues()) {
             if (value instanceof BooleanValue) valueRenderers.add(new BooleanRenderer((BooleanValue) value));
             if (value instanceof ModeValue) valueRenderers.add(new ModeRenderer((ModeValue) value));
             if (value instanceof NumberValue) valueRenderers.add(new NumberRenderer((NumberValue) value));

@@ -24,12 +24,12 @@ public class ModuleManager extends AbstractManager<Module> {
                         field.setAccessible(true);
                         
                         if (field.getType().isAssignableFrom(ModeValue.class)) {
-                            module.getValues().add((Value<?>) field.get(module));
+                            module.getValues().add((Value<?, ?>) field.get(module));
                             ((ModeValue) field.get(module)).initModes();
                             continue;
                         }
                         
-                        module.getValues().add((Value<?>) field.get(module));
+                        module.getValues().add((Value<?, ?>) field.get(module));
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }

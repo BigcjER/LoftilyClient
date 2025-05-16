@@ -4,6 +4,7 @@ import de.florianmichael.viamcp.ViaMCP;
 import loftily.command.CommandManager;
 import loftily.config.ConfigManager;
 import loftily.gui.clickgui.ClickGui;
+import loftily.handlers.HandlerManager;
 import loftily.module.ModuleManager;
 import lombok.Getter;
 import net.lenni0451.lambdaevents.LambdaManager;
@@ -11,7 +12,6 @@ import net.lenni0451.lambdaevents.generator.LambdaMetaFactoryGenerator;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.opengl.Display;
 
 @Getter
 public enum Client {
@@ -29,11 +29,13 @@ public enum Client {
     private LambdaManager eventManager;
     private ConfigManager configManager;
     private CommandManager commandManager;
+    private HandlerManager handlerManager;
     private ClickGui clickGui;
     
     public void init() {
         eventManager = LambdaManager.basic(new LambdaMetaFactoryGenerator());
         moduleManager = new ModuleManager();
+        handlerManager = new HandlerManager();
         configManager = new ConfigManager();
         configManager.init();/* late init I think */
         commandManager = new CommandManager();
@@ -41,8 +43,6 @@ public enum Client {
         
         ViaMCP.create();
         ViaMCP.INSTANCE.initAsyncSlider();
-        
-        Display.setTitle(getTitle());
     }
     
     public void shutdown() {

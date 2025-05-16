@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import loftily.value.Value;
 
-public class TextValue extends Value<String> {
+public class TextValue extends Value<String, TextValue> {
     public TextValue(String name, String value) {
         super(name, value);
     }
@@ -15,7 +15,7 @@ public class TextValue extends Value<String> {
     }
     
     @Override
-    public Value<String> read(JsonElement element) {
+    public Value<String, TextValue> read(JsonElement element) {
         if (element.isJsonPrimitive()) {
             value = element.getAsString();
         }

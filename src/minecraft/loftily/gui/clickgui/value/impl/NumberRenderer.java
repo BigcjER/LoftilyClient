@@ -10,7 +10,6 @@ import loftily.value.impl.NumberValue;
 public class NumberRenderer extends ValueRenderer<NumberValue> {
     private final Animation sliderAnimation;
     private boolean dragging, hovering;
-    private float sliderStartX, sliderWidth;  // 滑条位置参数缓存
     
     public NumberRenderer(NumberValue value) {
         super(value, 25);
@@ -37,8 +36,7 @@ public class NumberRenderer extends ValueRenderer<NumberValue> {
         hovering = RenderUtils.isHovering(mouseX, mouseY, x, y, width, height);
         
         float startX = x + 6;
-        sliderStartX = startX;
-        sliderWidth = width - 12;
+        float sliderWidth = width - 12;
         
         //文字部分
         font.drawString(value.getName(), startX, y + 3.5F, Colors.Text.color);
@@ -49,7 +47,7 @@ public class NumberRenderer extends ValueRenderer<NumberValue> {
         float sliderY = y + 16;
         float sliderHeight = 5;
         float sliderRadius = (sliderHeight - 0.1F) / 2;
-        RenderUtils.drawRoundedRect(sliderStartX, sliderY, sliderWidth, sliderHeight, sliderRadius, Colors.BackGround.color);
+        RenderUtils.drawRoundedRect(startX, sliderY, sliderWidth, sliderHeight, sliderRadius, Colors.BackGround.color);
         
         double min = value.getMinValue();
         double max = value.getMaxValue();
@@ -60,7 +58,7 @@ public class NumberRenderer extends ValueRenderer<NumberValue> {
         
         //激活部分
         RenderUtils.drawRoundedRect(
-                sliderStartX - 0.3f,
+                startX - 0.3f,
                 sliderY,
                 sliderAnimation.getValuef() - 0.2F,
                 sliderHeight,
@@ -69,7 +67,7 @@ public class NumberRenderer extends ValueRenderer<NumberValue> {
         
         //滑块指示器
         RenderUtils.drawRoundedRectOutline(
-                Math.max(sliderStartX - 0.3f + sliderAnimation.getValuef() - sliderHeight - 0.1F, sliderStartX),
+                Math.max(startX - 0.3f + sliderAnimation.getValuef() - sliderHeight - 0.1F, startX),
                 sliderY,
                 sliderHeight,
                 sliderHeight,
@@ -79,9 +77,9 @@ public class NumberRenderer extends ValueRenderer<NumberValue> {
         
         //拖动逻辑
         if (dragging) {
-            double clampedX = Math.max(sliderStartX, Math.min(mouseX, sliderStartX + sliderWidth));
+            double clampedX = Math.max(startX, Math.min(mouseX, startX + sliderWidth));
             
-            double percent = (clampedX - sliderStartX) / sliderWidth;
+            double percent = (clampedX - startX) / sliderWidth;
             double newValue = value.getMinValue() + percent * (value.getMaxValue() - value.getMinValue());
             double step = value.getStep();
             newValue = Math.round(newValue / step) * step;

@@ -2,7 +2,6 @@ package loftily.gui.clickgui.value.impl;
 
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
-import loftily.gui.animation.Ripple;
 import loftily.gui.clickgui.ClickGui;
 import loftily.gui.clickgui.Colors;
 import loftily.gui.clickgui.value.ValueRenderer;
@@ -15,7 +14,6 @@ public class ModeRenderer extends ValueRenderer<ModeValue> {
     private final float ModeBoxHeight = 11;
     private final Animation expandAnimation;
     private boolean expanded;
-    private Ripple clickRippleAnimation;
     
     public ModeRenderer(ModeValue value) {
         super(value, 15);
@@ -50,17 +48,7 @@ public class ModeRenderer extends ValueRenderer<ModeValue> {
         float modeBoxX = x + width - modeBoxWidth - ClickGui.Padding;
         float modeBoxY = y + 2;
         
-        Runnable backGroundRunnable = () -> RenderUtils.drawRoundedRect(modeBoxX, modeBoxY, modeBoxWidth, modeBoxHeight, ClickGui.CornerRadius - 1, Colors.BackGround.color);
-        backGroundRunnable.run();
-        
-        RenderUtils.startGlStencil(backGroundRunnable);
-        if (clickRippleAnimation != null) {
-            clickRippleAnimation.drawRippleEffect();
-            if (clickRippleAnimation.isFinished()) {
-                clickRippleAnimation = null;
-            }
-        }
-        RenderUtils.stopGlStencil();
+        RenderUtils.drawRoundedRect(modeBoxX, modeBoxY, modeBoxWidth, modeBoxHeight, ClickGui.CornerRadius - 1, Colors.BackGround.color);
         
         FontManager.NotoSans.of(14).drawCenteredString(
                 value.getValueByName(),
@@ -75,7 +63,6 @@ public class ModeRenderer extends ValueRenderer<ModeValue> {
         if (RenderUtils.isHovering(mouseX, mouseY, x, y, width, height)) {
             if ((mouseButton == 0 || mouseButton == 1)) {
                 expanded = !expanded;
-                clickRippleAnimation = new Ripple(mouseX, mouseY, width + 18, 600, 100, Colors.OnBackGround.color.brighter().brighter());
             }
         }
     }

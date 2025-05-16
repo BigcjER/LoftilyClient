@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import loftily.value.Value;
 
-public class BooleanValue extends Value<Boolean> {
+public class BooleanValue extends Value<Boolean, BooleanValue> {
     public BooleanValue(String name, Boolean value) {
         super(name, value);
     }
@@ -15,7 +15,7 @@ public class BooleanValue extends Value<Boolean> {
     }
     
     @Override
-    public Value<Boolean> read(JsonElement element) {
+    public Value<Boolean, BooleanValue> read(JsonElement element) {
         if (element.isJsonPrimitive()) {
             value = element.getAsBoolean();
         }

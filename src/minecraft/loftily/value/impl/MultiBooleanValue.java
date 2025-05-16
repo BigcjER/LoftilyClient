@@ -6,7 +6,7 @@ import loftily.value.Value;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class MultiBooleanValue extends Value<Map<String, Boolean>> {
+public class MultiBooleanValue extends Value<Map<String, Boolean>, MultiBooleanValue> {
     /**
      * Use the {@link #add(String, boolean)} method to add multiple BooleanValues.
      */
@@ -56,7 +56,7 @@ public class MultiBooleanValue extends Value<Map<String, Boolean>> {
     }
     
     @Override
-    public Value<Map<String, Boolean>> read(JsonElement element) {
+    public Value<Map<String, Boolean>, MultiBooleanValue> read(JsonElement element) {
         if (element.isJsonObject()) {
             com.google.gson.JsonObject jsonObject = element.getAsJsonObject();
             Map<String, Boolean> newValues = new LinkedHashMap<>();

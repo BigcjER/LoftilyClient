@@ -1,5 +1,7 @@
 package loftily.gui.clickgui;
 
+import loftily.Client;
+import loftily.config.impl.ModuleConfig;
 import loftily.gui.clickgui.components.impl.CategoryButton;
 import loftily.gui.clickgui.components.impl.ModuleButton;
 import loftily.gui.clickgui.value.ValuePanel;
@@ -141,12 +143,15 @@ public class ClickGui extends GuiScreen {
             currentValuePanel.setHeight(height);
             
             RenderUtils.drawRoundedRect(x, y, width, height, CornerRadius, ColorUtils.colorWithAlpha(Colors.BackGround.color, 80));
+            
             currentValuePanel.drawScreen(mouseX, mouseY, partialTicks);
         }
     }
     
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+        Client.INSTANCE.getConfigManager().get(ModuleConfig.class).write();
+        
         if (currentValuePanel != null) {
             currentValuePanel.mouseClicked(mouseX, mouseY, mouseButton);
             if (!RenderUtils.isHovering(mouseX, mouseY, x + width - valuePanelWidth, y, valuePanelWidth, height) /* 鼠标ValuePanel上 */ &&

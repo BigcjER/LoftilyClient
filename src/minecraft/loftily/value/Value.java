@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 @Getter
 @Setter
-public abstract class Value<T> {
+public abstract class Value<T, V> {
     private final String name;
     private final T defaultValue;
     protected T value;
@@ -20,12 +20,13 @@ public abstract class Value<T> {
         this.defaultValue = value;
     }
     
-    public Value<T> setVisible(Supplier<Boolean> visible) {
+    @SuppressWarnings("unchecked")
+    public V setVisible(Supplier<Boolean> visible) {
         this.visible = visible;
-        return this;
+        return (V) this;
     }
     
     public abstract JsonElement write();
     
-    public abstract Value<T> read(JsonElement element);
+    public abstract Value<T, V> read(JsonElement element);
 }

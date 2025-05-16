@@ -4,7 +4,7 @@ import loftily.gui.font.FontManager;
 import loftily.gui.font.FontRenderer;
 import loftily.value.Value;
 
-public abstract class ValueRenderer<V extends Value<?>> {
+public abstract class ValueRenderer<V extends Value<?, ?>> {
     protected float width, height;
     protected float x, y;
     protected V value;

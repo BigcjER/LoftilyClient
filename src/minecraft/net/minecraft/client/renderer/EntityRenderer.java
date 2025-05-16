@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.gson.JsonSyntaxException;
 import loftily.Client;
+import loftily.event.impl.render.Render3DEvent;
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
 import loftily.module.impl.render.ZoomModifier;
@@ -1900,6 +1901,8 @@ public class EntityRenderer implements IResourceManagerReloadListener
         }
 
         this.mc.mcProfiler.endStartSection("hand");
+        
+        Client.INSTANCE.getEventManager().call(new Render3DEvent(partialTicks));
 
         if (this.renderHand && !Shaders.isShadowPass)
         {

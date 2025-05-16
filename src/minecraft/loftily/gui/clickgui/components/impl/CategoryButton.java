@@ -24,7 +24,7 @@ public class CategoryButton extends Component {
     private final ModuleCategory moduleCategory;
     
     private final Animation textAnimation;
-    private Ripple clickRippleAnimation;
+    private final Ripple clickRippleAnimation;
     
     private boolean hovering;
     
@@ -38,7 +38,8 @@ public class CategoryButton extends Component {
         
         Client.INSTANCE.getModuleManager().get(category).forEach(module -> moduleButtons.add(new ModuleButton(moduleButtonWidth, moduleButtonHeight, module)));
         
-        textAnimation = new Animation(Easing.EaseOutQuint, 500);
+        this.textAnimation = new Animation(Easing.EaseOutQuint, 500);
+        this.clickRippleAnimation = new Ripple();
     }
     
     
@@ -51,12 +52,7 @@ public class CategoryButton extends Component {
         
         /* bottomest ripple animation */
         RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CornerRadius, new Color(0, 0, 0)));
-        if (clickRippleAnimation != null) {
-            clickRippleAnimation.drawRippleEffect();
-            if (clickRippleAnimation.isFinished()) {
-                clickRippleAnimation = null;
-            }
-        }
+        clickRippleAnimation.draw();
         RenderUtils.stopGlStencil();
         
         /* background */
@@ -80,7 +76,7 @@ public class CategoryButton extends Component {
         if (mouseButton == 0 && hovering) {
             Client.INSTANCE.getClickGui().currentCategoryButton = this;
             Client.INSTANCE.getClickGui().currentModuleButtons = moduleButtons;
-            clickRippleAnimation = new Ripple(mouseX, mouseY, width + 28, 600, 80);
+            clickRippleAnimation.add(mouseX, mouseY, width + 28, 600, 80);
         }
     }
 }

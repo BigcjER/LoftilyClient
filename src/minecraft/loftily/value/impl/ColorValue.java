@@ -6,7 +6,7 @@ import loftily.value.Value;
 
 import java.awt.*;
 
-public class ColorValue extends Value<Color> {
+public class ColorValue extends Value<Color, ColorValue> {
     public ColorValue(String name, Color value) {
         super(name, value);
     }
@@ -37,7 +37,7 @@ public class ColorValue extends Value<Color> {
     }
     
     @Override
-    public Value<Color> read(JsonElement element) {
+    public Value<Color, ColorValue> read(JsonElement element) {
         if (element.isJsonArray()) {
             JsonArray array = element.getAsJsonArray();
             

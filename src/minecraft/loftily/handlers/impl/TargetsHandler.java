@@ -2,6 +2,7 @@ package loftily.handlers.impl;
 
 import loftily.event.impl.client.ClientTickEvent;
 import loftily.handlers.Handler;
+import loftily.utils.math.CalculateUtils;
 import lombok.Getter;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.entity.EntityLivingBase;
@@ -13,16 +14,18 @@ import java.util.stream.Collectors;
 
 @Getter
 public class TargetsHandler extends Handler {
-    public static final List<EntityLivingBase> targets = new ArrayList<>();
+    private static final List<EntityLivingBase> targets = new ArrayList<>();
     
     public static List<EntityLivingBase> getTargets(double range) {
         return targets.stream()
-                .filter(entity -> mc.player.getDistanceToEntity(entity) < range)
+                .filter(entity -> CalculateUtils.getDistanceToEntity(entity, mc.player) < range)
                 .collect(Collectors.toList());
     }
     
     @EventHandler(priority = 1000)
     public void onTick(ClientTickEvent event) {
+        if (mc.player == null || mc.world == null) return;
+        
         List<EntityLivingBase> filteredTargets = mc.world.loadedEntityList.stream()
                 .filter(entity -> entity instanceof EntityLivingBase)
                 .map(entity -> (EntityLivingBase) entity)
@@ -34,6 +37,11 @@ public class TargetsHandler extends Handler {
             targets.clear();
             targets.addAll(filteredTargets);
         }
+        
     }
     
+    @Override
+    protected boolean needRegister() {
+        return true;
+    }
 }

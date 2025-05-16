@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import loftily.utils.math.Pair;
 import loftily.value.Value;
 
-public class RangeSelectionNumberValue extends Value<Pair<Double, Double>> {
+public class RangeSelectionNumberValue extends Value<Pair<Double, Double>, RangeSelectionNumberValue> {
     /**
      * @param second must bigger or equal to @param first
      */
@@ -38,7 +38,7 @@ public class RangeSelectionNumberValue extends Value<Pair<Double, Double>> {
     }
     
     @Override
-    public Value<Pair<Double, Double>> read(JsonElement element) {
+    public Value<Pair<Double, Double>, RangeSelectionNumberValue> read(JsonElement element) {
         if (element.isJsonArray()) {
             JsonArray array = element.getAsJsonArray();
             if (array.size() == 2) {

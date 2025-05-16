@@ -71,7 +71,6 @@ public class ModuleConfig extends Config {
         
         try (FileWriter writer = new FileWriter(configFile)) {
             writer.write(GSON.toJson(json));
-            Client.Logger.info("Written ModuleConfig to {}", configFile.getName());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

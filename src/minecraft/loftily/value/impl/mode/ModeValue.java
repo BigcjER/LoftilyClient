@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @Getter
-public class ModeValue extends Value<Mode> {
+public class ModeValue extends Value<Mode, ModeValue> {
     
     private final List<Mode> modes;
     private final AbstractModule parent;
@@ -61,7 +61,7 @@ public class ModeValue extends Value<Mode> {
                 if (Value.class.isAssignableFrom(field.getType())) {
                     try {
                         field.setAccessible(true);
-                        mode.getValues().add((Value<?>) field.get(mode));
+                        mode.getValues().add((Value<?, ?>) field.get(mode));
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
@@ -87,7 +87,7 @@ public class ModeValue extends Value<Mode> {
     }
     
     @Override
-    public Value<Mode> read(JsonElement element) {
+    public Value<Mode, ModeValue> read(JsonElement element) {
         if (element.isJsonPrimitive()) {
             String modeName = element.getAsString();
             for (Mode mode : modes) {

@@ -36,6 +36,17 @@ public class BooleanRenderer extends ValueRenderer<BooleanValue> {
         float widthHeight = 8;
         float indicatorX = x + width - 13.2F;
         float indicatorY = y + height / 2 - widthHeight / 2;
+        
+        if (!value.getValue()) {
+            RenderUtils.drawRoundedRect(
+                    indicatorX,
+                    indicatorY,
+                    widthHeight,
+                    widthHeight,
+                    ClickGui.CornerRadius - 0.8F,
+                    Colors.BackGround.color);
+        }
+        
         RenderUtils.drawRoundedRect(
                 indicatorX,
                 indicatorY,
