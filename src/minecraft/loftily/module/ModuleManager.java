@@ -37,7 +37,7 @@ public class ModuleManager extends AbstractManager<Module> {
             }
         }
         
-        this.stream().filter(Module::isDefaultToggled).forEach(module -> module.setToggled(true, false));
+        this.stream().filter(Module::isDefaultToggled).forEach(module -> module.setToggled(true, false, false));
         this.sort((m1, m2) -> m1.getName().compareToIgnoreCase(m2.getName()));
         
         Client.INSTANCE.getEventManager().register(this);

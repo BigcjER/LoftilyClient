@@ -5,6 +5,7 @@ import loftily.command.CommandManager;
 import loftily.config.ConfigManager;
 import loftily.gui.clickgui.ClickGui;
 import loftily.gui.menu.SplashScreen;
+import loftily.gui.notification.NotificationManager;
 import loftily.handlers.HandlerManager;
 import loftily.module.ModuleManager;
 import lombok.Getter;
@@ -33,6 +34,7 @@ public enum Client {
     private ConfigManager configManager;
     private CommandManager commandManager;
     private HandlerManager handlerManager;
+    private NotificationManager notificationManager;
     private ClickGui clickGui;
     
     public void init() {
@@ -52,15 +54,18 @@ public enum Client {
         ViaMCP.create();
         ViaMCP.INSTANCE.initAsyncSlider();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Configs", 80);
+        SplashScreen.INSTANCE.setProgressAndDraw("Configs", 75);
         configManager = new ConfigManager();
         configManager.init();/* late init I think */
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Commands", 90);
+        SplashScreen.INSTANCE.setProgressAndDraw("Commands", 80);
         commandManager = new CommandManager();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Click Gui", 95);
+        SplashScreen.INSTANCE.setProgressAndDraw("Click Gui", 90);
         clickGui = new ClickGui();
+        
+        SplashScreen.INSTANCE.setProgressAndDraw("Notification", 95);
+        notificationManager = new NotificationManager();
         
         SplashScreen.INSTANCE.setProgressAndDraw("Completed", 100);
         long time = System.currentTimeMillis();

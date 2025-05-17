@@ -3,6 +3,7 @@ package loftily.module;
 import loftily.Client;
 import loftily.config.impl.ModuleConfig;
 import loftily.core.AbstractModule;
+import loftily.gui.notification.NotificationType;
 import loftily.value.impl.mode.Mode;
 import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
@@ -32,7 +33,7 @@ public abstract class Module extends AbstractModule {
         }
     }
     
-    public void setToggled(boolean toggled, boolean save) {
+    public void setToggled(boolean toggled, boolean save, boolean notification) {
         this.toggled = toggled;
         
         if (!canBeToggled) {
@@ -49,6 +50,14 @@ public abstract class Module extends AbstractModule {
                 .flatMap(modeValue -> modeValue.getModes().stream()
                         .filter(mode -> !(mode instanceof StringMode) && mode.equals(modeValue.getValue())))
                 .forEach(toggled ? Mode::register : Mode::unregister);
+        
+        if (notification)
+            Client.INSTANCE.getNotificationManager().add(
+                    NotificationType.Info,
+                    "ModuleManager",
+                    String.format("%s %s", name, toggled ? "Enabled" : "Disabled"),
+                    1500);
+        
         
         if (toggled) {
             Client.INSTANCE.getEventManager().register(this);
@@ -69,7 +78,7 @@ public abstract class Module extends AbstractModule {
     }
     
     public void toggle() {
-        setToggled(!toggled, true);
+        setToggled(!toggled, true, true);
     }
     
     @NonNull

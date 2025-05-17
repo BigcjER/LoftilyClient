@@ -39,7 +39,7 @@ public class ModuleConfig extends Config {
                 
                 JsonObject modJson = entry.getValue().getAsJsonObject();
                 if (modJson.get("Toggled").getAsBoolean() && !module.isToggled()) {
-                    module.setToggled(true, false);
+                    module.setToggled(true, false, false);
                 }
                 
                 module.setKey(Keyboard.getKeyIndex(modJson.get("KeyBind").getAsString()));
@@ -78,7 +78,7 @@ public class ModuleConfig extends Config {
     
     public void load(File configFile) {
         write();
-        Client.INSTANCE.getModuleManager().forEach(module -> module.setToggled(false, false));
+        Client.INSTANCE.getModuleManager().forEach(module -> module.setToggled(false, false, false));
         this.configFile = configFile;
         read();
         
