@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
+import static java.lang.Math.hypot;
 import static net.minecraft.util.math.MathHelper.atan2;
 import static net.minecraft.util.math.MathHelper.sqrt;
 
@@ -26,8 +27,11 @@ public class RotationUtils implements ClientUtils {
                 )
         );
     }
-    
-    
+
+    public static float getRotationDifference(Rotation r1, Rotation r2) {
+        return (float) hypot(getAngleDifference(r1.yaw, r2.yaw), (r1.pitch - r2.pitch));
+    }
+
     public static float getAngleDifference(float d1, float d2) {
         return ((d1 - d2) % 360f + 540f) % 360f - 180f;
     }

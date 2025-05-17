@@ -1,7 +1,7 @@
 package loftily.utils.player;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicates;
+import loftily.handlers.impl.RotationHandler;
 import loftily.utils.client.ClientUtils;
 import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.Rotation;
@@ -9,7 +9,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityLargeFireball;
-import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -22,7 +21,7 @@ import static loftily.utils.math.CalculateUtils.isVisible;
 public class RayCastUtils implements ClientUtils {
     public static RayTraceResult rayCastBlock(double blockReachDistance, Rotation rotation) {
         Vec3d vec3 = mc.player.getPositionEyes(1);
-        Vec3d vec31 = mc.player.getLookVec().rotateYaw(rotation.yaw).rotatePitch(rotation.pitch);
+        Vec3d vec31 = CalculateUtils.getVectorForRotation(rotation);
         Vec3d vec32 = vec3.addVector(
                 vec31.xCoord * blockReachDistance,
                 vec31.yCoord * blockReachDistance,
@@ -30,6 +29,14 @@ public class RayCastUtils implements ClientUtils {
         );
 
         return mc.player.world.rayTraceBlocks(vec3, vec32, false, false, true);
+    }
+
+    public static RayTraceResult rayCastBlockHit(double blockReachDistance, Entity entity) {
+        Vec3d vec3d = entity.getPositionEyes(1f);
+        Vec3d vec3d1 = CalculateUtils.getVectorForRotation(RotationHandler.getCurrentRotation());
+        Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * blockReachDistance, vec3d1.yCoord * blockReachDistance, vec3d1.zCoord * blockReachDistance);
+
+        return mc.world.rayTraceBlocks(vec3d, vec3d2, false, false, false);
     }
 
     public static Entity raycastEntity(
@@ -53,7 +60,7 @@ public class RayCastUtils implements ClientUtils {
                 entity != null && (entity instanceof EntityLivingBase || entity instanceof EntityLargeFireball) &&
                         !(entity instanceof EntityPlayer && ((EntityPlayer) entity).isSpectator()) &&
                         entity.canBeCollidedWith() &&
-                        entity != renderViewEntity && (throughWalls || isVisible(entity.getPositionVector()))
+                        entity != renderViewEntity
         );
 
         final Entity[] pointedEntity = {null};
@@ -73,6 +80,9 @@ public class RayCastUtils implements ClientUtils {
                         blockReachDistance[0] = 0.0;
                     }
                 } else if (movingObjectPosition != null) {
+                    if (!isVisible(movingObjectPosition.hitVec) && !throughWalls) {
+                        return;
+                    }
                     double eyeDistance = eyePosition.distanceTo(movingObjectPosition.hitVec);
 
                     if (eyeDistance < blockReachDistance[0] || blockReachDistance[0] == 0.0) {

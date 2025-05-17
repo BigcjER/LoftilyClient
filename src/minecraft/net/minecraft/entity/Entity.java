@@ -3,6 +3,7 @@ package net.minecraft.entity;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.Client;
@@ -302,7 +303,7 @@ public abstract class Entity implements ICommandSender
     }
 
     public AxisAlignedBB getBox(){
-        double size = ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8) ? 0.1 : 0.0;
+        double size = getCollisionBorderSize();
         return this.getEntityBoundingBox().expand(size, size, size);
     }
 
@@ -2430,7 +2431,7 @@ public abstract class Entity implements ICommandSender
 
     public float getCollisionBorderSize()
     {
-        return 0.0F;
+        return ViaLoadingBase.getInstance().getTargetVersion().olderThanOrEqualTo(ProtocolVersion.v1_8) ? 0.1f : 0.0f;
     }
 
     /**

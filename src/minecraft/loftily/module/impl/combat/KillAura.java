@@ -51,7 +51,7 @@ public class KillAura extends Module {
     private final BooleanValue rayCast = new BooleanValue("RayCast", false);
     private final BooleanValue rayCastThroughWalls = new BooleanValue("RayCastThroughWalls", false);
     private final BooleanValue rayCastOnlyTarget = new BooleanValue("RayCastOnlyTarget", false);
-    private final ModeValue keepSprintMode = new ModeValue("KeepSprintMode", "None", this, new StringMode("None"), new StringMode("Always"),new StringMode("Always"),new StringMode("WhenNotHurt"));
+    private final ModeValue keepSprintMode = new ModeValue("KeepSprintMode", "None", this, new StringMode("None"), new StringMode("Always"), new StringMode("WhenNotHurt"));
     //Range
     private final NumberValue rotationRange;
     private final NumberValue swingRange;
@@ -150,11 +150,11 @@ public class KillAura extends Module {
                     for (double y = 0.2; y <= 0.8; y += 0.1) {
                         for (double z = 0.2; z <= 0.8; z += 0.1) {
                             Vec3d preCenter = target.getBox().lerpWith(x, y, z);
-                            
-                            if (center != null) break;
-                            
-                            if (CalculateUtils.isVisible(preCenter)) {
-                                center = preCenter;
+
+                            if (CalculateUtils.isVisible(preCenter) || throughWallsAim.getValue()) {
+                                if (center == null || RotationUtils.getRotationDifference(RotationUtils.toRotation(preCenter, mc.player), RotationHandler.getCurrentRotation()) < RotationUtils.getRotationDifference(RotationUtils.toRotation(center, mc.player), RotationHandler.getCurrentRotation())) {
+                                    center = preCenter;
+                                }
                             }
                         }
                     }

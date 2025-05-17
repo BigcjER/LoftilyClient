@@ -472,7 +472,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
             this.pointedEntity = null;
             Vec3d vec3d3 = null;
             float f = 1.0F;
-            List<Entity> list = this.mc.world.getEntitiesInAABBexcluding(entity, entity.getEntityBoundingBox().addCoord(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0).expand(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>()
+            List<Entity> list = this.mc.world.getEntitiesInAABBexcluding(entity, entity.getBox().addCoord(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0).expand(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>()
             {
                 public boolean apply(@Nullable Entity p_apply_1_)
                 {
@@ -484,7 +484,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
             for (int j = 0; j < list.size(); ++j)
             {
                 Entity entity1 = list.get(j);
-                AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().expandXyz((double)entity1.getCollisionBorderSize());
+                AxisAlignedBB axisalignedbb = entity1.getBox();
                 RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2);
 
                 if (axisalignedbb.isVecInside(vec3d))
