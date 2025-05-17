@@ -3,56 +3,39 @@ package loftily.module.impl.combat;
 import loftily.event.impl.player.MotionEvent;
 import loftily.event.impl.render.Render3DEvent;
 import loftily.event.impl.world.UpdateEvent;
-import loftily.handlers.impl.RotationHandler;
 import loftily.handlers.impl.TargetsHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
 import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.RandomUtils;
-import loftily.utils.math.Rotation;
-import loftily.utils.player.RayCastUtils;
 import loftily.utils.timer.DelayTimer;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
 import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
 import net.lenni0451.lambdaevents.EventHandler;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 @ModuleInfo(name = "KillAura", key = Keyboard.KEY_R, category = ModuleCategory.Combat)
 public class KillAura extends Module {
-    //Attack
     private final ModeValue attackTimeMode = new ModeValue("AttackMode", "Tick", this,
             new StringMode("Tick"),
             new StringMode("Pre"),
             new StringMode("Post")
     );
+    //Attack
     private final NumberValue maxCPS;
     private final NumberValue minCPS;
-
-    {
-        minCPS = new NumberValue("MinCPS", 10, 0, 20);
-        maxCPS = new NumberValue("MaxCPS", 15, 0, 20).setMinWith(minCPS);
-        minCPS.setMaxWith(maxCPS);
-    }
-
     private final BooleanValue fastOnFirstHit = new BooleanValue("FastOnFirstHit", false);
-    private final ModeValue noDoubleHit = new ModeValue("NoDoubleHit", "Cancel",this,new StringMode("Cancel"),new StringMode("NextHit"));
+    private final BooleanValue noDoubleHit = new BooleanValue("NoDoubleHit", false);
     private final NumberValue hurtTime = new NumberValue("HurtTime", 0, 0, 20);
-    private final BooleanValue rayCast = new BooleanValue("RayCast", false);
-    private final BooleanValue rayCastThroughWalls = new BooleanValue("RayCastThroughWalls", false);
-    private final BooleanValue rayCastOnlyTarget = new BooleanValue("RayCastOnlyTarget", false);
     //Range
     private final NumberValue rotationRange;
     private final NumberValue swingRange;
@@ -70,6 +53,13 @@ public class KillAura extends Module {
     private final NumberValue switchDelay = new NumberValue("SwitchDelay", 200, 0, 2000)
             .setVisible(() -> mode.is("Switch"));
     private final List<EntityLivingBase> targets = new ArrayList<>();
+
+    {
+        minCPS = new NumberValue("MinCPS", 10, 0, 20);
+        maxCPS = new NumberValue("MaxCPS", 15, 0, 20).setMinWith(minCPS);
+        minCPS.setMaxWith(maxCPS);
+    }
+
     {
         rotationRange = new NumberValue("RotationRange", 6, 0, 10, 0.1);
         swingRange = new NumberValue("SwingRange", 6, 0, 10, 0.1)
@@ -80,121 +70,11 @@ public class KillAura extends Module {
         swingRange.setMinWith(attackRange);
         rotationRange.setMinWith(swingRange);
     }
-    //Rotation
-    private final ModeValue rotationMode = new ModeValue("RotationMode", "LockCenter", this,
-            new StringMode("LockCenter"),
-            new StringMode("LockHead"),
-            new StringMode("NearestCenter"),
-            new StringMode("Normal"),
-            new StringMode("None")
-    );
-    private final BooleanValue silentRotation = new BooleanValue("SilentRotation", false);
-    private final NumberValue maxYawTurnSpeed;
-    private final NumberValue minYawTurnSpeed;
-
-    {
-        minYawTurnSpeed = new NumberValue("MinYawSpeed", 100, 0, 360,0.01);
-        maxYawTurnSpeed = new NumberValue("MaxYawSpeed", 150, 0, 360,0.01).setMinWith(minYawTurnSpeed);
-        minYawTurnSpeed.setMaxWith(maxYawTurnSpeed);
-    }
-
-    private final NumberValue maxPitchTurnSpeed;
-    private final NumberValue minPitchTurnSpeed;
-
-    {
-        minPitchTurnSpeed = new NumberValue("MinPitchSpeed", 100, 0, 360,0.01);
-        maxPitchTurnSpeed = new NumberValue("MaxPitchSpeed", 150, 0, 360,0.01).setMinWith(minPitchTurnSpeed);
-        minPitchTurnSpeed.setMaxWith(maxPitchTurnSpeed);
-    }
-
-    private final NumberValue maxKeepTicks;
-    private final NumberValue minKeepTicks;
-
-    {
-        minKeepTicks = new NumberValue("MinKeepRotationTicks", 1, 0, 20);
-        maxKeepTicks = new NumberValue("MaxKeepRotationTicks", 2, 0, 20).setMinWith(minKeepTicks);
-        minKeepTicks.setMaxWith(maxKeepTicks);
-    }
-
-    private final NumberValue maxBackTicks;
-    private final NumberValue minBackTicks;
-
-    {
-        minBackTicks = new NumberValue("MinReverseTicks", 1, 0, 20);
-        maxBackTicks = new NumberValue("MaxReverseTicks", 2, 0, 20).setMinWith(minBackTicks);
-        minBackTicks.setMaxWith(maxBackTicks);
-    }
-    private final BooleanValue throughWallsAim = new BooleanValue("ThroughWallsAim", false);
-
-    public void rotation(EntityLivingBase target){
-        if(target == null)return;
-
-        if(RotationHandler.serverRotation != null) {
-            float horizonSpeed = (float) RandomUtils.randomDouble(minYawTurnSpeed.getValue(),maxYawTurnSpeed.getValue());
-            float pitchSpeed = (float) RandomUtils.randomDouble(minPitchTurnSpeed.getValue(),maxPitchTurnSpeed.getValue());
-
-            int keepTicks = RandomUtils.randomInt((int)Math.round(minKeepTicks.getValue()),(int)Math.round(maxKeepTicks.getValue()));
-            int reverseTicks = RandomUtils.randomInt((int)Math.round(minBackTicks.getValue()),(int)Math.round(maxBackTicks.getValue()));
-
-            Rotation calculateRot = RotationHandler.smoothRotation(
-                    RotationHandler.serverRotation,
-                    calculateRotation(target),
-                    horizonSpeed,
-                    pitchSpeed
-            );
-            if(silentRotation.getValue()) {
-                RotationHandler.setClientRotation(calculateRot, keepTicks, reverseTicks);
-            }else {
-                mc.player.rotationYaw = calculateRot.yaw;
-                mc.player.rotationPitch = calculateRot.pitch;
-            }
-        }
-    }
-
-    public Rotation calculateRotation(EntityLivingBase target) {
-
-        Vec3d center = null;
-        Rotation currentRotation = null;
-
-        switch (rotationMode.getValue().getName()){
-            case "LockCenter":
-                center = target.getHitBox().lerpWith(0.5,0.5,0.5);
-                break;
-            case "LockHead":
-                center = target.getHitBox().lerpWith(0.5,0.7,0.5);
-                break;
-            case "NearestCenter":
-                center = CalculateUtils.getClosestPoint(mc.player.getEyes(),target.getHitBox());
-                break;
-            case "Normal":
-                for (double x = 0.2; x <= 0.8; x += 0.1) {
-                    for (double y = 0.2; y <= 0.8; y += 0.1) {
-                        for (double z = 0.2; z <= 0.8; z += 0.1) {
-                            Vec3d preCenter = target.getHitBox().lerpWith(x,y,z);
-
-                            if(center != null)break;
-
-                            if(CalculateUtils.isVisible(preCenter)) {
-                                center = preCenter;
-                            }
-                        }
-                    }
-                }
-        }
-
-        if(center != null) {
-            if(throughWallsAim.getValue() || CalculateUtils.isVisible(center)) {
-                currentRotation = RotationHandler.toRotation(center, mc.player);
-            }
-        }
-
-        return currentRotation;
-    }
-
+    
     @EventHandler
     public void onUpdate(UpdateEvent event) {
         if (mc.player == null) return;
-
+        
         target = getTarget();
         
         if (attackTimeMode.is("Tick")) {
@@ -205,11 +85,6 @@ public class KillAura extends Module {
     @EventHandler
     public void onMotion(MotionEvent event) {
         if (mc.player == null) return;
-
-        if(event.isPost()){
-            rotation(target);
-        }
-
         if ((attackTimeMode.is("Pre") && event.isPre())
                 || (attackTimeMode.is("Post") && event.isPost())) {
             attackTarget(target);
@@ -239,18 +114,13 @@ public class KillAura extends Module {
     @EventHandler
     public void onRender3D(Render3DEvent event) {
         if (mc.player == null) return;
-
+        
         if (attackTimer.hasTimeElapsed(attackDelay) && (fastOnFirstHit.getValue() || target != null)) {
-            if(canAttackTimes > 1){
-                if(Objects.equals(noDoubleHit.getValue().getName(), "NextHit")){
-                    return;
-                }
-            }
             canAttackTimes++;
             attackDelay = calculateDelay();
             attackTimer.reset();
         }
-
+        
         if (target == null) {
             if (!fastOnFirstHit.getValue()) {
                 canAttackTimes = 0;
@@ -263,7 +133,7 @@ public class KillAura extends Module {
         if (mc.player == null) return null;
         
         if (target != null) {
-            if (CalculateUtils.getClosetDistance(mc.player,target) <= attackRange.getValue()) {
+            if (CalculateUtils.getClosetDistance(mc.player,target) <= rotationRange.getValue()) {
                 if (mode.is("Single")) return target;
                 
                 if (mode.is("Switch")) {
@@ -303,9 +173,8 @@ public class KillAura extends Module {
     }
     
     private void attackTarget(EntityLivingBase target) {
-
         if (mc.player == null || target == null) return;
-
+        
         if (target.hurtTime > hurtTime.getValue()) return;
         
         if (target.getHealth() <= 0) {
@@ -314,7 +183,7 @@ public class KillAura extends Module {
             return;
         }
         
-        if (Objects.equals(noDoubleHit.getValue().getName(), "Cancel")) {
+        if (noDoubleHit.getValue()) {
             if (canAttackTimes > 1) {
                 canAttackTimes = 1;
             }
@@ -322,22 +191,11 @@ public class KillAura extends Module {
         
         while (canAttackTimes > 0) {
             canAttackTimes--;
-            Entity bestTarget;
-            Rotation rotation = RotationHandler.clientRotation == null ? new Rotation(mc.player.rotationYaw,mc.player.rotationPitch) : RotationHandler.clientRotation;
-            if(!rayCast.getValue()){
-                bestTarget = target;
-            }else {
-                bestTarget = RayCastUtils.rayCastEntity(rotationRange.getValue(),rayCastThroughWalls.getValue(),rotation);
-                println(RayCastUtils.rayCastEntity(rotationRange.getValue(),rayCastThroughWalls.getValue(),rotation));
-            }
-
-            if(bestTarget == null || (bestTarget != target && rayCastOnlyTarget.getValue()))return;
-
-            if (CalculateUtils.getClosetDistance(mc.player, (EntityLivingBase) bestTarget) <= attackRange.getValue()) {
+            if (CalculateUtils.getClosetDistance(mc.player,target) <= attackRange.getValue()) {
                 mc.player.swingArm(EnumHand.MAIN_HAND);
-                mc.playerController.attackEntity(mc.player, bestTarget);
+                mc.playerController.attackEntity(mc.player, target);
             } else {
-                if (CalculateUtils.getClosetDistance(mc.player, (EntityLivingBase) bestTarget) <= swingRange.getValue()) {
+                if (CalculateUtils.getClosetDistance(mc.player,target) <= swingRange.getValue()) {
                     mc.player.swingArm(EnumHand.MAIN_HAND);
                 }
             }

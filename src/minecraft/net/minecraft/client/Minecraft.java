@@ -16,6 +16,7 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import loftily.Client;
 import loftily.event.impl.client.ClientTickEvent;
 import loftily.event.impl.client.KeyboardEvent;
+import loftily.gui.menu.SplashScreen;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -288,7 +289,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo
     private TextureMap textureMapBlocks;
     private SoundHandler mcSoundHandler;
     private MusicTicker mcMusicTicker;
-    private ResourceLocation mojangLogo;
     private final MinecraftSessionService sessionService;
     private SkinManager skinManager;
     private final Queue < FutureTask<? >> scheduledTasks = Queues.newArrayDeque();
@@ -462,8 +462,8 @@ public class Minecraft implements IThreadListener, ISnooperInfo
         this.mcResourceManager.registerReloadListener(this.mcLanguageManager);
         this.refreshResources();
         this.renderEngine = new TextureManager(this.mcResourceManager);
+        SplashScreen.INSTANCE.setProgressAndDraw("Minecraft", 5);
         this.mcResourceManager.registerReloadListener(this.renderEngine);
-        Client.INSTANCE.init();
         this.skinManager = new SkinManager(this.renderEngine, new File(this.fileAssets, "skins"), this.sessionService);
         this.saveLoader = new AnvilSaveConverter(new File(this.mcDataDir, "saves"), this.dataFixer);
         this.mcSoundHandler = new SoundHandler(this.mcResourceManager, this.gameSettings);
@@ -522,6 +522,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
         this.checkGLError("Post startup");
         this.ingameGUI = new GuiIngame(this);
         
+        Client.INSTANCE.init();
 
         if (this.serverName != null)
         {
@@ -531,9 +532,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
         {
             this.displayGuiScreen(new GuiMainMenu());
         }
-
-        this.renderEngine.deleteTexture(this.mojangLogo);
-        this.mojangLogo = null;
+        
         this.loadingScreen = new LoadingScreenRenderer(this);
         this.debugRenderer = new DebugRenderer(this);
 

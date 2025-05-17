@@ -4,6 +4,7 @@ import de.florianmichael.viamcp.ViaMCP;
 import loftily.command.CommandManager;
 import loftily.config.ConfigManager;
 import loftily.gui.clickgui.ClickGui;
+import loftily.gui.menu.SplashScreen;
 import loftily.handlers.HandlerManager;
 import loftily.module.ModuleManager;
 import lombok.Getter;
@@ -25,6 +26,8 @@ public enum Client {
             TextFormatting.DARK_AQUA + Name,
             TextFormatting.YELLOW + "]");
     
+    public static final boolean DevelopmentBuild = true;
+    
     private ModuleManager moduleManager;
     private LambdaManager eventManager;
     private ConfigManager configManager;
@@ -33,16 +36,37 @@ public enum Client {
     private ClickGui clickGui;
     
     public void init() {
-        eventManager = LambdaManager.basic(new LambdaMetaFactoryGenerator());
-        moduleManager = new ModuleManager();
-        handlerManager = new HandlerManager();
-        configManager = new ConfigManager();
-        configManager.init();/* late init I think */
-        commandManager = new CommandManager();
-        clickGui = new ClickGui();
+        long start = System.currentTimeMillis();
+        Logger.info("Initializing {}...", Name);
         
+        SplashScreen.INSTANCE.setProgressAndDraw("Event Manager", 40);
+        eventManager = LambdaManager.basic(new LambdaMetaFactoryGenerator());
+        
+        SplashScreen.INSTANCE.setProgressAndDraw("Module Manager", 45);
+        moduleManager = new ModuleManager();
+        
+        SplashScreen.INSTANCE.setProgressAndDraw("Handlers", 55);
+        handlerManager = new HandlerManager();
+        
+        SplashScreen.INSTANCE.setProgressAndDraw("ViaMCP", 60);
         ViaMCP.create();
         ViaMCP.INSTANCE.initAsyncSlider();
+        
+        SplashScreen.INSTANCE.setProgressAndDraw("Configs", 80);
+        configManager = new ConfigManager();
+        configManager.init();/* late init I think */
+        
+        SplashScreen.INSTANCE.setProgressAndDraw("Commands", 90);
+        commandManager = new CommandManager();
+        
+        SplashScreen.INSTANCE.setProgressAndDraw("Click Gui", 95);
+        clickGui = new ClickGui();
+        
+        SplashScreen.INSTANCE.setProgressAndDraw("Completed", 100);
+        long time = System.currentTimeMillis();
+        while (System.currentTimeMillis() - time <= 1000) ;
+        
+        Logger.info("Initialization completed, took {} ms.", (System.currentTimeMillis() - start));
     }
     
     public void shutdown() {
@@ -51,6 +75,9 @@ public enum Client {
     }
     
     public String getTitle() {
-        return String.format("%s %s", Name, Version);
+        return String.format("%s %s%s",
+                Name,
+                Version,
+                DevelopmentBuild ? " | Development Build" : "");
     }
 }
