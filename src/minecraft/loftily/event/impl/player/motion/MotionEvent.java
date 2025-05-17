@@ -1,4 +1,4 @@
-package loftily.event.impl.player;
+package loftily.event.impl.player.motion;
 
 
 import lombok.Getter;

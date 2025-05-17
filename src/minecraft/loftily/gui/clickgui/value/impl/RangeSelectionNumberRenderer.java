@@ -89,18 +89,18 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
                     break;
                 case Middle:
                     double range = value.getSecond() - value.getFirst();
-                    double alignedValue = Math.round(newValue / value.getStep()) * value.getStep();
+                    double rawCenterValue = min + mousePercent * (max - min);
+                    double alignedCenter = Math.round(rawCenterValue / value.getStep()) * value.getStep();
                     
-                    double newFirst = Math.max(min, alignedValue - range / 2);
-                    double newSecond = Math.min(max, alignedValue + range / 2);
+                    double minPossibleCenter = min + range/2;
+                    double maxPossibleCenter = max - range/2;
+                    alignedCenter = MathHelper.clamp(alignedCenter, minPossibleCenter, maxPossibleCenter);
                     
-                    newFirst = Math.round(newFirst / value.getStep()) * value.getStep();
-                    newSecond = Math.round(newSecond / value.getStep()) * value.getStep();
+                    double newFirst = alignedCenter - range/2;
+                    double newSecond = alignedCenter + range/2;
                     
-                    if (newFirst > min && newSecond < max) {
-                        value.setFirst(newFirst);
-                        value.setSecond(newSecond);
-                    }
+                    value.setFirst(Math.round(newFirst / value.getStep()) * value.getStep());
+                    value.setSecond(Math.round(newSecond / value.getStep()) * value.getStep());
                     break;
             }
         }

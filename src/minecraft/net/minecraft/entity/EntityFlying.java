@@ -24,7 +24,7 @@ public abstract class EntityFlying extends EntityLiving
     {
         if (this.isInWater())
         {
-            this.func_191958_b(p_191986_1_, p_191986_2_, p_191986_3_, 0.02F);
+            this.moveRelative(p_191986_1_, p_191986_2_, p_191986_3_, 0.02F);
             this.moveEntity(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
             this.motionX *= 0.800000011920929D;
             this.motionY *= 0.800000011920929D;
@@ -32,7 +32,7 @@ public abstract class EntityFlying extends EntityLiving
         }
         else if (this.isInLava())
         {
-            this.func_191958_b(p_191986_1_, p_191986_2_, p_191986_3_, 0.02F);
+            this.moveRelative(p_191986_1_, p_191986_2_, p_191986_3_, 0.02F);
             this.moveEntity(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
             this.motionX *= 0.5D;
             this.motionY *= 0.5D;
@@ -48,7 +48,7 @@ public abstract class EntityFlying extends EntityLiving
             }
 
             float f1 = 0.16277136F / (f * f * f);
-            this.func_191958_b(p_191986_1_, p_191986_2_, p_191986_3_, this.onGround ? 0.1F * f1 : 0.02F);
+            this.moveRelative(p_191986_1_, p_191986_2_, p_191986_3_, this.onGround ? 0.1F * f1 : 0.02F);
             f = 0.91F;
 
             if (this.onGround)

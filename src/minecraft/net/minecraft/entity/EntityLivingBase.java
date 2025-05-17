@@ -2,14 +2,8 @@ package net.minecraft.entity;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
-import java.util.Collection;
-import java.util.ConcurrentModificationException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import javax.annotation.Nullable;
+import loftily.Client;
+import loftily.event.impl.player.motion.JumpEvent;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLadder;
@@ -17,13 +11,10 @@ import net.minecraft.block.BlockTrapDoor;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.enchantment.EnchantmentFrostWalker;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
-import net.minecraft.entity.ai.attributes.AttributeMap;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.IAttribute;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.ai.attributes.*;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
@@ -32,17 +23,9 @@ import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Enchantments;
-import net.minecraft.init.Items;
-import net.minecraft.init.MobEffects;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.init.*;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemElytra;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.datasync.DataParameter;
@@ -55,17 +38,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.stats.StatList;
-import net.minecraft.util.CombatRules;
-import net.minecraft.util.CombatTracker;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.EntitySelectors;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -74,6 +47,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 public abstract class EntityLivingBase extends Entity
 {
@@ -232,7 +208,9 @@ public abstract class EntityLivingBase extends Entity
     private BlockPos prevBlockpos;
     private DamageSource lastDamageSource;
     private long lastDamageStamp;
-
+    
+    public float movementYaw;
+    
     /**
      * Called by the /kill command.
      */
@@ -1127,8 +1105,8 @@ public abstract class EntityLivingBase extends Entity
                         {
                             d1 = (Math.random() - Math.random()) * 0.01D;
                         }
-
-                        this.attackedAtYaw = (float)(MathHelper.atan2(d0, d1) * (180D / Math.PI) - (double)this.rotationYaw);
+                        
+                        this.attackedAtYaw = (float) (MathHelper.atan2(d0, d1) * (180D / Math.PI) - (double) this.movementYaw);
                         this.knockBack(entity1, 0.4F, d1, d0);
                     }
                     else
@@ -2005,18 +1983,27 @@ public abstract class EntityLivingBase extends Entity
      */
     protected void jump()
     {
-        this.motionY = (double)this.getJumpUpwardsMotion();
+        if (this instanceof EntityPlayerSP) {
+            JumpEvent event = new JumpEvent(this.movementYaw);
+            
+            Client.INSTANCE.getEventManager().call(event);
+            if (event.isCancelled()) return;
+            
+            this.movementYaw = event.getMovementYaw();
+        }
+        
+        this.motionY = this.getJumpUpwardsMotion();
 
         if (this.isPotionActive(MobEffects.JUMP_BOOST))
         {
-            this.motionY += (double)((float)(this.getActivePotionEffect(MobEffects.JUMP_BOOST).getAmplifier() + 1) * 0.1F);
+            this.motionY += ((float) (this.getActivePotionEffect(MobEffects.JUMP_BOOST).getAmplifier() + 1) * 0.1F);
         }
 
         if (this.isSprinting())
         {
-            float f = this.rotationYaw * 0.017453292F;
-            this.motionX -= (double)(MathHelper.sin(f) * 0.2F);
-            this.motionZ += (double)(MathHelper.cos(f) * 0.2F);
+            float f = this.movementYaw * 0.017453292F;
+            this.motionX -= (MathHelper.sin(f) * 0.2F);
+            this.motionZ += (MathHelper.cos(f) * 0.2F);
         }
 
         this.isAirBorne = true;
@@ -2130,8 +2117,8 @@ public abstract class EntityLivingBase extends Entity
                         {
                             f8 = this.jumpMovementFactor;
                         }
-
-                        this.func_191958_b(p_191986_1_, p_191986_2_, p_191986_3_, f8);
+                        
+                        this.moveRelative(p_191986_1_, p_191986_2_, p_191986_3_, f8);
                         f6 = 0.91F;
 
                         if (this.onGround)
@@ -2200,7 +2187,7 @@ public abstract class EntityLivingBase extends Entity
                 else
                 {
                     double d4 = this.posY;
-                    this.func_191958_b(p_191986_1_, p_191986_2_, p_191986_3_, 0.02F);
+                    this.moveRelative(p_191986_1_, p_191986_2_, p_191986_3_, 0.02F);
                     this.moveEntity(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
                     this.motionX *= 0.5D;
                     this.motionY *= 0.5D;
@@ -2239,8 +2226,8 @@ public abstract class EntityLivingBase extends Entity
                     f1 += (0.54600006F - f1) * f3 / 3.0F;
                     f2 += (this.getAIMoveSpeed() - f2) * f3 / 3.0F;
                 }
-
-                this.func_191958_b(p_191986_1_, p_191986_2_, p_191986_3_, f2);
+                
+                this.moveRelative(p_191986_1_, p_191986_2_, p_191986_3_, f2);
                 this.moveEntity(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
                 this.motionX *= (double)f1;
                 this.motionY *= 0.800000011920929D;
