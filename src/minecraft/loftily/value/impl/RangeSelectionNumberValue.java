@@ -20,6 +20,10 @@ public class RangeSelectionNumberValue extends Value<Pair<Double, Double>, Range
         this.step = step;
     }
     
+    public RangeSelectionNumberValue(String name, double first, double second, double minValue, double maxValue) {
+        this(name,first,second,minValue,maxValue,1);
+    }
+    
     public double getFirst() {
         return value.getFirst();
     }
