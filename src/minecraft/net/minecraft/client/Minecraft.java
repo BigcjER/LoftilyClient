@@ -1448,7 +1448,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
         }
     }
 
-    private void clickMouse()
+    public void clickMouse()
     {
         if (this.leftClickCounter <= 0)
         {

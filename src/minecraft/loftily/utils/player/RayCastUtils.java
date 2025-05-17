@@ -17,6 +17,7 @@ import net.minecraft.util.math.Vec3d;
 import java.util.List;
 
 import static loftily.utils.math.CalculateUtils.getVectorForRotation;
+import static loftily.utils.math.CalculateUtils.isVisible;
 
 public class RayCastUtils implements ClientUtils {
     public static RayTraceResult rayCastBlock(double blockReachDistance, Rotation rotation) {
@@ -35,6 +36,7 @@ public class RayCastUtils implements ClientUtils {
             double range,
             float yaw,
             float pitch,
+            Boolean throughWalls,
             Function<Entity, Boolean> entityFilter
     ) {
         Entity renderViewEntity = mc.getRenderViewEntity();;
@@ -51,7 +53,7 @@ public class RayCastUtils implements ClientUtils {
                 entity != null && (entity instanceof EntityLivingBase || entity instanceof EntityLargeFireball) &&
                         !(entity instanceof EntityPlayer && ((EntityPlayer) entity).isSpectator()) &&
                         entity.canBeCollidedWith() &&
-                        entity != renderViewEntity
+                        entity != renderViewEntity && (throughWalls || isVisible(entity.getPositionVector()))
         );
 
         final Entity[] pointedEntity = {null};

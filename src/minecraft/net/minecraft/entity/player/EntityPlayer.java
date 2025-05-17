@@ -1332,13 +1332,13 @@ public abstract class EntityPlayer extends EntityLivingBase
                             {
                                 targetEntity.addVelocity(-MathHelper.sin(this.movementYaw * 0.017453292F) * (float) i * 0.5F, 0.1D, MathHelper.cos(this.movementYaw * 0.017453292F) * (float) i * 0.5F);
                             }
-                            HitSlowDownEvent event = new HitSlowDownEvent(0.6D, 0.6D);
+                            HitSlowDownEvent event = new HitSlowDownEvent(0.6D, 0.6D,false);
                             Client.INSTANCE.getEventManager().call(event);
                             
                             if (!event.isCancelled()) {
                                 this.motionX *= event.getMotionXMultiplier();
                                 this.motionZ *= event.getMotionZMultiplier();
-                                this.setSprinting(false);
+                                this.setSprinting(event.getSprint());
                             }
                         }
 

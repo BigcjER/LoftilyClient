@@ -35,10 +35,14 @@ import java.util.Objects;
 public class KillAura extends Module {
     
     //Attack
-    private final ModeValue attackTimeMode = new ModeValue("AttackMode", "Tick", this,
+    private final ModeValue attackTimeMode = new ModeValue("AttackTimeMode", "Tick", this,
             new StringMode("Tick"),
             new StringMode("Pre"),
             new StringMode("Post")
+    );
+    private final ModeValue attackMode = new ModeValue("AttackMode", "Packet", this,
+            new StringMode("Packet"),
+            new StringMode("Legit")
     );
     private final RangeSelectionNumberValue CPSValue = new RangeSelectionNumberValue("CPS", 8, 15, 0, 20, 1);
     private final BooleanValue fastOnFirstHit = new BooleanValue("FastOnFirstHit", false);
@@ -47,6 +51,7 @@ public class KillAura extends Module {
     private final BooleanValue rayCast = new BooleanValue("RayCast", false);
     private final BooleanValue rayCastThroughWalls = new BooleanValue("RayCastThroughWalls", false);
     private final BooleanValue rayCastOnlyTarget = new BooleanValue("RayCastOnlyTarget", false);
+    private final ModeValue keepSprintMode = new ModeValue("KeepSprintMode", "None", this, new StringMode("None"), new StringMode("Always"),new StringMode("Always"),new StringMode("WhenNotHurt"));
     //Range
     private final NumberValue rotationRange;
     private final NumberValue swingRange;
@@ -295,14 +300,23 @@ public class KillAura extends Module {
             if (!rayCast.getValue()) {
                 bestTarget = target;
             } else {
-                bestTarget = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, (entity -> entity instanceof EntityLivingBase));
+                bestTarget = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue() ,(entity -> entity instanceof EntityLivingBase));
             }
             
             if (bestTarget == null || (bestTarget != target && rayCastOnlyTarget.getValue())) return;
             
             if (CalculateUtils.getClosetDistance(mc.player, (EntityLivingBase) bestTarget) <= attackRange.getValue()) {
-                mc.player.swingArm(EnumHand.MAIN_HAND);
-                mc.playerController.attackEntity(mc.player, bestTarget);
+                if(attackMode.is("Packet")) {
+                    mc.player.swingArm(EnumHand.MAIN_HAND);
+                    mc.playerController.attackEntity(mc.player, bestTarget);
+                    if (!keepSprintMode.is("Always")) {
+                        if (keepSprintMode.is("None") || mc.player.hurtTime > 0) {
+                            mc.player.attackTargetEntityWithCurrentItem(target);
+                        }
+                    }
+                }else if(attackMode.is("Legit")){
+                    mc.clickMouse();
+                }
             } else {
                 if (CalculateUtils.getClosetDistance(mc.player, (EntityLivingBase) bestTarget) <= swingRange.getValue()) {
                     mc.player.swingArm(EnumHand.MAIN_HAND);

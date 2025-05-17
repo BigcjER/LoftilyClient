@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class HitSlowDownEvent extends CancellableEvent {
     private double motionXMultiplier, motionZMultiplier;
+    private Boolean sprint;
     
     @Override
     public boolean isCancelled() {
