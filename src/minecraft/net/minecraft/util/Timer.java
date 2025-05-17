@@ -17,6 +17,11 @@ public class Timer
     private long lastSyncSysClock;
     private float ticksPerSecond;
 
+    /**
+     * Timer Speed
+     * */
+    public float timerSpeed = 1.0F;
+
     public Timer(float tps)
     {
         this.ticksPerSecond = 1000.0F / tps;
@@ -29,7 +34,7 @@ public class Timer
     public void updateTimer()
     {
         long i = Minecraft.getSystemTime();
-        this.elapsedPartialTicks = (float)(i - this.lastSyncSysClock) / this.ticksPerSecond;
+        this.elapsedPartialTicks = (float)(i - this.lastSyncSysClock) / this.ticksPerSecond * this.timerSpeed;
         this.lastSyncSysClock = i;
         this.renderPartialTicks += this.elapsedPartialTicks;
         this.elapsedTicks = (int)this.renderPartialTicks;
