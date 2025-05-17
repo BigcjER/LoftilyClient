@@ -6,6 +6,10 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
+import static loftily.utils.client.ClientUtils.mc;
+import static net.minecraft.util.math.MathHelper.cos;
+import static net.minecraft.util.math.MathHelper.sin;
+
 public class CalculateUtils {
     
     public static Vec3d getClosestPoint(Vec3d vec3, AxisAlignedBB box) {
@@ -18,7 +22,19 @@ public class CalculateUtils {
     public static double getClosetDistance(EntityLivingBase player, EntityLivingBase target) {
         return player.getEyes().distanceTo(getClosestPoint(player.getEyes(),target.getHitBox()));
     }
-    
+
+    public static Boolean isVisible(Vec3d vec) {
+        return mc.world.rayTraceBlocks(mc.player.getPositionEyes(1f),vec) == null;
+    }
+
+    public static Vec3d getVectorForRotation(Rotation rotation) {
+        float f = MathHelper.cos(-rotation.yaw * 0.017453292F - (float)Math.PI);
+        float f1 = MathHelper.sin(-rotation.yaw * 0.017453292F - (float)Math.PI);
+        float f2 = -MathHelper.cos(-rotation.pitch * 0.017453292F);
+        float f3 = MathHelper.sin(-rotation.pitch * 0.017453292F);
+        return new Vec3d(f1 * f2, f3, f * f2);
+    }
+
     public static double getDistanceToEntity(Entity target, Entity entityIn) {
         if (target == null || entityIn == null) return 3;
         

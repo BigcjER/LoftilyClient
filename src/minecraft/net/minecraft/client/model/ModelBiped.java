@@ -1,5 +1,10 @@
 package net.minecraft.client.model;
 
+import loftily.Client;
+import loftily.handlers.impl.RotationHandler;
+import loftily.module.ModuleManager;
+import loftily.module.impl.render.Rotations;
+import loftily.utils.math.Rotation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -133,7 +138,9 @@ public class ModelBiped extends ModelBase
         }
         else
         {
-            this.bipedHead.rotateAngleX = headPitch * 0.017453292F;
+            Rotation rotation = RotationHandler.serverRotation;
+            float pitch = Client.INSTANCE.getModuleManager().get(Rotations.class).isToggled() ? rotation != null ? rotation.pitch : headPitch : headPitch;
+            this.bipedHead.rotateAngleX = pitch * 0.017453292F;
         }
 
         this.bipedBody.rotateAngleY = 0.0F;

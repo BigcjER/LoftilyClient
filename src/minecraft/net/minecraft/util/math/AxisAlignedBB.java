@@ -13,6 +13,7 @@ public class AxisAlignedBB
     public final double maxY;
     public final double maxZ;
 
+
     public AxisAlignedBB(double x1, double y1, double z1, double x2, double y2, double z2)
     {
         this.minX = Math.min(x1, x2);
@@ -138,6 +139,10 @@ public class AxisAlignedBB
         }
 
         return new AxisAlignedBB(d0, d1, d2, d3, d4, d5);
+    }
+
+    public Vec3d lerpWith(double x ,double y ,double z){
+        return new Vec3d(minX + (maxX - minX) * x, minY + (maxY - minY) * y, minZ + (maxZ - minZ) * z);
     }
 
     /**
