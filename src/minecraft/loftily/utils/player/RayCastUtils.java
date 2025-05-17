@@ -1,17 +1,22 @@
 package loftily.utils.player;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import loftily.utils.client.ClientUtils;
 import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.Rotation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityLargeFireball;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
+
+import static loftily.utils.math.CalculateUtils.getVectorForRotation;
 
 public class RayCastUtils implements ClientUtils {
     public static RayTraceResult rayCastBlock(double blockReachDistance, Rotation rotation) {
@@ -26,85 +31,65 @@ public class RayCastUtils implements ClientUtils {
         return mc.player.world.rayTraceBlocks(vec3, vec32, false, false, true);
     }
 
-    public static Entity rayCastEntity(double range, boolean throughWalls, Rotation rotation){
-        Entity entity = mc.getRenderViewEntity();
-        Entity pointedEntity = null;
+    public static Entity raycastEntity(
+            double range,
+            float yaw,
+            float pitch,
+            Function<Entity, Boolean> entityFilter
+    ) {
+        Entity renderViewEntity = mc.getRenderViewEntity();;
 
-        if (entity != null && mc.world != null) {
-            mc.mcProfiler.startSection("pick");
-            double d0 = range;
-            Vec3d vec3 = entity.getPositionEyes(1);
-            double d1 = CalculateUtils.getVectorForRotation(rotation).distanceTo(vec3);
-            boolean flag = false;
+        if (renderViewEntity == null || mc.world == null)
+            return null;
 
-            if (mc.playerController.extendedReach()) {
-                d0 = 6.0D;
-            } else if (d0 > 3.0D) {
-                flag = true;
-            }
+        final double[] blockReachDistance = {range};
+        Vec3d eyePosition = renderViewEntity.getEyes();
+        Vec3d entityLook = getVectorForRotation(new Rotation(yaw, pitch));
+        Vec3d vec = eyePosition.add(entityLook.scale(blockReachDistance[0]));
 
-            Vec3d vec31 = entity.getLook(1);
-            Vec3d vec32 = vec3.addVector(vec31.xCoord * d0, vec31.yCoord * d0, vec31.zCoord * d0);
-            Vec3d vec33 = null;
-            float f = 1.0F;
+        List<Entity> entityList = mc.world.getEntities(Entity.class, entity ->
+                entity != null && (entity instanceof EntityLivingBase || entity instanceof EntityLargeFireball) &&
+                        !(entity instanceof EntityPlayer && ((EntityPlayer) entity).isSpectator()) &&
+                        entity.canBeCollidedWith() &&
+                        entity != renderViewEntity
+        );
 
-            if (!throughWalls) {
-                RayTraceResult blockHit = mc.world.rayTraceBlocks(vec3, vec32, false, true, false);
-                if (blockHit != null && vec3.distanceTo(blockHit.hitVec) <= range) {
-                    mc.mcProfiler.endSection();
-                    return null;
-                }
-            }
+        final Entity[] pointedEntity = {null};
 
+        for (Entity entity : entityList) {
+            if (!entityFilter.apply(entity)) continue;
 
-            List<Entity> list = mc.world.getEntitiesInAABBexcluding(entity, entity.getEntityBoundingBox().addCoord(vec31.xCoord * d0, vec31.yCoord * d0, vec31.zCoord * d0).expand(f, f, f), Predicates.and(EntitySelectors.NOT_SPECTATING, Entity::canBeCollidedWith));
-            double d2 = d1;
+            boolean[] checkResult = {false};
+            Runnable checkEntity = () -> {
+                AxisAlignedBB axisAlignedBB = entity.getBox();
 
-            for (Entity value : list) {
-                float f1 = (value).getCollisionBorderSize();
-                AxisAlignedBB axisalignedbb = (value).getBox();
-                RayTraceResult movingobjectposition = axisalignedbb.calculateIntercept(vec3, vec32);
+                RayTraceResult movingObjectPosition = axisAlignedBB.calculateIntercept(eyePosition, vec);
 
-                if (axisalignedbb.isVecInside(vec3)) {
-                    if (d2 >= 0.0D) {
-                        pointedEntity = value;
-                        vec33 = movingobjectposition == null ? vec3 : movingobjectposition.hitVec;
-                        d2 = 0.0D;
+                if (axisAlignedBB.isVecInside(eyePosition)) {
+                    if (blockReachDistance[0] >= 0.0) {
+                        pointedEntity[0] = entity;
+                        blockReachDistance[0] = 0.0;
                     }
-                } else if (movingobjectposition != null) {
-                    double d3 = vec3.distanceTo(movingobjectposition.hitVec);
+                } else if (movingObjectPosition != null) {
+                    double eyeDistance = eyePosition.distanceTo(movingObjectPosition.hitVec);
 
-                    if (d3 < d2 || d2 == 0.0D) {
-                        boolean flag1 = false;
-
-
-                        if (!flag1 && value == entity.getRidingEntity()) {
-                            if (d2 == 0.0D) {
-                                pointedEntity = value;
-                                vec33 = movingobjectposition.hitVec;
-                            }
+                    if (eyeDistance < blockReachDistance[0] || blockReachDistance[0] == 0.0) {
+                        if (entity == renderViewEntity.getRidingEntity()) {
+                            if (blockReachDistance[0] == 0.0) pointedEntity[0] = entity;
                         } else {
-                            pointedEntity = value;
-                            vec33 = movingobjectposition.hitVec;
-                            d2 = d3;
+                            pointedEntity[0] = entity;
+                            blockReachDistance[0] = eyeDistance;
                         }
                     }
                 }
-            }
 
-            if (pointedEntity != null && flag && vec3.distanceTo(vec33) > range) {
-                pointedEntity = null;
-            }
+                checkResult[0] = false;
+            };
 
-            if (pointedEntity != null && (d2 < d1)) {
-                if (pointedEntity instanceof EntityLivingBase) {
-                    return pointedEntity;
-                }
-            }
-
-            mc.mcProfiler.endSection();
+            // Check newest entity first
+            checkEntity.run();
         }
 
-        return pointedEntity;
+        return pointedEntity[0];
     }
 }
