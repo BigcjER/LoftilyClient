@@ -5,6 +5,7 @@ import loftily.handlers.impl.RotationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
+import loftily.utils.player.RotationUtils;
 import loftily.value.impl.BooleanValue;
 import net.lenni0451.lambdaevents.EventHandler;
 
@@ -17,9 +18,9 @@ public class Rotations extends Module {
     @EventHandler
     public void onRotation(RotationEvent event) {
         if (body.getValue()) {
-            mc.player.renderYawOffset = RotationHandler.getRotation().yaw;
+            mc.player.renderYawOffset = RotationUtils.getRotation().yaw;
         }
-        mc.player.rotationYawHead = RotationHandler.getRotation().yaw;
-        mc.player.renderPitchHead = RotationHandler.getRotation().pitch;
+        mc.player.rotationYawHead = RotationUtils.getRotation().yaw;
+        mc.player.renderPitchHead = RotationUtils.getRotation().pitch;
     }
 }

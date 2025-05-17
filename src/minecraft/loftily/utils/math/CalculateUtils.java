@@ -18,7 +18,7 @@ public class CalculateUtils {
     }
 
     public static double getClosetDistance(EntityLivingBase player, EntityLivingBase target) {
-        return player.getEyes().distanceTo(getClosestPoint(player.getEyes(),target.getHitBox()));
+        return player.getEyes().distanceTo(getClosestPoint(player.getEyes(),target.getBox()));
     }
 
     public static Boolean isVisible(Vec3d vec) {
