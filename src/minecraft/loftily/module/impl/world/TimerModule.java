@@ -8,8 +8,8 @@ import loftily.value.impl.NumberValue;
 import net.lenni0451.lambdaevents.EventHandler;
 
 @ModuleInfo(name = "Timer",category = ModuleCategory.World)
-public class Timer extends Module {
-    private NumberValue timerSpeed = new NumberValue("TimerSpeed",1.00,0.01,10.0,0.01);
+public class TimerModule extends Module {
+    private final NumberValue timerSpeed = new NumberValue("TimerSpeed", 1, 0.01, 10, 0.01);
 
     @Override
     public void onDisable() {
