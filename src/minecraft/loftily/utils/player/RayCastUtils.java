@@ -32,7 +32,7 @@ public class RayCastUtils implements ClientUtils {
 
         if (entity != null && mc.world != null) {
             mc.mcProfiler.startSection("pick");
-            double d0 = mc.playerController.getBlockReachDistance();
+            double d0 = range;
             Vec3d vec3 = entity.getPositionEyes(1);
             double d1 = CalculateUtils.getVectorForRotation(rotation).distanceTo(vec3);
             boolean flag = false;
@@ -43,7 +43,7 @@ public class RayCastUtils implements ClientUtils {
                 flag = true;
             }
 
-            Vec3d vec31 = entity.getLook(1);
+            Vec3d vec31 = CalculateUtils.getVectorForRotation(rotation);
             Vec3d vec32 = vec3.addVector(vec31.xCoord * d0, vec31.yCoord * d0, vec31.zCoord * d0);
             Vec3d vec33 = null;
             float f = 1.0F;
@@ -62,7 +62,7 @@ public class RayCastUtils implements ClientUtils {
 
             for (Entity value : list) {
                 float f1 = (value).getCollisionBorderSize();
-                AxisAlignedBB axisalignedbb = (value).getEntityBoundingBox().expand(f1, f1, f1);
+                AxisAlignedBB axisalignedbb = (value).getBox();
                 RayTraceResult movingobjectposition = axisalignedbb.calculateIntercept(vec3, vec32);
 
                 if (axisalignedbb.isVecInside(vec3)) {

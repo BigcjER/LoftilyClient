@@ -7,8 +7,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import static loftily.utils.client.ClientUtils.mc;
-import static net.minecraft.util.math.MathHelper.cos;
-import static net.minecraft.util.math.MathHelper.sin;
 
 public class CalculateUtils {
     
@@ -20,7 +18,7 @@ public class CalculateUtils {
     }
 
     public static double getClosetDistance(EntityLivingBase player, EntityLivingBase target) {
-        return player.getEyes().distanceTo(getClosestPoint(player.getEyes(),target.getHitBox()));
+        return player.getEyes().distanceTo(getClosestPoint(player.getEyes(), target.getBox()));
     }
 
     public static Boolean isVisible(Vec3d vec) {

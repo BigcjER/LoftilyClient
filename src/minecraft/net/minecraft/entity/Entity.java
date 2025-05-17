@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
+import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
@@ -323,8 +325,10 @@ public abstract class Entity implements ICommandSender
     public Vec3d getEyes(){
         return getPositionEyes(1f);
     }
-    public AxisAlignedBB getHitBox(){
-        return boundingBox.expand(getCollisionBorderSize(),getCollisionBorderSize(),getCollisionBorderSize());
+
+    public AxisAlignedBB getBox(){
+        double size = ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8) ? 0.1 : 0.0;
+        return this.getEntityBoundingBox().expand(size, size, size);
     }
 
     public int getEntityId()

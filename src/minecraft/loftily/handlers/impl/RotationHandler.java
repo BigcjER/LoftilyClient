@@ -1,6 +1,7 @@
 package loftily.handlers.impl;
 
 import loftily.event.impl.packet.PacketSendEvent;
+import loftily.event.impl.player.RotationEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.handlers.Handler;
 import loftily.utils.math.Rotation;
@@ -11,7 +12,6 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-import static java.lang.Math.max;
 import static net.minecraft.util.math.MathHelper.atan2;
 import static net.minecraft.util.math.MathHelper.sqrt;
 
@@ -86,17 +86,19 @@ public class RotationHandler extends Handler {
     }
 
     @EventHandler
+    public void onRotation(RotationEvent event) {
+        if (clientRotation != null) {
+            event.setRotation(clientRotation);
+        }
+    }
+
+    @EventHandler
     public void onPacketSend(PacketSendEvent event){
         Packet<?> packet = event.getPacket();
 
         if(event.isCancelled())return;
 
         if(packet instanceof CPacketPlayer) {
-
-            if (clientRotation != null) {
-                ((CPacketPlayer) packet).yaw = clientRotation.yaw;
-                ((CPacketPlayer) packet).pitch = clientRotation.pitch;
-            }
             if (((CPacketPlayer) packet).getRotating()) {
                 serverRotation = new Rotation(((CPacketPlayer) packet).yaw, ((CPacketPlayer) packet).pitch);
             }

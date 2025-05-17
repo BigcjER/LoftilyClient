@@ -137,7 +137,7 @@ public class KillAura extends Module {
             int reverseTicks = RandomUtils.randomInt((int)Math.round(minBackTicks.getValue()),(int)Math.round(maxBackTicks.getValue()));
 
             Rotation calculateRot = RotationHandler.smoothRotation(
-                    RotationHandler.serverRotation,
+                    RotationHandler.clientRotation != null ? RotationHandler.clientRotation : RotationHandler.serverRotation,
                     calculateRotation(target),
                     horizonSpeed,
                     pitchSpeed
@@ -158,19 +158,19 @@ public class KillAura extends Module {
 
         switch (rotationMode.getValue().getName()){
             case "LockCenter":
-                center = target.getHitBox().lerpWith(0.5,0.5,0.5);
+                center = target.getBox().lerpWith(0.5, 0.5, 0.5);
                 break;
             case "LockHead":
-                center = target.getHitBox().lerpWith(0.5,0.7,0.5);
+                center = target.getBox().lerpWith(0.5, 0.7, 0.5);
                 break;
             case "NearestCenter":
-                center = CalculateUtils.getClosestPoint(mc.player.getEyes(),target.getHitBox());
+                center = CalculateUtils.getClosestPoint(mc.player.getEyes(), target.getBox());
                 break;
             case "Normal":
                 for (double x = 0.2; x <= 0.8; x += 0.1) {
                     for (double y = 0.2; y <= 0.8; y += 0.1) {
                         for (double z = 0.2; z <= 0.8; z += 0.1) {
-                            Vec3d preCenter = target.getHitBox().lerpWith(x,y,z);
+                            Vec3d preCenter = target.getBox().lerpWith(x, y, z);
 
                             if(center != null)break;
 
@@ -291,6 +291,7 @@ public class KillAura extends Module {
             case "Health":
                 targets.sort((Comparator.comparingDouble(EntityLivingBase::getHealth)));
                 break;
+
         }
         
         for (EntityLivingBase entity : targets) {
@@ -327,8 +328,8 @@ public class KillAura extends Module {
             if(!rayCast.getValue()){
                 bestTarget = target;
             }else {
-                bestTarget = RayCastUtils.rayCastEntity(rotationRange.getValue(),rayCastThroughWalls.getValue(),RotationHandler.serverRotation);
-                println(RayCastUtils.rayCastEntity(rotationRange.getValue(),rayCastThroughWalls.getValue(),RotationHandler.serverRotation));
+                bestTarget = RayCastUtils.rayCastEntity(rotationRange.getValue(), rayCastThroughWalls.getValue(), rotation);
+                println(RayCastUtils.rayCastEntity(rotationRange.getValue(), rayCastThroughWalls.getValue(), rotation));
             }
 
             if(bestTarget == null || (bestTarget != target && rayCastOnlyTarget.getValue()))return;
