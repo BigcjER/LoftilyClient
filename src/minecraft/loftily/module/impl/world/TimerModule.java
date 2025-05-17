@@ -7,15 +7,15 @@ import loftily.module.ModuleInfo;
 import loftily.value.impl.NumberValue;
 import net.lenni0451.lambdaevents.EventHandler;
 
-@ModuleInfo(name = "Timer",category = ModuleCategory.World)
+@ModuleInfo(name = "Timer", category = ModuleCategory.World)
 public class TimerModule extends Module {
     private final NumberValue timerSpeed = new NumberValue("TimerSpeed", 1, 0.01, 10, 0.01);
-
+    
     @Override
     public void onDisable() {
         mc.timer.timerSpeed = 1.0f;
     }
-
+    
     @EventHandler
     public void onUpdate(UpdateEvent event) {
         mc.timer.timerSpeed = timerSpeed.getValue().floatValue();

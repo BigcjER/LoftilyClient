@@ -4,7 +4,10 @@ import loftily.Client;
 import loftily.handlers.impl.RotationHandler;
 import loftily.module.ModuleManager;
 import loftily.module.impl.render.Rotations;
+import loftily.utils.client.ClientUtils;
 import loftily.utils.math.Rotation;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -131,16 +134,21 @@ public class ModelBiped extends ModelBase
     {
         boolean flag = entityIn instanceof EntityLivingBase && ((EntityLivingBase)entityIn).getTicksElytraFlying() > 4;
         this.bipedHead.rotateAngleY = netHeadYaw * 0.017453292F;
-
+        
         if (flag)
         {
             this.bipedHead.rotateAngleX = -((float)Math.PI / 4F);
         }
         else
         {
-            Rotation rotation = RotationHandler.serverRotation;
-            float pitch = Client.INSTANCE.getModuleManager().get(Rotations.class).isToggled() ? rotation != null ? rotation.pitch : headPitch : headPitch;
-            this.bipedHead.rotateAngleX = pitch * 0.017453292F;
+            EntityPlayerSP thePlayer = Minecraft.getMinecraft().player;
+            if (entityIn == thePlayer) {
+                this.bipedHead.rotateAngleX =
+                        (thePlayer.prevRenderPitchHead + (thePlayer.renderPitchHead - thePlayer.prevRenderPitchHead) *
+                                Minecraft.getMinecraft().timer.renderPartialTicks) / (180.0F / (float) Math.PI);
+            } else {
+                this.bipedHead.rotateAngleX = headPitch / (180F / (float)Math.PI);
+            }
         }
 
         this.bipedBody.rotateAngleY = 0.0F;

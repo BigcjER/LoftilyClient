@@ -34,7 +34,7 @@ public abstract class Component implements ClientUtils {
     public void updateScreen() {
     }
     
-    public void setCenteredPosition(float x, float y,float containerWidth,float containerHeight) {
+    public void setCenteredPosition(float x, float y, float containerWidth, float containerHeight) {
         this.x = x + containerWidth / 2 - width / 2;
         this.y = y + containerHeight / 2 - height / 2;
     }

@@ -20,10 +20,9 @@ public class ModuleButton extends Component {
     public final Module module;
     public final ValuePanel valuePanel;
     private final Animation animation;
-    public boolean binding, hovering;
     private final Ripple clickRippleAnimation;
-    
     private final ClickGui CGui;
+    public boolean binding, hovering;
     
     public ModuleButton(float width, float height, Module module, ClickGui clickGui) {
         super(width, height);

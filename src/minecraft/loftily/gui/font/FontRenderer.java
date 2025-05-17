@@ -354,69 +354,6 @@ public class FontRenderer implements ClientUtils {
         this.drawString(newstr, i, i1, rgb);
     }
     
-    public final void drawLimitedString(final String text, final float x, final float y, final int color, final float maxWidth) {
-        this.drawLimitedStringWithAlpha(text, x, y, color, (color >> 24 & 0xFF) / 255.0f, maxWidth);
-    }
-    
-    public final void drawLimitedStringWithAlpha(final String text, float x, float y, final int color, final float alpha, final float maxWidth) {
-        x *= 2.0f;
-        y *= 2.0f;
-        final float originalX = x;
-        float curWidth = 0.0f;
-        GL11.glPushMatrix();
-        GL11.glScaled(0.5, 0.5, 0.5);
-        final boolean wasBlend = GL11.glGetBoolean(3042);
-        GlStateManager.enableAlpha();
-        GL11.glEnable(3042);
-        GL11.glBlendFunc(770, 771);
-        GL11.glEnable(3553);
-        int currentColor = color;
-        final char[] characters = text.toCharArray();
-        int index = 0;
-        for (final char c : characters) {
-            if (c == '\r') {
-                x = originalX;
-            }
-            if (c == '\n') {
-                y += this.getFontHeight() * 2.0f;
-            }
-            Label_0362:
-            {
-                if (c != '§' && (index == 0 || index == characters.length - 1 || characters[index - 1] != '§')) {
-                    if (index >= 1 && characters[index - 1] == '§') {
-                        break Label_0362;
-                    }
-                    GL11.glPushMatrix();
-                    this.drawString(Character.toString(c), x, y, new Color(new Color(currentColor).getRed(), new Color(currentColor).getGreen(), new Color(currentColor).getBlue(), alpha).getRGB(), false);
-                    GL11.glPopMatrix();
-                    curWidth += this.getStringWidth(Character.toString(c)) * 2.0f;
-                    x += this.getStringWidth(Character.toString(c)) * 2.0f;
-                    if (curWidth > maxWidth) {
-                        break;
-                    }
-                } else if (c == ' ') {
-                    x += this.getStringWidth(" ");
-                } else if (c == '§' && index != characters.length - 1) {
-                    final int codeIndex = "0123456789abcdefklmnor".indexOf(text.charAt(index + 1));
-                    if (codeIndex < 0) {
-                        break Label_0362;
-                    }
-                    if (codeIndex < 16) {
-                        currentColor = FontRenderer.colorCode[codeIndex];
-                    } else if (codeIndex == 21) {
-                        currentColor = Color.WHITE.getRGB();
-                    }
-                }
-                ++index;
-            }
-        }
-        if (!wasBlend) {
-            GL11.glDisable(3042);
-        }
-        GL11.glPopMatrix();
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    }
-    
     public final void drawOutlinedString(final String str, final float x, final float y, final int internalCol, final int externalCol) {
         this.drawString(str, x - 0.5f, y, externalCol);
         this.drawString(str, x + 0.5f, y, externalCol);

@@ -129,6 +129,9 @@ public class EntityPlayerSP extends AbstractClientPlayer {
     private boolean autoJumpEnabled = true;
     private int autoJumpTime;
     private boolean wasFallFlying;
+    
+    public float renderPitchHead;
+    public float prevRenderPitchHead;
 
     public EntityPlayerSP(Minecraft p_i47378_1_, World p_i47378_2_, NetHandlerPlayClient p_i47378_3_, StatisticsManager p_i47378_4_, RecipeBook p_i47378_5_) {
         super(p_i47378_2_, p_i47378_3_.getGameProfile());
@@ -187,6 +190,9 @@ public class EntityPlayerSP extends AbstractClientPlayer {
      */
     public void onUpdate() {
         if (this.world.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ))) {
+            prevRenderPitchHead = renderPitchHead;
+            renderPitchHead = rotationPitch;
+            
             Client.INSTANCE.getEventManager().call(new UpdateEvent());
             super.onUpdate();
 

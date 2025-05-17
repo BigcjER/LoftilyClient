@@ -3,10 +3,7 @@ package loftily.gui.clickgui.value;
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
 import loftily.gui.clickgui.ClickGui;
-import loftily.gui.clickgui.value.impl.BooleanRenderer;
-import loftily.gui.clickgui.value.impl.ModeRenderer;
-import loftily.gui.clickgui.value.impl.NumberRenderer;
-import loftily.gui.clickgui.value.impl.RangeSelectionNumberRenderer;
+import loftily.gui.clickgui.value.impl.*;
 import loftily.gui.font.FontManager;
 import loftily.gui.interaction.Scrollable;
 import loftily.module.Module;
@@ -14,6 +11,7 @@ import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 import loftily.value.Value;
 import loftily.value.impl.BooleanValue;
+import loftily.value.impl.MultiBooleanValue;
 import loftily.value.impl.NumberValue;
 import loftily.value.impl.RangeSelectionNumberValue;
 import loftily.value.impl.mode.ModeValue;
@@ -27,10 +25,9 @@ public class ValuePanel {
     private final List<ValueRenderer<?>> valueRenderers;
     private final Module module;
     private final Scrollable scrollable;
+    public boolean out;
     @Setter
     private float x, y, width, height;
-    
-    public boolean out;
     
     public ValuePanel(Module module) {
         this.module = module;
@@ -44,6 +41,8 @@ public class ValuePanel {
             if (value instanceof NumberValue) valueRenderers.add(new NumberRenderer((NumberValue) value));
             if (value instanceof RangeSelectionNumberValue)
                 valueRenderers.add(new RangeSelectionNumberRenderer((RangeSelectionNumberValue) value));
+            if (value instanceof MultiBooleanValue)
+                valueRenderers.add(new MultiBooleanRenderer((MultiBooleanValue) value));
             
         }
     }
