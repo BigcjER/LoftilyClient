@@ -191,9 +191,6 @@ public class EntityPlayerSP extends AbstractClientPlayer {
      */
     public void onUpdate() {
         if (this.world.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ))) {
-            prevRenderPitchHead = renderPitchHead;
-            renderPitchHead = rotationPitch;
-            
             Client.INSTANCE.getEventManager().call(new UpdateEvent());
             super.onUpdate();
 

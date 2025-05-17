@@ -22,7 +22,7 @@ public class TargetsHandler extends Handler {
                 .collect(Collectors.toList());
     }
     
-    @EventHandler(priority = 1000)
+    @EventHandler(priority = 500)
     public void onTick(ClientTickEvent event) {
         if (mc.player == null || mc.world == null) return;
         
