@@ -4,13 +4,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import loftily.utils.math.Pair;
 import loftily.value.Value;
+import lombok.Getter;
 
+@Getter
 public class RangeSelectionNumberValue extends Value<Pair<Double, Double>, RangeSelectionNumberValue> {
+    private final double minValue, maxValue, step;
+    
     /**
      * @param second must bigger or equal to @param first
      */
-    public RangeSelectionNumberValue(String name, Double first, Double second) {
+    public RangeSelectionNumberValue(String name, double first, double second, double minValue, double maxValue, double step) {
         super(name, new Pair<>(Math.min(first, second), second));
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+        this.step = step;
     }
     
     public double getFirst() {

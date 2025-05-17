@@ -6,6 +6,7 @@ import loftily.gui.clickgui.ClickGui;
 import loftily.gui.clickgui.value.impl.BooleanRenderer;
 import loftily.gui.clickgui.value.impl.ModeRenderer;
 import loftily.gui.clickgui.value.impl.NumberRenderer;
+import loftily.gui.clickgui.value.impl.RangeSelectionNumberRenderer;
 import loftily.gui.font.FontManager;
 import loftily.gui.interaction.Scrollable;
 import loftily.module.Module;
@@ -14,6 +15,7 @@ import loftily.utils.render.RenderUtils;
 import loftily.value.Value;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
+import loftily.value.impl.RangeSelectionNumberValue;
 import loftily.value.impl.mode.ModeValue;
 import lombok.Setter;
 
@@ -40,6 +42,8 @@ public class ValuePanel {
             if (value instanceof BooleanValue) valueRenderers.add(new BooleanRenderer((BooleanValue) value));
             if (value instanceof ModeValue) valueRenderers.add(new ModeRenderer((ModeValue) value));
             if (value instanceof NumberValue) valueRenderers.add(new NumberRenderer((NumberValue) value));
+            if (value instanceof RangeSelectionNumberValue)
+                valueRenderers.add(new RangeSelectionNumberRenderer((RangeSelectionNumberValue) value));
             
         }
     }

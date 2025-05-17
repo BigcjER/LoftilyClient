@@ -12,6 +12,7 @@ import loftily.utils.math.RandomUtils;
 import loftily.utils.timer.DelayTimer;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
+import loftily.value.impl.RangeSelectionNumberValue;
 import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
 import net.lenni0451.lambdaevents.EventHandler;
@@ -31,8 +32,7 @@ public class KillAura extends Module {
             new StringMode("Post")
     );
     //Attack
-    private final NumberValue maxCPS;
-    private final NumberValue minCPS;
+    private final RangeSelectionNumberValue CPSValue = new RangeSelectionNumberValue("CPS", 8, 15, 0, 20, 1);
     private final BooleanValue fastOnFirstHit = new BooleanValue("FastOnFirstHit", false);
     private final BooleanValue noDoubleHit = new BooleanValue("NoDoubleHit", false);
     private final NumberValue hurtTime = new NumberValue("HurtTime", 0, 0, 20);
@@ -53,12 +53,6 @@ public class KillAura extends Module {
     private final NumberValue switchDelay = new NumberValue("SwitchDelay", 200, 0, 2000)
             .setVisible(() -> mode.is("Switch"));
     private final List<EntityLivingBase> targets = new ArrayList<>();
-
-    {
-        minCPS = new NumberValue("MinCPS", 10, 0, 20);
-        maxCPS = new NumberValue("MaxCPS", 15, 0, 20).setMinWith(minCPS);
-        minCPS.setMaxWith(maxCPS);
-    }
 
     {
         rotationRange = new NumberValue("RotationRange", 6, 0, 10, 0.1);
@@ -203,7 +197,7 @@ public class KillAura extends Module {
     }
     
     private int calculateDelay() {
-        return 1000 / (int) RandomUtils.randomDouble(minCPS.getValue(), maxCPS.getValue());
+        return 1000 / (int) RandomUtils.randomDouble(CPSValue.getFirst(), CPSValue.getSecond());
     }
     
 }
