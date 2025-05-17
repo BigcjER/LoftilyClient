@@ -11,9 +11,9 @@ import net.minecraft.util.math.Vec3d;
 
 public class SPacketExplosion implements Packet<INetHandlerPlayClient>
 {
-    private double posX;
-    private double posY;
-    private double posZ;
+    public double posX;
+    public double posY;
+    public double posZ;
     private float strength;
     private List<BlockPos> affectedBlockPositions;
     private float motionX;
