@@ -16,6 +16,11 @@ public class NumberRenderer extends ValueRenderer<NumberValue> {
         this.sliderAnimation = new Animation(Easing.EaseOutExpo, 300);
     }
     
+    @Override
+    public void onGuiClosed() {
+        super.onGuiClosed();
+        dragging = hovering = false;
+    }
     
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {

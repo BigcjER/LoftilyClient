@@ -201,4 +201,10 @@ public class ClickGui extends GuiScreen {
         this.currentValuePanel = currentValuePanel;
         this.currentValuePanel.out = true;
     }
+    
+    @Override
+    public void onGuiClosed() {
+        super.onGuiClosed();
+        if (currentValuePanel != null) currentValuePanel.onGuiClosed();
+    }
 }

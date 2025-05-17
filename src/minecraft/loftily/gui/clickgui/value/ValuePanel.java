@@ -98,4 +98,8 @@ public class ValuePanel {
     public void mouseReleased(int mouseX, int mouseY, int state) {
         valueRenderers.forEach(valueRenderer -> valueRenderer.mouseReleased(mouseX, mouseY, state));
     }
+    
+    public void onGuiClosed() {
+        valueRenderers.forEach(ValueRenderer::onGuiClosed);
+    }
 }

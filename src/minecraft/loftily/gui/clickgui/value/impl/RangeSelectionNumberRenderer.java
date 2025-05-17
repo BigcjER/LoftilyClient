@@ -21,6 +21,13 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
     }
     
     @Override
+    public void onGuiClosed() {
+        super.onGuiClosed();
+        draggingState = DraggingState.None;
+        hovering = false;
+    }
+    
+    @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
         hovering = RenderUtils.isHovering(mouseX, mouseY, x, y, width, height);
