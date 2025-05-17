@@ -1,7 +1,8 @@
 package net.minecraft.client.renderer;
 
 import com.google.common.base.MoreObjects;
-import java.util.Objects;
+import loftily.Client;
+import loftily.module.impl.render.LowFire;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -21,11 +22,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.storage.MapData;
@@ -34,6 +31,8 @@ import optifine.DynamicLights;
 import optifine.Reflector;
 import optifine.ReflectorForge;
 import shadersmod.client.Shaders;
+
+import java.util.Objects;
 
 public class ItemRenderer
 {
@@ -600,7 +599,6 @@ public class ItemRenderer
         GlStateManager.depthMask(false);
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        float f = 1.0F;
 
         for (int i = 0; i < 2; ++i)
         {
@@ -611,13 +609,14 @@ public class ItemRenderer
             float f2 = textureatlassprite.getMaxU();
             float f3 = textureatlassprite.getMinV();
             float f4 = textureatlassprite.getMaxV();
-            float f5 = -0.5F;
-            float f6 = 0.5F;
-            float f7 = -0.5F;
-            float f8 = 0.5F;
-            float f9 = -0.5F;
-            GlStateManager.translate((float)(-(i * 2 - 1)) * 0.24F, -0.3F, 0.0F);
+            
+            float yOffset = -0.3F;
+            LowFire lowFire = Client.INSTANCE.getModuleManager().get(LowFire.class);
+            if (lowFire.isToggled()) yOffset = (float) -lowFire.fireYOffset.getValue();
+            
+            GlStateManager.translate((float) (-(i * 2 - 1)) * 0.24F, yOffset, 0.0F);
             GlStateManager.rotate((float)(i * 2 - 1) * 10.0F, 0.0F, 1.0F, 0.0F);
+            
             bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
             bufferbuilder.pos(-0.5D, -0.5D, -0.5D).tex((double)f2, (double)f4).endVertex();
             bufferbuilder.pos(0.5D, -0.5D, -0.5D).tex((double)f1, (double)f4).endVertex();

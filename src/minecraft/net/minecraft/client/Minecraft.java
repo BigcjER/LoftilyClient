@@ -17,6 +17,7 @@ import loftily.Client;
 import loftily.event.impl.client.ClientTickEvent;
 import loftily.event.impl.client.KeyboardEvent;
 import loftily.gui.menu.SplashScreen;
+import loftily.module.impl.render.MotionBlur;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -118,6 +119,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 import org.lwjgl.util.glu.GLU;
+import shadersmod.client.Shaders;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
@@ -1874,6 +1876,28 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
         this.mcProfiler.endSection();
         this.systemTime = getSystemTime();
+        
+        try {
+            if (getMinecraft().player != null && Shaders.configAntialiasingLevel == 0) {
+                MotionBlur motionBlur = Client.INSTANCE.getModuleManager().get(MotionBlur.class);
+                if (motionBlur.isToggled()) {
+                    float uniform = 1.0f - Math.min(motionBlur.motionBlurAmount.getValue().floatValue() / 10.0f, 0.9f);
+                    if (getMinecraft().entityRenderer.getShaderGroup() == null) {
+                        getMinecraft().entityRenderer.loadShader(new ResourceLocation("shaders/post/motion_blur.json"));
+                    }
+                    if (getMinecraft().entityRenderer.getShaderGroup() != null) {
+                        if (getMinecraft().entityRenderer.getShaderGroup().listShaders.get(0).getShaderManager().getShaderUniform("Phosphor") != null) {
+                            getMinecraft().entityRenderer.getShaderGroup().listShaders.get(0).getShaderManager().getShaderUniform("Phosphor")
+                                    .set(uniform, 0.0f, 0.0f);
+                        }
+                    }
+                } else if (Minecraft.getMinecraft().entityRenderer.isShaderActive()) {
+                    getMinecraft().entityRenderer.stopUseShader();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void runTickKeyboard() throws IOException
