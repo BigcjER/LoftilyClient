@@ -577,6 +577,19 @@ public class MathHelper
         return p_181161_0_;
     }
 
+    public static float wrapAngleTo180_float(float p_wrapAngleTo180_float_0_) {
+        p_wrapAngleTo180_float_0_ %= 360.0F;
+        if (p_wrapAngleTo180_float_0_ >= 180.0F) {
+            p_wrapAngleTo180_float_0_ -= 360.0F;
+        }
+
+        if (p_wrapAngleTo180_float_0_ < -180.0F) {
+            p_wrapAngleTo180_float_0_ += 360.0F;
+        }
+
+        return p_wrapAngleTo180_float_0_;
+    }
+
     public static int hsvToRGB(float hue, float saturation, float value)
     {
         int i = (int)(hue * 6.0F) % 6;

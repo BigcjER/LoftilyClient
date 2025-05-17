@@ -1,6 +1,8 @@
 package net.minecraft.network.play.client;
 
 import java.io.IOException;
+
+import loftily.utils.math.Rotation;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.INetHandlerPlayServer;
@@ -10,8 +12,8 @@ public class CPacketPlayer implements Packet<INetHandlerPlayServer>
     protected double x;
     protected double y;
     protected double z;
-    protected float yaw;
-    protected float pitch;
+    public float yaw;
+    public float pitch;
     protected boolean onGround;
     protected boolean moving;
     protected boolean rotating;
@@ -47,6 +49,10 @@ public class CPacketPlayer implements Packet<INetHandlerPlayServer>
     public void writePacketData(PacketBuffer buf) throws IOException
     {
         buf.writeByte(this.onGround ? 1 : 0);
+    }
+
+    public Boolean getRotating(){
+        return this.rotating;
     }
 
     public double getX(double defaultValue)
