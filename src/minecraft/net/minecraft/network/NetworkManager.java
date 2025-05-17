@@ -10,15 +10,7 @@ import de.florianmichael.vialoadingbase.netty.event.CompressionReorderEvent;
 import de.florianmichael.viamcp.MCPVLBPipeline;
 import de.florianmichael.viamcp.ViaMCP;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelException;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
@@ -33,12 +25,9 @@ import io.netty.handler.timeout.TimeoutException;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import java.net.InetAddress;
-import java.net.SocketAddress;
-import java.util.Queue;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import javax.annotation.Nullable;
-import javax.crypto.SecretKey;
+import loftily.Client;
+import loftily.event.impl.packet.PacketReceiveEvent;
+import loftily.event.impl.packet.PacketSendEvent;
 import net.minecraft.util.CryptManager;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.LazyLoadBase;
@@ -50,6 +39,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+
+import javax.annotation.Nullable;
+import javax.crypto.SecretKey;
+import java.net.InetAddress;
+import java.net.SocketAddress;
+import java.util.Queue;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
 {
@@ -148,18 +144,20 @@ public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
         LOGGER.debug(textcomponenttranslation.getUnformattedText(), p_exceptionCaught_2_);
         this.closeChannel(textcomponenttranslation);
     }
-
-    protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet<?> p_channelRead0_2_) throws Exception
-    {
+    
+    protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet<?> packet) {
         if (this.channel.isOpen())
         {
             try
             {
-                ((Packet<INetHandler>)p_channelRead0_2_).processPacket(this.packetListener);
-            }
-            catch (ThreadQuickExitException var4)
-            {
-                ;
+                PacketReceiveEvent event = new PacketReceiveEvent(packet);
+                Client.INSTANCE.getEventManager().call(event);
+                if (event.isCancelled()) return;
+                
+                packet = event.getPacket();
+                ((Packet<INetHandler>) packet).processPacket(this.packetListener);
+                
+            } catch (ThreadQuickExitException var4) {
             }
         }
     }
@@ -223,8 +221,14 @@ public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
      * Will commit the packet to the channel. If the current thread 'owns' the channel it will write and flush the
      * packet, otherwise it will add a task for the channel eventloop thread to do that.
      */
-    private void dispatchPacket(final Packet<?> inPacket, @Nullable final GenericFutureListener <? extends Future <? super Void >> [] futureListeners)
+    private void dispatchPacket(Packet<?> inPacket, @Nullable final GenericFutureListener<? extends Future<? super Void>>[] futureListeners)
     {
+        PacketSendEvent event = new PacketSendEvent(inPacket);
+        Client.INSTANCE.getEventManager().call(event);
+        
+        if (event.isCancelled()) return;
+        inPacket = event.getPacket();
+        
         final EnumConnectionState enumconnectionstate = EnumConnectionState.getFromPacket(inPacket);
         final EnumConnectionState enumconnectionstate1 = (EnumConnectionState)this.channel.attr(PROTOCOL_ATTRIBUTE_KEY).get();
 
@@ -252,24 +256,21 @@ public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
         }
         else
         {
-            this.channel.eventLoop().execute(new Runnable()
-            {
-                public void run()
+            Packet<?> finalInPacket = inPacket;
+            this.channel.eventLoop().execute(() -> {
+                if (enumconnectionstate != enumconnectionstate1)
                 {
-                    if (enumconnectionstate != enumconnectionstate1)
-                    {
-                        NetworkManager.this.setConnectionState(enumconnectionstate);
-                    }
-
-                    ChannelFuture channelfuture1 = NetworkManager.this.channel.writeAndFlush(inPacket);
-
-                    if (futureListeners != null)
-                    {
-                        channelfuture1.addListeners(futureListeners);
-                    }
-
-                    channelfuture1.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+                    NetworkManager.this.setConnectionState(enumconnectionstate);
                 }
+
+                ChannelFuture channelfuture1 = NetworkManager.this.channel.writeAndFlush(finalInPacket);
+
+                if (futureListeners != null)
+                {
+                    channelfuture1.addListeners(futureListeners);
+                }
+
+                channelfuture1.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
             });
         }
     }
