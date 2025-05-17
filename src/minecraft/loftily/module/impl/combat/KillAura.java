@@ -76,6 +76,10 @@ public class KillAura extends Module {
     private final RangeSelectionNumberValue keepTicks = new RangeSelectionNumberValue("KeepRotationTicks", 1, 2, 1, 20);
     private final RangeSelectionNumberValue backTicks = new RangeSelectionNumberValue("ReverseTicks", 1, 2, 1, 20);
     private final BooleanValue silentRotation = new BooleanValue("SilentRotation", false);
+    private final ModeValue moveFixMode = new ModeValue("MoveFixMode", "None", this,
+            new StringMode("None"),
+            new StringMode("Strict"),
+            new StringMode("Silent"));
     
     private final BooleanValue throughWallsAim = new BooleanValue("ThroughWallsAim", false);
     private final List<EntityLivingBase> targets = new ArrayList<>();
@@ -113,7 +117,7 @@ public class KillAura extends Module {
                     pitchSpeed
             );
             if (silentRotation.getValue()) {
-                RotationHandler.setClientRotation(calculateRot, keepTicks, reverseTicks);
+                RotationHandler.setClientRotation(calculateRot, keepTicks, reverseTicks,moveFixMode.getValue().getName());
             } else {
                 mc.player.rotationYaw = calculateRot.yaw;
                 mc.player.rotationPitch = calculateRot.pitch;

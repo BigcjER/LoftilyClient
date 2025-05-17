@@ -5,6 +5,7 @@ import loftily.event.impl.client.ChatEvent;
 import loftily.event.impl.player.RotationEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.player.slowdown.ItemSlowDownEvent;
+import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.utils.math.Rotation;
 import net.minecraft.block.state.IBlockState;
@@ -908,6 +909,8 @@ public class EntityPlayerSP extends AbstractClientPlayer {
         } else {
             this.horseJumpPower = 0.0F;
         }
+
+        Client.INSTANCE.getEventManager().call(new LivingUpdateEvent());
 
         super.onLivingUpdate();
 
