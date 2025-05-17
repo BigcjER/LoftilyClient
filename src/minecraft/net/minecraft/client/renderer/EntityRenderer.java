@@ -7,7 +7,11 @@ import loftily.Client;
 import loftily.event.impl.render.Render3DEvent;
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
+import loftily.handlers.impl.RotationHandler;
+import loftily.module.impl.other.RayTraceFixer;
 import loftily.module.impl.render.ZoomModifier;
+import loftily.utils.math.CalculateUtils;
+import loftily.utils.math.Rotation;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.material.Material;
@@ -442,7 +446,8 @@ public class EntityRenderer implements IResourceManagerReloadListener
         {
             this.mc.mcProfiler.startSection("pick");
             this.mc.pointedEntity = null;
-            double d0 = (double)this.mc.playerController.getBlockReachDistance();
+            double d0 = this.mc.playerController.getBlockReachDistance();
+            RayTraceFixer rayTraceFixer = Client.INSTANCE.getModuleManager().get(RayTraceFixer.class);
             this.mc.objectMouseOver = entity.rayTrace(d0, partialTicks);
             Vec3d vec3d = entity.getPositionEyes(partialTicks);
             boolean flag = false;
@@ -464,7 +469,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
                 d1 = this.mc.objectMouseOver.hitVec.distanceTo(vec3d);
             }
 
-            Vec3d vec3d1 = entity.getLook(1.0F);
+            Vec3d vec3d1 = !rayTraceFixer.isToggled() ? entity.getLook(1.0F) : CalculateUtils.getVectorForRotation(RotationHandler.getCurrentRotation());
             Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0);
             this.pointedEntity = null;
             Vec3d vec3d3 = null;

@@ -1496,8 +1496,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
     /**
      * Called when user clicked he's mouse right button (place)
-     */
-    private void rightClickMouse()
+     */ public void rightClickMouse()
     {
         if (!this.playerController.getIsHittingBlock())
         {

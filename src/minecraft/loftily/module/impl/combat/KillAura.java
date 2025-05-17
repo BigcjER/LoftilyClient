@@ -292,7 +292,6 @@ public class KillAura extends Module {
                 canAttackTimes = 1;
             }
         }
-        
         while (canAttackTimes > 0) {
             canAttackTimes--;
             Entity bestTarget;

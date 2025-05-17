@@ -7,6 +7,9 @@ import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.Client;
 import loftily.event.impl.player.motion.StrafeEvent;
+import loftily.handlers.impl.RotationHandler;
+import loftily.module.impl.other.RayTraceFixer;
+import loftily.utils.math.CalculateUtils;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.*;
 import net.minecraft.block.material.EnumPushReaction;
@@ -1766,7 +1769,8 @@ public abstract class Entity implements ICommandSender
     {
         if (partialTicks == 1.0F)
         {
-            return this.getVectorForRotation(this.rotationPitch, this.rotationYaw);
+            RayTraceFixer rayTraceFixer = Client.INSTANCE.getModuleManager().get(RayTraceFixer.class);
+            return !rayTraceFixer.isToggled() ? this.getVectorForRotation(this.rotationPitch, this.rotationYaw) : CalculateUtils.getVectorForRotation(RotationHandler.getCurrentRotation());
         }
         else
         {
@@ -1806,8 +1810,9 @@ public abstract class Entity implements ICommandSender
     @Nullable
     public RayTraceResult rayTrace(double blockReachDistance, float partialTicks)
     {
+        RayTraceFixer rayTraceFixer = Client.INSTANCE.getModuleManager().get(RayTraceFixer.class);
         Vec3d vec3d = this.getPositionEyes(partialTicks);
-        Vec3d vec3d1 = this.getLook(partialTicks);
+        Vec3d vec3d1 = rayTraceFixer.isToggled() ? CalculateUtils.getVectorForRotation(RotationHandler.getCurrentRotation()) : this.getLook(partialTicks);
         Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * blockReachDistance, vec3d1.yCoord * blockReachDistance, vec3d1.zCoord * blockReachDistance);
         return this.world.rayTraceBlocks(vec3d, vec3d2, false, false, true);
     }

@@ -17,7 +17,8 @@ import net.minecraft.util.math.MathHelper;
 import java.util.Objects;
 
 import static java.lang.Math.round;
-import static net.minecraft.util.math.MathHelper.*;
+import static net.minecraft.util.math.MathHelper.abs;
+import static net.minecraft.util.math.MathHelper.ceil;
 
 public class RotationHandler extends Handler {
 
@@ -126,6 +127,10 @@ public class RotationHandler extends Handler {
                 serverRotation = new Rotation(((CPacketPlayer) packet).yaw, ((CPacketPlayer) packet).pitch);
             }
         }
+    }
+
+    public static Rotation getCurrentRotation() {
+        return clientRotation == null ? new Rotation(mc.player.rotationYaw, mc.player.rotationPitch) : clientRotation;
     }
 
     public static Rotation getRotation() {
