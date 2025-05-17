@@ -9,7 +9,9 @@ import loftily.gui.interaction.Draggable;
 import loftily.gui.interaction.Scrollable;
 import loftily.module.ModuleCategory;
 import loftily.utils.render.ColorUtils;
+import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
+import lombok.Getter;
 import net.minecraft.client.gui.GuiScreen;
 
 import java.awt.*;
@@ -28,7 +30,8 @@ public class ClickGui extends GuiScreen {
     private final float valuePanelWidth = 160;
     public CategoryButton currentCategoryButton;
     public List<ModuleButton> currentModuleButtons;
-    public ValuePanel currentValuePanel;
+    @Getter
+    private ValuePanel currentValuePanel;
     private int x, y;
     
     public ClickGui() {
@@ -38,7 +41,8 @@ public class ClickGui extends GuiScreen {
         
         this.categoryButtons = new ArrayList<>();
         
-        Arrays.stream(ModuleCategory.values()).forEach(category -> categoryButtons.add(new CategoryButton(90, 20, 98, 70, category)));
+        Arrays.stream(ModuleCategory.values()).forEach(category ->
+                categoryButtons.add(new CategoryButton(90, 20, 98, 70, category, this)));
         this.currentCategoryButton = categoryButtons.get(0);
         
         this.currentModuleButtons = currentCategoryButton.moduleButtons;
@@ -99,8 +103,10 @@ public class ClickGui extends GuiScreen {
         if (buttonsInRow > 0) buttonsHeight += rowHeight;
         buttonsHeight = Math.max(0, buttonsHeight - Padding - 140);
         
-        scrollableModuleButtons.setMax(buttonsHeight);
-        scrollableModuleButtons.updateScroll();
+        if (currentValuePanel == null) {//确保当前没有ValuePanel避免冲突
+            scrollableModuleButtons.setMax(buttonsHeight);
+            scrollableModuleButtons.updateScroll();
+        }
         
         
         float baseXOffset = 10.5F;
@@ -136,16 +142,20 @@ public class ClickGui extends GuiScreen {
         
         RenderUtils.stopGlStencil();
         
+        RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(x, y, width, height, CornerRadius, Colors.BackGround.color));
         if (currentValuePanel != null) {
-            currentValuePanel.setX(x + width - valuePanelWidth);
+            currentValuePanel.setX(x + width - (valuePanelWidth * currentValuePanel.animation.getValuef()));
             currentValuePanel.setY(y);
             currentValuePanel.setWidth(valuePanelWidth);
             currentValuePanel.setHeight(height);
             
-            RenderUtils.drawRoundedRect(x, y, width, height, CornerRadius, ColorUtils.colorWithAlpha(Colors.BackGround.color, 80));
+            RenderUtils.drawRoundedRect(x, y, width, height, CornerRadius, ColorUtils.colorWithAlpha(Colors.BackGround.color, (int) (80 * currentValuePanel.animation.getValuef())));
             
             currentValuePanel.drawScreen(mouseX, mouseY, partialTicks);
+            
+            if (!currentValuePanel.out && currentValuePanel.animation.isFinished()) currentValuePanel = null;
         }
+        RenderUtils.stopGlStencil();
     }
     
     @Override
@@ -157,7 +167,7 @@ public class ClickGui extends GuiScreen {
             if (!RenderUtils.isHovering(mouseX, mouseY, x + width - valuePanelWidth, y, valuePanelWidth, height) /* 鼠标ValuePanel上 */ &&
                     !RenderUtils.isHovering(mouseX, mouseY, x, y, width, height / 10F)/* 鼠标不在拖动位置上 */ &&
                     RenderUtils.isHovering(mouseX, mouseY, x, y, width, height)/* 鼠标在ClickGui上*/)
-                currentValuePanel = null;
+                currentValuePanel.out = false;
             return;
         }
         
@@ -181,5 +191,14 @@ public class ClickGui extends GuiScreen {
     @Override
     public boolean doesGuiPauseGame() {
         return false;
+    }
+    
+    public void setValuePanel(ValuePanel currentValuePanel) {
+        if (currentValuePanel == null) {
+            this.currentValuePanel.out = false;
+            return;
+        }
+        this.currentValuePanel = currentValuePanel;
+        this.currentValuePanel.out = true;
     }
 }

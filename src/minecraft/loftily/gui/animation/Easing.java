@@ -40,15 +40,7 @@ public enum Easing {
     
     EaseInBack(x -> 2.70158 * x * x * x - 1.70158 * x * x),
     EaseOutBack(x -> 1 + 2.70158 * pow(x - 1, 3) + 1.70158 * pow(x - 1, 2)),
-    EaseInOutBack(x -> x < 0.5 ? (pow(2 * x, 2) * ((1.70158 * 1.525 + 1) * 2 * x - 1.70158 * 1.525)) / 2 : (pow(2 * x - 2, 2) * ((1.70158 * 1.525 + 1) * (x * 2 - 2) + 1.70158 * 1.525) + 2) / 2),
-    
-    EaseInElastic(x -> x == 0 ? 0 : x == 1 ? 1 : -pow(2, 10 * x - 10) * sin((x * 10 - 10.75) * (2 * PI) / 3)),
-    EaseOutElastic(x -> x == 0 ? 0 : x == 1 ? 1 : pow(2, -10 * x) * sin((x * 10 - 0.75) * (2 * PI) / 3) + 1),
-    EaseInOutElastic(x -> x == 0 ? 0 : x == 1 ? 1 : x < 0.5 ? -(pow(2, 20 * x - 10) * sin((20 * x - 11.125) * (2 * PI) / 4.5)) / 2 : (pow(2, -20 * x + 10) * sin((20 * x - 11.125) * (2 * PI) / 4.5)) / 2 + 1),
-    
-    EaseOutBounce(x -> x < 1 / 2.75 ? 7.5625 * x * x : x < 2 / 2.75 ? 7.5625 * (x -= 1.5 / 2.75) * x + 0.75 : x < 2.5 / 2.75 ? 7.5625 * (x -= 2.25 / 2.75) * x + 0.9375 : 7.5625 * (x -= 2.625 / 2.75) * x + 0.984375),
-    EaseInBounce(x -> 1 - EaseOutBounce.getFunction().apply(1 - x)),
-    EaseInOutBounce(x -> x < 0.5 ? (1 - EaseOutBounce.getFunction().apply(1 - 2 * x)) / 2 : (1 + EaseOutBounce.getFunction().apply(2 * x - 1)) / 2);
+    EaseInOutBack(x -> x < 0.5 ? (pow(2 * x, 2) * ((1.70158 * 1.525 + 1) * 2 * x - 1.70158 * 1.525)) / 2 : (pow(2 * x - 2, 2) * ((1.70158 * 1.525 + 1) * (x * 2 - 2) + 1.70158 * 1.525) + 2) / 2);
     
     private final Function<Double, Double> function;
     

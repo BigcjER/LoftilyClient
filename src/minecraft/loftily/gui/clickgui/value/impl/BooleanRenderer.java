@@ -3,11 +3,11 @@ package loftily.gui.clickgui.value.impl;
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
 import loftily.gui.clickgui.ClickGui;
-import loftily.gui.clickgui.Colors;
 import loftily.gui.clickgui.value.ValueRenderer;
 import loftily.gui.components.MaterialIcons;
 import loftily.gui.font.FontManager;
 import loftily.utils.render.ColorUtils;
+import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 import loftily.value.impl.BooleanValue;
 

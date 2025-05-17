@@ -1,4 +1,4 @@
-package loftily.gui.clickgui;
+package loftily.utils.render;
 
 import java.awt.*;
 

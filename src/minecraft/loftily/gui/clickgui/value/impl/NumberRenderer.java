@@ -2,8 +2,8 @@ package loftily.gui.clickgui.value.impl;
 
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
-import loftily.gui.clickgui.Colors;
 import loftily.gui.clickgui.value.ValueRenderer;
+import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 import loftily.value.impl.NumberValue;
 
@@ -13,21 +13,9 @@ public class NumberRenderer extends ValueRenderer<NumberValue> {
     
     public NumberRenderer(NumberValue value) {
         super(value, 25);
-        this.sliderAnimation = new Animation(Easing.EaseOutExpo, 250);
+        this.sliderAnimation = new Animation(Easing.EaseOutExpo, 300);
     }
     
-    @Override
-    public void initGui() {
-        super.initGui();
-        float sliderWidth = width - 12;
-        
-        double min = value.getMinValue();
-        double max = value.getMaxValue();
-        double current = value.getValue();
-        float initialActiveWidth = (float) (sliderWidth * ((current - min) / (max - min)));
-        
-        sliderAnimation.setValue(initialActiveWidth);
-    }
     
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -62,18 +50,23 @@ public class NumberRenderer extends ValueRenderer<NumberValue> {
                 sliderY,
                 sliderAnimation.getValuef() - 0.2F,
                 sliderHeight,
-                sliderRadius,
+                sliderRadius - 0.35F,
                 Colors.Active.color);
         
         //滑块指示器
+        float thumbSize = sliderHeight + 1;
+        float thumbX = startX + sliderAnimation.getValuef() - thumbSize / 2;
+        thumbX = Math.min(thumbX, startX + sliderWidth - thumbSize);
         RenderUtils.drawRoundedRectOutline(
-                Math.max(startX - 0.3f + sliderAnimation.getValuef() - sliderHeight - 0.1F, startX),
-                sliderY,
-                sliderHeight,
-                sliderHeight,
-                sliderRadius - 0.3F,
-                0.4F,
-                Colors.Active.color, Colors.Text.color);
+                thumbX,
+                sliderY - (thumbSize - sliderHeight) / 2,
+                thumbSize,
+                thumbSize,
+                thumbSize / 2 - 0.2F,
+                0.6f,
+                Colors.Active.color,
+                Colors.Text.color
+        );
         
         //拖动逻辑
         if (dragging) {
@@ -81,8 +74,7 @@ public class NumberRenderer extends ValueRenderer<NumberValue> {
             
             double percent = (clampedX - startX) / sliderWidth;
             double newValue = value.getMinValue() + percent * (value.getMaxValue() - value.getMinValue());
-            double step = value.getStep();
-            newValue = Math.round(newValue / step) * step;
+            newValue = Math.round(newValue / value.getStep()) * value.getStep();
             
             value.setValue(Math.round(newValue * 100) / 100.0);
         }

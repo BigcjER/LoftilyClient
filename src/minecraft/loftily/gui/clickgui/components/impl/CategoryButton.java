@@ -5,13 +5,13 @@ import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
 import loftily.gui.animation.Ripple;
 import loftily.gui.clickgui.ClickGui;
-import loftily.gui.clickgui.Colors;
 import loftily.gui.clickgui.components.Component;
 import loftily.gui.components.MaterialIcons;
 import loftily.gui.font.FontManager;
 import loftily.gui.font.FontRenderer;
 import loftily.module.ModuleCategory;
 import loftily.utils.render.ColorUtils;
+import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 
 import java.awt.*;
@@ -28,7 +28,9 @@ public class CategoryButton extends Component {
     
     private boolean hovering;
     
-    public CategoryButton(float width, float height, float moduleButtonWidth, float moduleButtonHeight, ModuleCategory category) {
+    private final ClickGui CGui;
+    
+    public CategoryButton(float width, float height, float moduleButtonWidth, float moduleButtonHeight, ModuleCategory category, ClickGui clickGui) {
         super(width, height);
         CategoryButton.width = width;
         CategoryButton.height = height;
@@ -36,10 +38,13 @@ public class CategoryButton extends Component {
         this.moduleButtons = new ArrayList<>();
         this.moduleCategory = category;
         
-        Client.INSTANCE.getModuleManager().get(category).forEach(module -> moduleButtons.add(new ModuleButton(moduleButtonWidth, moduleButtonHeight, module)));
+        Client.INSTANCE.getModuleManager().get(category).forEach(module ->
+                moduleButtons.add(new ModuleButton(moduleButtonWidth, moduleButtonHeight, module, clickGui)));
         
         this.textAnimation = new Animation(Easing.EaseOutQuint, 500);
         this.clickRippleAnimation = new Ripple();
+        
+        this.CGui = clickGui;
     }
     
     
@@ -47,7 +52,7 @@ public class CategoryButton extends Component {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
         
-        hovering = RenderUtils.isHovering(mouseX, mouseY, x, y, width, height) && Client.INSTANCE.getClickGui().currentValuePanel == null;
+        hovering = RenderUtils.isHovering(mouseX, mouseY, x, y, width, height) && CGui.getCurrentValuePanel() == null;
         boolean active = Client.INSTANCE.getClickGui().currentCategoryButton == this;
         
         /* bottomest ripple animation */

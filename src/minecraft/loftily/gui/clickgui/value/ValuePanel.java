@@ -3,13 +3,13 @@ package loftily.gui.clickgui.value;
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
 import loftily.gui.clickgui.ClickGui;
-import loftily.gui.clickgui.Colors;
 import loftily.gui.clickgui.value.impl.BooleanRenderer;
 import loftily.gui.clickgui.value.impl.ModeRenderer;
 import loftily.gui.clickgui.value.impl.NumberRenderer;
 import loftily.gui.font.FontManager;
 import loftily.gui.interaction.Scrollable;
 import loftily.module.Module;
+import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 import loftily.value.Value;
 import loftily.value.impl.BooleanValue;
@@ -28,11 +28,13 @@ public class ValuePanel {
     @Setter
     private float x, y, width, height;
     
+    public boolean out;
+    
     public ValuePanel(Module module) {
         this.module = module;
         this.valueRenderers = new ArrayList<>();
-        this.animation = new Animation(Easing.EaseOutQuart, 250);
-        this.scrollable = new Scrollable(6);
+        this.animation = new Animation(Easing.EaseOutQuart, 300);
+        this.scrollable = new Scrollable(8);
         
         for (Value<?, ?> value : module.getValues()) {
             if (value instanceof BooleanValue) valueRenderers.add(new BooleanRenderer((BooleanValue) value));
@@ -47,23 +49,19 @@ public class ValuePanel {
     }
     
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        Runnable backGroundRunnable = () -> {
-            RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CornerRadius, Colors.OnBackGround.color);
-            RenderUtils.drawRoundedRect(x, y, ClickGui.CornerRadius, height, 0, Colors.OnBackGround.color);
-        };
-        backGroundRunnable.run();
+        animation.run(out ? 1 : 0);
+        
+        RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CornerRadius, Colors.OnBackGround.color);
+        RenderUtils.drawRoundedRect(x, y, ClickGui.CornerRadius, height, 0, Colors.OnBackGround.color);
         
         float maxHeight = 0;
         for (ValueRenderer<?> valueRenderer : valueRenderers) {
             if (shouldSkipRenderer(valueRenderer)) continue;
             maxHeight += valueRenderer.height + 2;
         }
-        scrollable.setMax(maxHeight);
+        
+        scrollable.setMax(Math.max(0, maxHeight - 20));
         scrollable.updateScroll();
-        
-        RenderUtils.startGlStencil(backGroundRunnable);
-        
-        FontManager.NotoSans.of(16).drawString("· " + module.getName(), x + 5, y + 14, Colors.Text.color);
         
         float yOffset = scrollable.getValuef();
         for (ValueRenderer<?> valueRenderer : valueRenderers) {
@@ -75,7 +73,15 @@ public class ValuePanel {
             yOffset += valueRenderer.height + 2;
         }
         
-        RenderUtils.stopGlStencil();
+        
+        float HeaderHeight = 26;
+        RenderUtils.drawRoundedRect(x, y - 1, width, HeaderHeight, ClickGui.CornerRadius, Colors.OnBackGround.color);
+        RenderUtils.drawRoundedRect(x, y + HeaderHeight - 0.5F, width, 0.5F, 0, Colors.BackGround.color
+                .darker().darker().darker().darker().darker());
+        FontManager.NotoSans.of(16).drawString("· " + module.getName(),
+                x + 5,
+                y + (HeaderHeight / 2F) - FontManager.NotoSans.of(16).getHeight() / 3F,
+                Colors.Text.color);
     }
     
     private boolean shouldSkipRenderer(ValueRenderer<?> valueRenderer) {

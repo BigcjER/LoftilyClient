@@ -37,11 +37,5 @@ public class TargetsHandler extends Handler {
             targets.clear();
             targets.addAll(filteredTargets);
         }
-        
-    }
-    
-    @Override
-    protected boolean needRegister() {
-        return true;
     }
 }

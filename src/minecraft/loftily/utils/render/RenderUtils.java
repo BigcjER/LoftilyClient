@@ -11,6 +11,8 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
+import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
+
 public class RenderUtils implements ClientUtils {
     private final static ShaderUtils roundedShader = new ShaderUtils(Shader.RoundedRect);
     private final static ShaderUtils roundedOutlineShader = new ShaderUtils(Shader.RoundRectOutline);
@@ -113,6 +115,25 @@ public class RenderUtils implements ClientUtils {
         GL11.glDepthFunc(GL11.GL_LEQUAL);
         GL11.glDepthMask(false);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
+    }
+    
+    public static void startGlScissor(int x, int y, int width, int height) {
+        GL11.glEnable(GL_SCISSOR_TEST);
+        ScaledResolution sr = new ScaledResolution(mc);
+        double scale = sr.getScaleFactor();
+        
+        y = sr.getScaledHeight() - y;
+        
+        x *= (int) scale;
+        y *= (int) scale;
+        width *= (int) scale;
+        height *= (int) scale;
+        
+        GL11.glScissor(x, y - height, width, height);
+    }
+    
+    public static void stopGlScissor() {
+        GL11.glDisable(GL_SCISSOR_TEST);
     }
     
     public static boolean isHovering(int mouseX, int mouseY, float x, float y, float width, float height) {

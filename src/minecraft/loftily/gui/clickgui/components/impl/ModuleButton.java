@@ -1,17 +1,16 @@
 package loftily.gui.clickgui.components.impl;
 
-import loftily.Client;
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
 import loftily.gui.animation.Ripple;
 import loftily.gui.clickgui.ClickGui;
-import loftily.gui.clickgui.Colors;
 import loftily.gui.clickgui.components.Component;
 import loftily.gui.clickgui.value.ValuePanel;
 import loftily.gui.components.MaterialIcons;
 import loftily.gui.font.FontManager;
 import loftily.module.Module;
 import loftily.utils.render.ColorUtils;
+import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 import org.lwjgl.input.Keyboard;
 
@@ -24,12 +23,16 @@ public class ModuleButton extends Component {
     public boolean binding, hovering;
     private final Ripple clickRippleAnimation;
     
-    public ModuleButton(float width, float height, Module module) {
+    private final ClickGui CGui;
+    
+    public ModuleButton(float width, float height, Module module, ClickGui clickGui) {
         super(width, height);
         this.module = module;
         this.animation = new Animation(Easing.EaseOutQuint, 300);
         this.valuePanel = new ValuePanel(module);
         this.clickRippleAnimation = new Ripple();
+        
+        this.CGui = clickGui;
     }
     
     @Override
@@ -92,7 +95,7 @@ public class ModuleButton extends Component {
                     break;
                 
                 case 1:
-                    Client.INSTANCE.getClickGui().currentValuePanel = valuePanel;
+                    CGui.setValuePanel(valuePanel);
                     break;
                 
                 case 2:
