@@ -1,12 +1,13 @@
 package net.minecraft.client.gui;
 
-import java.util.Arrays;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.ArrayUtils;
+
+import java.util.Arrays;
 
 public class GuiKeyBindingList extends GuiListExtended
 {
@@ -125,7 +126,7 @@ public class GuiKeyBindingList extends GuiListExtended
             this.btnReset.xPosition = p_192634_2_ + 190;
             this.btnReset.yPosition = p_192634_3_;
             this.btnReset.enabled = this.keybinding.getKeyCode() != this.keybinding.getKeyCodeDefault();
-            this.btnReset.func_191745_a(GuiKeyBindingList.this.mc, p_192634_6_, p_192634_7_, p_192634_9_);
+            this.btnReset.drawScreen(GuiKeyBindingList.this.mc, p_192634_6_, p_192634_7_, p_192634_9_);
             this.btnChangeKeyBinding.xPosition = p_192634_2_ + 105;
             this.btnChangeKeyBinding.yPosition = p_192634_3_;
             this.btnChangeKeyBinding.displayString = GameSettings.getKeyDisplayString(this.keybinding.getKeyCode());
@@ -151,8 +152,8 @@ public class GuiKeyBindingList extends GuiListExtended
             {
                 this.btnChangeKeyBinding.displayString = TextFormatting.RED + this.btnChangeKeyBinding.displayString;
             }
-
-            this.btnChangeKeyBinding.func_191745_a(GuiKeyBindingList.this.mc, p_192634_6_, p_192634_7_, p_192634_9_);
+            
+            this.btnChangeKeyBinding.drawScreen(GuiKeyBindingList.this.mc, p_192634_6_, p_192634_7_, p_192634_9_);
         }
 
         public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY)

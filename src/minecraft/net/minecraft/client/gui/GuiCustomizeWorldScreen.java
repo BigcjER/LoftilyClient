@@ -2,9 +2,6 @@ package net.minecraft.client.gui;
 
 import com.google.common.base.Predicate;
 import com.google.common.primitives.Floats;
-import java.io.IOException;
-import java.util.Random;
-import javax.annotation.Nullable;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -14,6 +11,10 @@ import net.minecraft.init.Biomes;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.ChunkGeneratorSettings;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.Random;
 
 public class GuiCustomizeWorldScreen extends GuiScreen implements GuiSlider.FormatHelper, GuiPageButtonList.GuiResponder
 {
@@ -1020,8 +1021,8 @@ public class GuiCustomizeWorldScreen extends GuiScreen implements GuiSlider.Form
             this.drawCenteredString(this.fontRendererObj, I18n.format("createWorld.customize.custom.confirmTitle"), this.width / 2, 105, 16777215);
             this.drawCenteredString(this.fontRendererObj, I18n.format("createWorld.customize.custom.confirm1"), this.width / 2, 125, 16777215);
             this.drawCenteredString(this.fontRendererObj, I18n.format("createWorld.customize.custom.confirm2"), this.width / 2, 135, 16777215);
-            this.confirm.func_191745_a(this.mc, mouseX, mouseY, partialTicks);
-            this.cancel.func_191745_a(this.mc, mouseX, mouseY, partialTicks);
+            this.confirm.drawScreen(this.mc, mouseX, mouseY, partialTicks);
+            this.cancel.drawScreen(this.mc, mouseX, mouseY, partialTicks);
         }
     }
 }

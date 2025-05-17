@@ -1,9 +1,10 @@
 package net.minecraft.client.gui;
 
 import com.google.common.collect.Lists;
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
+
+import java.util.List;
 
 public class GuiOptionsRowList extends GuiListExtended
 {
@@ -80,13 +81,13 @@ public class GuiOptionsRowList extends GuiListExtended
             if (this.buttonA != null)
             {
                 this.buttonA.yPosition = p_192634_3_;
-                this.buttonA.func_191745_a(this.client, p_192634_6_, p_192634_7_, p_192634_9_);
+                this.buttonA.drawScreen(this.client, p_192634_6_, p_192634_7_, p_192634_9_);
             }
 
             if (this.buttonB != null)
             {
                 this.buttonB.yPosition = p_192634_3_;
-                this.buttonB.func_191745_a(this.client, p_192634_6_, p_192634_7_, p_192634_9_);
+                this.buttonB.drawScreen(this.client, p_192634_6_, p_192634_7_, p_192634_9_);
             }
         }
 

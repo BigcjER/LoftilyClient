@@ -2,6 +2,7 @@ package loftily.utils.render;
 
 import loftily.utils.client.ClientUtils;
 import loftily.utils.client.FileUtils;
+import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
@@ -42,6 +43,13 @@ public class ShaderUtils implements ClientUtils {
         GL11.glTexCoord2f(0.0F, 1.0F);
         GL11.glVertex2d(x, y);
         GL11.glEnd();
+    }
+    
+    public static void drawQuad() {
+        final ScaledResolution sr = new ScaledResolution(mc);
+        final float width = (float) sr.getScaledWidth_double();
+        final float height = (float) sr.getScaledHeight_double();
+        drawQuad(0, 0, width, height);
     }
     
     public void start() {

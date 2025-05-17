@@ -17,6 +17,7 @@ import loftily.Client;
 import loftily.event.impl.client.ClientTickEvent;
 import loftily.event.impl.client.KeyboardEvent;
 import loftily.gui.menu.SplashScreen;
+import loftily.gui.menu.mainmenu.MainMenu;
 import loftily.module.impl.render.MotionBlur;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -175,7 +176,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo
     public int displayHeight;
 
     /** True if the player is connected to a realms server */
-    private boolean connectedToRealms;
     public final Timer timer = new Timer(20.0F);
 
     /** Instance of PlayerUsageSnooper. */
@@ -528,11 +528,11 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
         if (this.serverName != null)
         {
-            this.displayGuiScreen(new GuiConnecting(new GuiMainMenu(), this, this.serverName, this.serverPort));
+            this.displayGuiScreen(new GuiConnecting(new MainMenu(), this, this.serverName, this.serverPort));
         }
         else
         {
-            this.displayGuiScreen(new GuiMainMenu());
+            this.displayGuiScreen(new MainMenu());
         }
         
         this.loadingScreen = new LoadingScreenRenderer(this);
@@ -916,14 +916,14 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
         if (guiScreenIn == null && this.world == null)
         {
-            guiScreenIn = new GuiMainMenu();
+            guiScreenIn = new MainMenu();
         }
         else if (guiScreenIn == null && this.player.getHealth() <= 0.0F)
         {
             guiScreenIn = new GuiGameOver(null);
         }
-
-        if (guiScreenIn instanceof GuiMainMenu || guiScreenIn instanceof GuiMultiplayer)
+        
+        if (guiScreenIn instanceof MainMenu || guiScreenIn instanceof GuiMultiplayer)
         {
             this.gameSettings.showDebugInfo = false;
             this.ingameGUI.getChatGUI().clearChatMessages(true);
@@ -3379,23 +3379,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
     {
         return this.frameTimer;
     }
-
-    /**
-     * Return true if the player is connected to a realms server
-     */
-    public boolean isConnectedToRealms()
-    {
-        return this.connectedToRealms;
-    }
-
-    /**
-     * Set if the player is connected to a realms server
-     */
-    public void setConnectedToRealms(boolean isConnected)
-    {
-        this.connectedToRealms = isConnected;
-    }
-
+    
     public DataFixer getDataFixer()
     {
         return this.dataFixer;

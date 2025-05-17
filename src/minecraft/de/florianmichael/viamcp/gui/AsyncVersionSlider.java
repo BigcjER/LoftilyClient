@@ -20,13 +20,11 @@ package de.florianmichael.viamcp.gui;
 
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
-import de.florianmichael.viamcp.ViaMCP;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,9 +44,9 @@ public class AsyncVersionSlider extends GuiButton {
         this.sliderValue = dragValue;
         this.displayString = values.get((int) Math.ceil(this.sliderValue * (values.size() - 1))).getName();
     }
-
-    public void func_191745_a(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-        super.func_191745_a(mc, mouseX, mouseY, partialTicks);
+    
+    public void drawScreen(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+        super.drawScreen(mc, mouseX, mouseY, partialTicks);
     }
 
     /**

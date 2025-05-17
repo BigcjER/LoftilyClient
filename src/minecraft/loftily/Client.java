@@ -69,7 +69,7 @@ public enum Client {
         
         SplashScreen.INSTANCE.setProgressAndDraw("Completed", 100);
         long time = System.currentTimeMillis();
-        while (System.currentTimeMillis() - time <= 1000) ;
+        while (System.currentTimeMillis() - time <= 500) ;
         
         Logger.info("Initialization completed, took {} ms.", (System.currentTimeMillis() - start));
     }

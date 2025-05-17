@@ -1,9 +1,6 @@
 package net.minecraft.client.gui.recipebook;
 
 import com.google.common.collect.Lists;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
@@ -16,6 +13,10 @@ import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public class GuiRecipeOverlay extends Gui
 {
@@ -134,7 +135,7 @@ public class GuiRecipeOverlay extends Gui
 
             for (GuiRecipeOverlay.Button guirecipeoverlay$button : this.field_193972_f)
             {
-                guirecipeoverlay$button.func_191745_a(this.field_191853_k, p_191842_1_, p_191842_2_, p_191842_3_);
+                guirecipeoverlay$button.drawScreen(this.field_191853_k, p_191842_1_, p_191842_2_, p_191842_3_);
             }
 
             GlStateManager.popMatrix();
@@ -201,13 +202,13 @@ public class GuiRecipeOverlay extends Gui
             this.field_193924_p = p_i47594_4_;
             this.field_193925_q = p_i47594_5_;
         }
-
-        public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_)
+        
+        public void drawScreen(Minecraft mc, int mouseX, int mouseY, float partialTicks)
         {
             RenderHelper.enableGUIStandardItemLighting();
             GlStateManager.enableAlpha();
-            p_191745_1_.getTextureManager().bindTexture(GuiRecipeOverlay.field_191847_a);
-            this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition && p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
+            mc.getTextureManager().bindTexture(GuiRecipeOverlay.field_191847_a);
+            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
             int i = 152;
 
             if (!this.field_193925_q)
@@ -254,7 +255,7 @@ public class GuiRecipeOverlay extends Gui
                             int j2 = (int)((float)(this.yPosition + j1) / 0.42F - 3.0F);
                             GlStateManager.scale(0.42F, 0.42F, 1.0F);
                             GlStateManager.enableLighting();
-                            p_191745_1_.getRenderItem().renderItemAndEffectIntoGUI(aitemstack[MathHelper.floor(GuiRecipeOverlay.this.field_193974_m / 30.0F) % aitemstack.length], i2, j2);
+                            mc.getRenderItem().renderItemAndEffectIntoGUI(aitemstack[MathHelper.floor(GuiRecipeOverlay.this.field_193974_m / 30.0F) % aitemstack.length], i2, j2);
                             GlStateManager.disableLighting();
                             GlStateManager.popMatrix();
                         }

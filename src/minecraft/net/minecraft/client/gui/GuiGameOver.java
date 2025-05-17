@@ -1,12 +1,14 @@
 package net.minecraft.client.gui;
 
-import java.io.IOException;
-import javax.annotation.Nullable;
+import loftily.gui.menu.mainmenu.MainMenu;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
 
 public class GuiGameOver extends GuiScreen
 {
@@ -75,7 +77,7 @@ public class GuiGameOver extends GuiScreen
             case 1:
                 if (this.mc.world.getWorldInfo().isHardcoreModeEnabled())
                 {
-                    this.mc.displayGuiScreen(new GuiMainMenu());
+                    this.mc.displayGuiScreen(new MainMenu());
                 }
                 else
                 {
@@ -96,7 +98,7 @@ public class GuiGameOver extends GuiScreen
             }
 
             this.mc.loadWorld((WorldClient)null);
-            this.mc.displayGuiScreen(new GuiMainMenu());
+            this.mc.displayGuiScreen(new MainMenu());
         }
         else
         {

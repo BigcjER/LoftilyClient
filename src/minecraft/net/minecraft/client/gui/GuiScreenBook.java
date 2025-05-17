@@ -3,9 +3,6 @@ package net.minecraft.client.gui;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonParseException;
 import io.netty.buffer.Unpooled;
-import java.io.IOException;
-import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -26,6 +23,10 @@ import net.minecraft.util.text.event.ClickEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.List;
 
 public class GuiScreenBook extends GuiScreen
 {
@@ -629,14 +630,14 @@ public class GuiScreenBook extends GuiScreen
             super(p_i46316_1_, p_i46316_2_, p_i46316_3_, 23, 13, "");
             this.isForward = p_i46316_4_;
         }
-
-        public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_)
+        
+        public void drawScreen(Minecraft mc, int mouseX, int mouseY, float partialTicks)
         {
             if (this.visible)
             {
-                boolean flag = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition && p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
+                boolean flag = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                p_191745_1_.getTextureManager().bindTexture(GuiScreenBook.BOOK_GUI_TEXTURES);
+                mc.getTextureManager().bindTexture(GuiScreenBook.BOOK_GUI_TEXTURES);
                 int i = 0;
                 int j = 192;
 

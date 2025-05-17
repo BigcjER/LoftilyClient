@@ -1,13 +1,14 @@
 package net.minecraft.client.gui.recipebook;
 
 import com.google.common.collect.Lists;
-import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButtonToggle;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.stats.RecipeBook;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class RecipeBookPage
 {
@@ -111,16 +112,16 @@ public class RecipeBookPage
 
         for (GuiButtonRecipe guibuttonrecipe : this.field_193743_h)
         {
-            guibuttonrecipe.func_191745_a(this.field_193754_s, p_194191_3_, p_194191_4_, p_194191_5_);
+            guibuttonrecipe.drawScreen(this.field_193754_s, p_194191_3_, p_194191_4_, p_194191_5_);
 
             if (guibuttonrecipe.visible && guibuttonrecipe.isMouseOver())
             {
                 this.field_194201_b = guibuttonrecipe;
             }
         }
-
-        this.field_193741_f.func_191745_a(this.field_193754_s, p_194191_3_, p_194191_4_, p_194191_5_);
-        this.field_193740_e.func_191745_a(this.field_193754_s, p_194191_3_, p_194191_4_, p_194191_5_);
+        
+        this.field_193741_f.drawScreen(this.field_193754_s, p_194191_3_, p_194191_4_, p_194191_5_);
+        this.field_193740_e.drawScreen(this.field_193754_s, p_194191_3_, p_194191_4_, p_194191_5_);
         this.field_194202_c.func_191842_a(p_194191_3_, p_194191_4_, p_194191_5_);
     }
 

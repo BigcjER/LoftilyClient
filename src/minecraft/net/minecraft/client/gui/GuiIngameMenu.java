@@ -1,11 +1,12 @@
 package net.minecraft.client.gui;
 
-import java.io.IOException;
+import loftily.gui.menu.mainmenu.MainMenu;
 import net.minecraft.client.gui.achievement.GuiStats;
 import net.minecraft.client.gui.advancements.GuiScreenAdvancements;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.realms.RealmsBridge;
+
+import java.io.IOException;
 
 public class GuiIngameMenu extends GuiScreen
 {
@@ -50,23 +51,17 @@ public class GuiIngameMenu extends GuiScreen
 
             case 1:
                 boolean flag = this.mc.isIntegratedServerRunning();
-                boolean flag1 = this.mc.isConnectedToRealms();
                 button.enabled = false;
                 this.mc.world.sendQuittingDisconnectingPacket();
                 this.mc.loadWorld((WorldClient)null);
 
                 if (flag)
                 {
-                    this.mc.displayGuiScreen(new GuiMainMenu());
-                }
-                else if (flag1)
-                {
-                    RealmsBridge realmsbridge = new RealmsBridge();
-                    realmsbridge.switchToRealms(new GuiMainMenu());
+                    this.mc.displayGuiScreen(new MainMenu());
                 }
                 else
                 {
-                    this.mc.displayGuiScreen(new GuiMultiplayer(new GuiMainMenu()));
+                    this.mc.displayGuiScreen(new GuiMultiplayer(new MainMenu()));
                 }
 
             case 2:

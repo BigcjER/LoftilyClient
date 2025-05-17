@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.inventory;
 
 import io.netty.buffer.Unpooled;
-import java.io.IOException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -22,6 +21,8 @@ import net.minecraft.tileentity.TileEntityBeacon;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
 
 public class GuiBeacon extends GuiContainer
 {
@@ -238,14 +239,14 @@ public class GuiBeacon extends GuiContainer
             this.iconX = iconXIn;
             this.iconY = iconYIn;
         }
-
-        public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_)
+        
+        public void drawScreen(Minecraft mc, int mouseX, int mouseY, float partialTicks)
         {
             if (this.visible)
             {
-                p_191745_1_.getTextureManager().bindTexture(GuiBeacon.BEACON_GUI_TEXTURES);
+                mc.getTextureManager().bindTexture(GuiBeacon.BEACON_GUI_TEXTURES);
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition && p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
+                this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
                 int i = 219;
                 int j = 0;
 
@@ -266,7 +267,7 @@ public class GuiBeacon extends GuiContainer
 
                 if (!GuiBeacon.BEACON_GUI_TEXTURES.equals(this.iconTexture))
                 {
-                    p_191745_1_.getTextureManager().bindTexture(this.iconTexture);
+                    mc.getTextureManager().bindTexture(this.iconTexture);
                 }
 
                 this.drawTexturedModalRect(this.xPosition + 2, this.yPosition + 2, this.iconX, this.iconY, 18, 18);

@@ -7,14 +7,9 @@ import com.mojang.authlib.exceptions.InvalidCredentialsException;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import java.math.BigInteger;
-import java.security.PublicKey;
-import javax.annotation.Nullable;
-import javax.crypto.SecretKey;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiScreenRealmsProxy;
 import net.minecraft.network.EnumConnectionState;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.login.INetHandlerLoginClient;
@@ -23,12 +18,16 @@ import net.minecraft.network.login.server.SPacketDisconnect;
 import net.minecraft.network.login.server.SPacketEnableCompression;
 import net.minecraft.network.login.server.SPacketEncryptionRequest;
 import net.minecraft.network.login.server.SPacketLoginSuccess;
-import net.minecraft.realms.DisconnectedRealmsScreen;
 import net.minecraft.util.CryptManager;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Nullable;
+import javax.crypto.SecretKey;
+import java.math.BigInteger;
+import java.security.PublicKey;
 
 public class NetHandlerLoginClient implements INetHandlerLoginClient
 {
@@ -111,18 +110,10 @@ public class NetHandlerLoginClient implements INetHandlerLoginClient
     /**
      * Invoked when disconnecting, the parameter is a ChatComponent describing the reason for termination
      */
-    public void onDisconnect(ITextComponent reason)
-    {
-        if (this.previousGuiScreen != null && this.previousGuiScreen instanceof GuiScreenRealmsProxy)
-        {
-            this.mc.displayGuiScreen((new DisconnectedRealmsScreen(((GuiScreenRealmsProxy)this.previousGuiScreen).getProxy(), "connect.failed", reason)).getProxy());
-        }
-        else
-        {
-            this.mc.displayGuiScreen(new GuiDisconnected(this.previousGuiScreen, "connect.failed", reason));
-        }
+    public void onDisconnect(ITextComponent reason) {
+        this.mc.displayGuiScreen(new GuiDisconnected(this.previousGuiScreen, "connect.failed", reason));
     }
-
+    
     public void handleDisconnect(SPacketDisconnect packetIn)
     {
         this.networkManager.closeChannel(packetIn.getReason());

@@ -64,7 +64,7 @@ public enum SplashScreen {
         GlStateManager.disableDepth();
         GlStateManager.enableTexture2D();
         
-        draw(sr);
+        draw(sr, 255);
         
         GlStateManager.enableAlpha();
         GlStateManager.alphaFunc(516, 0.1f);
@@ -73,16 +73,20 @@ public enum SplashScreen {
         mc.updateDisplay();
     }
     
-    void draw(ScaledResolution sr) {
-        RenderUtils.drawRectHW(0, 0, sr.getScaledWidth(), sr.getScaledHeight(), Colors.BackGround.color);
+    public void draw(ScaledResolution sr, int alpha) {
+        
+        RenderUtils.drawRectHW(0, 0, sr.getScaledWidth(), sr.getScaledHeight(),
+                Colors.BackGround.color);
         
         FontManager.NotoSans.of(30).drawCenteredString(
-                "Initializing " + text,
+                "Initialization " + text,
                 sr.getScaledWidth() / 2F,
                 sr.getScaledHeight() / 2F - 20,
                 Colors.Text.color);
         
-        RenderUtils.drawRectHW(0, sr.getScaledHeight() - 2, sr.getScaledWidth() * (currentProgress / 100F), 2, Colors.Active.color);
+        RenderUtils.drawRectHW(0, sr.getScaledHeight() - 2, sr.getScaledWidth() * (currentProgress / 100F), 2,
+                Colors.Active.color);
         
+        RenderUtils.drawRect(0, 0, sr.getScaledWidth(), sr.getScaledHeight(), (Math.min(255, 255 - alpha) << 24));
     }
 }

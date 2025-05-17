@@ -4,10 +4,11 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
-import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.IntHashMap;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class GuiPageButtonList extends GuiListExtended
 {
@@ -459,7 +460,7 @@ public class GuiPageButtonList extends GuiListExtended
 
             if (!p_192635_5_)
             {
-                p_192635_1_.func_191745_a(this.client, p_192635_3_, p_192635_4_, p_192635_6_);
+                p_192635_1_.drawScreen(this.client, p_192635_3_, p_192635_4_, p_192635_6_);
             }
         }
 

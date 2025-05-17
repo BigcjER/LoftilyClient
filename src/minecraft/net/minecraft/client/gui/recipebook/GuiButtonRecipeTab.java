@@ -1,7 +1,5 @@
 package net.minecraft.client.gui.recipebook;
 
-import java.util.Iterator;
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButtonToggle;
 import net.minecraft.client.renderer.GlStateManager;
@@ -12,6 +10,9 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.stats.RecipeBook;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class GuiButtonRecipeTab extends GuiButtonToggle
 {
@@ -53,8 +54,8 @@ public class GuiButtonRecipeTab extends GuiButtonToggle
             return;
         }
     }
-
-    public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_)
+    
+    public void drawScreen(Minecraft mc, int mouseX, int mouseY, float partialTicks)
     {
         if (this.visible)
         {
@@ -66,9 +67,9 @@ public class GuiButtonRecipeTab extends GuiButtonToggle
                 GlStateManager.scale(1.0F, f, 1.0F);
                 GlStateManager.translate((float)(-(this.xPosition + 8)), (float)(-(this.yPosition + 12)), 0.0F);
             }
-
-            this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition && p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
-            p_191745_1_.getTextureManager().bindTexture(this.field_191760_o);
+            
+            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+            mc.getTextureManager().bindTexture(this.field_191760_o);
             GlStateManager.disableDepth();
             int k = this.field_191756_q;
             int i = this.field_191757_r;
@@ -95,14 +96,14 @@ public class GuiButtonRecipeTab extends GuiButtonToggle
             GlStateManager.enableDepth();
             RenderHelper.enableGUIStandardItemLighting();
             GlStateManager.disableLighting();
-            this.func_193920_a(p_191745_1_.getRenderItem());
+            this.func_193920_a(mc.getRenderItem());
             GlStateManager.enableLighting();
             RenderHelper.disableStandardItemLighting();
 
             if (this.field_193922_v > 0.0F)
             {
                 GlStateManager.popMatrix();
-                this.field_193922_v -= p_191745_4_;
+                this.field_193922_v -= partialTicks;
             }
         }
     }

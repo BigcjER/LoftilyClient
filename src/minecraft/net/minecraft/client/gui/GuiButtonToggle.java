@@ -43,13 +43,13 @@ public class GuiButtonToggle extends GuiButton
         this.xPosition = p_191752_1_;
         this.yPosition = p_191752_2_;
     }
-
-    public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_)
+    
+    public void drawScreen(Minecraft mc, int mouseX, int mouseY, float partialTicks)
     {
         if (this.visible)
         {
-            this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition && p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
-            p_191745_1_.getTextureManager().bindTexture(this.field_191760_o);
+            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+            mc.getTextureManager().bindTexture(this.field_191760_o);
             GlStateManager.disableDepth();
             int i = this.field_191756_q;
             int j = this.field_191757_r;

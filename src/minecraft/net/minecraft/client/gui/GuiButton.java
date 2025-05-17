@@ -72,13 +72,13 @@ public class GuiButton extends Gui
 
         return i;
     }
-
-    public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_)
+    
+    public void drawScreen(Minecraft mc, int p_191745_2_, int p_191745_3_, float p_191745_4_)
     {
         if (this.visible)
         {
-            FontRenderer fontrenderer = p_191745_1_.fontRendererObj;
-            p_191745_1_.getTextureManager().bindTexture(BUTTON_TEXTURES);
+            FontRenderer fontrenderer = mc.fontRendererObj;
+            mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition && p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
             int i = this.getHoverState(this.hovered);
@@ -87,7 +87,7 @@ public class GuiButton extends Gui
             GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + i * 20, this.width / 2, this.height);
             this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
-            this.mouseDragged(p_191745_1_, p_191745_2_, p_191745_3_);
+            this.mouseDragged(mc, p_191745_2_, p_191745_3_);
             int j = 14737632;
 
             if (!this.enabled)

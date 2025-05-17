@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.recipebook;
 
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -12,6 +11,8 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+
+import java.util.List;
 
 public class GuiButtonRecipe extends GuiButton
 {
@@ -54,19 +55,19 @@ public class GuiButtonRecipe extends GuiButton
         this.xPosition = p_191770_1_;
         this.yPosition = p_191770_2_;
     }
-
-    public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_)
+    
+    public void drawScreen(Minecraft mc, int mouseX, int mouseY, float partialTicks)
     {
         if (this.visible)
         {
             if (!GuiScreen.isCtrlKeyDown())
             {
-                this.field_193931_r += p_191745_4_;
+                this.field_193931_r += partialTicks;
             }
-
-            this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition && p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
+            
+            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
             RenderHelper.enableGUIStandardItemLighting();
-            p_191745_1_.getTextureManager().bindTexture(field_191780_o);
+            mc.getTextureManager().bindTexture(field_191780_o);
             GlStateManager.disableLighting();
             int i = 29;
 
@@ -91,7 +92,7 @@ public class GuiButtonRecipe extends GuiButton
                 GlStateManager.translate((float)(this.xPosition + 8), (float)(this.yPosition + 12), 0.0F);
                 GlStateManager.scale(f, f, 1.0F);
                 GlStateManager.translate((float)(-(this.xPosition + 8)), (float)(-(this.yPosition + 12)), 0.0F);
-                this.field_191778_t -= p_191745_4_;
+                this.field_191778_t -= partialTicks;
             }
 
             this.drawTexturedModalRect(this.xPosition, this.yPosition, i, j, this.width, this.height);
@@ -102,11 +103,11 @@ public class GuiButtonRecipe extends GuiButton
 
             if (this.field_191774_p.func_194211_e() && this.func_193927_f().size() > 1)
             {
-                p_191745_1_.getRenderItem().renderItemAndEffectIntoGUI(itemstack, this.xPosition + k + 1, this.yPosition + k + 1);
+                mc.getRenderItem().renderItemAndEffectIntoGUI(itemstack, this.xPosition + k + 1, this.yPosition + k + 1);
                 --k;
             }
-
-            p_191745_1_.getRenderItem().renderItemAndEffectIntoGUI(itemstack, this.xPosition + k, this.yPosition + k);
+            
+            mc.getRenderItem().renderItemAndEffectIntoGUI(itemstack, this.xPosition + k, this.yPosition + k);
 
             if (flag)
             {

@@ -3,12 +3,6 @@ package net.minecraft.client.gui.recipebook;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButtonToggle;
@@ -34,6 +28,11 @@ import net.minecraft.network.play.client.CPacketRecipeInfo;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
+
+import javax.annotation.Nullable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 
 public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
 {
@@ -250,10 +249,10 @@ public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
 
             for (GuiButtonRecipeTab guibuttonrecipetab : this.field_193018_j)
             {
-                guibuttonrecipetab.func_191745_a(this.field_191888_F, p_191861_1_, p_191861_2_, p_191861_3_);
+                guibuttonrecipetab.drawScreen(this.field_191888_F, p_191861_1_, p_191861_2_, p_191861_3_);
             }
-
-            this.field_193960_m.func_191745_a(this.field_191888_F, p_191861_1_, p_191861_2_, p_191861_3_);
+            
+            this.field_193960_m.drawScreen(this.field_191888_F, p_191861_1_, p_191861_2_, p_191861_3_);
             this.field_193022_s.func_194191_a(i, j, p_191861_1_, p_191861_2_, p_191861_3_);
             GlStateManager.popMatrix();
         }
