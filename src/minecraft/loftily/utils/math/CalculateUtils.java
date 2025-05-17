@@ -18,16 +18,16 @@ public class CalculateUtils {
     }
 
     public static double getClosetDistance(EntityLivingBase player, EntityLivingBase target) {
-        return player.getEyes().distanceTo(getClosestPoint(player.getEyes(), target.getBox()));
+        return player.getEyes().distanceTo(getClosestPoint(player.getEyes(),target.getHitBox()));
     }
 
     public static Boolean isVisible(Vec3d vec) {
-        return mc.world.rayTraceBlocks(mc.player.getPositionEyes(1f),vec) == null;
+        return mc.world.rayTraceBlocks(mc.player.getPositionEyes(1f), vec) == null;
     }
 
     public static Vec3d getVectorForRotation(Rotation rotation) {
-        float f = MathHelper.cos(-rotation.yaw * 0.017453292F - (float)Math.PI);
-        float f1 = MathHelper.sin(-rotation.yaw * 0.017453292F - (float)Math.PI);
+        float f = MathHelper.cos(-rotation.yaw * 0.017453292F - (float) Math.PI);
+        float f1 = MathHelper.sin(-rotation.yaw * 0.017453292F - (float) Math.PI);
         float f2 = -MathHelper.cos(-rotation.pitch * 0.017453292F);
         float f3 = MathHelper.sin(-rotation.pitch * 0.017453292F);
         return new Vec3d(f1 * f2, f3, f * f2);

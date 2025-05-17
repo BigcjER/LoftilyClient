@@ -25,10 +25,8 @@ public class CategoryButton extends Component {
     
     private final Animation textAnimation;
     private final Ripple clickRippleAnimation;
-    
-    private boolean hovering;
-    
     private final ClickGui CGui;
+    private boolean hovering;
     
     public CategoryButton(float width, float height, float moduleButtonWidth, float moduleButtonHeight, ModuleCategory category, ClickGui clickGui) {
         super(width, height);

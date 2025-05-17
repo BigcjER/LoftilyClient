@@ -43,7 +43,7 @@ public class RayCastUtils implements ClientUtils {
                 flag = true;
             }
 
-            Vec3d vec31 = CalculateUtils.getVectorForRotation(rotation);
+            Vec3d vec31 = entity.getLook(1);
             Vec3d vec32 = vec3.addVector(vec31.xCoord * d0, vec31.yCoord * d0, vec31.zCoord * d0);
             Vec3d vec33 = null;
             float f = 1.0F;
