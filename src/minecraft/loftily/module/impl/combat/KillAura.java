@@ -1,6 +1,6 @@
 package loftily.module.impl.combat;
 
-import loftily.event.impl.player.MotionEvent;
+import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.render.Render3DEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.handlers.impl.RotationHandler;

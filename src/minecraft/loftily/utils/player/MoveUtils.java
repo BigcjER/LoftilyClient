@@ -3,22 +3,22 @@ package loftily.utils.player;
 import loftily.utils.client.ClientUtils;
 
 public class MoveUtils implements ClientUtils {
-    public static double getDirection() {
-        float rotationYaw = mc.player.rotationYaw;
-        if (mc.player.movementInput.moveForward < 0F)
-            rotationYaw += 180F;
-        float forward = 1F;
-        if (mc.player.movementInput.moveForward < 0F)
-            forward = -0.5F;
-        else if (mc.player.movementInput.moveForward > 0F)
-            forward = 0.5F;
+    public static double getDirection(float rotationYaw, double moveForward, double moveStrafing) {
+        if (moveForward < 0F) rotationYaw += 180F;
         
-        if (mc.player.moveStrafing > 0F)
-            rotationYaw -= 90F * forward;
-        if (mc.player.moveStrafing < 0F)
-            rotationYaw += 90F * forward;
+        float forward = 1F;
+        
+        if (moveForward < 0F) forward = -0.5F;
+        else if (moveForward > 0F) forward = 0.5F;
+        
+        if (moveStrafing > 0F) rotationYaw -= 90F * forward;
+        if (moveStrafing < 0F) rotationYaw += 90F * forward;
         
         return Math.toRadians(rotationYaw);
+    }
+    
+    public static double getDirection() {
+        return getDirection(mc.player.movementYaw, mc.player.movementInput.moveForward, mc.player.moveStrafing);
     }
     
     public static boolean isMoving() {

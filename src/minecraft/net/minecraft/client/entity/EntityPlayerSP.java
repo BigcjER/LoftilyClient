@@ -2,8 +2,9 @@ package net.minecraft.client.entity;
 
 import loftily.Client;
 import loftily.event.impl.client.ChatEvent;
-import loftily.event.impl.player.MotionEvent;
 import loftily.event.impl.player.RotationEvent;
+import loftily.event.impl.player.motion.MotionEvent;
+import loftily.event.impl.player.slowdown.ItemSlowDownEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.utils.math.Rotation;
 import net.minecraft.block.state.IBlockState;
@@ -132,7 +133,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
     
     public float renderPitchHead;
     public float prevRenderPitchHead;
-
+    
     public EntityPlayerSP(Minecraft p_i47378_1_, World p_i47378_2_, NetHandlerPlayClient p_i47378_3_, StatisticsManager p_i47378_4_, RecipeBook p_i47378_5_) {
         super(p_i47378_2_, p_i47378_3_.getGameProfile());
         this.connection = p_i47378_3_;
@@ -797,14 +798,16 @@ public class EntityPlayerSP extends AbstractClientPlayer {
 
         boolean flag = this.movementInput.jump;
         boolean flag1 = this.movementInput.sneak;
-        float f = 0.8F;
         boolean flag2 = this.movementInput.moveForward >= 0.8F;
         this.movementInput.updatePlayerMoveState();
         this.mc.func_193032_ao().func_193293_a(this.movementInput);
-
-        if (this.isHandActive() && !this.isRiding()) {
-            this.movementInput.moveStrafe *= 0.2F;
-            this.movementInput.moveForward *= 0.2F;
+        
+        ItemSlowDownEvent event = new ItemSlowDownEvent(0.2F, 0.2F);
+        Client.INSTANCE.getEventManager().call(event);
+        
+        if (this.isHandActive() && !this.isRiding() && !event.isCancelled()) {
+            this.movementInput.moveStrafe *= event.getStrafeMultiplier();
+            this.movementInput.moveForward *= event.getForwardMultiplier();
             this.sprintToggleTimer = 0;
         }
 

@@ -1,21 +1,9 @@
 package net.minecraft.entity.monster;
 
 import com.google.common.base.Predicate;
-import javax.annotation.Nullable;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.entity.ai.EntityAILookIdle;
-import net.minecraft.entity.ai.EntityAIMoveTowardsRestriction;
-import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
-import net.minecraft.entity.ai.EntityAIWander;
-import net.minecraft.entity.ai.EntityAIWatchClosest;
-import net.minecraft.entity.ai.EntityLookHelper;
-import net.minecraft.entity.ai.EntityMoveHelper;
+import net.minecraft.entity.*;
+import net.minecraft.entity.ai.*;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -35,6 +23,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.loot.LootTableList;
+
+import javax.annotation.Nullable;
 
 public class EntityGuardian extends EntityMob
 {
@@ -419,7 +409,7 @@ public class EntityGuardian extends EntityMob
     {
         if (this.isServerWorld() && this.isInWater())
         {
-            this.func_191958_b(p_191986_1_, p_191986_2_, p_191986_3_, 0.1F);
+            this.moveRelative(p_191986_1_, p_191986_2_, p_191986_3_, 0.1F);
             this.moveEntity(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
             this.motionX *= 0.8999999761581421D;
             this.motionY *= 0.8999999761581421D;

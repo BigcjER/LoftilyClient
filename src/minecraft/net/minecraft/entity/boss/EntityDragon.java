@@ -1,17 +1,9 @@
 package net.minecraft.entity.boss;
 
-import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.IEntityMultiPart;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.MultiPartEntityPart;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.*;
 import net.minecraft.entity.boss.dragon.phase.IPhase;
 import net.minecraft.entity.boss.dragon.phase.PhaseList;
 import net.minecraft.entity.boss.dragon.phase.PhaseManager;
@@ -29,12 +21,7 @@ import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathHeap;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.util.*;
 import net.minecraft.util.datafix.DataFixer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -47,6 +34,9 @@ import net.minecraft.world.gen.feature.WorldGenEndPodium;
 import net.minecraft.world.storage.loot.LootTableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class EntityDragon extends EntityLiving implements IEntityMultiPart, IMob
 {
@@ -308,7 +298,7 @@ public class EntityDragon extends EntityLiving implements IEntityMultiPart, IMob
                         this.rotationYaw += this.randomYawVelocity * 0.1F;
                         float f8 = (float)(2.0D / (d3 + 1.0D));
                         float f9 = 0.06F;
-                        this.func_191958_b(0.0F, 0.0F, -1.0F, 0.06F * (f7 * f8 + (1.0F - f8)));
+                        this.moveRelative(0.0F, 0.0F, -1.0F, 0.06F * (f7 * f8 + (1.0F - f8)));
 
                         if (this.slowed)
                         {

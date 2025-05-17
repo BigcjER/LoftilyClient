@@ -1665,6 +1665,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
      */
     public void runTick() throws IOException
     {
+        player.movementYaw = player.rotationYaw;
         Client.INSTANCE.getEventManager().call(new ClientTickEvent());
         
         if (this.rightClickDelayTimer > 0)
