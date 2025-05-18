@@ -4,11 +4,14 @@ import com.google.gson.JsonElement;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Getter
 @Setter
+@SuppressWarnings("unchecked")
 public abstract class Value<T, V> {
+    private Consumer<? super T> onValueChange = null;
     private final String name;
     private final T defaultValue;
     protected T value;
@@ -20,10 +23,21 @@ public abstract class Value<T, V> {
         this.defaultValue = value;
     }
     
-    @SuppressWarnings("unchecked")
     public V setVisible(Supplier<Boolean> visible) {
         this.visible = visible;
         return (V) this;
+    }
+    
+    public V setOnValueChange(Consumer<? super T> onValueChange) {
+        this.onValueChange = onValueChange;
+        return (V) this;
+    }
+    
+    public void setValue(T value) {
+        if (!this.value.equals(value)) {
+            this.value = value;
+            if (onValueChange != null) onValueChange.accept(value);
+        }
     }
     
     public abstract JsonElement write();
