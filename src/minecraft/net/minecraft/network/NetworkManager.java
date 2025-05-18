@@ -223,11 +223,13 @@ public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
      */
     private void dispatchPacket(Packet<?> inPacket, @Nullable final GenericFutureListener<? extends Future<? super Void>>[] futureListeners)
     {
-        PacketSendEvent event = new PacketSendEvent(inPacket);
-        Client.INSTANCE.getEventManager().call(event);
-        
-        if (event.isCancelled()) return;
-        inPacket = event.getPacket();
+        if (!(inPacket.getClass().getSimpleName().startsWith("S"))) {
+            PacketSendEvent event = new PacketSendEvent(inPacket);
+            Client.INSTANCE.getEventManager().call(event);
+            
+            if (event.isCancelled()) return;
+            inPacket = event.getPacket();
+        }
         
         final EnumConnectionState enumconnectionstate = EnumConnectionState.getFromPacket(inPacket);
         final EnumConnectionState enumconnectionstate1 = (EnumConnectionState)this.channel.attr(PROTOCOL_ATTRIBUTE_KEY).get();
