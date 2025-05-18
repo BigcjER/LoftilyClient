@@ -55,6 +55,10 @@ public class CPacketPlayer implements Packet<INetHandlerPlayServer>
         return this.rotating;
     }
 
+    public Boolean getMoving(){
+        return this.moving;
+    }
+
     public double getX(double defaultValue)
     {
         return this.moving ? this.x : defaultValue;
