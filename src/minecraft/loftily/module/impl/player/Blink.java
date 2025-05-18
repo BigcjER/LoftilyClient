@@ -36,19 +36,21 @@ public class Blink extends Module {
                     setVisible(()->!pulseMode.is("None"));
 
     private final BooleanValue fakePlayer = new BooleanValue("FakePlayer",false);
-
-    private EntityOtherPlayerMP model;
+    
+    public static final int FAKE_ENTITY_ID = -1000;
+    private EntityOtherPlayerMP fakePlayerEntity;
+    
     private final DelayTimer pulseTimer = new DelayTimer();
     private int delay;
-
+    
     @Override
     public void onEnable() {
         BlinkHandler.setBlinkState(true,noC0F.getValue(),noC00.getValue(),false);
         if(fakePlayer.getValue()) {
-            model = new EntityOtherPlayerMP(mc.world, mc.player.getGameProfile());
-            model.rotationYawHead = mc.player.rotationYawHead;
-            model.copyLocationAndAnglesFrom(mc.player);
-            mc.world.addEntityToWorld(-1000, model);
+            fakePlayerEntity = new EntityOtherPlayerMP(mc.world, mc.player.getGameProfile());
+            fakePlayerEntity.rotationYawHead = mc.player.rotationYawHead;
+            fakePlayerEntity.copyLocationAndAnglesFrom(mc.player);
+            mc.world.addEntityToWorld(FAKE_ENTITY_ID, fakePlayerEntity);
         }
         pulseTimer.reset();
         delay = RandomUtils.randomInt((int)pulseDelay.getFirst(),(int)pulseDelay.getSecond());
@@ -56,49 +58,38 @@ public class Blink extends Module {
 
     @EventHandler
     public void onUpdate(UpdateEvent event) {
-        if(pulseMode.is("None"))return;
-
-        if(pulseTimer.hasTimeElapsed(delay)){
+        if (pulseMode.is("None")) return;
+        
+        if (pulseTimer.hasTimeElapsed(delay)) {
             pulseTimer.reset();
-            delay = RandomUtils.randomInt((int)pulseDelay.getFirst(),(int)pulseDelay.getSecond());
-            switch (pulseMode.getValue().getName()){
+            delay = RandomUtils.randomInt((int) pulseDelay.getFirst(), (int) pulseDelay.getSecond());
+            switch (pulseMode.getValue().getName()) {
                 case "Normal":
-                    BlinkHandler.setBlinkState(BlinkHandler.BLINK,BlinkHandler.BLINK_NOC0F,BlinkHandler.BLINK_NOC00,true);
-                    if(fakePlayer.getValue()) {
-                        mc.world.removeEntityFromWorld(model.getEntityId());
-                        model = null;
-                        model = new EntityOtherPlayerMP(mc.world, mc.player.getGameProfile());
-                        model.rotationYawHead = mc.player.rotationYawHead;
-                        model.copyLocationAndAnglesFrom(mc.player);
-                        mc.world.addEntityToWorld(-1000, model);
+                    BlinkHandler.setBlinkState(BlinkHandler.BLINK, BlinkHandler.BLINK_NOC0F, BlinkHandler.BLINK_NOC00, true);
+                    if (fakePlayer.getValue()) {
+                        if (fakePlayerEntity != null) {
+                            fakePlayerEntity.copyLocationAndAnglesFrom(mc.player);
+                            fakePlayerEntity.rotationYawHead = mc.player.rotationYawHead;
+                        }
                     }
                     break;
                 case "CustomSize":
                     int i = 0;
-                    int size = RandomUtils.randomInt((int)pulseSize.getFirst(),(int)pulseSize.getSecond());
-
-                    for (Packet<?> packet : BlinkHandler.packets) {
-                        if(i >= size || BlinkHandler.packets.isEmpty()){
-                            return;
-                        }
-                        if (packet != null) {
-                            PacketUtils.sendPacket(packet,false);
-                            BlinkHandler.packets.remove(packet);
-                            i++;
-                        }
-
-                        if(packet instanceof CPacketPlayer && ((CPacketPlayer) packet).getMoving()){
-                            if(((CPacketPlayer) packet).getRotating()) {
-                                model.setPositionAndRotation(((CPacketPlayer) packet).getX(0),
-                                        ((CPacketPlayer) packet).getY(0),
-                                        ((CPacketPlayer) packet).getZ(0),
-                                        ((CPacketPlayer) packet).yaw,
-                                        ((CPacketPlayer) packet).pitch);
-                                //model.setAngles(((CPacketPlayer) packet).yaw,((CPacketPlayer) packet).pitch);
-                                model.rotationYawHead = ((CPacketPlayer) packet).yaw;
-                                model.rotationPitch = ((CPacketPlayer) packet).pitch;
+                    int size = RandomUtils.randomInt((int) pulseSize.getFirst(), (int) pulseSize.getSecond());
+                    
+                    while (!BlinkHandler.packets.isEmpty()) {
+                        if (i >= size) return;
+                        
+                        Packet<?> packet = BlinkHandler.packets.poll();
+                        PacketUtils.sendPacket(packet, false);
+                        i++;
+                        
+                        if (fakePlayerEntity != null && packet instanceof CPacketPlayer && ((CPacketPlayer) packet).getMoving()) {
+                            if (((CPacketPlayer) packet).getRotating()) {
+                                fakePlayerEntity.rotationYawHead = ((CPacketPlayer) packet).yaw;
+                                fakePlayerEntity.rotationPitch = ((CPacketPlayer) packet).pitch;
                             }
-                            model.setPosition(((CPacketPlayer) packet).getX(0),((CPacketPlayer) packet).getY(0),((CPacketPlayer) packet).getZ(0));
+                            fakePlayerEntity.setPosition(((CPacketPlayer) packet).getX(0), ((CPacketPlayer) packet).getY(0), ((CPacketPlayer) packet).getZ(0));
                         }
                     }
                     break;
@@ -110,8 +101,8 @@ public class Blink extends Module {
     public void onDisable() {
         BlinkHandler.setBlinkState(false,false,false,true);
         if(fakePlayer.getValue()) {
-            mc.world.removeEntityFromWorld(model.getEntityId());
-            model = null;
+            mc.world.removeEntityFromWorld(fakePlayerEntity.getEntityId());
+            fakePlayerEntity = null;
         }
     }
 }

@@ -2,6 +2,7 @@ package loftily.handlers.impl;
 
 import loftily.event.impl.client.ClientTickEvent;
 import loftily.handlers.Handler;
+import loftily.module.impl.player.Blink;
 import loftily.utils.math.CalculateUtils;
 import lombok.Getter;
 import net.lenni0451.lambdaevents.EventHandler;
@@ -18,7 +19,7 @@ public class TargetsHandler extends Handler {
     
     public static List<EntityLivingBase> getTargets(double range) {
         return targets.stream()
-                .filter(entity -> CalculateUtils.getDistanceToEntity(entity, mc.player) < range)
+                .filter(entity -> CalculateUtils.getDistanceToEntity(entity, mc.player) < range && entity.getEntityId() != Blink.FAKE_ENTITY_ID)
                 .collect(Collectors.toList());
     }
     

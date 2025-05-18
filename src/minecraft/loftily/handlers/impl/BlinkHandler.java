@@ -8,8 +8,8 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketConfirmTransaction;
 import net.minecraft.network.play.client.CPacketKeepAlive;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class BlinkHandler extends Handler {
 
@@ -17,8 +17,8 @@ public class BlinkHandler extends Handler {
 
     public static boolean BLINK_NOC0F = false;
     public static boolean BLINK_NOC00 = false;
-
-    public static List<Packet<?>> packets = new ArrayList<>();
+    
+    public final static Queue<Packet<?>> packets = new LinkedList<>();
 
     public static void setBlinkState(
             boolean Blink,
@@ -29,30 +29,27 @@ public class BlinkHandler extends Handler {
         BLINK = Blink;
         BLINK_NOC0F = noC0F;
         BLINK_NOC00 = noC00;
-
-        if(release && !packets.isEmpty()){
-            for(Packet<?> packet : packets){
+        
+        if (release) {
+            while (!packets.isEmpty()) {
+                Packet<?> packet = packets.poll();
                 PacketUtils.sendPacket(packet,false);
             }
-            packets.clear();
         }
     }
-
-    public static void releasePacketsCustom(int size){
-        if(packets.isEmpty())return;
-
+    
+    public static void releasePacketsCustom(int size) {
         int i = 0;
-
-        for (Packet<?> packet : packets) {
-            if(i >= size){
-                return;
-            }
+        
+        while (!packets.isEmpty() && i < size) {
+            Packet<?> packet = packets.poll();
             if (packet != null) {
-                PacketUtils.sendPacket(packet,false);
+                PacketUtils.sendPacket(packet, false);
                 i++;
             }
         }
     }
+
 
     @EventHandler(priority = -1000)
     public void onPacketSend(PacketSendEvent event){
@@ -67,4 +64,5 @@ public class BlinkHandler extends Handler {
         event.setCancelled(true);
         packets.add(packet);
     }
+    
 }
