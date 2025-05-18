@@ -19,6 +19,7 @@ import loftily.value.impl.NumberValue;
 import loftily.value.impl.RangeSelectionNumberValue;
 import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
+import lombok.NonNull;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.Entity;
@@ -59,8 +60,8 @@ public class KillAura extends Module {
     private final NumberValue swingRange;
     private final NumberValue attackRange;
     //Target
-    private final ModeValue targetSortingMode = new ModeValue("TargetSortingMode", "Range", this,
-            new StringMode("Range"),
+    private final ModeValue targetSortingMode = new ModeValue("TargetSortingMode", "Distance", this,
+            new StringMode("Distance"),
             new StringMode("HurtTime"),
             new StringMode("Health")
     );
@@ -255,7 +256,7 @@ public class KillAura extends Module {
         }
         
         switch (targetSortingMode.getValue().getName()) {
-            case "Range":
+            case "Distance":
                 targets.sort((Comparator.comparingDouble(entityLivingBase -> CalculateUtils.getClosetDistance(mc.player, entityLivingBase))));
                 break;
             case "HurtTime":
@@ -332,4 +333,8 @@ public class KillAura extends Module {
         return 1000 / (int) RandomUtils.randomDouble(CPSValue.getFirst(), CPSValue.getSecond());
     }
     
+    @Override
+    public @NonNull String getTag() {
+        return mode.getValueByName();
+    }
 }

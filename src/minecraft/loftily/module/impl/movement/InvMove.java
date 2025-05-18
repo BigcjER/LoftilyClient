@@ -9,6 +9,7 @@ import loftily.utils.player.MoveUtils;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
+import lombok.NonNull;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.settings.GameSettings;
@@ -56,5 +57,10 @@ public class InvMove extends Module {
                 event.setCancelled(true);
             }
         }
+    }
+    
+    @Override
+    public @NonNull String getTag() {
+        return mode.getValueByName();
     }
 }

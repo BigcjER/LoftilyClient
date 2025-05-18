@@ -6,6 +6,7 @@ import loftily.module.ModuleInfo;
 import loftily.module.impl.movement.velocitys.CancelVelocity;
 import loftily.module.impl.movement.velocitys.NormalVelocity;
 import loftily.value.impl.mode.ModeValue;
+import lombok.NonNull;
 
 @ModuleInfo(name = "Velocity", category = ModuleCategory.Movement)
 public class Velocity extends Module {
@@ -13,4 +14,9 @@ public class Velocity extends Module {
             new NormalVelocity("Normal"),
             new CancelVelocity("Cancel")
     );
+    
+    @Override
+    public @NonNull String getTag() {
+        return mode.getValueByName();
+    }
 }
