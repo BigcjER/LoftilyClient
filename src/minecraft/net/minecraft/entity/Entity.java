@@ -3,10 +3,10 @@ package net.minecraft.entity;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.Client;
+import loftily.event.impl.player.PushEvent;
 import loftily.event.impl.player.motion.StrafeEvent;
 import loftily.handlers.impl.RotationHandler;
 import loftily.module.impl.other.RayTraceFixer;
@@ -1687,6 +1687,11 @@ public abstract class Entity implements ICommandSender
      */
     public void applyEntityCollision(Entity entityIn)
     {
+        PushEvent event = new PushEvent(entityIn);
+        Client.INSTANCE.getEventManager().call(event);
+        
+        if (event.isCancelled()) return;
+        
         if (!this.isRidingSameEntity(entityIn))
         {
             if (!entityIn.noClip && !this.noClip)

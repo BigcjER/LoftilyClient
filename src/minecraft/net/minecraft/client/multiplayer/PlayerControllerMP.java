@@ -1,6 +1,8 @@
 package net.minecraft.client.multiplayer;
 
 import io.netty.buffer.Unpooled;
+import loftily.Client;
+import loftily.event.impl.player.ClickWindowEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCommandBlock;
 import net.minecraft.block.BlockStructure;
@@ -21,23 +23,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.client.CPacketClickWindow;
-import net.minecraft.network.play.client.CPacketCreativeInventoryAction;
-import net.minecraft.network.play.client.CPacketCustomPayload;
-import net.minecraft.network.play.client.CPacketEnchantItem;
-import net.minecraft.network.play.client.CPacketHeldItemChange;
-import net.minecraft.network.play.client.CPacketPlaceRecipe;
-import net.minecraft.network.play.client.CPacketPlayerDigging;
-import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
-import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
-import net.minecraft.network.play.client.CPacketUseEntity;
+import net.minecraft.network.play.client.*;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.stats.StatisticsManager;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
@@ -564,12 +553,16 @@ public class PlayerControllerMP
     /**
      * Handles slot clicks, sends a packet to the server.
      */
-    public ItemStack windowClick(int windowId, int slotId, int mouseButton, ClickType type, EntityPlayer player)
+    public void windowClick(int windowId, int slotId, int mouseButton, ClickType type, EntityPlayer player)
     {
+        ClickWindowEvent event = new ClickWindowEvent(windowId, slotId, mouseButton, type, player);
+        Client.INSTANCE.getEventManager().call(event);
+        
+        if (event.isCancelled()) return;
+        
         short short1 = player.openContainer.getNextTransactionID(player.inventory);
         ItemStack itemstack = player.openContainer.slotClick(slotId, mouseButton, type, player);
         this.connection.sendPacket(new CPacketClickWindow(windowId, slotId, mouseButton, type, itemstack, short1));
-        return itemstack;
     }
 
     public void func_194338_a(int p_194338_1_, IRecipe p_194338_2_, boolean p_194338_3_, EntityPlayer p_194338_4_)
