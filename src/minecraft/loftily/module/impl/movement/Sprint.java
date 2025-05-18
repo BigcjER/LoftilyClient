@@ -29,9 +29,10 @@ public class Sprint extends Module {
     private final BooleanValue allDirections = new BooleanValue("AllDirections",false);
     private final BooleanValue noC0B = new BooleanValue("NoSprintPackets",false);
     private final BooleanValue noInventory = new BooleanValue("NoInventory",false);
+    private final BooleanValue noGui = new BooleanValue("NoAnyGui",false);
     private final BooleanValue noFood = new BooleanValue("NoFood",false);
     private final BooleanValue noHunger = new BooleanValue("NoHunger",false);
-
+    private final BooleanValue noSneaking = new BooleanValue("NoSneak",false);
 
     @EventHandler
     public void onPacketSend(PacketSendEvent event) {
@@ -72,7 +73,13 @@ public class Sprint extends Module {
             }
         }
 
-        if(noInventory.getValue() && mc.currentScreen instanceof GuiInventory) {
+        if(noSneaking.getValue()){
+            if(mc.player.isSneaking()){
+                mc.player.setSprinting(false);
+            }
+        }
+
+        if((noInventory.getValue() && mc.currentScreen instanceof GuiInventory) || (noGui.getValue() && mc.currentScreen != null)) {
             mc.player.setSprinting(false);
         }
 

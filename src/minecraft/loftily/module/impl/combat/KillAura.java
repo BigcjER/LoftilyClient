@@ -20,6 +20,7 @@ import loftily.value.impl.RangeSelectionNumberValue;
 import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
 import net.lenni0451.lambdaevents.EventHandler;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHand;
@@ -52,6 +53,7 @@ public class KillAura extends Module {
     private final BooleanValue rayCastThroughWalls = new BooleanValue("RayCastThroughWalls", false);
     private final BooleanValue rayCastOnlyTarget = new BooleanValue("RayCastOnlyTarget", false);
     private final ModeValue keepSprintMode = new ModeValue("KeepSprintMode", "None", this, new StringMode("None"), new StringMode("Always"), new StringMode("WhenNotHurt"));
+    private final BooleanValue noInventory = new BooleanValue("NoInventory", false);
     //Range
     private final NumberValue rotationRange;
     private final NumberValue swingRange;
@@ -107,26 +109,24 @@ public class KillAura extends Module {
 
     public void rotation(EntityLivingBase target) {
         if (target == null) return;
-        
-        if (RotationHandler.serverRotation != null) {
-            float horizonSpeed = (float) RandomUtils.randomDouble(yawTurnSpeed.getFirst(), yawTurnSpeed.getSecond());
-            float pitchSpeed = (float) RandomUtils.randomDouble(pitchTurnSpeed.getFirst(), pitchTurnSpeed.getSecond());
-            
-            int keepTicks = RandomUtils.randomInt((int) Math.round(this.keepTicks.getFirst()), (int) Math.round(this.keepTicks.getSecond()));
-            int reverseTicks = RandomUtils.randomInt((int) Math.round(this.backTicks.getFirst()), (int) Math.round(this.backTicks.getSecond()));
-            
-            Rotation calculateRot = RotationUtils.smoothRotation(
-                    RotationHandler.serverRotation,
-                    calculateRotation(target),
-                    horizonSpeed,
-                    pitchSpeed
-            );
-            if (silentRotation.getValue()) {
-                RotationHandler.setClientRotation(calculateRot, keepTicks, reverseTicks,moveFixMode.getValue().getName());
-            } else {
-                mc.player.rotationYaw = calculateRot.yaw;
-                mc.player.rotationPitch = calculateRot.pitch;
-            }
+
+        float horizonSpeed = (float) RandomUtils.randomDouble(yawTurnSpeed.getFirst(), yawTurnSpeed.getSecond());
+        float pitchSpeed = (float) RandomUtils.randomDouble(pitchTurnSpeed.getFirst(), pitchTurnSpeed.getSecond());
+
+        int keepTicks = RandomUtils.randomInt((int) Math.round(this.keepTicks.getFirst()), (int) Math.round(this.keepTicks.getSecond()));
+        int reverseTicks = RandomUtils.randomInt((int) Math.round(this.backTicks.getFirst()), (int) Math.round(this.backTicks.getSecond()));
+
+        Rotation calculateRot = RotationUtils.smoothRotation(
+                RotationHandler.getCurrentRotation(),
+                calculateRotation(target),
+                horizonSpeed,
+                pitchSpeed
+        );
+        if (silentRotation.getValue()) {
+            RotationHandler.setClientRotation(calculateRot, keepTicks, reverseTicks,moveFixMode.getValue().getName());
+        } else {
+            mc.player.rotationYaw = calculateRot.yaw;
+            mc.player.rotationPitch = calculateRot.pitch;
         }
     }
 
@@ -286,7 +286,11 @@ public class KillAura extends Module {
             canAttackTimes = 0;
             return;
         }
-        
+
+        if(noInventory.getValue() && mc.currentScreen instanceof GuiInventory) {
+            return;
+        }
+
         if (Objects.equals(noDoubleHit.getValue().getName(), "Cancel")) {
             if (canAttackTimes > 1) {
                 canAttackTimes = 1;
