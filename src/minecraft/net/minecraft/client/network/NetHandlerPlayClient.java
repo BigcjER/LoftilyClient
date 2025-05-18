@@ -713,6 +713,10 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
     {
         this.netManager.sendPacket(packetIn);
     }
+    
+    public void sendPacketNoEvent(Packet<?> packetIn) {
+        this.netManager.sendPacketNoEvent(packetIn);
+    }
 
     public void handleCollectItem(SPacketCollectItem packetIn)
     {

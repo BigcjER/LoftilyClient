@@ -533,4 +533,57 @@ public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
             this.futureListeners = inFutureListeners;
         }
     }
+    
+    public void sendPacketNoEvent(Packet<?> packetIn) {
+        if (this.isChannelOpen()) {
+            this.flushOutboundQueue();
+            this.dispatchPacketNoEvent(packetIn, null);
+        } else {
+            this.readWriteLock.writeLock().lock();
+            
+            try {
+                this.outboundPacketsQueue.add(new NetworkManager.InboundHandlerTuplePacketListener(packetIn, new GenericFutureListener[0]));
+            } finally {
+                this.readWriteLock.writeLock().unlock();
+            }
+        }
+    }
+    
+    private void dispatchPacketNoEvent(Packet<?> inPacket, @Nullable final GenericFutureListener<? extends Future<? super Void>>[] futureListeners) {
+        final EnumConnectionState enumconnectionstate = EnumConnectionState.getFromPacket(inPacket);
+        final EnumConnectionState enumconnectionstate1 = (EnumConnectionState) this.channel.attr(PROTOCOL_ATTRIBUTE_KEY).get();
+        
+        if (enumconnectionstate1 != enumconnectionstate) {
+            LOGGER.debug("Disabled auto read");
+            this.channel.config().setAutoRead(false);
+        }
+        
+        if (this.channel.eventLoop().inEventLoop()) {
+            if (enumconnectionstate != enumconnectionstate1) {
+                this.setConnectionState(enumconnectionstate);
+            }
+            
+            ChannelFuture channelfuture = this.channel.writeAndFlush(inPacket);
+            
+            if (futureListeners != null) {
+                channelfuture.addListeners(futureListeners);
+            }
+            
+            channelfuture.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+        } else {
+            this.channel.eventLoop().execute(() -> {
+                if (enumconnectionstate != enumconnectionstate1) {
+                    NetworkManager.this.setConnectionState(enumconnectionstate);
+                }
+                
+                ChannelFuture channelfuture1 = NetworkManager.this.channel.writeAndFlush(inPacket);
+                
+                if (futureListeners != null) {
+                    channelfuture1.addListeners(futureListeners);
+                }
+                
+                channelfuture1.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+            });
+        }
+    }
 }
