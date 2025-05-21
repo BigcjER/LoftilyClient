@@ -41,35 +41,35 @@ public enum Client {
         long start = System.currentTimeMillis();
         Logger.info("Initializing {}...", Name);
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Event Manager", 40);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Event Manager", 40);
         eventManager = LambdaManager.basic(new LambdaMetaFactoryGenerator());
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Module Manager", 45);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Module Manager", 45);
         moduleManager = new ModuleManager();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Handlers", 55);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Handlers", 55);
         handlerManager = new HandlerManager();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("ViaMCP", 60);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing ViaMCP", 60);
         ViaMCP.create();
         ViaMCP.INSTANCE.initAsyncSlider();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Configs", 75);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Configs", 75);
         configManager = new ConfigManager();
         configManager.init();/* late init I think */
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Commands", 80);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Commands", 80);
         commandManager = new CommandManager();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Click Gui", 90);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Click Gui", 90);
         clickGui = new ClickGui();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Notification", 95);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Notification", 95);
         notificationManager = new NotificationManager();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Completed", 100);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initialization complete", 100);
         long time = System.currentTimeMillis();
-        while (System.currentTimeMillis() - time <= 500) ;
+        while (System.currentTimeMillis() - time <= 500) ;//waiting for 0.5s
         
         Logger.info("Initialization completed, took {} ms.", (System.currentTimeMillis() - start));
     }

@@ -464,7 +464,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
         this.mcResourceManager.registerReloadListener(this.mcLanguageManager);
         this.refreshResources();
         this.renderEngine = new TextureManager(this.mcResourceManager);
-        SplashScreen.INSTANCE.setProgressAndDraw("Minecraft", 5);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Minecraft", 5);
         this.mcResourceManager.registerReloadListener(this.renderEngine);
         this.skinManager = new SkinManager(this.renderEngine, new File(this.fileAssets, "skins"), this.sessionService);
         this.saveLoader = new AnvilSaveConverter(new File(this.mcDataDir, "saves"), this.dataFixer);

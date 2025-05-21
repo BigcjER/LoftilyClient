@@ -79,7 +79,7 @@ public enum SplashScreen {
                 Colors.BackGround.color);
         
         FontManager.NotoSans.of(30).drawCenteredString(
-                "Initialization " + text,
+                text,
                 sr.getScaledWidth() / 2F,
                 sr.getScaledHeight() / 2F - 20,
                 Colors.Text.color);
