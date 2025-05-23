@@ -36,7 +36,7 @@ public class MainMenu extends GuiScreen {
     
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        fadeInOut(() -> {
+        Runnable runnable = () -> {
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             GlStateManager.disableAlpha();
@@ -57,7 +57,23 @@ public class MainMenu extends GuiScreen {
             FontManager.NotoSans.of(30).drawCenteredStringWithShadow(Client.Name, width / 2F, 60, Colors.Text.color.getRGB());
             
             super.drawScreen(mouseX, mouseY, partialTicks);
-        });
+        };
+        
+        //fadeInOutAnim
+        if (!ran) {
+            if (!fadeInAnim.isFinished()) {
+                fadeInAnim.run(254);
+                runnable.run();
+                int alpha = 254 - fadeInAnim.getValuei();
+                RenderUtils.drawRect(0, 0, width, height, alpha << 24);
+                return;
+            }
+            
+            ran = true;
+        }
+        
+        runnable.run();
+        
     }
     
     @Override
@@ -81,21 +97,6 @@ public class MainMenu extends GuiScreen {
     }
     
     
-    private void fadeInOut(Runnable runnable) {
-        if (!ran) {
-            if (!fadeInAnim.isFinished()) {
-                fadeInAnim.run(254);
-                runnable.run();
-                int alpha = 254 - fadeInAnim.getValuei();
-                RenderUtils.drawRect(0, 0, width, height, alpha << 24);
-                return;
-            }
-            
-            ran = true;
-        }
-        
-        runnable.run();
-    }
     
     
 }

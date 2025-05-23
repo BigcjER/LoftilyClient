@@ -4,14 +4,12 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.gson.JsonSyntaxException;
 import loftily.Client;
+import loftily.event.impl.render.FovModifierEvent;
+import loftily.event.impl.render.HurtCameraEvent;
 import loftily.event.impl.render.Render3DEvent;
-import loftily.gui.animation.Animation;
-import loftily.gui.animation.Easing;
 import loftily.handlers.impl.RotationHandler;
 import loftily.module.impl.other.RayTraceFixer;
-import loftily.module.impl.render.ZoomModifier;
 import loftily.utils.math.CalculateUtils;
-import loftily.utils.math.Rotation;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.material.Material;
@@ -577,89 +575,67 @@ public class EntityRenderer implements IResourceManagerReloadListener
     /**
      * Changes the field of view of the player depending on if they are underwater or not
      */
-    Animation zoomAnimation = new Animation(Easing.Linear,100);
-    private float getFOVModifier(float partialTicks, boolean useFOVSetting)
-    {
-        if (this.debugView)
-        {
+    private float getFOVModifier(float partialTicks, boolean useFOVSetting) {
+        if (this.debugView) {
             return 90.0F;
-        }
-        else
-        {
+        } else {
             Entity entity = this.mc.getRenderViewEntity();
             float f = 70.0F;
-
-            if (useFOVSetting)
-            {
+            
+            if (useFOVSetting) {
                 f = this.mc.gameSettings.fovSetting;
-
-                if (Config.isDynamicFov())
-                {
+                
+                if (Config.isDynamicFov()) {
                     f *= this.fovModifierHandPrev + (this.fovModifierHand - this.fovModifierHandPrev) * partialTicks;
                 }
             }
-
+            
             boolean flag = false;
-
-            if (this.mc.currentScreen == null)
-            {
-                GameSettings gamesettings = this.mc.gameSettings;
+            
+            if (this.mc.currentScreen == null) {
                 flag = GameSettings.isKeyDown(this.mc.gameSettings.ofKeyBindZoom);
             }
-            ZoomModifier zoomModifier = Client.INSTANCE.getModuleManager().get(ZoomModifier.class);
+            FovModifierEvent modifierEvent = new FovModifierEvent(flag ? 4 : 1);
+            Client.INSTANCE.getEventManager().call(modifierEvent);
+            f /= modifierEvent.getZoomMultiplier();
             
-            if(zoomModifier.animation.getValue() && zoomModifier.isToggled()) {
+            
+            if (flag) {
                 if (!Config.zoomMode) {
-                    Config.zoomMode = true;
-                    this.mc.gameSettings.smoothCamera = zoomModifier.smoothCamera.getValue();
-                    this.mc.renderGlobal.displayListEntitiesDirty = true;
-                }
-                zoomAnimation.setEasing(flag ? zoomModifier.zoomInEasing.getValueByEasing() : zoomModifier.zoomOutEasing.getValueByEasing());
-                zoomAnimation.setDuration(flag ? zoomModifier.zoomInEasingDuring.getValue().longValue() : zoomModifier.zoomOutEasingDuring.getValue().longValue());
-                zoomAnimation.run(flag ? zoomModifier.zoomMultiplier.getValue() : 1);
-                f /= zoomAnimation.getValuef();
-            } else {
-                zoomAnimation.setValue(1);
-            }
-
-            if (flag)
-            {
-                if (!Config.zoomMode)
-                {
                     Config.zoomMode = true;
                     this.mc.gameSettings.smoothCamera = true;
                     this.mc.renderGlobal.displayListEntitiesDirty = true;
                 }
-                if (!zoomModifier.isToggled() || !zoomModifier.animation.getValue()) f /= 4;
-            }
-            else if (Config.zoomMode)
-            {
+            } else if (Config.zoomMode) {
                 Config.zoomMode = false;
                 this.mc.gameSettings.smoothCamera = false;
                 this.mouseFilterXAxis = new MouseFilter();
                 this.mouseFilterYAxis = new MouseFilter();
                 this.mc.renderGlobal.displayListEntitiesDirty = true;
             }
-
-            if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHealth() <= 0.0F)
-            {
-                float f1 = (float)((EntityLivingBase)entity).deathTime + partialTicks;
+            
+            if (entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHealth() <= 0.0F) {
+                float f1 = (float) ((EntityLivingBase) entity).deathTime + partialTicks;
                 f /= (1.0F - 500.0F / (f1 + 500.0F)) * 2.0F + 1.0F;
             }
-
+            
             IBlockState iblockstate = ActiveRenderInfo.getBlockStateAtEntityViewpoint(this.mc.world, entity, partialTicks);
-
-            if (iblockstate.getMaterial() == Material.WATER)
-            {
+            
+            if (iblockstate.getMaterial() == Material.WATER) {
                 f = f * 60.0F / 70.0F;
             }
-
+            
             return Reflector.ForgeHooksClient_getFOVModifier.exists() ? Reflector.callFloat(Reflector.ForgeHooksClient_getFOVModifier, this, entity, iblockstate, partialTicks, f) : f;
         }
     }
 
     private void hurtCameraEffect(float partialTicks)
     {
+        HurtCameraEvent event = new HurtCameraEvent();
+        Client.INSTANCE.getEventManager().call(event);
+        
+        if (event.isCancelled()) return;
+        
         if (this.mc.getRenderViewEntity() instanceof EntityLivingBase)
         {
             EntityLivingBase entitylivingbase = (EntityLivingBase)this.mc.getRenderViewEntity();

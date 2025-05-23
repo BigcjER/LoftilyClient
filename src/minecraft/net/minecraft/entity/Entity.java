@@ -18,6 +18,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.block.state.pattern.BlockPattern;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.crash.CrashReport;
@@ -1687,11 +1688,12 @@ public abstract class Entity implements ICommandSender
      */
     public void applyEntityCollision(Entity entityIn)
     {
-        PushEvent event = new PushEvent(entityIn);
-        Client.INSTANCE.getEventManager().call(event);
-        
-        if (event.isCancelled()) return;
-        
+        if (entityIn instanceof EntityPlayerSP) {
+            PushEvent event = new PushEvent(entityIn);
+            Client.INSTANCE.getEventManager().call(event);
+            
+            if (event.isCancelled()) return;
+        }
         if (!this.isRidingSameEntity(entityIn))
         {
             if (!entityIn.noClip && !this.noClip)

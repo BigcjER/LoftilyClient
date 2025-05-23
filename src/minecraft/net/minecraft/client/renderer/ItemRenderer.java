@@ -2,7 +2,7 @@ package net.minecraft.client.renderer;
 
 import com.google.common.base.MoreObjects;
 import loftily.Client;
-import loftily.module.impl.render.LowFire;
+import loftily.event.impl.render.RenderFireEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -610,11 +610,12 @@ public class ItemRenderer
             float f3 = textureatlassprite.getMinV();
             float f4 = textureatlassprite.getMaxV();
             
-            float yOffset = -0.3F;
-            LowFire lowFire = Client.INSTANCE.getModuleManager().get(LowFire.class);
-            if (lowFire.isToggled()) yOffset = (float) -lowFire.fireYOffset.getValue();
+            float translateY = -0.3F;
+            RenderFireEvent event = new RenderFireEvent(translateY);
+            Client.INSTANCE.getEventManager().call(event);
+            translateY = event.getTranslateY();
             
-            GlStateManager.translate((float) (-(i * 2 - 1)) * 0.24F, yOffset, 0.0F);
+            GlStateManager.translate((float) (-(i * 2 - 1)) * 0.24F, translateY, 0.0F);
             GlStateManager.rotate((float)(i * 2 - 1) * 10.0F, 0.0F, 1.0F, 0.0F);
             
             bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);

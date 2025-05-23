@@ -15,6 +15,10 @@ public class FontManager {
     static {
         NotoSans = new FontWrapper("NotoSansSC-Regular.ttf");
         MaterialSymbolsSharp = new FontWrapper("MaterialSymbolsSharp[FILL,GRAD,opsz,wght].ttf");
+        
+        for (int i = 14; i < 16; i++) NotoSans.of(i);
+        
+        for (int i = 15; i < 28; i += 3) MaterialSymbolsSharp.of(i);
     }
     
     public static class FontWrapper {
