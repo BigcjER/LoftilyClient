@@ -20,26 +20,16 @@ jobs:
           java-version: '8'
           distribution: 'temurin'
 
-      - name: Copy resources
-        run: |
-          mkdir -p out/assets
-          cp -r src/minecraft/assets/* out/assets/
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x ./gradlew
 
-      - name: Compile sources
-        run: |
-          javac -cp "libs/client/*:libs/minecraft/*" \
-          -d out \
-          -sourcepath src/minecraft \
-          $(find src/minecraft -name "*.java")
+      - name: Build with Gradle
+        run: ./gradlew clean build
 
-      - name: Package JAR
-        run: |
-         jar cf Loftily.jar -C out .
-
-      - name: Upload artifact
+      - name: Upload built JAR
         uses: actions/upload-artifact@v4
         with:
           name: Loftily
           path: |
-            ${{ github.workspace }}/Loftily.jar
+            ${{ github.workspace }}/app/build/libs/*.jar
             ${{ github.workspace }}/Loftily.json
