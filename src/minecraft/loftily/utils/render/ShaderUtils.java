@@ -1,12 +1,10 @@
 package loftily.utils.render;
 
 import loftily.utils.client.ClientUtils;
-import loftily.utils.client.FileUtils;
 import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import static net.minecraft.client.renderer.OpenGlHelper.GL_COMPILE_STATUS;
@@ -18,17 +16,14 @@ public class ShaderUtils implements ClientUtils {
     
     public ShaderUtils(Shader shader) {
         int program = GL20.glCreateProgram();
-        GL20.glAttachShader(program,
-                compileShader(new ByteArrayInputStream(shader.code.getBytes()), GL_FRAGMENT_SHADER));
-        
-        GL20.glAttachShader(program,
-                compileShader(new ByteArrayInputStream(Shader.Vertex.code.getBytes()), GL_VERTEX_SHADER));
-        
+        GL20.glAttachShader(program, compileShader(shader.fileName, GL_FRAGMENT_SHADER));
+        GL20.glAttachShader(program, compileShader(Shader.Vertex.fileName, GL_VERTEX_SHADER));
         GL20.glLinkProgram(program);
         
         if (GL20.glGetProgrami(program, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
-            throw new IllegalStateException(String.format("Shader program linking failed! Details: %s", GL20.glGetProgramInfoLog(program, 500)));
+            throw new IllegalStateException("Shader linking failed: " + GL20.glGetProgramInfoLog(program, 500));
         }
+        
         this.programID = program;
     }
     
@@ -82,15 +77,35 @@ public class ShaderUtils implements ClientUtils {
         }
     }
     
-    private int compileShader(InputStream inputStream, int shaderType) {
+    private int compileShader(String fileName, int shaderType) {
         int shader = GL20.glCreateShader(shaderType);
-        GL20.glShaderSource(shader, FileUtils.readInputStream(inputStream));
-        GL20.glCompileShader(shader);
-        
-        if (GL20.glGetShaderi(shader, GL_COMPILE_STATUS) == GL11.GL_FALSE) {
-            throw new IllegalStateException(String.format("Shader compilation failed! Type: %d, Details: %s", shaderType, GL20.glGetShaderInfoLog(shader, 4096)));
+        try (InputStream input = ShaderUtils.class.getResourceAsStream("/assets/minecraft/loftily/shaders/" + fileName)) {
+            if (input == null) {
+                throw new IllegalArgumentException("Shader file not found: " + fileName);
+            }
+            String source = readStreamToString(input);
+            GL20.glShaderSource(shader, source);
+            GL20.glCompileShader(shader);
+            
+            if (GL20.glGetShaderi(shader, GL_COMPILE_STATUS) == GL11.GL_FALSE) {
+                throw new IllegalStateException(String.format("Shader compilation failed! Type: %d, File: %s, Details: %s",
+                        shaderType, fileName, GL20.glGetShaderInfoLog(shader, 4096)));
+            }
+            
+            return shader;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load shader: " + fileName, e);
         }
-        
-        return shader;
     }
+    
+    private static String readStreamToString(InputStream input) throws Exception {
+        StringBuilder sb = new StringBuilder();
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = input.read(buffer)) != -1) {
+            sb.append(new String(buffer, 0, bytesRead));
+        }
+        return sb.toString();
+    }
+    
 }
