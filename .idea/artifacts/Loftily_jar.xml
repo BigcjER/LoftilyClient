@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="Loftily:jar">
-    <output-path>$PROJECT_DIR$/artifacts</output-path>
-    <root id="archive" name="Loftily.jar">
-      <element id="module-output" name="LoftilyClient" />
-    </root>
-  </artifact>
-</component>
