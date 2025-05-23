@@ -8,12 +8,11 @@ import loftily.gui.menu.SplashScreen;
 import loftily.gui.notification.NotificationManager;
 import loftily.handlers.HandlerManager;
 import loftily.module.ModuleManager;
+import loftily.utils.client.ClientUtils;
 import lombok.Getter;
 import net.lenni0451.lambdaevents.LambdaManager;
 import net.lenni0451.lambdaevents.generator.LambdaMetaFactoryGenerator;
 import net.minecraft.util.text.TextFormatting;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @Getter
 public enum Client {
@@ -21,7 +20,6 @@ public enum Client {
     
     public static final String Name = "Loftily";
     public static final String Version = "v0.1";
-    public static final Logger Logger = LogManager.getLogger(Client.class);
     public static final String StringPreFix = String.format("%s%s%s",
             TextFormatting.YELLOW + "[",
             TextFormatting.DARK_AQUA + Name,
@@ -39,7 +37,7 @@ public enum Client {
     
     public void init() {
         long start = System.currentTimeMillis();
-        Logger.info("Initializing {}...", Name);
+        ClientUtils.Logger.info("Initializing {}...", Name);
         
         SplashScreen.INSTANCE.setProgressAndDraw("Initializing Event Manager", 40);
         eventManager = LambdaManager.basic(new LambdaMetaFactoryGenerator());
@@ -67,15 +65,15 @@ public enum Client {
         SplashScreen.INSTANCE.setProgressAndDraw("Initializing Notification", 95);
         notificationManager = new NotificationManager();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Initialization complete", 100);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initialization Complete", 100);
         long time = System.currentTimeMillis();
         while (System.currentTimeMillis() - time <= 500) ;//waiting for 0.5s
         
-        Logger.info("Initialization completed, took {} ms.", (System.currentTimeMillis() - start));
+        ClientUtils.Logger.info("Initialization completed, took {} ms.", (System.currentTimeMillis() - start));
     }
     
     public void shutdown() {
-        Logger.info("Saving all configs");
+        ClientUtils.Logger.info("Saving all configs");
         configManager.saveAll();
     }
     

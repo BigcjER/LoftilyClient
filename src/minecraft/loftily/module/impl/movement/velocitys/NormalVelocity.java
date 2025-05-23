@@ -13,8 +13,9 @@ public class NormalVelocity extends Mode {
     public final NumberValue horizontal = new NumberValue("Horizontal", 0.0, -100.0, 100.0, 0.1);
     public final NumberValue vertical = new NumberValue("Vertical", 100.0, -100.0, 100.0, 0.1);
     public BooleanValue noExplosion = new BooleanValue("NoExplosion", true);
-    public NormalVelocity(String name) {
-        super(name);
+    
+    public NormalVelocity() {
+        super("Normal");
     }
     
     @EventHandler

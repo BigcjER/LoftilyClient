@@ -21,18 +21,20 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ClickGui extends GuiScreen {
-    
+    //Positions
     public static final float CornerRadius = 3, Padding = 5;
-    public final List<CategoryButton> categoryButtons;
-    private final Draggable draggable;
     private final int width, height;
     private final Scrollable scrollableModuleButtons;
     private final float valuePanelWidth = 160;
-    public CategoryButton currentCategoryButton;
+    private final Draggable draggable;
+    private int x, y;
+    
+    //CategoryButtons,ModuleButtons
+    public final List<CategoryButton> categoryButtons;
     public List<ModuleButton> currentModuleButtons;
+    public CategoryButton currentCategoryButton;
     @Getter
     private ValuePanel currentValuePanel;
-    private int x, y;
     
     public ClickGui() {
         this.width = 430;
@@ -69,46 +71,31 @@ public class ClickGui extends GuiScreen {
         RenderUtils.drawRoundedRect(x, y, width, height, CornerRadius, Colors.BackGround.color);
         
         /* CategoryButtons */
-        RenderUtils.drawRoundedRect(
-                x + Padding,
-                y + Padding,
-                Padding + CategoryButton.width + Padding + 10,
-                height - Padding * 2,
-                CornerRadius - 1,
-                Colors.OnBackGround.color);//backgound
-        
-        float categoryButtonsYOffset = 0;
-        int categoryButtonX = x + 14;
-        int categoryButtonY = y + 45;
-        for (CategoryButton categoryButton : categoryButtons) {
-            categoryButton.setPosition(categoryButtonX, categoryButtonY + categoryButtonsYOffset);
-            categoryButton.drawScreen(mouseX, mouseY, partialTicks);
-            categoryButtonsYOffset += categoryButton.getHeight() + 8;
-        }
+        drawCategoryButtons(mouseX, mouseY, partialTicks);
         
         
         /* ModuleButtons */
-        //计算总高度，然后更新滚轮
-        float buttonsHeight = 0.0F;
-        int buttonsInRow = 0;
-        float rowHeight = 0.0F;
-        for (ModuleButton moduleButton : currentModuleButtons) {
-            rowHeight = Math.max(rowHeight, moduleButton.height);
-            if (++buttonsInRow == 3) {
-                buttonsHeight += rowHeight + Padding;
-                buttonsInRow = 0;
-                rowHeight = 0;
-            }
+        updateModuleButtonsScorlls();
+        renderModuleButtons(mouseX, mouseY, partialTicks);
+        
+        //Render currentValuePanel
+        RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(x, y, width, height, CornerRadius, Colors.BackGround.color));
+        if (currentValuePanel != null) {
+            currentValuePanel.setX(x + width - (valuePanelWidth * currentValuePanel.animation.getValuef()));
+            currentValuePanel.setY(y);
+            currentValuePanel.setWidth(valuePanelWidth);
+            currentValuePanel.setHeight(height);
+            
+            RenderUtils.drawRoundedRect(x, y, width, height, CornerRadius, ColorUtils.colorWithAlpha(Colors.BackGround.color, (int) (80 * currentValuePanel.animation.getValuef())));
+            
+            currentValuePanel.drawScreen(mouseX, mouseY, partialTicks);
+            
+            if (!currentValuePanel.out && currentValuePanel.animation.isFinished()) currentValuePanel = null;
         }
-        if (buttonsInRow > 0) buttonsHeight += rowHeight;
-        buttonsHeight = Math.max(0, buttonsHeight - Padding - 140);
-        
-        if (currentValuePanel == null) {//确保当前没有ValuePanel避免冲突
-            scrollableModuleButtons.setMax(buttonsHeight);
-            scrollableModuleButtons.updateScroll();
-        }
-        
-        
+        RenderUtils.stopGlStencil();
+    }
+    
+    private void renderModuleButtons(int mouseX, int mouseY, float partialTicks) {
         float baseXOffset = 10.5F;
         float panelStartX = x + CategoryButton.width + baseXOffset + Padding * 3;
         float panelStartY = y + Padding;
@@ -141,21 +128,47 @@ public class ClickGui extends GuiScreen {
         }
         
         RenderUtils.stopGlStencil();
-        
-        RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(x, y, width, height, CornerRadius, Colors.BackGround.color));
-        if (currentValuePanel != null) {
-            currentValuePanel.setX(x + width - (valuePanelWidth * currentValuePanel.animation.getValuef()));
-            currentValuePanel.setY(y);
-            currentValuePanel.setWidth(valuePanelWidth);
-            currentValuePanel.setHeight(height);
-            
-            RenderUtils.drawRoundedRect(x, y, width, height, CornerRadius, ColorUtils.colorWithAlpha(Colors.BackGround.color, (int) (80 * currentValuePanel.animation.getValuef())));
-            
-            currentValuePanel.drawScreen(mouseX, mouseY, partialTicks);
-            
-            if (!currentValuePanel.out && currentValuePanel.animation.isFinished()) currentValuePanel = null;
+    }
+    
+    private void updateModuleButtonsScorlls() {
+        //计算总高度，然后更新滚轮
+        float buttonsHeight = 0.0F;
+        int buttonsInRow = 0;
+        float rowHeight = 0.0F;
+        for (ModuleButton moduleButton : currentModuleButtons) {
+            rowHeight = Math.max(rowHeight, moduleButton.height);
+            if (++buttonsInRow == 3) {
+                buttonsHeight += rowHeight + Padding;
+                buttonsInRow = 0;
+                rowHeight = 0;
+            }
         }
-        RenderUtils.stopGlStencil();
+        if (buttonsInRow > 0) buttonsHeight += rowHeight;
+        buttonsHeight = Math.max(0, buttonsHeight - Padding - 140);
+        
+        if (currentValuePanel == null) {//确保当前没有ValuePanel避免冲突
+            scrollableModuleButtons.setMax(buttonsHeight);
+            scrollableModuleButtons.updateScroll();
+        }
+    }
+    
+    private void drawCategoryButtons(int mouseX, int mouseY, float partialTicks) {
+        RenderUtils.drawRoundedRect(
+                x + Padding,
+                y + Padding,
+                Padding + CategoryButton.width + Padding + 10,
+                height - Padding * 2,
+                CornerRadius - 1,
+                Colors.OnBackGround.color);//backgound
+        
+        float categoryButtonsYOffset = 0;
+        int categoryButtonX = x + 14;
+        int categoryButtonY = y + 45;
+        for (CategoryButton categoryButton : categoryButtons) {
+            categoryButton.setPosition(categoryButtonX, categoryButtonY + categoryButtonsYOffset);
+            categoryButton.drawScreen(mouseX, mouseY, partialTicks);
+            categoryButtonsYOffset += categoryButton.getHeight() + 8;
+        }
     }
     
     @Override

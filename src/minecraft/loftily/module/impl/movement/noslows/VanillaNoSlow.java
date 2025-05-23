@@ -5,8 +5,8 @@ import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
 
 public class VanillaNoSlow extends Mode {
-    public VanillaNoSlow(String name) {
-        super(name);
+    public VanillaNoSlow() {
+        super("Vanilla");
     }
     
     @EventHandler

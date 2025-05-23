@@ -11,9 +11,9 @@ public class CancelVelocity extends Mode {
 
     private final BooleanValue cancelXZ = new BooleanValue("CancelHorizontal", true);
     private final BooleanValue cancelY = new BooleanValue("CancelVertical", true);
-
-    public CancelVelocity(String name) {
-        super(name);
+    
+    public CancelVelocity() {
+        super("Cancel");
     }
 
     @EventHandler

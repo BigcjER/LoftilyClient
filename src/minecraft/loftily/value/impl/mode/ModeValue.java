@@ -4,10 +4,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import loftily.core.AbstractModule;
 import loftily.module.Module;
+import loftily.utils.client.ClassUtils;
+import loftily.utils.client.ClientUtils;
 import loftily.value.Value;
 import lombok.Getter;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
@@ -98,5 +102,28 @@ public class ModeValue extends Value<Mode, ModeValue> {
             }
         }
         return this;
+    }
+    
+    /**
+     * @param packageName Full package name
+     */
+    public static Mode[] getModes(String packageName) {
+        List<Mode> modes = new ArrayList<>();
+        
+        ClassUtils.resolvePackage(packageName).forEach(clazz -> {
+            try {
+                if (Mode.class.isAssignableFrom(clazz)) {
+                    modes.add((Mode) clazz.getDeclaredConstructor().newInstance());
+                }
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+                     InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        
+        if (modes.isEmpty())
+            ClientUtils.Logger.warn("No mode found in '{}',please check that the packageName is existed!", packageName);
+        
+        return modes.toArray(new Mode[0]);
     }
 }
