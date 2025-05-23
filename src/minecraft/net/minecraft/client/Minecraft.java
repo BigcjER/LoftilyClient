@@ -16,6 +16,7 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import loftily.Client;
 import loftily.event.impl.client.ClientTickEvent;
 import loftily.event.impl.client.KeyboardEvent;
+import loftily.event.impl.world.WorldLoadEvent;
 import loftily.gui.menu.SplashScreen;
 import loftily.gui.menu.mainmenu.MainMenu;
 import loftily.module.impl.render.MotionBlur;
@@ -2487,6 +2488,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
             this.player.movementInput = new MovementInputFromOptions(this.gameSettings);
             this.playerController.setPlayerCapabilities(this.player);
             this.renderViewEntity = this.player;
+            Client.INSTANCE.getEventManager().call(new WorldLoadEvent());
         }
         else
         {
