@@ -36,13 +36,13 @@ public class Blink extends Module {
                     setVisible(()->!pulseMode.is("None"));
 
     private final BooleanValue fakePlayer = new BooleanValue("FakePlayer",false);
-    
+
     public static final int FAKE_ENTITY_ID = -1000;
     private EntityOtherPlayerMP fakePlayerEntity;
-    
+
     private final DelayTimer pulseTimer = new DelayTimer();
     private int delay;
-    
+
     @Override
     public void onEnable() {
         BlinkHandler.setBlinkState(true,noC0F.getValue(),noC00.getValue(),false);
@@ -59,7 +59,7 @@ public class Blink extends Module {
     @EventHandler
     public void onUpdate(UpdateEvent event) {
         if (pulseMode.is("None")) return;
-        
+
         if (pulseTimer.hasTimeElapsed(delay)) {
             pulseTimer.reset();
             delay = RandomUtils.randomInt((int) pulseDelay.getFirst(), (int) pulseDelay.getSecond());
@@ -76,14 +76,14 @@ public class Blink extends Module {
                 case "CustomSize":
                     int i = 0;
                     int size = RandomUtils.randomInt((int) pulseSize.getFirst(), (int) pulseSize.getSecond());
-                    
+
                     while (!BlinkHandler.packets.isEmpty()) {
                         if (i >= size) return;
-                        
+
                         Packet<?> packet = BlinkHandler.packets.poll();
                         PacketUtils.sendPacket(packet, false);
                         i++;
-                        
+
                         if (fakePlayerEntity != null && packet instanceof CPacketPlayer && ((CPacketPlayer) packet).getMoving()) {
                             if (((CPacketPlayer) packet).getRotating()) {
                                 fakePlayerEntity.rotationYawHead = ((CPacketPlayer) packet).yaw;

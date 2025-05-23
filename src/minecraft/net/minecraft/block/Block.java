@@ -93,7 +93,7 @@ public class Block
     /** Sound of stepping on the block */
     protected SoundType blockSoundType;
     public float blockParticleGravity;
-    protected final Material blockMaterial;
+    public final Material blockMaterial;
 
     /** The Block's MapColor */
     protected final MapColor blockMapColor;

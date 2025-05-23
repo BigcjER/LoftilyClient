@@ -2,12 +2,14 @@ package loftily.module.impl.combat;
 
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.render.Render3DEvent;
+import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.handlers.impl.RotationHandler;
 import loftily.handlers.impl.TargetsHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
+import loftily.utils.client.PacketUtils;
 import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
@@ -24,6 +26,7 @@ import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.input.Keyboard;
@@ -48,7 +51,7 @@ public class KillAura extends Module {
     );
     private final RangeSelectionNumberValue CPSValue = new RangeSelectionNumberValue("CPS", 8, 15, 0, 20, 1);
     private final BooleanValue fastOnFirstHit = new BooleanValue("FastOnFirstHit", false);
-    private final ModeValue noDoubleHit = new ModeValue("NoDoubleHit", "Cancel", this, new StringMode("Cancel"), new StringMode("NextHit"));
+    private final ModeValue noDoubleHit = new ModeValue("NoDoubleHit", "Cancel", this, new StringMode("Cancel"), new StringMode("NextHit"), new StringMode("None"));
     private final NumberValue hurtTime = new NumberValue("HurtTime", 0, 0, 20);
     private final BooleanValue rayCast = new BooleanValue("RayCast", false);
     private final BooleanValue rayCastThroughWalls = new BooleanValue("RayCastThroughWalls", false);
@@ -84,12 +87,14 @@ public class KillAura extends Module {
     private final RangeSelectionNumberValue keepTicks = new RangeSelectionNumberValue("KeepRotationTicks", 1, 2, 1, 20);
     private final RangeSelectionNumberValue backTicks = new RangeSelectionNumberValue("ReverseTicks", 1, 2, 1, 20);
     private final BooleanValue silentRotation = new BooleanValue("SilentRotation", false);
+    private final BooleanValue throughWallsAim = new BooleanValue("ThroughWallsAim", false);
+
+
+    //Movement
     private final ModeValue moveFixMode = new ModeValue("MoveFixMode", "None", this,
             new StringMode("None"),
             new StringMode("Strict"),
             new StringMode("Silent"));
-    
-    private final BooleanValue throughWallsAim = new BooleanValue("ThroughWallsAim", false);
     private final List<EntityLivingBase> targets = new ArrayList<>();
     private final DelayTimer attackTimer = new DelayTimer();
     private final DelayTimer targetTimer = new DelayTimer();
@@ -183,12 +188,15 @@ public class KillAura extends Module {
     }
 
     @EventHandler
+    public void onLivingUpdate(LivingUpdateEvent event) {
+        if (mc.player == null || rotationMode.is("None")) return;
+
+        rotation(target);
+    }
+
+    @EventHandler
     public void onMotion(MotionEvent event) {
         if (mc.player == null) return;
-        
-        if (event.isPost()) {
-            rotation(target);
-        }
         
         if ((attackTimeMode.is("Pre") && event.isPre())
                 || (attackTimeMode.is("Post") && event.isPost())) {
@@ -297,22 +305,22 @@ public class KillAura extends Module {
                 canAttackTimes = 1;
             }
         }
+        Entity bestTarget;
+        Rotation rotation = RotationHandler.clientRotation == null ? RotationHandler.getRotation() : RotationHandler.clientRotation;
+        if (!rayCast.getValue()) {
+            bestTarget = target;
+        } else {
+            bestTarget = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (entity -> entity instanceof EntityLivingBase));
+        }
+
+        if (bestTarget == null || (bestTarget != target && rayCastOnlyTarget.getValue())) return;
+
         while (canAttackTimes > 0) {
             canAttackTimes--;
-            Entity bestTarget;
-            Rotation rotation = RotationHandler.clientRotation == null ? RotationHandler.getRotation() : RotationHandler.clientRotation;
-            if (!rayCast.getValue()) {
-                bestTarget = target;
-            } else {
-                bestTarget = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue() ,(entity -> entity instanceof EntityLivingBase));
-            }
-            
-            if (bestTarget == null || (bestTarget != target && rayCastOnlyTarget.getValue())) return;
-            
             if (CalculateUtils.getClosetDistance(mc.player, (EntityLivingBase) bestTarget) <= attackRange.getValue()) {
                 if(attackMode.is("Packet")) {
                     mc.player.swingArm(EnumHand.MAIN_HAND);
-                    mc.playerController.attackEntity(mc.player, bestTarget);
+                    PacketUtils.sendPacket(new CPacketUseEntity(bestTarget));
                     if (!keepSprintMode.is("Always")) {
                         if (keepSprintMode.is("None") || mc.player.hurtTime > 0) {
                             mc.player.attackTargetEntityWithCurrentItem(target);

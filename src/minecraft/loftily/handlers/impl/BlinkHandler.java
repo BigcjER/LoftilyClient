@@ -17,7 +17,7 @@ public class BlinkHandler extends Handler {
 
     public static boolean BLINK_NOC0F = false;
     public static boolean BLINK_NOC00 = false;
-    
+
     public final static Queue<Packet<?>> packets = new LinkedList<>();
 
     public static void setBlinkState(
@@ -29,7 +29,7 @@ public class BlinkHandler extends Handler {
         BLINK = Blink;
         BLINK_NOC0F = noC0F;
         BLINK_NOC00 = noC00;
-        
+
         if (release) {
             while (!packets.isEmpty()) {
                 Packet<?> packet = packets.poll();
@@ -37,10 +37,10 @@ public class BlinkHandler extends Handler {
             }
         }
     }
-    
+
     public static void releasePacketsCustom(int size) {
         int i = 0;
-        
+
         while (!packets.isEmpty() && i < size) {
             Packet<?> packet = packets.poll();
             if (packet != null) {
@@ -49,7 +49,6 @@ public class BlinkHandler extends Handler {
             }
         }
     }
-
 
     @EventHandler(priority = -1000)
     public void onPacketSend(PacketSendEvent event){
@@ -64,5 +63,5 @@ public class BlinkHandler extends Handler {
         event.setCancelled(true);
         packets.add(packet);
     }
-    
+
 }

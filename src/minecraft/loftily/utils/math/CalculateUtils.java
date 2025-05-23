@@ -3,8 +3,12 @@ package loftily.utils.math;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static loftily.utils.client.ClientUtils.mc;
 
@@ -23,6 +27,23 @@ public class CalculateUtils {
 
     public static Boolean isVisible(Vec3d vec) {
         return mc.world.rayTraceBlocks(mc.player.getPositionEyes(1f), vec) == null;
+    }
+
+    public static List<BlockPos> searchBlocks(double xR, double yR, double zR) {
+        List<BlockPos> blocks = new ArrayList<>();
+
+        for (int x = (int) xR; x >= -xR + 1; x -= 1) {
+            for (int y = (int) yR; y >= -yR + 1; y -= 1) {
+                for (int z = (int) zR; z >= -zR + 1; z -= 1) {
+                    BlockPos blockPos = new BlockPos((int) Math.round(mc.player.posX + x), (int) Math.round(mc.player.posY - 1.0 + y),
+                            (int) Math.round(mc.player.posZ + z));
+
+                    blocks.add(blockPos);
+                }
+            }
+        }
+
+        return blocks;
     }
 
     public static Vec3d getVectorForRotation(Rotation rotation) {
