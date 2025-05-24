@@ -9,7 +9,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityLargeFireball;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
@@ -19,25 +21,35 @@ import static loftily.utils.math.CalculateUtils.getVectorForRotation;
 import static loftily.utils.math.CalculateUtils.isVisible;
 
 public class RayCastUtils implements ClientUtils {
-    public static RayTraceResult rayCastBlock(double blockReachDistance, Rotation rotation) {
-        Vec3d vec3 = mc.player.getPositionEyes(1);
-        Vec3d vec31 = CalculateUtils.getVectorForRotation(rotation);
+    public static RayTraceResult rayTraceWithCustomRotation(Entity entity, double blockReachDistance, float yaw, float pitch) {
+        Vec3d vec3 = entity.getPositionEyes(1f);
+        Vec3d vec31 = entity.getVectorForRotation(pitch, yaw);
         Vec3d vec32 = vec3.addVector(
                 vec31.xCoord * blockReachDistance,
                 vec31.yCoord * blockReachDistance,
                 vec31.zCoord * blockReachDistance
         );
 
-        return mc.player.world.rayTraceBlocks(vec3, vec32, false, false, true);
+        return entity.world.rayTraceBlocks(vec3, vec32, false, false, true);
     }
 
-    public static RayTraceResult rayCastBlockHit(double blockReachDistance, Entity entity) {
-        Vec3d vec3d = entity.getPositionEyes(1f);
-        Vec3d vec3d1 = CalculateUtils.getVectorForRotation(RotationHandler.getCurrentRotation());
-        Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * blockReachDistance, vec3d1.yCoord * blockReachDistance, vec3d1.zCoord * blockReachDistance);
-
-        return mc.world.rayTraceBlocks(vec3d, vec3d2, false, false, false);
+    public static RayTraceResult rayTraceWithCustomRotation(Entity entity, double blockReachDistance, Rotation rotation) {
+        return rayTraceWithCustomRotation(entity, blockReachDistance, rotation.yaw, rotation.pitch);
     }
+
+    public static boolean overBlock(Rotation rotation, EnumFacing enumFacing, BlockPos pos, boolean strict) {
+        RayTraceResult movingObjectPosition = rayTraceWithCustomRotation(mc.player,4.5, rotation.yaw, rotation.pitch);
+        if (movingObjectPosition == null) {
+            return false;
+        }
+        Vec3d hitVec = movingObjectPosition.hitVec;
+        if (hitVec == null) {
+            return false;
+        }
+
+        return movingObjectPosition.getBlockPos().equals(pos) && (!strict || movingObjectPosition.sideHit == enumFacing);
+    }
+
 
     public static Entity raycastEntity(
             double range,

@@ -7,6 +7,7 @@ import loftily.event.impl.player.motion.StrafeEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.handlers.Handler;
 import loftily.utils.math.Rotation;
+import loftily.utils.player.MoveUtils;
 import loftily.utils.player.RotationUtils;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.entity.player.EntityPlayer;
@@ -40,6 +41,8 @@ public class RotationHandler extends Handler {
             moveFixStatus = 1;
         }else if(Objects.equals(moveFix, "Silent")){
             moveFixStatus = 2;
+        }else if(Objects.equals(moveFix, "45Angle")){
+            moveFixStatus = 3;
         }
     }
 
@@ -48,16 +51,17 @@ public class RotationHandler extends Handler {
         if(clientRotation == null)return;
         if(moveFixStatus > 0){
             event.setYaw(clientRotation.yaw);
-            if(moveFixStatus == 2){
+            if(moveFixStatus >= 2){
                 EntityPlayer player = mc.player;
 
-                float diff = (player.rotationYaw - clientRotation.yaw) * (float) (Math.PI / 180);
+                float playerDirection = moveFixStatus == 2 ? player.rotationYaw : Math.round(player.rotationYaw / 45f) * 45f;
+                float diff = (playerDirection - clientRotation.yaw) * (float) (Math.PI / 180);
 
                 float calcForward;
                 float calcStrafe;
 
-                float strafe = event.getStrafe();
-                float forward = event.getForward();
+                float strafe = event.getStrafe() / 0.98f;
+                float forward = event.getForward() / 0.98f;
 
                 float modifiedForward = ceil(abs(forward)) * Math.signum(forward);
                 float modifiedStrafe = ceil(abs(strafe)) * Math.signum(strafe);
