@@ -21,7 +21,7 @@ public final class MaterialIcons {
     
     private static Map<String, String> loadIconMap() {
         Map<String, String> map = new HashMap<>();
-        try (InputStream is = MaterialIcons.class.getResourceAsStream("/minecraft/loftily/MaterialSymbolsSharp[FILL,GRAD,opsz,wght].codepoints");
+        try (InputStream is = MaterialIcons.class.getResourceAsStream("/assets/minecraft/loftily/MaterialSymbolsSharp[FILL,GRAD,opsz,wght].codepoints");
              BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
