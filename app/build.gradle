@@ -3,9 +3,10 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
-    maven { url = "https://repo.minebench.de/" }
-    maven { url = "https://repo.papermc.io/repository/maven-public/"}
+    maven { url = 'https://maven.aliyun.com/repository/public' }
+    maven { url = 'https://maven.aliyun.com/repository/google' }
+    maven { url = 'https://repo.minebench.de/' }
+    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
 }
 
 dependencies {
@@ -57,7 +58,7 @@ java {
 
 jar {
     archiveBaseName.set('Loftily')
-    archiveVersion.set('')      
+    archiveVersion.set('')
 }
 
 
@@ -77,6 +78,7 @@ tasks.withType(JavaExec).configureEach {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.incremental = true
 }
 
 

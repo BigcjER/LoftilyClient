@@ -13,4 +13,11 @@
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8" />
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="LoftilyClient.app" options="-Xlint:deprecation -Xlint:unchecked" />
+      <module name="LoftilyClient.app.main" options="-Xlint:deprecation -Xlint:unchecked" />
+      <module name="LoftilyClient.app.test" options="-Xlint:deprecation -Xlint:unchecked" />
+    </option>
+  </component>
 </project>

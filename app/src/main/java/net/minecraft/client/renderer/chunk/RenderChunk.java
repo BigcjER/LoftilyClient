@@ -1,11 +1,6 @@
 package net.minecraft.client.renderer.chunk;
 
 import com.google.common.collect.Sets;
-import java.nio.FloatBuffer;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
-import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCactus;
 import net.minecraft.block.BlockRedstoneWire;
@@ -13,14 +8,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RegionRenderCacheBuilder;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.ViewFrustum;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -34,13 +22,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ChunkCache;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import optifine.BlockPosM;
-import optifine.ChunkCacheOF;
-import optifine.Config;
-import optifine.Reflector;
-import optifine.ReflectorForge;
-import optifine.RenderEnv;
+import optifine.*;
 import shadersmod.client.SVertexBuilder;
+
+import javax.annotation.Nullable;
+import java.nio.FloatBuffer;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class RenderChunk
 {
@@ -276,7 +265,7 @@ public class RenderChunk
 
                     if (flag1)
                     {
-                        Reflector.callVoid(Reflector.ForgeHooksClient_setRenderLayer, null);
+                        Reflector.callVoid(Reflector.ForgeHooksClient_setRenderLayer, (Object) null);
                     }
                 }
 
