@@ -22,6 +22,8 @@ import loftily.event.impl.world.WorldLoadEvent;
 import loftily.gui.menu.SplashScreen;
 import loftily.gui.menu.mainmenu.MainMenu;
 import loftily.module.impl.render.MotionBlur;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -194,7 +196,9 @@ public class Minecraft implements IThreadListener, ISnooperInfo
     public Entity pointedEntity;
     public ParticleManager effectRenderer;
     private final SearchTreeManager field_193995_ae = new SearchTreeManager();
-    private final Session session;
+    @Setter
+    @Getter
+    private Session session;
     private boolean isGamePaused;
     private float field_193996_ah;
 
@@ -3168,12 +3172,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
     {
         return this.fullscreen;
     }
-
-    public Session getSession()
-    {
-        return this.session;
-    }
-
+    
     /**
      * Return the player's GameProfile properties
      */

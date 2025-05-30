@@ -1,8 +1,10 @@
 package loftily.gui.menu.mainmenu;
 
 import loftily.Client;
+import loftily.alt.menu.AltManagerMenu;
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
+import loftily.gui.components.CustomButton;
 import loftily.gui.font.FontManager;
 import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
@@ -27,11 +29,11 @@ public class MainMenu extends GuiScreen {
         
         final int offset = 30;
         buttonList.clear();
-        buttonList.add(new MainMenuButton(0, startX + 10, startY + 10, backgroundWidth - 20, 25, "Singleplayer"));
-        buttonList.add(new MainMenuButton(1, startX + 10, startY + 10 + offset, backgroundWidth - 20, 25, "Multiplayer"));
-        buttonList.add(new MainMenuButton(2, startX + 10, startY + 10 + offset * 2, backgroundWidth - 20, 25, "AltManager"));
-        buttonList.add(new MainMenuButton(3, startX + 10, startY + 10 + offset * 3, backgroundWidth - 20, 25, "Settings"));
-        buttonList.add(new MainMenuButton(4, startX + 10, startY + 10 + offset * 4, backgroundWidth - 20, 25, "Exit"));
+        buttonList.add(new CustomButton(0, startX + 10, startY + 10, backgroundWidth - 20, 25, "Singleplayer", Colors.BackGround.color));
+        buttonList.add(new CustomButton(1, startX + 10, startY + 10 + offset, backgroundWidth - 20, 25, "Multiplayer", Colors.BackGround.color));
+        buttonList.add(new CustomButton(2, startX + 10, startY + 10 + offset * 2, backgroundWidth - 20, 25, "AltManager", Colors.BackGround.color));
+        buttonList.add(new CustomButton(3, startX + 10, startY + 10 + offset * 3, backgroundWidth - 20, 25, "Settings", Colors.BackGround.color));
+        buttonList.add(new CustomButton(4, startX + 10, startY + 10 + offset * 4, backgroundWidth - 20, 25, "Exit", Colors.BackGround.color));
     }
     
     @Override
@@ -54,7 +56,7 @@ public class MainMenu extends GuiScreen {
             RenderUtils.drawRoundedRect(startX - 2, startY - 2, backgroundWidth + 4, backgroundHeight + 4, 5, Colors.BackGround.color);
             RenderUtils.drawRoundedRect(startX, startY, backgroundWidth, backgroundHeight, 3, Colors.OnBackGround.color);
             
-            FontManager.NotoSans.of(30).drawCenteredStringWithShadow(Client.Name, width / 2F, 60, Colors.Text.color.getRGB());
+            FontManager.NotoSans.of(30).drawCenteredStringWithShadow(Client.Name, width / 2F, height / 8F, Colors.Text.color.getRGB());
             
             super.drawScreen(mouseX, mouseY, partialTicks);
         };
@@ -87,7 +89,8 @@ public class MainMenu extends GuiScreen {
                 mc.displayGuiScreen(new GuiMultiplayer(this));
                 break;
             case 2:
-                break; //TODO AltManager
+                mc.displayGuiScreen(new AltManagerMenu());
+                break;
             case 3:
                 mc.displayGuiScreen(new GuiOptions(this, this.mc.gameSettings));
                 break;

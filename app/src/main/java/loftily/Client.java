@@ -1,6 +1,7 @@
 package loftily;
 
 import de.florianmichael.viamcp.ViaMCP;
+import loftily.alt.AltManager;
 import loftily.command.CommandManager;
 import loftily.config.ConfigManager;
 import loftily.gui.clickgui.ClickGui;
@@ -34,35 +35,31 @@ public enum Client {
     private HandlerManager handlerManager;
     private NotificationManager notificationManager;
     private ClickGui clickGui;
+    private AltManager altManager;
     
     public void init() {
         long start = System.currentTimeMillis();
         ClientUtils.Logger.info("Initializing {}...", Name);
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Event Manager", 40);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Modules", 40);
         eventManager = LambdaManager.basic(new LambdaMetaFactoryGenerator());
-        
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Module Manager", 45);
         moduleManager = new ModuleManager();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Handlers", 55);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Handlers", 50);
         handlerManager = new HandlerManager();
         
         SplashScreen.INSTANCE.setProgressAndDraw("Initializing ViaMCP", 60);
         ViaMCP.create();
         ViaMCP.INSTANCE.initAsyncSlider();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Configs", 75);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Configuration Items", 75);
         configManager = new ConfigManager();
         configManager.init();/* late init I think */
-        
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Commands", 80);
         commandManager = new CommandManager();
+        altManager = new AltManager();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Click Gui", 90);
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing GUI", 90);
         clickGui = new ClickGui();
-        
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Notification", 95);
         notificationManager = new NotificationManager();
         
         SplashScreen.INSTANCE.setProgressAndDraw("Initialization Complete", 100);

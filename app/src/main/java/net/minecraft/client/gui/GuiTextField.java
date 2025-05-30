@@ -13,45 +13,45 @@ import net.minecraft.util.math.MathHelper;
 public class GuiTextField extends Gui
 {
     private final int id;
-    private final FontRenderer fontRendererInstance;
+    protected final FontRenderer fontRendererInstance;
     public int xPosition;
     public int yPosition;
 
     /** The width of this text field. */
-    private final int width;
-    private final int height;
+    protected final int width;
+    protected final int height;
 
     /** Has the current text being edited on the textbox. */
-    private String text = "";
+    protected String text = "";
     private int maxStringLength = 32;
-    private int cursorCounter;
-    private boolean enableBackgroundDrawing = true;
+    protected int cursorCounter;
+    protected boolean enableBackgroundDrawing = true;
 
     /**
      * if true the textbox can lose focus by clicking elsewhere on the screen
      */
-    private boolean canLoseFocus = true;
+    protected boolean canLoseFocus = true;
 
     /**
      * If this value is true along with isEnabled, keyTyped will process the keys.
      */
-    private boolean isFocused;
+    protected boolean isFocused;
 
     /**
      * If this value is true along with isFocused, keyTyped will process the keys.
      */
-    private boolean isEnabled = true;
+    protected boolean isEnabled = true;
 
     /**
      * The current character index that should be used as start of the rendered text.
      */
-    private int lineScrollOffset;
-    private int cursorPosition;
+    protected int lineScrollOffset;
+    protected int cursorPosition;
 
     /** other selection position, maybe the same as the cursor */
     private int selectionEnd;
-    private int enabledColor = 14737632;
-    private int disabledColor = 7368816;
+    protected int enabledColor = 14737632;
+    protected int disabledColor = 7368816;
 
     /** True if this textbox is visible */
     private boolean visible = true;
@@ -609,7 +609,7 @@ public class GuiTextField extends Gui
     /**
      * Draws the current selection and a vertical line cursor in the text box.
      */
-    private void drawCursorVertical(int startX, int startY, int endX, int endY)
+    protected void drawCursorVertical(int startX, int startY, int endX, int endY)
     {
         if (startX < endX)
         {

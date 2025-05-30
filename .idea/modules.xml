@@ -3,9 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Desktop.LoftilyClient.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Desktop.LoftilyClient.app.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/LoftilyClient.iml" filepath="$PROJECT_DIR$/.idea/modules/LoftilyClient.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/LoftilyClient.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/LoftilyClient.app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/LoftilyClient.app.test.iml" filepath="$PROJECT_DIR$/.idea/modules/app/LoftilyClient.app.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/LoftilyClient.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/LoftilyClient.app.main.iml" />
     </modules>
   </component>
 </project>

@@ -2,10 +2,12 @@ package loftily.utils.render;
 
 import loftily.utils.client.ClientUtils;
 import net.minecraft.client.gui.ScaledResolution;
+import org.apache.commons.io.IOUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import static net.minecraft.client.renderer.OpenGlHelper.GL_COMPILE_STATUS;
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
@@ -83,7 +85,7 @@ public class ShaderUtils implements ClientUtils {
             if (input == null) {
                 throw new IllegalArgumentException("Shader file not found: " + fileName);
             }
-            String source = readStreamToString(input);
+            String source = IOUtils.toString(input, StandardCharsets.UTF_8);
             GL20.glShaderSource(shader, source);
             GL20.glCompileShader(shader);
             
@@ -98,14 +100,5 @@ public class ShaderUtils implements ClientUtils {
         }
     }
     
-    private static String readStreamToString(InputStream input) throws Exception {
-        StringBuilder sb = new StringBuilder();
-        byte[] buffer = new byte[1024];
-        int bytesRead;
-        while ((bytesRead = input.read(buffer)) != -1) {
-            sb.append(new String(buffer, 0, bytesRead));
-        }
-        return sb.toString();
-    }
     
 }

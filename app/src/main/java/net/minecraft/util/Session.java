@@ -3,10 +3,11 @@ package net.minecraft.util;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 import com.mojang.util.UUIDTypeAdapter;
+
+import javax.annotation.Nullable;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 public class Session
 {
@@ -62,7 +63,7 @@ public class Session
         MOJANG("mojang");
 
         private static final Map<String, Session.Type> SESSION_TYPES = Maps.<String, Session.Type>newHashMap();
-        private final String sessionType;
+        public final String sessionType;
 
         private Type(String sessionTypeIn)
         {
