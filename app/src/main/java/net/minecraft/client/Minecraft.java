@@ -13,6 +13,8 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
+import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.Client;
 import loftily.event.impl.client.ClientTickEvent;
 import loftily.event.impl.client.KeyboardEvent;
@@ -1467,7 +1469,13 @@ public class Minecraft implements IThreadListener, ISnooperInfo
                 switch (this.objectMouseOver.typeOfHit)
                 {
                     case ENTITY:
+                        if(!ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8)){
+                            this.player.swingArm(EnumHand.MAIN_HAND);
+                        }
                         this.playerController.attackEntity(this.player, this.objectMouseOver.entityHit);
+                        if(ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8)){
+                            this.player.swingArm(EnumHand.MAIN_HAND);
+                        }
                         break;
 
                     case BLOCK:
@@ -1476,6 +1484,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
                         if (this.world.getBlockState(blockpos).getMaterial() != Material.AIR)
                         {
                             this.playerController.clickBlock(blockpos, this.objectMouseOver.sideHit);
+                            this.player.swingArm(EnumHand.MAIN_HAND);
                             break;
                         }
 
@@ -1486,9 +1495,8 @@ public class Minecraft implements IThreadListener, ISnooperInfo
                         }
 
                         this.player.resetCooldown();
+                        this.player.swingArm(EnumHand.MAIN_HAND);
                 }
-
-                this.player.swingArm(EnumHand.MAIN_HAND);
             }
         }
     }

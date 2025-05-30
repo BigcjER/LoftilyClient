@@ -4,7 +4,11 @@ import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Rotation;
@@ -26,6 +30,13 @@ public class BlockPos extends Vec3i
     private static final long X_MASK = (1L << NUM_X_BITS) - 1L;
     private static final long Y_MASK = (1L << NUM_Y_BITS) - 1L;
     private static final long Z_MASK = (1L << NUM_Z_BITS) - 1L;
+
+
+    @Nullable
+    public IBlockState getState() {
+        Minecraft mc = Minecraft.getMinecraft();
+        return mc.world != null ? mc.world.getBlockState(this) : null;
+    }
 
     public BlockPos(int x, int y, int z)
     {

@@ -1,5 +1,7 @@
 package loftily.module.impl.combat;
 
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
+import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.render.Render3DEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
@@ -26,6 +28,7 @@ import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
@@ -49,6 +52,11 @@ public class KillAura extends Module {
             new StringMode("Packet"),
             new StringMode("Legit")
     );
+    private final ModeValue swingMode = new ModeValue("SwingMode", "Vanilla", this,
+            new StringMode("Vanilla"),
+            new StringMode("Packet"),
+            new StringMode("NoPacket")
+    );
     private final RangeSelectionNumberValue CPSValue = new RangeSelectionNumberValue("CPS", 8, 15, 0, 20, 1);
     private final BooleanValue fastOnFirstHit = new BooleanValue("FastOnFirstHit", false);
     private final ModeValue noDoubleHit = new ModeValue("NoDoubleHit", "Cancel", this, new StringMode("Cancel"), new StringMode("NextHit"), new StringMode("None"));
@@ -66,7 +74,9 @@ public class KillAura extends Module {
     private final ModeValue targetSortingMode = new ModeValue("TargetSortingMode", "Distance", this,
             new StringMode("Distance"),
             new StringMode("HurtTime"),
-            new StringMode("Health")
+            new StringMode("Health"),
+            new StringMode("Angle"),
+            new StringMode("Random")
     );
     private final ModeValue mode = new ModeValue("Mode", "Single", this,
             new StringMode("Single"),
@@ -123,7 +133,7 @@ public class KillAura extends Module {
         int reverseTicks = RandomUtils.randomInt((int) Math.round(this.backTicks.getFirst()), (int) Math.round(this.backTicks.getSecond()));
 
         Rotation calculateRot = RotationUtils.smoothRotation(
-                RotationHandler.getCurrentRotation(),
+                RotationHandler.getRotation(),
                 calculateRotation(target),
                 horizonSpeed,
                 pitchSpeed
@@ -223,11 +233,6 @@ public class KillAura extends Module {
         if (mc.player == null) return;
         
         if (attackTimer.hasTimeElapsed(attackDelay) && (fastOnFirstHit.getValue() || target != null)) {
-            if (canAttackTimes > 1) {
-                if (Objects.equals(noDoubleHit.getValue().getName(), "NextHit")) {
-                    return;
-                }
-            }
             canAttackTimes++;
             attackDelay = calculateDelay();
             attackTimer.reset();
@@ -273,7 +278,17 @@ public class KillAura extends Module {
             case "Health":
                 targets.sort((Comparator.comparingDouble(EntityLivingBase::getHealth)));
                 break;
+            case "Angle":
+                targets.sort((Comparator.comparingDouble(entityLivingBase -> RotationUtils.getRotationDifference(
+                        RotationUtils.toRotation(entityLivingBase.getBox().getCenter(),mc.player), new Rotation(mc.player.rotationYaw,mc.player.rotationPitch)
+                ))));
+                break;
+            case "Random":
+                targets.sort((Comparator.comparingInt(entityLivingBase -> RandomUtils.randomInt(-100,100))));
+                break;
         }
+
+        targets.sort((Comparator.comparingDouble(entityLivingBase -> Math.max(0,CalculateUtils.getClosetDistance(mc.player, entityLivingBase) - attackRange.getValue()))));
         
         for (EntityLivingBase entity : targets) {
             if (entity == mc.player || entity == null) continue;
@@ -319,8 +334,13 @@ public class KillAura extends Module {
             canAttackTimes--;
             if (CalculateUtils.getClosetDistance(mc.player, (EntityLivingBase) bestTarget) <= attackRange.getValue()) {
                 if(attackMode.is("Packet")) {
-                    mc.player.swingArm(EnumHand.MAIN_HAND);
+                    if(!ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8)){
+                        swing();
+                    }
                     PacketUtils.sendPacket(new CPacketUseEntity(bestTarget));
+                    if(ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8)){
+                        swing();
+                    }
                     if (!keepSprintMode.is("Always")) {
                         if (keepSprintMode.is("None") || mc.player.hurtTime > 0) {
                             mc.player.attackTargetEntityWithCurrentItem(target);
@@ -334,9 +354,25 @@ public class KillAura extends Module {
                     mc.player.swingArm(EnumHand.MAIN_HAND);
                 }
             }
+            if(noDoubleHit.is("NextHit")){
+                break;
+            }
         }
     }
-    
+
+    private void swing(){
+        switch (swingMode.getValueByName()){
+            case "Vanilla":
+                mc.player.swingArm(EnumHand.MAIN_HAND);
+                break;
+            case "Packet":
+                PacketUtils.sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND),true);
+                break;
+            case "NoPacket":
+                break;
+        }
+    }
+
     private int calculateDelay() {
         return 1000 / (int) RandomUtils.randomDouble(CPSValue.getFirst(), CPSValue.getSecond());
     }

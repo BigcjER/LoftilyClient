@@ -584,7 +584,6 @@ public class Block
         }
     }
 
-    @Deprecated
     @Nullable
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
