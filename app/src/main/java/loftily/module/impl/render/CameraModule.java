@@ -40,6 +40,12 @@ public final class CameraModule extends Module {
     
     @EventHandler
     public void onZoom(FovModifierEvent event) {
+        if(mc.currentScreen != null) {
+            zoomAnimation.run(1);
+            event.setZoomMultiplier(zoomAnimation.getValuef());
+            return;
+        }
+        
         boolean in = GameSettings.isKeyDown(mc.gameSettings.ofKeyBindZoom);
         
         
