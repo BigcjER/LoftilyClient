@@ -114,5 +114,7 @@ public class ModuleButton extends Component {
                 binding = false;
             }
         }
+        
+        valuePanel.keyTyped(typedChar, keyCode);
     }
 }

@@ -7,6 +7,7 @@ import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 import loftily.value.impl.RangeSelectionNumberValue;
 import net.minecraft.util.math.MathHelper;
+import org.lwjgl.input.Keyboard;
 
 public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNumberValue> {
     private final Animation leftAnim, rightAnim;
@@ -21,10 +22,17 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
     }
     
     @Override
+    public void initGui() {
+        super.initGui();
+        Keyboard.enableRepeatEvents(true);
+    }
+    
+    @Override
     public void onGuiClosed() {
         super.onGuiClosed();
         draggingState = DraggingState.None;
         hovering = false;
+        Keyboard.enableRepeatEvents(false);
     }
     
     @Override
@@ -99,12 +107,12 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
                     double rawCenterValue = min + mousePercent * (max - min);
                     double alignedCenter = Math.round(rawCenterValue / value.getStep()) * value.getStep();
                     
-                    double minPossibleCenter = min + range/2;
-                    double maxPossibleCenter = max - range/2;
+                    double minPossibleCenter = min + range / 2;
+                    double maxPossibleCenter = max - range / 2;
                     alignedCenter = MathHelper.clamp(alignedCenter, minPossibleCenter, maxPossibleCenter);
                     
-                    double newFirst = alignedCenter - range/2;
-                    double newSecond = alignedCenter + range/2;
+                    double newFirst = alignedCenter - range / 2;
+                    double newSecond = alignedCenter + range / 2;
                     
                     value.setFirst(Math.round(newFirst / value.getStep()) * value.getStep());
                     value.setSecond(Math.round(newSecond / value.getStep()) * value.getStep());
@@ -113,6 +121,39 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
         }
         
     }
+    
+    @Override
+    public void keyTyped(char typedChar, int keyCode) {
+        super.keyTyped(typedChar, keyCode);
+        if (!hovering) return;
+        
+        double min = value.getMinValue();
+        double max = value.getMaxValue();
+        double step = value.getStep();
+        double first = value.getFirst();
+        double second = value.getSecond();
+        double range = second - first;
+        
+        switch (keyCode) {
+            case Keyboard.KEY_LEFT: {
+                double newFirst = Math.max(min, first - step);
+                double newSecond = newFirst + range;
+                
+                value.setFirst(Math.round(newFirst / step) * step);
+                value.setSecond(Math.round(newSecond / step) * step);
+                break;
+            }
+            case Keyboard.KEY_RIGHT: {
+                double newSecond = Math.min(max, second + step);
+                double newFirst = newSecond - range;
+                
+                value.setFirst(Math.round(newFirst / step) * step);
+                value.setSecond(Math.round(newSecond / step) * step);
+                break;
+            }
+        }
+    }
+    
     
     private void drawThumb(float x, float y, float trackHeight) {
         float size = 6.0f;

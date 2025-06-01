@@ -102,4 +102,8 @@ public class ValuePanel {
     public void onGuiClosed() {
         valueRenderers.forEach(ValueRenderer::onGuiClosed);
     }
+    
+    public void keyTyped(char typedChar, int keyCode) {
+        valueRenderers.forEach(valueRenderer -> valueRenderer.keyTyped(typedChar, keyCode));
+    }
 }

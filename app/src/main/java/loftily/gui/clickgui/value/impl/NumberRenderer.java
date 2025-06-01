@@ -6,6 +6,7 @@ import loftily.gui.clickgui.value.ValueRenderer;
 import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 import loftily.value.impl.NumberValue;
+import org.lwjgl.input.Keyboard;
 
 public class NumberRenderer extends ValueRenderer<NumberValue> {
     private final Animation sliderAnimation;
@@ -17,9 +18,16 @@ public class NumberRenderer extends ValueRenderer<NumberValue> {
     }
     
     @Override
+    public void initGui() {
+        super.initGui();
+        Keyboard.enableRepeatEvents(true);
+    }
+    
+    @Override
     public void onGuiClosed() {
         super.onGuiClosed();
         dragging = hovering = false;
+        Keyboard.enableRepeatEvents(false);
     }
     
     @Override
@@ -78,8 +86,7 @@ public class NumberRenderer extends ValueRenderer<NumberValue> {
             double clampedX = Math.max(startX, Math.min(mouseX, startX + sliderWidth));
             
             double percent = (clampedX - startX) / sliderWidth;
-            double newValue = value.getMinValue() + percent * (value.getMaxValue() - value.getMinValue());
-            newValue = Math.round(newValue / value.getStep()) * value.getStep();
+            double newValue = getNewValue(value.getMinValue(), value.getMaxValue(), value.getStep(), percent);
             
             value.setValue(Math.round(newValue * 100) / 100.0);
         }
@@ -99,6 +106,43 @@ public class NumberRenderer extends ValueRenderer<NumberValue> {
         dragging = false;
     }
     
+    @Override
+    public void keyTyped(char typedChar, int keyCode) {
+        super.keyTyped(typedChar, keyCode);
+        if (!hovering) return;
+        double currentValue = value.getValue();
+        double step = value.getStep();
+        double minValue = value.getMinValue();
+        double maxValue = value.getMaxValue();
+        double newValue;
+        
+        switch (keyCode) {
+            case Keyboard.KEY_LEFT:
+                newValue = currentValue - step;
+                newValue = clampAndRound(newValue, minValue, maxValue, step);
+                value.setValue(Math.round(newValue * 100.0) / 100.0);
+                break;
+            
+            case Keyboard.KEY_RIGHT:
+                newValue = currentValue + step;
+                newValue = clampAndRound(newValue, minValue, maxValue, step);
+                value.setValue(Math.round(newValue * 100.0) / 100.0);
+                break;
+        }
+    }
+    
+    private double getNewValue(double min, double max, double step, double percent) {
+        double rawValue = min + percent * (max - min);
+        rawValue = Math.round(rawValue / step) * step;
+        rawValue = Math.max(min, Math.min(rawValue, max));
+        return Math.round(rawValue * 100.0) / 100.0;
+    }
+    
+    private double clampAndRound(double valueToClamp, double min, double max, double step) {
+        double clampedValue = Math.max(min, Math.min(valueToClamp, max));
+        double roundedValue = Math.round(clampedValue / step) * step;
+        return Math.round(roundedValue * 100.0) / 100.0;
+    }
     
     private String formatNumber(double value) {
         return value % 1 == 0 ?

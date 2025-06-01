@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+//TODO:Search,All ValueRenderer
 public class ClickGui extends GuiScreen {
     //Positions
     public static final float CornerRadius = 3, Padding = 5;
