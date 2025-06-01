@@ -307,7 +307,7 @@ public class Scaffold extends Module {
                 rotation,
                 horizonSpeed,
                 pitchSpeed
-        );
+        ).fixedSensitivity(0);
         if (silentRotation.getValue()) {
             RotationHandler.setClientRotation(calculateRot, keepTicks, reverseTicks,moveFixMode.getValue().getName());
         } else {
@@ -349,7 +349,7 @@ public class Scaffold extends Module {
 
         switch (scaffoldMode.getValueByName()){
             case "Telly":
-                if(!(mc.world.getBlockState(new BlockPos(mc.player.posX,mc.player.posY-1,mc.player.posZ)).getBlock() instanceof BlockAir) && mc.player.onGround){
+                if(MoveUtils.isMoving() && mc.player.onGround){
                     setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
                 }
                 break;
@@ -377,13 +377,17 @@ public class Scaffold extends Module {
     public void onStrafe(StrafeEvent event){
         switch (scaffoldMode.getValueByName()){
             case "Telly":
-                if (!mc.player.isSprinting() && mc.gameSettings.keyBindJump.isKeyDown()) {
-                    mc.gameSettings.keyBindJump.setPressed(false);
-                }
-                if (mc.player.isSprinting()) {
-                    if (mc.player.onGround && MoveUtils.isMoving()) {
-                        mc.player.tryJump();
+                if(MoveUtils.isMoving()) {
+                    if (!mc.player.isSprinting() && mc.gameSettings.keyBindJump.isKeyDown()) {
+                        mc.gameSettings.keyBindJump.setPressed(false);
                     }
+                    if (mc.player.isSprinting()) {
+                        if (mc.player.onGround && MoveUtils.isMoving()) {
+                            mc.player.tryJump();
+                        }
+                        mc.gameSettings.keyBindJump.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindJump));
+                    }
+                }else {
                     mc.gameSettings.keyBindJump.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindJump));
                 }
                 break;
