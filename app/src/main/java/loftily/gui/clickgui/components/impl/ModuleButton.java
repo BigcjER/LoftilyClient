@@ -60,6 +60,8 @@ public class ModuleButton extends Component {
         //toggled indicator
         animation.run(module.isToggled() ? 255 : 0);
         
+        if (animation.getValue() <= 0) return;
+        
         RenderUtils.drawRoundedRect(
                 x + width - 13.2F,
                 y + 13.8F,

@@ -57,14 +57,15 @@ public class Ripple extends CopyOnWriteArrayList<Ripple.RippleAnimation> {
             float drawY = y - widthAndHeight / 2;
             int opacity = (int) (baseOpacity * (1 - Math.pow(progress, 4)));
             
-            RenderUtils.drawRoundedRect(
-                    drawX,
-                    drawY,
-                    widthAndHeight,
-                    widthAndHeight,
-                    widthAndHeight / 2,
-                    ColorUtils.colorWithAlpha(color, opacity)
-            );
+            if (!animation.isFinished())
+                RenderUtils.drawRoundedRect(
+                        drawX,
+                        drawY,
+                        widthAndHeight,
+                        widthAndHeight,
+                        widthAndHeight / 2,
+                        ColorUtils.colorWithAlpha(color, opacity)
+                );
         }
         
         

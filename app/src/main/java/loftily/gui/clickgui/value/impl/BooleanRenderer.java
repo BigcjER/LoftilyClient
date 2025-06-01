@@ -31,7 +31,7 @@ public class BooleanRenderer extends ValueRenderer<BooleanValue> {
         //RenderUtils.drawRoundedRect(x,y,width,height,0,new Color(255,0,0,80));
         font.drawString(value.getName(), x + 6, y + height / 2 - font.getHeight() / 3F, Colors.Text.color);
         
-        animation.run(value.getValue() ? 255 : 1);
+        animation.run(value.getValue() ? 255 : 0);
         
         float widthHeight = 8;
         float indicatorX = x + width - 13.2F;
@@ -46,6 +46,8 @@ public class BooleanRenderer extends ValueRenderer<BooleanValue> {
                     ClickGui.CornerRadius - 0.8F,
                     Colors.BackGround.color);
         }
+        
+        if (animation.getValue() <= 0) return;
         
         RenderUtils.drawRoundedRect(
                 indicatorX,

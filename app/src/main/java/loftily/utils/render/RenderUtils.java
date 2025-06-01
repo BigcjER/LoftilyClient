@@ -60,10 +60,6 @@ public class RenderUtils implements ClientUtils {
         drawRect(x, y, x + width, y + height, color.getRGB());
     }
     
-    public static void drawRectHW(double x, double y, double width, double height, Color color) {
-        drawRect(x, y, x + width, y + height, color.getRGB());
-    }
-    
     public static void drawRect(double left, double top, double right, double bottom, int color) {
         if (left < right) {
             double i = left;

@@ -1,27 +1,5 @@
 package optifine;
 
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Array;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.imageio.ImageIO;
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -31,11 +9,7 @@ import net.minecraft.client.renderer.block.model.ModelManager;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.DefaultResourcePack;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.IResourcePack;
-import net.minecraft.client.resources.ResourcePackRepository;
+import net.minecraft.client.resources.*;
 import net.minecraft.client.resources.ResourcePackRepository.Entry;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -50,16 +24,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
-import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.*;
 import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GLContext;
-import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.glu.GLU;
 import shadersmod.client.Shaders;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Config
 {
@@ -1995,7 +1974,7 @@ public class Config
             {
                 Display.destroy();
                 Display.setDisplayMode(displaymode);
-                Display.create((new PixelFormat()).withDepthBits(24).withSamples(i));
+                Display.create((new PixelFormat()).withDepthBits(24).withSamples(i).withStencilBits(8));
                 Display.setResizable(false);
                 Display.setResizable(true);
             }
@@ -2007,7 +1986,7 @@ public class Config
                 try
                 {
                     Display.setDisplayMode(displaymode);
-                    Display.create((new PixelFormat()).withDepthBits(24));
+                    Display.create((new PixelFormat()).withDepthBits(24).withStencilBits(8));
                     Display.setResizable(false);
                     Display.setResizable(true);
                 }
@@ -2018,7 +1997,7 @@ public class Config
                     try
                     {
                         Display.setDisplayMode(displaymode);
-                        Display.create();
+                        Display.create((new PixelFormat()).withDepthBits(24).withStencilBits(8));
                         Display.setResizable(false);
                         Display.setResizable(true);
                     }
