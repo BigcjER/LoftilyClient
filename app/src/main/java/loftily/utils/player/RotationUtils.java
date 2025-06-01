@@ -1,9 +1,7 @@
 package loftily.utils.player;
 
-import loftily.handlers.impl.RotationHandler;
 import loftily.utils.client.ClientUtils;
 import loftily.utils.math.Rotation;
-import net.minecraft.block.BlockAir;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
@@ -14,6 +12,7 @@ import static net.minecraft.util.math.MathHelper.atan2;
 import static net.minecraft.util.math.MathHelper.sqrt;
 
 public class RotationUtils implements ClientUtils {
+
     public static Rotation toRotation(Vec3d vec, Entity fromEntity) {
         Vec3d eyesPos = fromEntity.getEyes();
         

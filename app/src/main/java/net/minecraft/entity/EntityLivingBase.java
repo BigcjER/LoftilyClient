@@ -1984,7 +1984,7 @@ public abstract class EntityLivingBase extends Entity
      * Causes this entity to do an upwards motion (jumping).
      */
     public void tryJump(){
-        if(!Minecraft.getMinecraft().gameSettings.keyBindJump.isPressed()){
+        if(!Minecraft.getMinecraft().gameSettings.keyBindJump.isKeyDown()){
             this.jump();
         }
     }

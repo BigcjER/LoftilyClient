@@ -8,7 +8,7 @@ import lombok.NonNull;
 
 @ModuleInfo(name = "LongJump",category = ModuleCategory.Movement)
 public class LongJump extends Module {
-    private final ModeValue mode = new ModeValue("Mode", "Matrix", this,
+    private final ModeValue mode = new ModeValue("LongJumpMode", "Matrix", this,
             ModeValue.getModes(getClass().getPackage().getName() + ".longjumps")
     );
 

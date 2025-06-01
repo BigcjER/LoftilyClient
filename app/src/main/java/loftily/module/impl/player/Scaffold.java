@@ -1,10 +1,11 @@
 package loftily.module.impl.player;
 
 import com.google.common.collect.Lists;
+import loftily.event.impl.player.motion.JumpEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.player.motion.StrafeEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
-import loftily.event.impl.world.UpdateEvent;
+import loftily.handlers.impl.MoveHandler;
 import loftily.handlers.impl.RotationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
@@ -25,9 +26,11 @@ import lombok.Setter;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -41,7 +44,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.lang.Math.abs;
-import static java.lang.Math.max;
+import static loftily.utils.math.CalculateUtils.getMoveFixForward;
 import static loftily.utils.math.CalculateUtils.getVectorForRotation;
 
 @ModuleInfo(name = "Scaffold", category = ModuleCategory.Player)
@@ -80,15 +83,49 @@ public class Scaffold extends Module {
     private final RangeSelectionNumberValue keepTicks = new RangeSelectionNumberValue("KeepRotationTicks", 1, 2, 0, 20);
     private final RangeSelectionNumberValue backTicks = new RangeSelectionNumberValue("ReverseTicks", 1, 2, 0, 20);
     private final BooleanValue silentRotation = new BooleanValue("SilentRotation", false);
+    //Movement
+    private final ModeValue eagleMode = new ModeValue("EagleMode", "None", this,
+            new StringMode("None"),
+            new StringMode("Prediction")
+    );
+
+    private final NumberValue sneakTime = new NumberValue("SneakTime", 50, 0, 500, 1).setVisible(() -> eagleMode.is("Prediction"));
+    private final NumberValue predictMotion = new NumberValue("Predict", 0, -1.0, 1.0, 0.01).setVisible(() -> eagleMode.is("Prediction"));
+
     private final ModeValue moveFixMode = new ModeValue("MoveFixMode", "None", this,
             new StringMode("None"),
             new StringMode("Silent"),
             new StringMode("45Angle"))
     ;
+    private final ModeValue sprintMode = new ModeValue("SprintMode", "Default", this,
+            new StringMode("Default"),
+            new StringMode("Legit"),
+            new StringMode("OFF")
+    );
+    private final ModeValue towerMode = new ModeValue("TowerMode", "Jump", this,
+            new StringMode("Matrix"),
+            new StringMode("Vanilla"),
+            new StringMode("Jump")
+    );
+    private final BooleanValue towerFakeJump = new BooleanValue("TowerFakeJump", false);
+    private final BooleanValue towerNoMove = new BooleanValue("TowerNoMove", false);
+    //SameY
+    private final BooleanValue sameY = new BooleanValue("SameY", false);
+    private final BooleanValue allowJump = new BooleanValue("AllowJump", false);
+
+    private int onGroundTimes = 0;
+    private double lastY = 0.0;
+    private boolean towerStatus = false;
 
     @Override
     public void onDisable(){
         placeInfo = null;
+        onGroundTimes = 0;
+    }
+
+    @Override
+    public void onEnable() {
+        lastY = mc.player.posY;
     }
 
     private PlaceInfo<BlockPos,EnumFacing,Vec3d,Rotation> placeInfo = null;
@@ -109,6 +146,12 @@ public class Scaffold extends Module {
             playerPos = new BlockPos((mc.player.posX),(mc.player.posY),(mc.player.posZ));
         } else {
             playerPos = new BlockPos((mc.player.posX),(mc.player.posY),(mc.player.posZ)).down();
+        }
+        if (sameY.getValue()) {
+            if ((int) mc.player.posY - 1.2 > (int) lastY) {
+                lastY = (int) mc.player.posY;
+            }
+            playerPos = new BlockPos((mc.player.posX), lastY, (mc.player.posZ)).down();
         }
         return playerPos;
     }
@@ -159,7 +202,7 @@ public class Scaffold extends Module {
 
         Rotation rotation;
         PlaceInfo<BlockPos,EnumFacing,Vec3d,Rotation> dPlaceInfo = null;
-        Vec3d directionVec = new Vec3d(enumFacing.getDirectionVec());
+        Vec3d directionVec = new Vec3d(enumFacing.getOpposite().getDirectionVec());
 
         center = (blockVec.addVector(vec3.xCoord, vec3.yCoord, vec3.zCoord)).addVector(
                 directionVec.xCoord * vec3.xCoord, directionVec.yCoord * vec3.yCoord, directionVec.zCoord * vec3.zCoord
@@ -194,7 +237,7 @@ public class Scaffold extends Module {
         if (!rayCastSearch.getValue()) {
             dPlaceInfo = new PlaceInfo<>(placePos, enumFacing, center, rotation);
         } else {
-            RayTraceResult serverRayTrace = performBlockRaytrace(RotationHandler.getRotation());
+            RayTraceResult serverRayTrace = performBlockRaytrace(RotationHandler.getCurrentRotation());
             if (serverRayTrace.getBlockPos().equals(placePos) && (!raycast || serverRayTrace.sideHit == enumFacing)) {
                 dPlaceInfo = new PlaceInfo<>(placePos, enumFacing, center, rotation);
             }
@@ -228,9 +271,9 @@ public class Scaffold extends Module {
         for (EnumFacing enumFacing : EnumFacing.values()) {
             BlockPos placePos = blockPos.offset(enumFacing);
             if (!BlockUtils.canBeClick(placePos)) continue;
-            for (double x = 0.1; x <= 0.9; x += 0.1) {
-                for (double y = 0.1; y <= 0.9; y += 0.1) {
-                    for (double z = 0.1; z <= 0.9; z += 0.1) {
+            for (double x = 0.3; x <= 0.7; x += 0.1) {
+                for (double y = 0.3; y <= 0.7; y += 0.1) {
+                    for (double z = 0.3; z <= 0.7; z += 0.1) {
                         ePlaceInfo = getPlaceInfo(blockPos,placePos,new Vec3d(x,y,z), enumFacing, raycast);
                         if(ePlaceInfo == null) {
                             continue;
@@ -290,8 +333,6 @@ public class Scaffold extends Module {
             setRotation(RotationUtils.toRotation(placeInfo.getHitVec(),mc.player));
         }
 
-
-
         if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && !(mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock)) {
             for (int i = 0; i < 9; i++) {
                 ItemStack stack = mc.player.inventory.getStackInSlot(i);
@@ -320,6 +361,16 @@ public class Scaffold extends Module {
                 break;
         }
 
+        if (eagleMode.is("Prediction")) {
+            IBlockState iBlockState = mc.world.getBlockState(new BlockPos(mc.player.posX + mc.player.motionX * predictMotion.getValue(),
+                    mc.player.posY - 1.0,
+                    mc.player.posZ + mc.player.motionZ * predictMotion.getValue()));
+
+            if (iBlockState.getBlock() instanceof BlockAir && mc.player.onGround) {
+                MoveHandler.setSneak(true, sneakTime.getValue().intValue());
+            }
+        }
+
         click(placeInfo.blockPos,placeInfo.facing,placeInfo.hitVec);
     }
 
@@ -327,8 +378,14 @@ public class Scaffold extends Module {
     public void onStrafe(StrafeEvent event){
         switch (scaffoldMode.getValueByName()){
             case "Telly":
-                if(mc.player.onGround && MoveUtils.isMoving() && mc.player.isSprinting()){
-                    mc.player.tryJump();
+                if (!mc.player.isSprinting() && mc.gameSettings.keyBindJump.isKeyDown()) {
+                    mc.gameSettings.keyBindJump.setPressed(false);
+                }
+                if (mc.player.isSprinting()) {
+                    if (mc.player.onGround && MoveUtils.isMoving()) {
+                        mc.player.tryJump();
+                    }
+                    mc.gameSettings.keyBindJump.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindJump));
                 }
                 break;
             case "AutoJump":
@@ -344,11 +401,83 @@ public class Scaffold extends Module {
 
     @EventHandler
     public void onMotion(MotionEvent event) {
+        towerStatus = false;
+        towerStatus = mc.gameSettings.keyBindJump.isKeyDown();
 
         if (placeInfo != null) {
             if((event.isPre() && placeTiming.is("Pre")) || (event.isPost() && placeTiming.is("Post"))) {
                 click(placeInfo.blockPos, placeInfo.facing, placeInfo.hitVec);
             }
+        }
+
+        if (towerStatus) {
+            if (allowJump.getValue()) {
+                lastY = mc.player.posY;
+            }
+            if (towerNoMove.getValue() && MoveUtils.isMoving()) return;
+            switch (towerMode.getValueByName()) {
+                case "Jump":
+                    break;
+                case "Vanilla":
+                    fakeJump();
+                    mc.player.motionY = 0.42;
+                    break;
+                case "Matrix":
+                    if (!mc.player.onGround && onGroundTimes == 0) {
+                        onGroundTimes = 1;
+                    }
+                    if (mc.player.onGround && onGroundTimes == 1) {
+                        onGroundTimes = 2;
+                    }
+                    if (onGroundTimes == 2) {
+                        if (mc.player.onGround) {
+                            fakeJump();
+                            mc.player.motionY = 0.42;
+                        } else if (mc.player.motionY < 0.2) {
+                            event.setOnGround(true);
+                            mc.player.motionY = 0.48;
+                        }
+                    }
+                    break;
+            }
+        } else {
+            onGroundTimes = 0;
+        }
+    }
+
+    private void fakeJump() {
+        if (!towerFakeJump.getValue()) {
+            return;
+        }
+        mc.player.isAirBorne = true;
+        mc.player.addStat(StatList.JUMP);
+    }
+
+    @EventHandler
+    public void onJump(JumpEvent event) {
+        if (towerStatus && towerFakeJump.getValue()) {
+            if (towerNoMove.getValue() && MoveUtils.isMoving()) return;
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = -99999)
+    public void onSprint(LivingUpdateEvent event) {
+        switch (sprintMode.getValueByName()) {
+            case "Default":
+                break;
+            case "OFF":
+                mc.player.setSprinting(false);
+                mc.gameSettings.keyBindSprint.setPressed(false);
+                break;
+            case "Legit":
+                if (RotationHandler.clientRotation != null) {
+                    if (getMoveFixForward(RotationHandler.clientRotation) < 0.8) {
+                        mc.player.setSprinting(false);
+                        mc.gameSettings.keyBindSprint.setPressed(false);
+                    }
+                }
+                break;
         }
     }
 
@@ -364,7 +493,6 @@ public class Scaffold extends Module {
         if(!clickCheck.is("None")){
             RayTraceResult rayTraceResult = performBlockRaytrace(RotationHandler.getCurrentRotation());
             if(rayTraceResult == null || !rayTraceResult.getBlockPos().equals(placePos) || (rayTraceResult.sideHit != facing.getOpposite() && clickCheck.is("Strict"))){
-                println(1);
                 return;
             }
         }

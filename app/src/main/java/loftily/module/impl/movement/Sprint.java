@@ -1,31 +1,21 @@
 package loftily.module.impl.movement;
 
-import loftily.event.impl.client.MoveInputEvent;
 import loftily.event.impl.packet.PacketSendEvent;
-import loftily.event.impl.player.motion.StrafeEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
-import loftily.event.impl.world.UpdateEvent;
 import loftily.handlers.impl.RotationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
+import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.Rotation;
 import loftily.utils.player.MoveUtils;
 import loftily.value.impl.BooleanValue;
 import net.lenni0451.lambdaevents.EventHandler;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.item.ItemBucketMilk;
 import net.minecraft.item.ItemFood;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketEntityAction;
-import net.minecraft.util.math.MathHelper;
-
-import static java.lang.Math.round;
-import static java.lang.Math.toRadians;
-import static loftily.handlers.impl.RotationHandler.moveFixStatus;
-import static net.minecraft.util.math.MathHelper.*;
-import static net.minecraft.util.math.MathHelper.ceil;
 
 @ModuleInfo(name = "Sprint", category = ModuleCategory.Movement)
 public class Sprint extends Module {
@@ -69,7 +59,7 @@ public class Sprint extends Module {
 
         if(legitSprint.getValue()){
             if(rotation != null) {
-                float calcForward = getCalcForward(rotation);
+                float calcForward = CalculateUtils.getMoveFixForward(rotation);
                 if (calcForward < 0.8) {
                     stopSprinting();
                 }
@@ -102,26 +92,5 @@ public class Sprint extends Module {
     void stopSprinting(){
         mc.player.setSprinting(false);
         mc.gameSettings.keyBindSprint.setPressed(false);
-    }
-
-    private static float getCalcForward(Rotation rotation) {
-        float playerDirection = moveFixStatus == 2 ? mc.player.rotationYaw : Math.round(mc.player.rotationYaw / 45f) * 45f;
-        float diff = (playerDirection - rotation.yaw) * (float) (Math.PI / 180);
-
-        float calcForward;
-
-        float strafe = mc.player.movementInput.moveStrafe;
-        float forward = mc.player.movementInput.moveForward;
-
-        float modifiedForward = ceil(abs(forward)) * Math.signum(forward);
-        float modifiedStrafe = ceil(abs(strafe)) * Math.signum(strafe);
-
-        calcForward = round(modifiedForward * MathHelper.cos(diff) + modifiedStrafe * MathHelper.sin(diff));
-
-        float f = (forward != 0f) ? forward : strafe;
-
-        calcForward *= abs(f);
-
-        return calcForward;
     }
 }

@@ -433,7 +433,6 @@ public class PlayerControllerMP
                 }
             }
 
-            System.out.println(Objects.requireNonNull(stack.getState()).getBlock() + "" + stack);
             this.connection.sendPacket(new CPacketPlayerTryUseItemOnBlock(stack, pos, vec, f, f1, f2));
 
             if (!flag && this.currentGameType != GameType.SPECTATOR)

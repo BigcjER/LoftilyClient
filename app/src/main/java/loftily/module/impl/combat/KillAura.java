@@ -5,7 +5,6 @@ import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.render.Render3DEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
-import loftily.event.impl.world.UpdateEvent;
 import loftily.handlers.impl.RotationHandler;
 import loftily.handlers.impl.TargetsHandler;
 import loftily.module.Module;
@@ -15,6 +14,7 @@ import loftily.utils.client.PacketUtils;
 import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
+import loftily.utils.player.MoveUtils;
 import loftily.utils.player.RayCastUtils;
 import loftily.utils.player.RotationUtils;
 import loftily.utils.timer.DelayTimer;
@@ -26,8 +26,11 @@ import loftily.value.impl.mode.StringMode;
 import lombok.NonNull;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemShield;
+import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.EnumHand;
@@ -102,13 +105,17 @@ public class KillAura extends Module {
     private final RangeSelectionNumberValue backTicks = new RangeSelectionNumberValue("ReverseTicks", 1, 2, 0, 20);
     private final BooleanValue silentRotation = new BooleanValue("SilentRotation", false);
     private final BooleanValue throughWallsAim = new BooleanValue("ThroughWallsAim", false);
-
-
     //Movement
     private final ModeValue moveFixMode = new ModeValue("MoveFixMode", "None", this,
             new StringMode("None"),
             new StringMode("Strict"),
             new StringMode("Silent"));
+    //AutoBlock
+    private final ModeValue autoBlockMode = new ModeValue("AutoBlockMode", "None", this,
+            new StringMode("HoldKey"),
+            new StringMode("None"),
+            new StringMode("MatrixDamage"));
+
     private final List<EntityLivingBase> targets = new ArrayList<>();
     private final DelayTimer attackTimer = new DelayTimer();
     private final DelayTimer targetTimer = new DelayTimer();
@@ -125,7 +132,7 @@ public class KillAura extends Module {
         throughWallAttackRange = new NumberValue("ThroughWallAttackRange", 6, 0, 10, 0.1)
                 .setMaxWith(attackRange);
 
-
+        attackRange.setMinWith(throughWallAttackRange);
         swingRange.setMinWith(attackRange);
         rotationRange.setMinWith(swingRange);
     }
@@ -248,13 +255,14 @@ public class KillAura extends Module {
     public void onDisable() {
         target = null;
         targets.clear();
+        mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
     }
     
     @EventHandler
     public void onRender3D(Render3DEvent event) {
         if (mc.player == null) return;
-        
-        if (attackTimer.hasTimeElapsed(attackDelay) && (fastOnFirstHit.getValue() || target != null)) {
+
+        if (attackTimer.hasTimeElapsed(attackDelay) && target != null && (fastOnFirstHit.getValue() || CalculateUtils.getClosetDistance(mc.player, target) <= swingRange.getValue() + 0.1)) {
             canAttackTimes++;
             attackDelay = calculateDelay();
             attackTimer.reset();
@@ -265,6 +273,16 @@ public class KillAura extends Module {
                 canAttackTimes = 0;
             }
             targetTimer.reset();
+        }
+
+        if (autoBlockMode.is("MatrixDamage") && canBlock()) {
+            if (canAttackTimes <= 0) {
+                if ((mc.player.hurtTime >= 2 && mc.player.hurtTime <= 10) || !MoveUtils.isMoving() || GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
+                    mc.gameSettings.keyBindUseItem.setPressed(true);
+                }
+            } else {
+                mc.gameSettings.keyBindUseItem.setPressed(false);
+            }
         }
     }
     
@@ -357,6 +375,18 @@ public class KillAura extends Module {
     private void attackTarget(EntityLivingBase target) {
         
         if (mc.player == null || target == null) return;
+
+        if(canBlock()) {
+            switch (autoBlockMode.getValueByName()) {
+                case "HoldKey":
+                    mc.gameSettings.keyBindUseItem.setPressed(true);
+                    break;
+                case "MatrixDamage":
+                    break;
+            }
+        }else {
+            mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
+        }
         
         if (target.hurtTime > hurtTime.getValue()) return;
         
@@ -434,6 +464,14 @@ public class KillAura extends Module {
 
     private int calculateDelay() {
         return 1000 / (int) RandomUtils.randomDouble(CPSValue.getFirst(), CPSValue.getSecond());
+    }
+
+    private boolean canBlock(){
+        if(noInventory.getValue() && mc.currentScreen instanceof GuiInventory){
+            return false;
+        }
+        return mc.player.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword && (mc.player.getHeldItem(EnumHand.OFF_HAND).func_190926_b()
+        || mc.player.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemShield);
     }
     
     @Override

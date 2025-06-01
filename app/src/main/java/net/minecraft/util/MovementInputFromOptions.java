@@ -1,5 +1,6 @@
 package net.minecraft.util;
 
+import loftily.Client;
 import loftily.event.impl.client.MoveInputEvent;
 import net.minecraft.client.settings.GameSettings;
 
@@ -61,6 +62,7 @@ public class MovementInputFromOptions extends MovementInput
         this.sneak = this.gameSettings.keyBindSneak.isKeyDown();
         
         MoveInputEvent event = new MoveInputEvent(moveForward, moveStrafe, jump, sneak, 0.3D);
+        Client.INSTANCE.getEventManager().call(event);
         
         this.moveForward = event.getForward();
         this.moveStrafe = event.getStrafe();

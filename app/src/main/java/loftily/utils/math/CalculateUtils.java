@@ -10,10 +10,35 @@ import net.minecraft.util.math.Vec3d;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.round;
+import static loftily.handlers.impl.RotationHandler.moveFixStatus;
 import static loftily.utils.client.ClientUtils.mc;
+import static net.minecraft.util.math.MathHelper.abs;
+import static net.minecraft.util.math.MathHelper.ceil;
 
 public class CalculateUtils {
-    
+
+    public static float getMoveFixForward(Rotation rotation) {
+        float playerDirection = moveFixStatus == 2 ? mc.player.rotationYaw : Math.round(mc.player.rotationYaw / 45f) * 45f;
+        float diff = (playerDirection - rotation.yaw) * (float) (Math.PI / 180);
+
+        float calcForward;
+
+        float strafe = mc.player.movementInput.moveStrafe;
+        float forward = mc.player.movementInput.moveForward;
+
+        float modifiedForward = ceil(abs(forward)) * Math.signum(forward);
+        float modifiedStrafe = ceil(abs(strafe)) * Math.signum(strafe);
+
+        calcForward = round(modifiedForward * MathHelper.cos(diff) + modifiedStrafe * MathHelper.sin(diff));
+
+        float f = (forward != 0f) ? forward : strafe;
+
+        calcForward *= abs(f);
+
+        return calcForward;
+    }
+
     public static Vec3d getClosestPoint(Vec3d vec3, AxisAlignedBB box) {
         double x = MathHelper.clamp(vec3.xCoord, box.minX, box.maxX);
         double y = MathHelper.clamp(vec3.yCoord, box.minY, box.maxY);
