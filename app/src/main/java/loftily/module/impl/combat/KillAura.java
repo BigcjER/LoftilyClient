@@ -31,6 +31,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.input.Keyboard;
 
@@ -70,6 +71,7 @@ public class KillAura extends Module {
     private final NumberValue rotationRange;
     private final NumberValue swingRange;
     private final NumberValue attackRange;
+    private final NumberValue throughWallAttackRange;
     //Target
     private final ModeValue targetSortingMode = new ModeValue("TargetSortingMode", "Distance", this,
             new StringMode("Distance"),
@@ -91,6 +93,8 @@ public class KillAura extends Module {
             new StringMode("LockHead"),
             new StringMode("NearestCenter"),
             new StringMode("Normal"),
+            new StringMode("Advance"),
+            new StringMode("Advance2"),
             new StringMode("None"));
     private final RangeSelectionNumberValue yawTurnSpeed = new RangeSelectionNumberValue("YawTurnSpeed", 100, 150, 0, 360, 0.1);
     private final RangeSelectionNumberValue pitchTurnSpeed = new RangeSelectionNumberValue("PitchTurnSpeed", 100, 150, 0, 360, 0.1);
@@ -118,7 +122,10 @@ public class KillAura extends Module {
                 .setMaxWith(rotationRange);
         attackRange = new NumberValue("AttackRange", 6, 0, 10, 0.1)
                 .setMaxWith(swingRange);
-        
+        throughWallAttackRange = new NumberValue("ThroughWallAttackRange", 6, 0, 10, 0.1)
+                .setMaxWith(attackRange);
+
+
         swingRange.setMinWith(attackRange);
         rotationRange.setMinWith(swingRange);
     }
@@ -152,6 +159,9 @@ public class KillAura extends Module {
         Rotation currentRotation = null;
         
         switch (rotationMode.getValue().getName()) {
+            case "Advance":
+            case "Advance2":
+                break;
             case "LockCenter":
                 center = target.getBox().lerpWith(0.5, 0.5, 0.5);
                 break;
@@ -182,19 +192,22 @@ public class KillAura extends Module {
                 currentRotation = RotationUtils.toRotation(center, mc.player);
             }
         }
+
+        switch (rotationMode.getValue().getName()) {
+            case "NearestCenter":
+            case "Normal":
+            case "LockHead":
+            case "LockCenter":
+                break;
+            case "Advance":
+                currentRotation = RotationUtils.findBestRotationSimulatedAnnealing(mc.player,target);
+                break;
+            case "Advance2":
+                currentRotation = RotationUtils.findBestRotationMultiCriteria(mc.player,target);
+                break;
+        }
         
         return currentRotation;
-    }
-    
-    @EventHandler
-    public void onUpdate(UpdateEvent event) {
-        if (mc.player == null) return;
-        
-        target = getTarget();
-        
-        if (attackTimeMode.is("Tick")) {
-            attackTarget(target);
-        }
     }
 
     @EventHandler
@@ -202,6 +215,15 @@ public class KillAura extends Module {
         if (mc.player == null || rotationMode.is("None")) return;
 
         rotation(target);
+
+        if (mc.player == null) return;
+
+        target = getTarget();
+
+        if (attackTimeMode.is("Tick")) {
+            attackTarget(target);
+        }
+
     }
 
     @EventHandler
@@ -298,6 +320,39 @@ public class KillAura extends Module {
         
         return null;
     }
+
+    public static boolean canBeSeenEntity(Entity player, Entity target) {
+        AxisAlignedBB targetBB = target.getEntityBoundingBox();
+
+        Vec3d center = new Vec3d(
+                (targetBB.minX + targetBB.maxX) / 2,
+                (targetBB.minY + targetBB.maxY) / 2,
+                (targetBB.minZ + targetBB.maxZ) / 2
+        );
+
+        Vec3d[] corners = new Vec3d[] {
+                new Vec3d(targetBB.minX, targetBB.minY, targetBB.minZ),
+                new Vec3d(targetBB.minX, targetBB.minY, targetBB.maxZ),
+                new Vec3d(targetBB.minX, targetBB.maxY, targetBB.minZ),
+                new Vec3d(targetBB.minX, targetBB.maxY, targetBB.maxZ),
+                new Vec3d(targetBB.maxX, targetBB.minY, targetBB.minZ),
+                new Vec3d(targetBB.maxX, targetBB.minY, targetBB.maxZ),
+                new Vec3d(targetBB.maxX, targetBB.maxY, targetBB.minZ),
+                new Vec3d(targetBB.maxX, targetBB.maxY, targetBB.maxZ)
+        };
+
+        Vec3d eyePos = player.getPositionEyes(1.0F);
+
+        if (player.world.rayTraceBlocks(eyePos, center) == null) return true;
+
+        for (Vec3d corner : corners) {
+            if (player.world.rayTraceBlocks(eyePos, corner) == null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
     
     private void attackTarget(EntityLivingBase target) {
         
@@ -329,6 +384,10 @@ public class KillAura extends Module {
         }
 
         if (bestTarget == null || (bestTarget != target && rayCastOnlyTarget.getValue())) return;
+
+        if(!canBeSeenEntity(mc.player,bestTarget) && CalculateUtils.getClosetDistance(mc.player,(EntityLivingBase) bestTarget) > throughWallAttackRange.getValue()){
+            return;
+        }
 
         while (canAttackTimes > 0) {
             canAttackTimes--;

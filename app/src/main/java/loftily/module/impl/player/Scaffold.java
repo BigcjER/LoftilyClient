@@ -2,7 +2,9 @@ package loftily.module.impl.player;
 
 import com.google.common.collect.Lists;
 import loftily.event.impl.player.motion.MotionEvent;
+import loftily.event.impl.player.motion.StrafeEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
+import loftily.event.impl.world.UpdateEvent;
 import loftily.handlers.impl.RotationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
@@ -10,6 +12,7 @@ import loftily.module.ModuleInfo;
 import loftily.utils.block.BlockUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
+import loftily.utils.player.MoveUtils;
 import loftily.utils.player.RotationUtils;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
@@ -20,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import net.lenni0451.lambdaevents.EventHandler;
+import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
@@ -43,10 +47,21 @@ import static loftily.utils.math.CalculateUtils.getVectorForRotation;
 @ModuleInfo(name = "Scaffold", category = ModuleCategory.Player)
 public class Scaffold extends Module {
 
+    //Mode
+    private final ModeValue scaffoldMode = new ModeValue("Mode","Normal",this,
+            new StringMode("Normal"),
+            new StringMode("Telly"),
+            new StringMode("Snap"),
+            new StringMode("AutoJump"));
+    //Place
     private final ModeValue placeTiming = new ModeValue("PlaceTiming","Tick",this,
             new StringMode("Pre"),
             new StringMode("Post"),
             new StringMode("Tick"));
+    private final ModeValue clickCheck = new ModeValue("ClickCheck","Strict",this,
+            new StringMode("None"),
+            new StringMode("Simple"),
+            new StringMode("Strict"));
     //Rotation
     private final ModeValue rotationMode = new ModeValue("RotationMode","None",this,
             new StringMode("Normal"),
@@ -59,10 +74,6 @@ public class Scaffold extends Module {
     );
     private final NumberValue distValue = new NumberValue("Dist",0.0,0.0,0.3,0.01);
     private final BooleanValue rayCastSearch = new BooleanValue("RayCast",false);
-    private final ModeValue clickCheck = new ModeValue("ClickCheck","Strict",this,
-            new StringMode("None"),
-            new StringMode("Simple"),
-            new StringMode("Strict"));
     private final BooleanValue keepRotation = new BooleanValue("KeepRotation",false);
     private final RangeSelectionNumberValue yawTurnSpeed = new RangeSelectionNumberValue("YawTurnSpeed", 100, 150, 0, 360, 0.1);
     private final RangeSelectionNumberValue pitchTurnSpeed = new RangeSelectionNumberValue("PitchTurnSpeed", 100, 150, 0, 360, 0.1);
@@ -254,6 +265,7 @@ public class Scaffold extends Module {
                 horizonSpeed,
                 pitchSpeed
         );
+
         if (silentRotation.getValue()) {
             RotationHandler.setClientRotation(calculateRot, keepTicks, reverseTicks,moveFixMode.getValue().getName());
         } else {
@@ -278,6 +290,8 @@ public class Scaffold extends Module {
             setRotation(RotationUtils.toRotation(placeInfo.getHitVec(),mc.player));
         }
 
+
+
         if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && !(mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock)) {
             for (int i = 0; i < 9; i++) {
                 ItemStack stack = mc.player.inventory.getStackInSlot(i);
@@ -289,10 +303,42 @@ public class Scaffold extends Module {
             return;
         }
 
-        click(placeInfo.blockPos,placeInfo.facing,placeInfo.hitVec);
-
         if(keepRotation.getValue() && RotationHandler.clientRotation != null){
             setRotation(RotationHandler.clientRotation);
+        }
+
+        switch (scaffoldMode.getValueByName()){
+            case "Telly":
+                if(!(mc.world.getBlockState(new BlockPos(mc.player.posX,mc.player.posY-1,mc.player.posZ)).getBlock() instanceof BlockAir) && mc.player.onGround){
+                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
+                }
+                break;
+            case "Snap":
+                if(!(mc.world.getBlockState(new BlockPos(mc.player.posX,mc.player.posY-1,mc.player.posZ)).getBlock() instanceof BlockAir)){
+                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
+                }
+                break;
+        }
+
+        click(placeInfo.blockPos,placeInfo.facing,placeInfo.hitVec);
+    }
+
+    @EventHandler
+    public void onStrafe(StrafeEvent event){
+        switch (scaffoldMode.getValueByName()){
+            case "Telly":
+                if(mc.player.onGround && MoveUtils.isMoving() && mc.player.isSprinting()){
+                    mc.player.tryJump();
+                }
+                break;
+            case "AutoJump":
+                if(mc.player.onGround && MoveUtils.isMoving()){
+                    mc.player.tryJump();
+                }
+                break;
+            case "Normal":
+            case "Snap":
+                break;
         }
     }
 
