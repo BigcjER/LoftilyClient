@@ -35,7 +35,7 @@ public class NotificationManager implements ClientUtils {
             
             notification.drawNotification();
             
-            if (!notification.out && notification.isFinished() && yAnim.isFinished())
+            if (!notification.out && notification.isFinished() && yAnim.isFinished() && xAnim.isFinished())
                 iterator.remove();
         }
     }

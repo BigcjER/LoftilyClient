@@ -41,6 +41,8 @@ public class Notification {
     }
     
     public void drawNotification() {
+        xAnimation.setDuration(out ? 250 : 200);
+        
         //背景
         Runnable backGroundRunnable = () -> {
             RenderUtils.drawRoundedRect(x, y, Width, Height, Radius, Colors.BackGround.color);
