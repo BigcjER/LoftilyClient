@@ -1,7 +1,9 @@
 package loftily.utils.player;
 
+import loftily.handlers.impl.RotationHandler;
 import loftily.utils.client.ClientUtils;
 import loftily.utils.math.Rotation;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;

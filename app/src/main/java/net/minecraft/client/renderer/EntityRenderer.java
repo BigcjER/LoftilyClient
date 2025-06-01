@@ -465,7 +465,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
                 d1 = this.mc.objectMouseOver.hitVec.distanceTo(vec3d);
             }
 
-            Vec3d vec3d1 = !rayTraceFixer.isToggled() ? entity.getLook(1.0F) : CalculateUtils.getVectorForRotation(RotationHandler.getCurrentRotation());
+            Vec3d vec3d1 = !rayTraceFixer.isToggled() ? entity.getLook(1.0F) : CalculateUtils.getVectorForRotation(RotationHandler.getRotation());
             Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0);
             this.pointedEntity = null;
             Vec3d vec3d3 = null;

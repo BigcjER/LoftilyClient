@@ -151,7 +151,7 @@ public class KillAura extends Module {
                 calculateRotation(target),
                 horizonSpeed,
                 pitchSpeed
-        );
+        ).fixedSensitivity(0);
         if (silentRotation.getValue()) {
             RotationHandler.setClientRotation(calculateRot, keepTicks, reverseTicks,moveFixMode.getValue().getName());
         } else {

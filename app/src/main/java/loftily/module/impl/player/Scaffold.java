@@ -202,7 +202,7 @@ public class Scaffold extends Module {
 
         Rotation rotation;
         PlaceInfo<BlockPos,EnumFacing,Vec3d,Rotation> dPlaceInfo = null;
-        Vec3d directionVec = new Vec3d(enumFacing.getOpposite().getDirectionVec());
+        Vec3d directionVec = new Vec3d(enumFacing.getDirectionVec());
 
         center = (blockVec.addVector(vec3.xCoord, vec3.yCoord, vec3.zCoord)).addVector(
                 directionVec.xCoord * vec3.xCoord, directionVec.yCoord * vec3.yCoord, directionVec.zCoord * vec3.zCoord
@@ -308,7 +308,6 @@ public class Scaffold extends Module {
                 horizonSpeed,
                 pitchSpeed
         );
-
         if (silentRotation.getValue()) {
             RotationHandler.setClientRotation(calculateRot, keepTicks, reverseTicks,moveFixMode.getValue().getName());
         } else {

@@ -1,6 +1,11 @@
 package loftily.utils.math;
 
+import loftily.handlers.impl.RotationHandler;
 import lombok.AllArgsConstructor;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.math.MathHelper;
+
+import static java.lang.Math.pow;
 
 @AllArgsConstructor
 public class Rotation {
@@ -14,6 +19,28 @@ public class Rotation {
     public Rotation add(float yaw, float pitch) {
         this.yaw += yaw;
         this.pitch += pitch;
+        return this;
+    }
+
+    public Rotation fixedSensitivity(float sensitivity) {
+        if (sensitivity == 0) {
+            sensitivity = Minecraft.getMinecraft().gameSettings.mouseSensitivity;
+        }
+        float f = sensitivity * 0.6F + 0.2F;
+        float gcd = f * f * f * 1.2F;
+
+        // get previous rotation
+        Rotation rotation = RotationHandler.serverRotation;
+
+        // fix yaw
+        float deltaYaw = yaw - rotation.yaw;
+        deltaYaw -= deltaYaw % gcd;
+        yaw = rotation.yaw + deltaYaw;
+
+        // fix pitch
+        float deltaPitch = pitch - rotation.pitch;
+        deltaPitch -= deltaPitch % gcd;
+        pitch = rotation.pitch + deltaPitch;
         return this;
     }
 }

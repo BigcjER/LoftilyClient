@@ -118,6 +118,7 @@ public class RotationHandler extends Handler {
     @EventHandler
     public void onRotation(RotationEvent event) {
         if(clientRotation == null) return;
+
         event.setRotation(clientRotation);
     }
 
