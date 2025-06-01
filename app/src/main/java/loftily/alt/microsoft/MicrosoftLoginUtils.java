@@ -4,18 +4,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.commons.codec.binary.Base64;
+import loftily.utils.other.CryptoUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.awt.*;
-import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.SecureRandom;
 
 public class MicrosoftLoginUtils {
@@ -28,25 +25,16 @@ public class MicrosoftLoginUtils {
         SecureRandom sr = new SecureRandom();
         byte[] code = new byte[32];
         sr.nextBytes(code);
-        return Base64.encodeBase64URLSafeString(code);
+        return CryptoUtils.base64UrlEncode(code);
     }
     
     public static String generateCodeChallenge(String verifier) {
         try {
-            byte[] bytes = verifier.getBytes(StandardCharsets.US_ASCII);
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(bytes, 0, bytes.length);
-            byte[] digest = md.digest();
-            return Base64.encodeBase64URLSafeString(digest);
+            byte[] hash = CryptoUtils.sha256(verifier.getBytes(StandardCharsets.US_ASCII));
+            return CryptoUtils.base64UrlEncode(hash);
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate code challenge", e);
         }
-    }
-    
-    static String copyToClipboard(String text) {
-        StringSelection ss = new StringSelection(text);
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
-        return "Check out your clipboard...";
     }
     
     static String getXBLToken(String accessToken) throws Exception {
@@ -150,6 +138,31 @@ public class MicrosoftLoginUtils {
         try (InputStream is = connection.getInputStream()) {
             JsonObject json = inputStreamToJsonObject(is);
             return json.get("access_token").getAsString();
+        }
+    }
+    
+    static String refreshAccessToken(String refreshToken) throws Exception {
+        HttpURLConnection connection = createPost("https://login.microsoftonline.com/consumers/oauth2/v2.0/token", "application/x-www-form-urlencoded");
+        
+        String body =
+                "client_id=" + CLIENT_ID +
+                        "&refresh_token=" + refreshToken +
+                        "&grant_type=refresh_token" +
+                        "&scope=" +
+                        "XboxLive.signin%20offline_access";
+        
+        try (OutputStream os = connection.getOutputStream()) {
+            os.write(body.getBytes(StandardCharsets.UTF_8));
+        }
+        
+        try (InputStream is = connection.getInputStream()) {
+            JsonObject json = inputStreamToJsonObject(is);
+            
+            if (json.has("access_token")) {
+                return json.get("access_token").getAsString();
+            } else {
+                throw new IOException("Failed to refresh token: " + json.toString());
+            }
         }
     }
     

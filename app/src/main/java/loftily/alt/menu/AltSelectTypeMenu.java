@@ -68,7 +68,7 @@ public class AltSelectTypeMenu extends GuiScreen {
         super.actionPerformed(button);
         switch (button.id) {
             case 0:
-                mc.displayGuiScreen(new AltAddMicrosoftMenu(this));
+                mc.displayGuiScreen(new AltMicrosoftLoginMenu(this));
                 break;
             case 1:
                 mc.displayGuiScreen(new AltAddOfflineMenu(this, fontRendererObj));

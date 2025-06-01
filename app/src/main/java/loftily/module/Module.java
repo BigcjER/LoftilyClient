@@ -73,7 +73,7 @@ public abstract class Module extends AbstractModule {
             }
         }
         
-        if (save) Client.INSTANCE.getConfigManager().get(ModuleConfig.class).write();
+        if (save) Client.INSTANCE.getFileManager().get(ModuleConfig.class).write();
         
     }
     

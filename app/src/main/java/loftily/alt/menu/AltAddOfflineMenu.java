@@ -2,9 +2,12 @@ package loftily.alt.menu;
 
 import loftily.Client;
 import loftily.alt.Alt;
+import loftily.gui.animation.Animation;
+import loftily.gui.animation.Easing;
 import loftily.gui.components.CustomButton;
 import loftily.gui.components.CustomTextField;
 import loftily.gui.font.FontManager;
+import loftily.utils.render.ColorUtils;
 import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 import loftily.utils.timer.DelayTimer;
@@ -22,6 +25,7 @@ public class AltAddOfflineMenu extends GuiScreen {
     private final GuiScreen prevScreen;
     private GuiButton loginButton, addButon;
     private String currentText = "";
+    private final Animation textAnimation;
     
     public AltAddOfflineMenu(GuiScreen prevScreen, FontRenderer fontRendererObj) {
         this.prevScreen = prevScreen;
@@ -29,6 +33,7 @@ public class AltAddOfflineMenu extends GuiScreen {
         this.nameTextField.setMaxStringLength(128);
         this.nameTextField.setText("");
         this.nameTextField.setFocused(true);
+        this.textAnimation = new Animation(Easing.EaseOutExpo, 250);
     }
     
     @Override
@@ -84,13 +89,14 @@ public class AltAddOfflineMenu extends GuiScreen {
         int x = this.width / 2 - 100;
         int y = height / 5;
         
+        textAnimation.run(timer.hasTimeElapsed(3000) ? 1 : 254);
         FontManager.NotoSans.of(16).drawString("Name", x, y, Colors.Text.color);
         this.nameTextField.xPosition = x;
         this.nameTextField.yPosition = y + 12;
         this.nameTextField.drawTextBox();
         
-        if (!timer.hasTimeElapsed(3000)) {
-            FontManager.NotoSans.of(16).drawCenteredString(currentText, width / 2F, height / 10F, Colors.Text.color);
+        if (!textAnimation.isFinished() || !timer.hasTimeElapsed(3000)) {
+            FontManager.NotoSans.of(16).drawCenteredString(currentText, width / 2F, height / 10F, ColorUtils.colorWithAlpha(Colors.Text.color, textAnimation.getValuei()));
         }
         
         super.drawScreen(mouseX, mouseY, partialTicks);

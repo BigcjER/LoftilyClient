@@ -376,6 +376,6 @@ public class FontRenderer implements ClientUtils {
     }
     
     public int getWidth(String text) {
-        return mc.fontRendererObj.getStringWidth(text);
+        return getStringWidth(text);
     }
 }
