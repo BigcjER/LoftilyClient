@@ -4,7 +4,6 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import loftily.Client;
 import loftily.event.impl.player.motion.JumpEvent;
-import loftily.module.impl.movement.NoPush;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLadder;

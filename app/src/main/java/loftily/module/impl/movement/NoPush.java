@@ -8,7 +8,6 @@ import net.lenni0451.lambdaevents.EventHandler;
 
 @ModuleInfo(name = "NoPush",category = ModuleCategory.Movement)
 public class NoPush extends Module {
-
     @EventHandler
     public void onPush(PushEvent event) {
         event.setCancelled(true);

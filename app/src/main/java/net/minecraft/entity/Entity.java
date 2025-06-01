@@ -1688,12 +1688,11 @@ public abstract class Entity implements ICommandSender
      */
     public void applyEntityCollision(Entity entityIn)
     {
-        if (entityIn instanceof EntityPlayerSP) {
-            PushEvent event = new PushEvent(entityIn);
-            Client.INSTANCE.getEventManager().call(event);
-            
-            if (event.isCancelled()) return;
-        }
+        PushEvent event = new PushEvent(entityIn);
+        Client.INSTANCE.getEventManager().call(event);
+
+        if (event.isCancelled()) return;
+
         if (!this.isRidingSameEntity(entityIn))
         {
             if (!entityIn.noClip && !this.noClip)
