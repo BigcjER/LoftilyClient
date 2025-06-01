@@ -83,6 +83,6 @@ public class ModuleConfig extends Config {
         read();
         
         ClientSettings.lastModuleConfig.set(configFile.getName());
-        Client.INSTANCE.getConfigManager().get(ClientSettingsConfig.class).write();
+        Client.INSTANCE.getFileManager().get(ClientSettingsConfig.class).write();
     }
 }

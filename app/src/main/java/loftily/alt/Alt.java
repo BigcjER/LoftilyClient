@@ -14,6 +14,9 @@ public class Alt {
         this.type = AltType.Microsoft;
     }
     
+    /**
+     * 初始化的时候才需要这个
+     */
     public Alt(String name, AltType type) {
         this.name = name;
         this.type = type;
@@ -26,15 +29,24 @@ public class Alt {
     }
     
     public String getUuid() {
-        if (type == AltType.Microsoft)
+        if (type == AltType.Offline)
             throw new UnsupportedOperationException("Offline alts don't have a UUID.");
         return uuid;
     }
     
     public String getRefreshToken() {
-        if (type == AltType.Offline) {
+        if (type == AltType.Offline)
             throw new UnsupportedOperationException("Offline alts don't have a refresh token.");
-        }
         return refreshToken;
+    }
+    
+    @Override
+    public String toString() {
+        return "Alt{" +
+                "name='" + name + '\'' +
+                ", uuid='" + uuid + '\'' +
+                ", refreshToken='" + refreshToken + '\'' +
+                ", type=" + type +
+                '}';
     }
 }

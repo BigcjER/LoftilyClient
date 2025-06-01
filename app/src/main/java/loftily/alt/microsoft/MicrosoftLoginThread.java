@@ -3,10 +3,13 @@ package loftily.alt.microsoft;
 import loftily.Client;
 import loftily.alt.Alt;
 import loftily.utils.client.ClientUtils;
+import loftily.utils.other.CryptoUtils;
+import loftily.utils.other.SystemUtils;
 import lombok.Getter;
 import net.minecraft.util.Session;
 import net.minecraft.util.text.TextFormatting;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -39,42 +42,19 @@ public class MicrosoftLoginThread extends Thread implements ClientUtils {
                     "&code_challenge=" + codeChallenge +
                     "&code_challenge_method=S256";
             
-            setCurrentText(copyToClipboard(authUrl));
+            SystemUtils.copyToClipboard(authUrl);
+            currentText = "Check out your clipboard...";
             
             try {
                 String code = callbackServer.getCodeFuture().get(1, TimeUnit.MINUTES);
-                setCurrentText("Authorization code received");
+                setAndPrintCurrentText("Authorization code received");
                 
-                setCurrentText("Getting access token and refresh token...");
+                setAndPrintCurrentText("Getting access token and refresh token...");
                 String[] tokens = getAccessTokenAndRefreshToken(code, codeVerifier);
                 String accessToken = tokens[0];
                 String refreshToken = tokens[1];
                 
-                setCurrentText("Getting xbox live token...");
-                String xblToken = getXBLToken(accessToken);
-                
-                setCurrentText("Getting XSTS token and user hash...");
-                String[] XSTSTokenAndUHS = getXSTSTokenAndUHS(xblToken);
-                String XSTSToken = XSTSTokenAndUHS[0];
-                String uhs = XSTSTokenAndUHS[1];
-                
-                setCurrentText("Getting Minecraft access token...");
-                String minecraftAccessToken = getMinecraftAccessToken(uhs, XSTSToken);
-                
-                setCurrentText("Checking Minecraft ownership...");
-                if (!checkMinecraftOwnership(minecraftAccessToken)) {
-                    currentText = TextFormatting.YELLOW + "This Microsoft account does not own Minecraft. Please check the account";
-                    return;
-                }
-                
-                setCurrentText("Retrieving Minecraft profile...");
-                String[] profile = getMinecraftProfile(minecraftAccessToken);
-                String name = profile[0];
-                String uuid = profile[1];
-                
-                mc.addScheduledTask(() -> mc.setSession(new Session(name, uuid, minecraftAccessToken, "mojang")));
-                Client.INSTANCE.getAltManager().add(new Alt(name, uuid, refreshToken));
-                currentText = TextFormatting.GREEN + "Login successful!Logged in to " + name;
+                doLogin(accessToken, refreshToken, true);
             } catch (InterruptedException e) {
                 Logger.warn("Microsoft login thread interrupted.");
                 Thread.currentThread().interrupt();
@@ -99,6 +79,18 @@ public class MicrosoftLoginThread extends Thread implements ClientUtils {
         }
     }
     
+    public void loginWithRefreshToken(String encryptedRefreshToken) throws Exception {
+        setAndPrintCurrentText("Decrypting refresh token...");
+        byte[] cpuid = SystemUtils.getCpuIdSha256();
+        SecretKeySpec key = new SecretKeySpec(cpuid, 0, 16, "AES");
+        String refreshToken = CryptoUtils.aesDecrypt(encryptedRefreshToken, key);
+        
+        setAndPrintCurrentText("Refreshing access token...");
+        String newAccessToken = refreshAccessToken(refreshToken);
+        
+        doLogin(newAccessToken, refreshToken, false);
+    }
+    
     @Override
     public void interrupt() {
         super.interrupt();
@@ -111,8 +103,43 @@ public class MicrosoftLoginThread extends Thread implements ClientUtils {
         }
     }
     
-    public void setCurrentText(String currentText) {
+    public void setAndPrintCurrentText(String currentText) {
         this.currentText = currentText;
         Logger.info(currentText);
+    }
+    
+    private void doLogin(String accessToken, String refreshToken, boolean add) throws Exception {
+        String xblToken = getXBLToken(accessToken);
+        
+        setAndPrintCurrentText("Getting XSTS token and user hash...");
+        String[] XSTSTokenAndUHS = getXSTSTokenAndUHS(xblToken);
+        String XSTSToken = XSTSTokenAndUHS[0];
+        String uhs = XSTSTokenAndUHS[1];
+        
+        setAndPrintCurrentText("Getting Minecraft access token...");
+        String minecraftAccessToken = getMinecraftAccessToken(uhs, XSTSToken);
+        
+        setAndPrintCurrentText("Checking Minecraft ownership...");
+        if (!checkMinecraftOwnership(minecraftAccessToken)) {
+            currentText = TextFormatting.YELLOW + "This Microsoft account does not own Minecraft.";
+            return;
+        }
+        
+        setAndPrintCurrentText("Retrieving Minecraft profile...");
+        String[] profile = getMinecraftProfile(minecraftAccessToken);
+        String name = profile[0];
+        String uuid = profile[1];
+        
+        mc.addScheduledTask(() -> mc.setSession(new Session(name, uuid, minecraftAccessToken, "mojang")));
+        
+        if (add) {
+            byte[] cpuid = SystemUtils.getCpuIdSha256();
+            SecretKeySpec key = new SecretKeySpec(cpuid, 0, 16, "AES");
+            String encryptedRefreshToken = CryptoUtils.aesEncrypt(refreshToken, key);
+            Alt alt = new Alt(name, uuid, encryptedRefreshToken);
+            Client.INSTANCE.getAltManager().add(alt);
+        }
+        
+        setAndPrintCurrentText(TextFormatting.GREEN + "Login successful! Logged in as " + name);
     }
 }

@@ -173,7 +173,7 @@ public class ClickGui extends GuiScreen {
     
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        Client.INSTANCE.getConfigManager().get(ModuleConfig.class).write();
+        Client.INSTANCE.getFileManager().get(ModuleConfig.class).write();
         
         if (currentValuePanel != null) {
             currentValuePanel.mouseClicked(mouseX, mouseY, mouseButton);

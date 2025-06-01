@@ -10,6 +10,6 @@ public class ClientSettings {
     );
     
     private static void save() {
-        Client.INSTANCE.getConfigManager().get(ClientSettingsConfig.class).write();
+        Client.INSTANCE.getFileManager().get(ClientSettingsConfig.class).write();
     }
 }

@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import loftily.Client;
 import loftily.config.Config;
-import loftily.config.ConfigManager;
+import loftily.config.FileManager;
 import loftily.settings.ClientSettings;
 import loftily.settings.FieldProxy;
 
@@ -19,7 +19,7 @@ import java.lang.reflect.Type;
 
 public class ClientSettingsConfig extends Config {
     public ClientSettingsConfig() {
-        super(new File(ConfigManager.rootDir, "ClientSettings.json"));
+        super(new File(FileManager.RootDir, "ClientSettings.json"));
     }
     
     //确保比ModuleConfig先加载
@@ -31,9 +31,9 @@ public class ClientSettingsConfig extends Config {
     @Override
     public void init() {
         super.init();
-        ModuleConfig moduleConfig = Client.INSTANCE.getConfigManager().get(ModuleConfig.class);
+        ModuleConfig moduleConfig = Client.INSTANCE.getFileManager().get(ModuleConfig.class);
         
-        File lastConfigFile = new File(ConfigManager.configDir, ClientSettings.lastModuleConfig.get());
+        File lastConfigFile = new File(FileManager.ConfigDir, ClientSettings.lastModuleConfig.get());
         moduleConfig.setConfigFile(lastConfigFile);
     }
     

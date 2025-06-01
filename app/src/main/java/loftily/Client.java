@@ -3,7 +3,7 @@ package loftily;
 import de.florianmichael.viamcp.ViaMCP;
 import loftily.alt.AltManager;
 import loftily.command.CommandManager;
-import loftily.config.ConfigManager;
+import loftily.config.FileManager;
 import loftily.gui.clickgui.ClickGui;
 import loftily.gui.menu.SplashScreen;
 import loftily.gui.notification.NotificationManager;
@@ -30,7 +30,7 @@ public enum Client {
     
     private ModuleManager moduleManager;
     private LambdaManager eventManager;
-    private ConfigManager configManager;
+    private FileManager fileManager;
     private CommandManager commandManager;
     private HandlerManager handlerManager;
     private NotificationManager notificationManager;
@@ -52,11 +52,15 @@ public enum Client {
         ViaMCP.create();
         ViaMCP.INSTANCE.initAsyncSlider();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Configuration Items", 75);
-        configManager = new ConfigManager();
-        configManager.init();/* late init I think */
-        commandManager = new CommandManager();
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing AltManager", 70);
         altManager = new AltManager();
+        
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Configs", 80);
+        fileManager = new FileManager();
+        fileManager.init();/* late init I think */
+        
+        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Commands", 85);
+        commandManager = new CommandManager();
         
         SplashScreen.INSTANCE.setProgressAndDraw("Initializing GUI", 90);
         clickGui = new ClickGui();
@@ -71,7 +75,7 @@ public enum Client {
     
     public void shutdown() {
         ClientUtils.Logger.info("Saving all configs");
-        configManager.saveAll();
+        fileManager.saveAll();
     }
     
     public String getTitle() {
