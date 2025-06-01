@@ -34,6 +34,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 
+import java.util.Objects;
+
 public class PlayerControllerMP
 {
     /** The Minecraft instance. */
@@ -431,6 +433,7 @@ public class PlayerControllerMP
                 }
             }
 
+            System.out.println(Objects.requireNonNull(stack.getState()).getBlock() + "" + stack);
             this.connection.sendPacket(new CPacketPlayerTryUseItemOnBlock(stack, pos, vec, f, f1, f2));
 
             if (!flag && this.currentGameType != GameType.SPECTATOR)

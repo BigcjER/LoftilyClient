@@ -25,8 +25,8 @@ public class MoveUtils implements ClientUtils {
         return mc.player.movementInput.moveForward != 0f || mc.player.movementInput.moveStrafe != 0f;
     }
     
-    public static void setSpeed(final double speed) {
-        if (!isMoving())
+    public static void setSpeed(final double speed,boolean movingCheck) {
+        if (!isMoving() && movingCheck)
             return;
         
         final double yaw = getDirection();

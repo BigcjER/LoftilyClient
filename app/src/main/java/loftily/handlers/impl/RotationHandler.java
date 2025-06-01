@@ -4,6 +4,7 @@ import loftily.event.impl.packet.PacketSendEvent;
 import loftily.event.impl.player.RotationEvent;
 import loftily.event.impl.player.motion.JumpEvent;
 import loftily.event.impl.player.motion.StrafeEvent;
+import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.handlers.Handler;
 import loftily.utils.math.Rotation;
@@ -90,7 +91,7 @@ public class RotationHandler extends Handler {
     }
 
     @EventHandler
-    public void onUpdate(UpdateEvent event) {
+    public void onUpdate(LivingUpdateEvent event) {
         if (clientRotation == null) {
             moveFixStatus = 0;
             return;

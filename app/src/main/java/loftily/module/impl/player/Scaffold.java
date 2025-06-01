@@ -24,6 +24,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -33,6 +34,7 @@ import net.minecraft.world.World;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
@@ -109,18 +111,18 @@ public class Scaffold extends Module {
         if (!iBlockState.getMaterial().isReplaceable()){
             return;
         }
-        if ((!iBlockState.getMaterial().isReplaceable() ||
-                calculateCenter(playerPos,true))) {
+        if (!iBlockState.getMaterial().isReplaceable() ||
+                calculateCenter(playerPos,true)) {
             return;
         }
         Iterable<BlockPos> blockPosIterable = BlockPos.getAllInBox(
-                playerPos.add(-4, 0, -4), playerPos.add(4, -2, 4)
+                playerPos.add(-5, 0, -5), playerPos.add(5, -3, 5)
         );
         List<BlockPos> blocks = Lists.newArrayList(blockPosIterable);
 
         blocks.sort(Comparator.comparingDouble(b -> mc.player.getDistance(b.getX() + 0.5, b.getY() + 0.5, b.getZ() + 0.5)));
         for (BlockPos blockPos : blocks) {
-            if (calculateCenter(blockPos, true)) {
+            if (BlockUtils.canBeClick(blockPos) || calculateCenter(blockPos, true)) {
                 return;
             }
         }
@@ -139,21 +141,19 @@ public class Scaffold extends Module {
         return world.rayTraceBlocks(eyes, reach, false, false, true);
     }
 
-    private PlaceInfo<BlockPos,EnumFacing,Vec3d,Rotation> getPlaceInfo(BlockPos blockPos,Vec3d vec3,EnumFacing enumFacing,Boolean raycast) {
+    private PlaceInfo<BlockPos,EnumFacing,Vec3d,Rotation> getPlaceInfo(BlockPos blockPos,BlockPos placePos,Vec3d vec3,EnumFacing enumFacing,Boolean raycast) {
         Vec3d eyes = mc.player.getEyes();
         Vec3d center;
         Vec3d blockVec = new Vec3d(blockPos);
-        double reach = mc.playerController.getBlockReachDistance();
 
         Rotation rotation;
         PlaceInfo<BlockPos,EnumFacing,Vec3d,Rotation> dPlaceInfo = null;
         Vec3d directionVec = new Vec3d(enumFacing.getDirectionVec());
-        BlockPos placePos = blockPos.offset(enumFacing);
 
         center = (blockVec.addVector(vec3.xCoord, vec3.yCoord, vec3.zCoord)).addVector(
                 directionVec.xCoord * vec3.xCoord, directionVec.yCoord * vec3.yCoord, directionVec.zCoord * vec3.zCoord
         );
-
+        double reach = mc.playerController.getBlockReachDistance();
         double distance = eyes.distanceTo(center);
         if (distance > reach || mc.world.rayTraceBlocks(eyes,center,false,true,false) != null) {
             return null;
@@ -181,15 +181,15 @@ public class Scaffold extends Module {
         }
 
         if (!rayCastSearch.getValue()) {
-            dPlaceInfo = new PlaceInfo<>(blockPos, enumFacing, center, rotation);
+            dPlaceInfo = new PlaceInfo<>(placePos, enumFacing, center, rotation);
         } else {
-            RayTraceResult serverRayTrace = performBlockRaytrace(RotationHandler.getCurrentRotation());
-            if (serverRayTrace.getBlockPos().equals(placePos) && (!raycast || serverRayTrace.sideHit == enumFacing.getOpposite())) {
-                dPlaceInfo = new PlaceInfo<>(blockPos, enumFacing, center, rotation);
+            RayTraceResult serverRayTrace = performBlockRaytrace(RotationHandler.getRotation());
+            if (serverRayTrace.getBlockPos().equals(placePos) && (!raycast || serverRayTrace.sideHit == enumFacing)) {
+                dPlaceInfo = new PlaceInfo<>(placePos, enumFacing, center, rotation);
             }
             RayTraceResult rotationRayTrace = performBlockRaytrace(rotation);
-            if (rotationRayTrace.getBlockPos().equals(placePos) || (!raycast || rotationRayTrace.sideHit == enumFacing.getOpposite())) {
-                dPlaceInfo = new PlaceInfo<>(blockPos, enumFacing, center, rotation);
+            if (rotationRayTrace.getBlockPos().equals(placePos) || (!raycast || rotationRayTrace.sideHit == enumFacing)) {
+                dPlaceInfo = new PlaceInfo<>(placePos, enumFacing, center, rotation);
             }
         }
         return dPlaceInfo;
@@ -206,7 +206,8 @@ public class Scaffold extends Module {
     }
 
     private Boolean calculateCenter(BlockPos blockPos,Boolean raycast){
-        if (!mc.world.getBlockState(blockPos).getBlock().blockMaterial.isReplaceable()) {
+
+        if (!Objects.requireNonNull(blockPos.getState()).getBlock().blockMaterial.isReplaceable()) {
             return false;
         }
 
@@ -219,11 +220,11 @@ public class Scaffold extends Module {
             for (double x = 0.1; x <= 0.9; x += 0.1) {
                 for (double y = 0.1; y <= 0.9; y += 0.1) {
                     for (double z = 0.1; z <= 0.9; z += 0.1) {
-                        ePlaceInfo = getPlaceInfo(blockPos, new Vec3d(x,y,z), enumFacing, raycast);
+                        ePlaceInfo = getPlaceInfo(blockPos,placePos,new Vec3d(x,y,z), enumFacing, raycast);
                         if(ePlaceInfo == null) {
                             continue;
                         }
-                        dPlaceInfo = compareDifferences(ePlaceInfo,dPlaceInfo,RotationHandler.getCurrentRotation());
+                        dPlaceInfo = compareDifferences(ePlaceInfo,dPlaceInfo,RotationHandler.getRotation());
                     }
                 }
             }
@@ -308,19 +309,22 @@ public class Scaffold extends Module {
     private void click(BlockPos placePos, EnumFacing facing, Vec3d hitVec) {
         EnumHand hand = mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
 
-        IBlockState iBlockState = mc.world.getBlockState(placePos);
+        println(Objects.requireNonNull(placePos.getState()).getBlock());
+
+        ItemStack heldItem = mc.player.getHeldItem(hand);
+
+        if (!(heldItem.getItem() instanceof ItemBlock)) return;
 
         if(!clickCheck.is("None")){
             RayTraceResult rayTraceResult = performBlockRaytrace(RotationHandler.getCurrentRotation());
-            if(rayTraceResult == null || !rayTraceResult.getBlockPos().equals(placePos.offset(facing)) || (rayTraceResult.sideHit != facing.getOpposite() && clickCheck.is("Strict"))){
+            if(rayTraceResult == null || !rayTraceResult.getBlockPos().equals(placePos) || (rayTraceResult.sideHit != facing.getOpposite() && clickCheck.is("Strict"))){
+                println(1);
                 return;
             }
         }
 
-        if (!(mc.player.getHeldItem(hand).getItem() instanceof ItemBlock)) return;
-        if(!iBlockState.getBlock().blockMaterial.isReplaceable()) { return; }
-
-        mc.playerController.processRightClickBlock(mc.player, mc.world, placePos, facing, hitVec, hand);
-        mc.player.swingArm(hand);
+        if(mc.playerController.processRightClickBlock(mc.player, mc.world, placePos, facing.getOpposite(), hitVec, hand) != EnumActionResult.FAIL) {
+            mc.player.swingArm(hand);
+        }
     }
 }

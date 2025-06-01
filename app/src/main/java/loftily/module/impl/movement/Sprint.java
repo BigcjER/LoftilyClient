@@ -1,6 +1,8 @@
 package loftily.module.impl.movement;
 
+import loftily.event.impl.client.MoveInputEvent;
 import loftily.event.impl.packet.PacketSendEvent;
+import loftily.event.impl.player.motion.StrafeEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.handlers.impl.RotationHandler;
@@ -19,9 +21,11 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.util.math.MathHelper;
 
+import static java.lang.Math.round;
 import static java.lang.Math.toRadians;
-import static net.minecraft.util.math.MathHelper.abs;
-import static net.minecraft.util.math.MathHelper.wrapAngleTo180_float;
+import static loftily.handlers.impl.RotationHandler.moveFixStatus;
+import static net.minecraft.util.math.MathHelper.*;
+import static net.minecraft.util.math.MathHelper.ceil;
 
 @ModuleInfo(name = "Sprint", category = ModuleCategory.Movement)
 public class Sprint extends Module {
@@ -48,51 +52,76 @@ public class Sprint extends Module {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = -10)
     public void onLivingUpdate(LivingUpdateEvent event) {
         Rotation rotation = RotationHandler.clientRotation;
 
+        if(!allDirections.getValue()) {
+            mc.gameSettings.keyBindSprint.setPressed(true);
+        }else {
+            mc.player.setSprinting(true);
+        }
+
         if(!MoveUtils.isMoving()) {
-            mc.player.setSprinting(false);
+            stopSprinting();
             return;
         }
 
-        if(rotation != null && legitSprint.getValue()) {
-            Rotation currentRotation = RotationHandler.clientRotation;
-            float moveForward = Math.round(mc.player.movementInput.moveForward * MathHelper.cos((float) toRadians(mc.player.rotationYaw - currentRotation.yaw)) + mc.player.movementInput.moveStrafe * MathHelper.sin((float) toRadians(mc.player.rotationYaw - currentRotation.yaw)));
-            if(moveForward > 0.8f){
-                mc.player.setSprinting(true);
-            }else {
-                mc.player.setSprinting(false);
-            }
-        }else {
-            if(!allDirections.getValue()) {
-                mc.gameSettings.keyBindSprint.setPressed(true);
-            }else {
-                mc.player.setSprinting(true);
+        if(legitSprint.getValue()){
+            if(rotation != null) {
+                float calcForward = getCalcForward(rotation);
+                if (calcForward < 0.8) {
+                    stopSprinting();
+                }
             }
         }
 
         if(noSneaking.getValue()){
             if(mc.player.isSneaking()){
-                mc.player.setSprinting(false);
+                stopSprinting();
             }
         }
 
         if((noInventory.getValue() && mc.currentScreen instanceof GuiInventory) || (noGui.getValue() && mc.currentScreen != null)) {
-            mc.player.setSprinting(false);
+            stopSprinting();
         }
 
         if(noFood.getValue() && mc.player.isHandActive() &&
                 (mc.player.getHeldItemMainhand().getItem() instanceof ItemFood
-                || mc.player.getHeldItemOffhand().getItem() instanceof ItemFood
-                || mc.player.getHeldItemMainhand().getItem() instanceof ItemBucketMilk
-                || mc.player.getHeldItemOffhand().getItem() instanceof ItemBucketMilk)){
-            mc.player.setSprinting(false);
+                        || mc.player.getHeldItemOffhand().getItem() instanceof ItemFood
+                        || mc.player.getHeldItemMainhand().getItem() instanceof ItemBucketMilk
+                        || mc.player.getHeldItemOffhand().getItem() instanceof ItemBucketMilk)){
+            stopSprinting();
         }
 
         if(noHunger.getValue() && mc.player.getFoodStats().getFoodLevel() <= 6) {
-            mc.player.setSprinting(false);
+            stopSprinting();
         }
+    }
+
+    void stopSprinting(){
+        mc.player.setSprinting(false);
+        mc.gameSettings.keyBindSprint.setPressed(false);
+    }
+
+    private static float getCalcForward(Rotation rotation) {
+        float playerDirection = moveFixStatus == 2 ? mc.player.rotationYaw : Math.round(mc.player.rotationYaw / 45f) * 45f;
+        float diff = (playerDirection - rotation.yaw) * (float) (Math.PI / 180);
+
+        float calcForward;
+
+        float strafe = mc.player.movementInput.moveStrafe;
+        float forward = mc.player.movementInput.moveForward;
+
+        float modifiedForward = ceil(abs(forward)) * Math.signum(forward);
+        float modifiedStrafe = ceil(abs(strafe)) * Math.signum(strafe);
+
+        calcForward = round(modifiedForward * MathHelper.cos(diff) + modifiedStrafe * MathHelper.sin(diff));
+
+        float f = (forward != 0f) ? forward : strafe;
+
+        calcForward *= abs(f);
+
+        return calcForward;
     }
 }

@@ -168,7 +168,7 @@ public class KillAura extends Module {
                             Vec3d preCenter = target.getBox().lerpWith(x, y, z);
 
                             if (CalculateUtils.isVisible(preCenter) || throughWallsAim.getValue()) {
-                                if (center == null || RotationUtils.getRotationDifference(RotationUtils.toRotation(preCenter, mc.player), RotationHandler.getCurrentRotation()) < RotationUtils.getRotationDifference(RotationUtils.toRotation(center, mc.player), RotationHandler.getCurrentRotation())) {
+                                if (center == null || RotationUtils.getRotationDifference(RotationUtils.toRotation(preCenter, mc.player), RotationHandler.getRotation()) < RotationUtils.getRotationDifference(RotationUtils.toRotation(center, mc.player), RotationHandler.getRotation())) {
                                     center = preCenter;
                                 }
                             }
