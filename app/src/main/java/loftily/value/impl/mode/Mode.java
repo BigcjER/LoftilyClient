@@ -8,8 +8,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class Mode extends AbstractModule {
-    private Module parent;
+public abstract class Mode<T extends Module> extends AbstractModule {
+    private T parent;
     
     public Mode(String name) {
         this.name = name;
@@ -29,9 +29,5 @@ public abstract class Mode extends AbstractModule {
             this.onDisable();
             this.onToggle();
         }
-    }
-    
-    public void toggle() {
-        getParent().toggle();
     }
 }
