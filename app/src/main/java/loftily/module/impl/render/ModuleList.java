@@ -6,9 +6,12 @@ import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
 import loftily.gui.font.FontManager;
 import loftily.gui.font.FontRenderer;
+import loftily.gui.interaction.Draggable;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
+import loftily.utils.math.Pair;
+import loftily.utils.render.RenderUtils;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
 import loftily.value.impl.mode.EasingModeValue;
@@ -30,6 +33,9 @@ public class ModuleList extends Module {
             new EasingModeValue("ModuleEasingMode", Easing.EaseOutQuad, this)
                     .setOnValueChange(mode -> moduleEntries.clear());
     private final BooleanValue noRenderModule = new BooleanValue("NoRenderModule", true);
+    private final BooleanValue fontShadow = new BooleanValue("FontShadow", true);
+    
+    private Draggable draggable;
     
     @Override
     public void onDisable() {
@@ -41,13 +47,19 @@ public class ModuleList extends Module {
     public void onRender2D(Render2DEvent event) {
         if (mc.gameSettings.showDebugInfo) return;
         
-        FontRenderer font = FontManager.NotoSans.of(fontSize.getValue().intValue());
+        if (draggable == null) {
+            draggable = new Draggable(event.getScaledResolution().getScaledWidth() - 3, 0, 1);
+        }
         
-        if (moduleEntries.isEmpty()) { //lazy load
+        if (moduleEntries.isEmpty()) {
             for (Module module : Client.INSTANCE.getModuleManager()) {
                 moduleEntries.add(new ModuleEntry(module, new Animation(moduleEasingMode.getValueByEasing(), 250)));
             }
         }
+        
+        Pair<Integer, Integer> pair = RenderUtils.getMouse(event.getScaledResolution());
+        
+        FontRenderer font = FontManager.NotoSans.of(fontSize.getValue().intValue());
         
         List<ModuleEntry> sortedEntries = moduleEntries.stream()
                 .filter(entry -> !(entry.module.getModuleCategory() == ModuleCategory.Render && noRenderModule.getValue()))
@@ -56,26 +68,61 @@ public class ModuleList extends Module {
                 )))
                 .collect(Collectors.toList());
         
-        int y = 0;
+        
+        //计算总高度，最长的模块
+        int longestStringWidth = 0;
+        int totalHeight = 0;
         for (ModuleEntry entry : sortedEntries) {
+            entry.animation.run(entry.module.isToggled() ? 1.0 : 0.0);
+            totalHeight += (int) ((font.getHeight() - 2) * entry.animation.getValuef());
+            
             Module module = entry.module;
-            Animation animation = entry.animation;
-            
-            animation.run(module.isToggled() ? 1.0 : 0.0);
-            
-            if (!animation.isFinished() || module.isToggled()) {
+            String text = module.getName() + (module.getTag().isEmpty() ? "" : TextFormatting.GRAY + " " + module.getTag());
+            int stringWidth = font.getStringWidth(text);
+            if (stringWidth > longestStringWidth) {
+                longestStringWidth = stringWidth;
+            }
+        }
+        
+        draggable.updateDrag(
+                pair.getFirst(),
+                pair.getSecond(),
+                longestStringWidth,
+                totalHeight,
+                event.getScaledResolution().getScaledWidth(),
+                event.getScaledResolution().getScaledHeight());
+        
+        int finalLongestStringWidth = longestStringWidth;
+        draggable.applyDragEffect(() -> {
+            int y = draggable.getPosY();
+            int x = draggable.getPosX();
+            for (ModuleEntry entry : sortedEntries) {
+                Module module = entry.module;
+                Animation animation = entry.animation;
+                
+                if (!module.isToggled() && animation.isFinished()) continue;
                 String text = module.getName() + (module.getTag().isEmpty() ? "" : TextFormatting.GRAY + " " + module.getTag());
                 int stringWidth = font.getStringWidth(text);
-                int startX = event.getScaledResolution().getScaledWidth();
                 
-                font.drawString(text,
-                        (float) (startX - stringWidth * animation.getValue() - 3.3f),
-                        y + 1,
-                        -1);
+                boolean isLeft = event.getScaledResolution().getScaledWidth() / 2 > (x + finalLongestStringWidth / 2);
+                float baseX = draggable.getPosX();
+                float drawX;
+                
+                if (isLeft) {
+                    drawX = baseX;
+                    drawX -= stringWidth * (1.0f - animation.getValuef());
+                } else {
+                    drawX = baseX + finalLongestStringWidth - stringWidth * animation.getValuef();
+                }
+                
+                
+                if (!fontShadow.getValue())
+                    font.drawString(text, drawX, y, -1);
+                else
+                    font.drawStringWithShadow(text, drawX, y, -1);
+                y += (int) ((font.getHeight() - 2) * animation.getValuef());
             }
-            
-            y += (int) ((font.getHeight() - 2) * animation.getValuef());
-        }
+        });
     }
     
     

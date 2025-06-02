@@ -1,6 +1,7 @@
 package loftily.utils.render;
 
 import loftily.utils.client.ClientUtils;
+import loftily.utils.math.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
@@ -10,6 +11,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -160,5 +162,14 @@ public class RenderUtils implements ClientUtils {
         Gui.drawModalRectWithCustomSizedTexture((int) x, (int) y, 0, 0, (int) width, (int) height, width, height);
         GlStateManager.resetColor();
         GlStateManager.disableBlend();
+    }
+    
+    public static Pair<Integer, Integer> getMouse(ScaledResolution scaledResolution) {
+        int screenWidth = scaledResolution.getScaledWidth();
+        int j1 = scaledResolution.getScaledHeight();
+        final int mouseX = Mouse.getX() * screenWidth / mc.displayWidth;
+        final int mouseY = j1 - Mouse.getY() * j1 / mc.displayHeight - 1;
+        
+        return new Pair<>(mouseX, mouseY);
     }
 }
