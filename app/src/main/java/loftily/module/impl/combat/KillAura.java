@@ -275,7 +275,7 @@ public class KillAura extends Module {
             targetTimer.reset();
         }
 
-        if (autoBlockMode.is("MatrixDamage") && canBlock()) {
+        if (autoBlockMode.is("MatrixDamage") && canBlock() && target != null) {
             if (canAttackTimes <= 0) {
                 if ((mc.player.hurtTime >= 2 && mc.player.hurtTime <= 10) || !MoveUtils.isMoving() || GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
                     mc.gameSettings.keyBindUseItem.setPressed(true);

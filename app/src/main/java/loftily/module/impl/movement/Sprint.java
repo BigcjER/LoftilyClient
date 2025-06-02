@@ -1,6 +1,7 @@
 package loftily.module.impl.movement;
 
 import loftily.event.impl.packet.PacketSendEvent;
+import loftily.event.impl.player.motion.JumpEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.handlers.impl.RotationHandler;
 import loftily.module.Module;
@@ -21,6 +22,7 @@ import net.minecraft.network.play.client.CPacketEntityAction;
 public class Sprint extends Module {
     private final BooleanValue legitSprint = new BooleanValue("Legit",false);
     private final BooleanValue allDirections = new BooleanValue("AllDirections",false);
+    private final BooleanValue allDirectionsJump = new BooleanValue("AllDirectionsJump",false);
     private final BooleanValue noC0B = new BooleanValue("NoSprintPackets",false);
     private final BooleanValue noInventory = new BooleanValue("NoInventory",false);
     private final BooleanValue noGui = new BooleanValue("NoAnyGui",false);
@@ -42,12 +44,22 @@ public class Sprint extends Module {
         }
     }
 
+    @EventHandler
+    public void onJump(JumpEvent event) {
+        if(!allDirectionsJump.getValue())return;
+        event.setMovementYaw(
+                (float) (event.getMovementYaw() + Math.toDegrees(MoveUtils.getDirection()) - mc.player.rotationYaw)
+        );
+    }
+
     @EventHandler(priority = -10)
     public void onLivingUpdate(LivingUpdateEvent event) {
         Rotation rotation = RotationHandler.clientRotation;
 
         if(!allDirections.getValue()) {
-            mc.gameSettings.keyBindSprint.setPressed(true);
+            if(!legitSprint.getValue()) {
+                mc.gameSettings.keyBindSprint.setPressed(true);
+            }
         }else {
             mc.player.setSprinting(true);
         }
@@ -62,6 +74,14 @@ public class Sprint extends Module {
                 float calcForward = CalculateUtils.getMoveFixForward(rotation);
                 if (calcForward < 0.8) {
                     stopSprinting();
+                }else {
+                    mc.player.setSprinting(true);
+                }
+            }else {
+                if (mc.player.movementInput.moveForward < 0.8) {
+                    stopSprinting();
+                }else {
+                    mc.player.setSprinting(true);
                 }
             }
         }

@@ -477,7 +477,6 @@ public class Scaffold extends Module {
                 if (RotationHandler.clientRotation != null) {
                     if (getMoveFixForward(RotationHandler.clientRotation) < 0.8) {
                         mc.player.setSprinting(false);
-                        mc.gameSettings.keyBindSprint.setPressed(false);
                     }
                 }
                 break;
