@@ -142,7 +142,6 @@ public class Config
     {
         log("");
         log(getVersion());
-        log("Build: " + getBuild());
         log("OS: " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") version " + System.getProperty("os.version"));
         log("Java: " + System.getProperty("java.version") + ", " + System.getProperty("java.vendor"));
         log("VM: " + System.getProperty("java.vm.name") + " (" + System.getProperty("java.vm.info") + "), " + System.getProperty("java.vm.vendor"));
@@ -174,29 +173,6 @@ public class Config
 
         int i = TextureUtils.getGLMaximumTextureSize();
         dbg("Maximum texture size: " + i + "x" + i);
-    }
-
-    private static String getBuild()
-    {
-        try
-        {
-            InputStream inputstream = Config.class.getResourceAsStream("/buildof.txt");
-
-            if (inputstream == null)
-            {
-                return null;
-            }
-            else
-            {
-                String s = readLines(inputstream)[0];
-                return s;
-            }
-        }
-        catch (Exception exception)
-        {
-            warn("" + exception.getClass().getName() + ": " + exception.getMessage());
-            return null;
-        }
     }
 
     public static boolean isFancyFogAvailable()

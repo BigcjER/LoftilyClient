@@ -1288,12 +1288,8 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         else if (i == 5)
         {
             GameSettings gamesettings = this.gameController.gameSettings;
-
-            if (f == 0.0F)
-            {
-                this.gameController.displayGuiScreen(new GuiScreenDemo());
-            }
-            else if (f == 101.0F)
+            
+            if (f == 101.0F)
             {
                 this.gameController.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("demo.help.movement", new Object[] {GameSettings.getKeyDisplayString(gamesettings.keyBindForward.getKeyCode()), GameSettings.getKeyDisplayString(gamesettings.keyBindLeft.getKeyCode()), GameSettings.getKeyDisplayString(gamesettings.keyBindBack.getKeyCode()), GameSettings.getKeyDisplayString(gamesettings.keyBindRight.getKeyCode())}));
             }

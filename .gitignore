@@ -32,9 +32,6 @@ build
 
 /app/run/**
 
-!/app/run/assets/
-!/app/run/assets/**
-
 !/app/run/natives/
 !/app/run/natives/**
 

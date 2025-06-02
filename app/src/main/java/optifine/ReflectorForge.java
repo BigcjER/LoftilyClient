@@ -1,8 +1,5 @@
 package optifine;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Map;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -15,39 +12,26 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapData;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 public class ReflectorForge
 {
     public static void FMLClientHandler_trackBrokenTexture(ResourceLocation p_FMLClientHandler_trackBrokenTexture_0_, String p_FMLClientHandler_trackBrokenTexture_1_)
     {
-        if (!Reflector.FMLClientHandler_trackBrokenTexture.exists())
-        {
-            Object object = Reflector.call(Reflector.FMLClientHandler_instance);
-            Reflector.call(object, Reflector.FMLClientHandler_trackBrokenTexture, p_FMLClientHandler_trackBrokenTexture_0_, p_FMLClientHandler_trackBrokenTexture_1_);
-        }
     }
 
     public static void FMLClientHandler_trackMissingTexture(ResourceLocation p_FMLClientHandler_trackMissingTexture_0_)
     {
-        if (!Reflector.FMLClientHandler_trackMissingTexture.exists())
-        {
-            Object object = Reflector.call(Reflector.FMLClientHandler_instance);
-            Reflector.call(object, Reflector.FMLClientHandler_trackMissingTexture, p_FMLClientHandler_trackMissingTexture_0_);
-        }
     }
 
     public static void putLaunchBlackboard(String p_putLaunchBlackboard_0_, Object p_putLaunchBlackboard_1_)
     {
-        Map map = (Map)Reflector.getFieldValue(Reflector.Launch_blackboard);
-
-        if (map != null)
-        {
-            map.put(p_putLaunchBlackboard_0_, p_putLaunchBlackboard_1_);
-        }
     }
 
     public static boolean renderFirstPersonHand(RenderGlobal p_renderFirstPersonHand_0_, float p_renderFirstPersonHand_1_, int p_renderFirstPersonHand_2_)
     {
-        return !Reflector.ForgeHooksClient_renderFirstPersonHand.exists() ? false : Reflector.callBoolean(Reflector.ForgeHooksClient_renderFirstPersonHand, p_renderFirstPersonHand_0_, p_renderFirstPersonHand_1_, p_renderFirstPersonHand_2_);
+        return Reflector.ForgeHooksClient_renderFirstPersonHand.exists() && Reflector.callBoolean(Reflector.ForgeHooksClient_renderFirstPersonHand, p_renderFirstPersonHand_0_, p_renderFirstPersonHand_1_, p_renderFirstPersonHand_2_);
     }
 
     public static InputStream getOptiFineResourceStream(String p_getOptiFineResourceStream_0_)

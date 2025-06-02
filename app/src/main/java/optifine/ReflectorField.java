@@ -4,10 +4,6 @@ import java.lang.reflect.Field;
 
 public class ReflectorField
 {
-    private IFieldLocator fieldLocator;
-    private boolean checked;
-    private Field targetField;
-
     public ReflectorField(ReflectorClass p_i85_1_, String p_i85_2_)
     {
         this(new FieldLocatorName(p_i85_1_, p_i85_2_));
@@ -40,10 +36,6 @@ public class ReflectorField
 
     public ReflectorField(IFieldLocator p_i91_1_, boolean p_i91_2_)
     {
-        this.fieldLocator = null;
-        this.checked = false;
-        this.targetField = null;
-        this.fieldLocator = p_i91_1_;
 
         if (!p_i91_2_)
         {
@@ -53,22 +45,7 @@ public class ReflectorField
 
     public Field getTargetField()
     {
-        if (this.checked)
-        {
-            return this.targetField;
-        }
-        else
-        {
-            this.checked = true;
-            this.targetField = this.fieldLocator.getField();
-
-            if (this.targetField != null)
-            {
-                this.targetField.setAccessible(true);
-            }
-
-            return this.targetField;
-        }
+        return null;
     }
 
     public Object getValue()

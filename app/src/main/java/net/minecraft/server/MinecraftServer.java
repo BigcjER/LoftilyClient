@@ -13,29 +13,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.base64.Base64;
-import java.awt.GraphicsEnvironment;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.Proxy;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.security.KeyPair;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Queue;
-import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-import java.util.function.Supplier;
-import javax.annotation.Nullable;
-import javax.imageio.ImageIO;
 import net.minecraft.advancements.AdvancementManager;
 import net.minecraft.advancements.FunctionManager;
 import net.minecraft.command.CommandBase;
@@ -55,26 +32,13 @@ import net.minecraft.profiler.Profiler;
 import net.minecraft.profiler.Snooper;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.server.management.PlayerProfileCache;
-import net.minecraft.util.IProgressUpdate;
-import net.minecraft.util.IThreadListener;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.ReportedException;
-import net.minecraft.util.Util;
+import net.minecraft.util.*;
 import net.minecraft.util.datafix.DataFixer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.EnumDifficulty;
-import net.minecraft.world.GameType;
-import net.minecraft.world.MinecraftException;
-import net.minecraft.world.ServerWorldEventHandler;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraft.world.WorldServerDemo;
-import net.minecraft.world.WorldServerMulti;
-import net.minecraft.world.WorldSettings;
-import net.minecraft.world.WorldType;
+import net.minecraft.world.*;
 import net.minecraft.world.chunk.storage.AnvilSaveConverter;
 import net.minecraft.world.storage.ISaveFormat;
 import net.minecraft.world.storage.ISaveHandler;
@@ -82,6 +46,25 @@ import net.minecraft.world.storage.WorldInfo;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.Proxy;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 public abstract class MinecraftServer implements ICommandSender, Runnable, IThreadListener, ISnooperInfo
 {
@@ -159,7 +142,6 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
     private String serverOwner;
     private String folderName;
     private String worldName;
-    private boolean isDemo;
     private boolean enableBonusChest;
 
     /** The texture pack for the server */
@@ -269,12 +251,7 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
 
         if (worldinfo == null)
         {
-            if (this.isDemo())
-            {
-                worldsettings = WorldServerDemo.DEMO_WORLD_SETTINGS;
-            }
-            else
-            {
+
                 worldsettings = new WorldSettings(seed, this.getGameType(), this.canStructuresSpawn(), this.isHardcore(), type);
                 worldsettings.setGeneratorOptions(generatorOptions);
 
@@ -282,7 +259,6 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
                 {
                     worldsettings.enableBonusChest();
                 }
-            }
 
             worldinfo = new WorldInfo(worldsettings, worldNameIn);
         }
@@ -308,14 +284,8 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
 
             if (i == 0)
             {
-                if (this.isDemo())
-                {
-                    this.worldServers[i] = (WorldServer)(new WorldServerDemo(this, isavehandler, worldinfo, j, this.theProfiler)).init();
-                }
-                else
-                {
-                    this.worldServers[i] = (WorldServer)(new WorldServer(this, isavehandler, worldinfo, j, this.theProfiler)).init();
-                }
+                
+                this.worldServers[i] = (WorldServer) (new WorldServer(this, isavehandler, worldinfo, j, this.theProfiler)).init();
 
                 this.worldServers[i].initialize(worldsettings);
             }
@@ -1108,23 +1078,8 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
     {
         return true;
     }
-
-    /**
-     * Gets whether this is a demo or not.
-     */
-    public boolean isDemo()
-    {
-        return this.isDemo;
-    }
-
-    /**
-     * Sets whether this is a demo or not.
-     */
-    public void setDemo(boolean demo)
-    {
-        this.isDemo = demo;
-    }
-
+    
+    
     public void canCreateBonusChest(boolean enable)
     {
         this.enableBonusChest = enable;

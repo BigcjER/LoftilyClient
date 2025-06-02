@@ -1,3 +1,6 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
 plugins {
     id 'application'
 }
@@ -81,5 +84,63 @@ tasks.withType(JavaCompile).configureEach {
     options.incremental = true
 }
 
+def mcVersion = '1.12'
+def runDir = file("run")
+def assetsDir = file("$runDir/assets")
+
+def indexUrl = "https://resources.download.minecraft.net"
+def versionManifestUrl = "https://launchermeta.mojang.com/mc/game/version_manifest.json"
+
+tasks.register('downloadAssets') {
+    description = "Download Minecraft ${mcVersion} assets"
+    group = "minecraft"
+
+    doLast {
+        def jsonSlurper = new JsonSlurper()
+
+        def versionManifest = jsonSlurper.parse(new URL(versionManifestUrl))
+        def versionEntry = versionManifest.versions.find { it.id == mcVersion }
+
+        if (!versionEntry) {
+            throw new GradleException("Cannot find version: $mcVersion")
+        }
+
+        def versionJson = jsonSlurper.parse(new URL(versionEntry.url))
+        def assetIndex = jsonSlurper.parse(new URL(versionJson.assetIndex.url))
+
+        def assetsIndexFile = new File(assetsDir, "indexes/${mcVersion}.json")
+        assetsIndexFile.parentFile.mkdirs()
+        assetsIndexFile.text = JsonOutput.prettyPrint(JsonOutput.toJson(assetIndex))
+
+        def objectsDir = new File(assetsDir, "objects")
+        def allAssets = assetIndex.objects.entrySet().toList()
+        def total = allAssets.size()
+        def count = 1
+
+        allAssets.each { entry ->
+            def name = entry.key
+            def hash = entry.value.hash
+            def subDir = hash.substring(0, 2)
+            def fileUrl = "${indexUrl}/${subDir}/${hash}"
+            def outFile = new File(objectsDir, "${subDir}/${hash}")
+
+            if (!outFile.exists()) {
+                outFile.parentFile.mkdirs()
+                new URL(fileUrl).withInputStream { input ->
+                    outFile.withOutputStream { output ->
+                        output << input
+                    }
+                }
+                println "[$count/$total] Downloaded: $name"
+            } else {
+                println "[$count/$total] Exists: $name"
+            }
+
+            count++
+        }
+
+        println "Assets download complete for version: $mcVersion"
+    }
+}
 
 

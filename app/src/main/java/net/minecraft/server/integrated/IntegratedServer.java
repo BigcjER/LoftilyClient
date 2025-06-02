@@ -5,9 +5,6 @@ import com.google.common.util.concurrent.Futures;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ThreadLanServerPing;
@@ -21,21 +18,17 @@ import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.CryptManager;
 import net.minecraft.util.HttpUtil;
 import net.minecraft.util.Util;
-import net.minecraft.world.EnumDifficulty;
-import net.minecraft.world.GameType;
-import net.minecraft.world.ServerWorldEventHandler;
-import net.minecraft.world.WorldServer;
-import net.minecraft.world.WorldServerDemo;
-import net.minecraft.world.WorldServerMulti;
-import net.minecraft.world.WorldSettings;
-import net.minecraft.world.WorldType;
+import net.minecraft.world.*;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 import optifine.Reflector;
 import optifine.WorldServerOF;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
 
 public class IntegratedServer extends MinecraftServer
 {
@@ -54,12 +47,11 @@ public class IntegratedServer extends MinecraftServer
         this.setServerOwner(clientIn.getSession().getUsername());
         this.setFolderName(folderNameIn);
         this.setWorldName(worldNameIn);
-        this.setDemo(clientIn.isDemo());
         this.canCreateBonusChest(worldSettingsIn.isBonusChestEnabled());
         this.setBuildLimit(256);
         this.setPlayerList(new IntegratedPlayerList(this));
         this.mc = clientIn;
-        this.theWorldSettings = this.isDemo() ? WorldServerDemo.DEMO_WORLD_SETTINGS : worldSettingsIn;
+        this.theWorldSettings = worldSettingsIn;
     }
 
     public ServerCommandManager createNewCommandManager()
@@ -76,7 +68,7 @@ public class IntegratedServer extends MinecraftServer
 
         if (Reflector.DimensionManager.exists())
         {
-            WorldServer worldserver = this.isDemo() ? (WorldServer)((WorldServer)(new WorldServerDemo(this, isavehandler, worldinfo, 0, this.theProfiler)).init()) : (WorldServer)(new WorldServerOF(this, isavehandler, worldinfo, 0, this.theProfiler)).init();
+            WorldServer worldserver = (WorldServer) (new WorldServerOF(this, isavehandler, worldinfo, 0, this.theProfiler)).init();
             worldserver.initialize(this.theWorldSettings);
             Integer[] ainteger = (Integer[])Reflector.call(Reflector.DimensionManager_getStaticDimensionIDs);
             Integer[] ainteger1 = ainteger;
@@ -137,14 +129,8 @@ public class IntegratedServer extends MinecraftServer
 
                 if (l == 0)
                 {
-                    if (this.isDemo())
-                    {
-                        this.worldServers[l] = (WorldServer)(new WorldServerDemo(this, isavehandler, worldinfo, i1, this.theProfiler)).init();
-                    }
-                    else
-                    {
-                        this.worldServers[l] = (WorldServer)(new WorldServerOF(this, isavehandler, worldinfo, i1, this.theProfiler)).init();
-                    }
+                    
+                    this.worldServers[l] = (WorldServer) (new WorldServerOF(this, isavehandler, worldinfo, i1, this.theProfiler)).init();
 
                     this.worldServers[l].initialize(this.theWorldSettings);
                 }

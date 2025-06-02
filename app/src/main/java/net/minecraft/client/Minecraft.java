@@ -274,7 +274,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo
     /** Time in nanoseconds of when the class is loaded */
     long startNanoTime = System.nanoTime();
     private final boolean jvm64bit;
-    private final boolean isDemo;
     @Nullable
     private NetworkManager myNetworkManager;
     private boolean integratedServerIsRunning;
@@ -347,7 +346,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo
         this.session = gameConfig.userInfo.session;
         LOGGER.info("Setting user: {}", this.session.getUsername());
         LOGGER.debug("(Session ID is {})", this.session.getSessionID());
-        this.isDemo = gameConfig.gameInfo.isDemo;
         this.displayWidth = gameConfig.displayInfo.width > 0 ? gameConfig.displayInfo.width : 1;
         this.displayHeight = gameConfig.displayInfo.height > 0 ? gameConfig.displayInfo.height : 1;
         this.tempDisplayWidth = gameConfig.displayInfo.width;
@@ -2545,14 +2543,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo
         {
             this.displayGuiScreen(null);
         }
-    }
-
-    /**
-     * Gets whether this is a demo or not.
-     */
-    public final boolean isDemo()
-    {
-        return this.isDemo;
     }
 
     @Nullable
