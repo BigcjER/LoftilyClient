@@ -4,6 +4,7 @@ import loftily.Client;
 import loftily.event.impl.client.ChatEvent;
 import loftily.event.impl.player.RotationEvent;
 import loftily.event.impl.player.motion.MotionEvent;
+import loftily.event.impl.player.motion.MoveEvent;
 import loftily.event.impl.player.slowdown.ItemSlowDownEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.event.impl.world.UpdateEvent;
@@ -956,10 +957,16 @@ public class EntityPlayerSP extends AbstractClientPlayer {
     /**
      * Tries to move the entity towards the specified location.
      */
-    public void moveEntity(MoverType x, double p_70091_2_, double p_70091_4_, double p_70091_6_) {
+    public void moveEntity(MoverType moverType, double x, double y, double z) {
         double d0 = this.posX;
         double d1 = this.posZ;
-        super.moveEntity(x, p_70091_2_, p_70091_4_, p_70091_6_);
+        
+        MoveEvent event = new MoveEvent(x, y, z);
+        Client.INSTANCE.getEventManager().call(event);
+        
+        if (event.isCancelled()) return;
+        
+        super.moveEntity(moverType, x, y, z);
         this.updateAutoJump((float) (this.posX - d0), (float) (this.posZ - d1));
     }
 
