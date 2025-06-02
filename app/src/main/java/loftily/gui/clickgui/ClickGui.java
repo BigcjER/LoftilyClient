@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 //TODO:All ValueRenderer
 public class ClickGui extends GuiScreen {
     //Positions
-    public static final float CornerRadius = 3, Padding = 5;
+    public static final int CornerRadius = 3, Padding = 5;
     private final int width, height;
     private final Scrollable scrollableModuleButtons;
     private final float valuePanelWidth = 160;
