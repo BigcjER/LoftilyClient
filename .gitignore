@@ -37,3 +37,6 @@ build
 
 !/app/run/natives/
 !/app/run/natives/**
+
+/.idea/
+/app/out/**
