@@ -2,9 +2,14 @@ package loftily.gui.clickgui;
 
 import loftily.Client;
 import loftily.config.impl.ModuleConfig;
+import loftily.gui.animation.Animation;
+import loftily.gui.animation.Easing;
 import loftily.gui.clickgui.components.impl.CategoryButton;
 import loftily.gui.clickgui.components.impl.ModuleButton;
 import loftily.gui.clickgui.value.ValuePanel;
+import loftily.gui.components.CustomTextField;
+import loftily.gui.components.MaterialIcons;
+import loftily.gui.font.FontManager;
 import loftily.gui.interaction.Draggable;
 import loftily.gui.interaction.Scrollable;
 import loftily.module.ModuleCategory;
@@ -12,6 +17,7 @@ import loftily.utils.render.ColorUtils;
 import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 import lombok.Getter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 
 import java.awt.*;
@@ -19,8 +25,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-//TODO:Search,All ValueRenderer
+//TODO:All ValueRenderer
 public class ClickGui extends GuiScreen {
     //Positions
     public static final float CornerRadius = 3, Padding = 5;
@@ -34,8 +41,15 @@ public class ClickGui extends GuiScreen {
     public final List<CategoryButton> categoryButtons;
     public List<ModuleButton> currentModuleButtons;
     public CategoryButton currentCategoryButton;
+    public CategoryButton prevCategoryButton;
     @Getter
     private ValuePanel currentValuePanel;
+    
+    //Search
+    private final CustomTextField searchBox;
+    private final Animation searchButtonAnimation;
+    private final Animation searchBoxInOutAnimation;
+    private boolean isSearching, hoveringSearchButton;
     
     public ClickGui() {
         this.width = 430;
@@ -51,6 +65,14 @@ public class ClickGui extends GuiScreen {
         this.currentModuleButtons = currentCategoryButton.moduleButtons;
         
         this.scrollableModuleButtons = new Scrollable(8);
+        
+        this.searchBox = new CustomTextField(0, Minecraft.getMinecraft().fontRendererObj, 0, 0, 110, 25);
+        this.searchBox.setMaxStringLength(128);
+        this.searchBox.setText("");
+        this.searchBox.setFocused(false);
+        this.searchButtonAnimation = new Animation(Easing.EaseOutCirc, 250);
+        this.searchBoxInOutAnimation = new Animation(Easing.EaseOutCirc, 250);
+        this.hoveringSearchButton = false;
     }
     
     @Override
@@ -74,12 +96,14 @@ public class ClickGui extends GuiScreen {
         /* CategoryButtons */
         drawCategoryButtons(mouseX, mouseY, partialTicks);
         
+        /* Search */
+        processAndRenderSearch(mouseX, mouseY);
         
         /* ModuleButtons */
-        updateModuleButtonsScorlls();
-        renderModuleButtons(mouseX, mouseY, partialTicks);
+        updateModuleButtonsScrolls();
+        drawModuleButtons(mouseX, mouseY, partialTicks);
         
-        //Render currentValuePanel
+        /* Draw currentValuePanel */
         RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(x, y, width, height, CornerRadius, Colors.BackGround.color));
         if (currentValuePanel != null) {
             currentValuePanel.setX(x + width - (valuePanelWidth * currentValuePanel.animation.getValuef()));
@@ -96,7 +120,47 @@ public class ClickGui extends GuiScreen {
         RenderUtils.stopGlStencil();
     }
     
-    private void renderModuleButtons(int mouseX, int mouseY, float partialTicks) {
+    private void processAndRenderSearch(int mouseX, int mouseY) {
+        hoveringSearchButton = RenderUtils.isHovering(mouseX, mouseY, x + 15, y + 20.5F, 98, 20);
+        
+        searchButtonAnimation.run(hoveringSearchButton || isSearching ? 7 : 0);
+        //SearchButton
+        FontManager.MaterialSymbolsSharp.of(30).drawString(MaterialIcons.get("search"), x + 17 + (searchButtonAnimation.getValuef() * 1.05F), y + 24.5F, Colors.Text.color);
+        FontManager.NotoSans.of(18).drawString("Search", x + 34 + searchButtonAnimation.getValuef(), y + 30 - FontManager.NotoSans.of(16).getHeight() / 3F, Colors.Text.color);
+        
+        //TextBox
+        searchBoxInOutAnimation.run(isSearching ? 1 : -0.5);
+        searchBox.xPosition = (int) (x + Padding);
+        searchBox.yPosition = (int) (y - (searchBoxInOutAnimation.getValuef() * 32F));
+        searchBox.setBackGroundColor(Colors.BackGround.color.brighter());
+        searchBox.setDrawRipple(true);
+        searchBox.setFocused(isSearching);
+        
+        if (searchBox.yPosition + 12 <= y) {
+            RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(x, y, width, height, CornerRadius, new Color(255, 255, 255)), false);
+            searchBox.drawTextBox();
+            RenderUtils.stopGlStencil();
+        }
+        
+        if (!isSearching) return;
+        //filter moduleButtons
+        List<ModuleButton> result = categoryButtons.stream()
+                .flatMap(categoryButton -> categoryButton.moduleButtons.stream())
+                .filter(moduleButton -> moduleButton.module.getName().toLowerCase()
+                        .contains(searchBox.getText().toLowerCase()))
+                .sorted((mbtn1, mbtn2) -> mbtn1.module.getName().compareToIgnoreCase(mbtn2.module.getName()))
+                .collect(Collectors.toList());
+        
+        if (result.isEmpty()) {
+            currentModuleButtons.clear();
+            FontManager.NotoSans.of(20).drawCenteredString("No modules found", x + width / 2F + 60, y + height / 2F - 20, Colors.Text.color);
+            return;
+        }
+        
+        currentModuleButtons = result;
+    }
+    
+    private void drawModuleButtons(int mouseX, int mouseY, float partialTicks) {
         float baseXOffset = 10.5F;
         float panelStartX = x + CategoryButton.width + baseXOffset + Padding * 3;
         float panelStartY = y + Padding;
@@ -105,14 +169,11 @@ public class ClickGui extends GuiScreen {
         float moduleButtonYOffset = scrollableModuleButtons.getValuef();
         int buttonCounts = 0;
         
-        RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(
-                panelStartX + Padding,
-                panelStartY,
-                width - (CategoryButton.width + baseXOffset) - Padding * 4.5F,
-                height - Padding * 2,
-                CornerRadius,
-                new Color(255, 255, 255)
-        ));
+        RenderUtils.startGlScissor((int) (panelStartX + Padding),
+                (int) panelStartY,
+                (int) (width - (CategoryButton.width + baseXOffset) - Padding * 4.5F),
+                (int) (height - Padding * 2)
+        );
         
         for (ModuleButton moduleButton : currentModuleButtons) {
             moduleButton.setPosition(panelStartX + Padding + moduleButtonXOffset, panelStartY + moduleButtonYOffset);
@@ -128,10 +189,10 @@ public class ClickGui extends GuiScreen {
             }
         }
         
-        RenderUtils.stopGlStencil();
+        RenderUtils.stopGlScissor();
     }
     
-    private void updateModuleButtonsScorlls() {
+    private void updateModuleButtonsScrolls() {
         //计算总高度，然后更新滚轮
         float buttonsHeight = 0.0F;
         int buttonsInRow = 0;
@@ -164,7 +225,7 @@ public class ClickGui extends GuiScreen {
         
         float categoryButtonsYOffset = 0;
         int categoryButtonX = x + 14;
-        int categoryButtonY = y + 45;
+        int categoryButtonY = y + 55;
         for (CategoryButton categoryButton : categoryButtons) {
             categoryButton.setPosition(categoryButtonX, categoryButtonY + categoryButtonsYOffset);
             categoryButton.drawScreen(mouseX, mouseY, partialTicks);
@@ -176,11 +237,77 @@ public class ClickGui extends GuiScreen {
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         Client.INSTANCE.getFileManager().get(ModuleConfig.class).write();
         
+        //是否点击搜索框区域
+        boolean clickedSearchBox = RenderUtils.isHovering(
+                mouseX, mouseY,
+                searchBox.xPosition, searchBox.yPosition,
+                searchBox.getWidth(), searchBox.getHeight());
+        
+        //是否点击了搜索按钮
+        boolean clickedSearchButton = hoveringSearchButton && mouseButton == 0;
+        
+        //判断是否点击了某个CategoryButton
+        for (CategoryButton categoryButton : categoryButtons) {
+            if (RenderUtils.isHovering(mouseX, mouseY, categoryButton.getX(), categoryButton.getY(), categoryButton.getWidth(), categoryButton.getHeight())) {
+                //关闭搜索状态，清理
+                isSearching = false;
+                searchBox.setText("");
+                currentCategoryButton = categoryButton;
+                currentModuleButtons = currentCategoryButton.moduleButtons;
+                prevCategoryButton = null;
+                scrollableModuleButtons.setTarget(0);
+                scrollableModuleButtons.setValue(0);
+                break;
+            }
+        }
+        
+        //如果点击了搜索框或搜索按钮就开启搜索状态
+        if (mouseButton == 0) {
+            if (clickedSearchBox || clickedSearchButton) {
+                isSearching = true;
+                //取消当前Category，保存之前的Category
+                if (currentCategoryButton != null) {
+                    prevCategoryButton = currentCategoryButton;
+                    currentCategoryButton = null;
+                }
+            } else if (RenderUtils.isHovering(mouseX, mouseY, x, y, width, height)) {
+                //如果点击了ClickGui内部但是不是搜索框，则关闭搜索状态（除了搜索框已聚焦）
+                if (!searchBox.isFocused()) {
+                    isSearching = false;
+                }
+            } else {
+                //点击ClickGui外部时关闭搜索状态，并恢复之前的Category
+                isSearching = false;
+                if (currentCategoryButton == null && prevCategoryButton != null) {
+                    currentCategoryButton = prevCategoryButton;
+                    prevCategoryButton = null;
+                    
+                    currentModuleButtons = currentCategoryButton.moduleButtons;
+                }
+            }
+        }
+        
+        //再次处理搜索状态与分类按钮
+        if (isSearching) {
+            if (currentCategoryButton != null) {
+                prevCategoryButton = currentCategoryButton;
+                currentCategoryButton = null;
+            }
+        } else {
+            if (currentCategoryButton == null && prevCategoryButton != null) {
+                currentCategoryButton = prevCategoryButton;
+                prevCategoryButton = null;
+                
+                currentModuleButtons = currentCategoryButton.moduleButtons;
+            }
+        }
+        
         if (currentValuePanel != null) {
             currentValuePanel.mouseClicked(mouseX, mouseY, mouseButton);
-            if (!RenderUtils.isHovering(mouseX, mouseY, x + width - valuePanelWidth, y, valuePanelWidth, height) /* 鼠标ValuePanel上 */ &&
-                    !RenderUtils.isHovering(mouseX, mouseY, x, y, width, height / 10F)/* 鼠标不在拖动位置上 */ &&
-                    RenderUtils.isHovering(mouseX, mouseY, x, y, width, height)/* 鼠标在ClickGui上*/)
+            //点击ValuePanel外部但在ClickGui内部，退出ValuePanel
+            if (!RenderUtils.isHovering(mouseX, mouseY, x + width - valuePanelWidth, y, valuePanelWidth, height) //不在ValuePanel上
+                    && !RenderUtils.isHovering(mouseX, mouseY, x, y, width, height / 10F) //不在拖动区域
+                    && RenderUtils.isHovering(mouseX, mouseY, x, y, width, height)) //在ClickGui内
                 currentValuePanel.out = false;
             return;
         }
@@ -189,6 +316,7 @@ public class ClickGui extends GuiScreen {
         categoryButtons.forEach(categoryButton -> categoryButton.mouseClicked(mouseX, mouseY, mouseButton));
         currentModuleButtons.forEach(moduleButton -> moduleButton.mouseClicked(mouseX, mouseY, mouseButton));
     }
+
     
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state) {
@@ -199,6 +327,7 @@ public class ClickGui extends GuiScreen {
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
         super.keyTyped(typedChar, keyCode);
+        searchBox.textboxKeyTyped(typedChar, keyCode);
         currentModuleButtons.forEach(moduleButton -> moduleButton.keyTyped(typedChar, keyCode));
     }
     
@@ -220,5 +349,11 @@ public class ClickGui extends GuiScreen {
     public void onGuiClosed() {
         super.onGuiClosed();
         if (currentValuePanel != null) currentValuePanel.onGuiClosed();
+    }
+    
+    @Override
+    public void updateScreen() {
+        super.updateScreen();
+        searchBox.updateCursorCounter();
     }
 }

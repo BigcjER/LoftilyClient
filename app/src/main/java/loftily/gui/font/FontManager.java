@@ -18,7 +18,7 @@ public class FontManager {
         
         for (int i = 14; i < 16; i++) NotoSans.of(i);
         
-        for (int i = 15; i < 28; i += 3) MaterialSymbolsSharp.of(i);
+        for (int i = 15; i < 30; i += 3) MaterialSymbolsSharp.of(i);
     }
     
     public static class FontWrapper {

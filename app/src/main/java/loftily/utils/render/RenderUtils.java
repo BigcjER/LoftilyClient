@@ -93,7 +93,7 @@ public class RenderUtils implements ClientUtils {
         GlStateManager.disableBlend();
     }
     
-    public static void startGlStencil(Runnable stencil) {
+    public static void startGlStencil(Runnable stencil, boolean equal) {
         GL11.glDepthMask(true);
         GL11.glClearDepth(1.0);
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
@@ -104,7 +104,12 @@ public class RenderUtils implements ClientUtils {
         stencil.run();
         GL11.glDepthMask(false);
         GL11.glColorMask(true, true, true, true);
-        GL11.glDepthFunc(GL11.GL_EQUAL);
+        GL11.glDepthFunc(equal ? GL11.GL_EQUAL : GL11.GL_NOTEQUAL);
+    }
+    
+    
+    public static void startGlStencil(Runnable stencil) {
+        startGlStencil(stencil, true);
     }
     
     public static void stopGlStencil() {

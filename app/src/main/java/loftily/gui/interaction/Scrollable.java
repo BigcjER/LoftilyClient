@@ -1,18 +1,16 @@
 package loftily.gui.interaction;
 
 import loftily.utils.timer.DelayTimer;
-import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
 
+@Setter
 public class Scrollable {
     private final double valueMultiplier;
-    private final loftily.utils.timer.DelayTimer timer = new DelayTimer();
+    private final DelayTimer timer = new DelayTimer();
     private double target;
-    @Getter
     private double value;
-    @Setter
     private double max;
     
     public Scrollable(double valueMultiplier) {
