@@ -47,7 +47,7 @@ public class PlayerControllerMP
     private ItemStack currentItemHittingBlock = ItemStack.field_190927_a;
 
     /** Current block damage (MP) */
-    private float curBlockDamageMP;
+    public float curBlockDamageMP;
 
     /**
      * Tick counter, when it hits 4 it resets back to 0 and plays the step sound
@@ -57,7 +57,7 @@ public class PlayerControllerMP
     /**
      * Delays the first damage on the block after the first click on the block
      */
-    private int blockHitDelay;
+    public int blockHitDelay;
 
     /** Tells if the player is hitting a block */
     private boolean isHittingBlock;

@@ -1,6 +1,7 @@
 package loftily.module.impl.combat;
 
 import loftily.event.impl.packet.PacketReceiveEvent;
+import loftily.event.impl.world.WorldLoadEvent;
 import loftily.handlers.impl.CombatHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
@@ -33,6 +34,20 @@ public class AntiBot extends Module {
     private final BooleanValue villagerValue = new BooleanValue("Villager",false);
 
     private final List<Integer> spawnInCombat = new ArrayList<>();
+
+    @EventHandler
+    public void onWorld(WorldLoadEvent event){
+        clear();
+    }
+
+    @Override
+    public void onDisable(){
+        clear();
+    }
+
+    public void clear(){
+        spawnInCombat.clear();
+    }
 
     @EventHandler
     public void onPacket(PacketReceiveEvent event){

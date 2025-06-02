@@ -10,6 +10,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.util.*;
+
 
 public class BlockUtils implements ClientUtils {
 
@@ -29,6 +31,25 @@ public class BlockUtils implements ClientUtils {
         if(!isBlockBBValid(pos, state,true,true))return false;
 
         return !(block instanceof BlockContainer) && !(block instanceof BlockWorkbench);
+    }
+
+    public static List<BlockPos> searchBlocks(int radius) {
+        List<BlockPos> blocks = new ArrayList<>();
+
+        for (int x = radius; x >= -radius + 1; x--) {
+            for (int y = radius; y >= -radius + 1; y--) {
+                for (int z = radius; z >= -radius + 1; z--) {
+                    BlockPos blockPos = new BlockPos(mc.player.posX + x, mc.player.posY + y,
+                            mc.player.posZ + z);
+                    IBlockState block = (blockPos).getState();
+                    if (block == null) continue;
+
+                    blocks.add(blockPos);
+                }
+            }
+        }
+
+        return blocks;
     }
 
     public static boolean isBlockBBValid(

@@ -61,7 +61,7 @@ public class KillAura extends Module {
             new StringMode("Packet"),
             new StringMode("NoPacket")
     );
-    private final RangeSelectionNumberValue CPSValue = new RangeSelectionNumberValue("CPS", 8, 15, 0, 20, 1);
+    private final RangeSelectionNumberValue CPSValue = new RangeSelectionNumberValue("CPS", 8, 15, 0, 20, 0.1);
     private final BooleanValue fastOnFirstHit = new BooleanValue("FastOnFirstHit", false);
     private final ModeValue noDoubleHit = new ModeValue("NoDoubleHit", "Cancel", this, new StringMode("Cancel"), new StringMode("NextHit"), new StringMode("None"));
     private final NumberValue hurtTime = new NumberValue("HurtTime", 0, 0, 20);
@@ -463,7 +463,7 @@ public class KillAura extends Module {
     }
 
     private int calculateDelay() {
-        return 1000 / (int) RandomUtils.randomDouble(CPSValue.getFirst(), CPSValue.getSecond());
+        return  (1000 /  (int) Math.round(RandomUtils.randomDouble(CPSValue.getFirst(), CPSValue.getSecond())));
     }
 
     private boolean canBlock(){

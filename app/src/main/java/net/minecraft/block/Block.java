@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nullable;
+
+import loftily.Client;
+import loftily.module.impl.player.NoSlowBreak;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
@@ -13,6 +16,7 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -694,6 +698,15 @@ public class Block
     public float getPlayerRelativeBlockHardness(IBlockState state, EntityPlayer player, World worldIn, BlockPos pos)
     {
         float f = state.getBlockHardness(worldIn, pos);
+        NoSlowBreak noSlowBreak = Client.INSTANCE.getModuleManager().get(NoSlowBreak.class);
+        Minecraft mc = Minecraft.getMinecraft();
+
+        if(noSlowBreak.noSlowAir.getValue() && !mc.player.onGround){
+            f /= 5.0F;
+        }
+        if(noSlowBreak.noSlowWater.getValue() && mc.player.isInsideOfMaterial(Material.WATER) && !EnchantmentHelper.getAquaAffinityModifier(player)){
+            f /= 5.0F;
+        }
 
         if (f < 0.0F)
         {

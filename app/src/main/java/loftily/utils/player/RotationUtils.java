@@ -2,18 +2,29 @@ package loftily.utils.player;
 
 import loftily.handlers.impl.RotationHandler;
 import loftily.utils.client.ClientUtils;
+import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.Rotation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+
+import java.util.Objects;
 
 import static java.lang.Math.hypot;
 import static net.minecraft.util.math.MathHelper.atan2;
 import static net.minecraft.util.math.MathHelper.sqrt;
 
 public class RotationUtils implements ClientUtils {
+
+    public static Rotation getBlockRotation(BlockPos pos) {
+        Rotation rotation;
+        AxisAlignedBB blockBB = Objects.requireNonNull(pos.getState()).getSelectedBoundingBox(mc.world,pos);
+        rotation = RotationUtils.toRotation(CalculateUtils.getClosestPoint(mc.player.getEyes(),blockBB),mc.player);
+        return rotation;
+    }
 
     public static Rotation toRotation(Vec3d vec, Entity fromEntity) {
         Vec3d eyesPos = fromEntity.getEyes();

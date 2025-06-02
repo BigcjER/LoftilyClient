@@ -436,9 +436,9 @@ public class Scaffold extends Module {
                         if (mc.player.onGround) {
                             fakeJump();
                             mc.player.motionY = 0.42;
-                        } else if (mc.player.motionY < 0.2) {
+                        } else if (mc.player.motionY < 0.19) {
                             event.setOnGround(true);
-                            mc.player.motionY = 0.48;
+                            mc.player.motionY = 0.42;
                         }
                     }
                     break;
@@ -486,11 +486,24 @@ public class Scaffold extends Module {
     private void click(BlockPos placePos, EnumFacing facing, Vec3d hitVec) {
         EnumHand hand = mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
 
-        println(Objects.requireNonNull(placePos.getState()).getBlock());
-
         ItemStack heldItem = mc.player.getHeldItem(hand);
 
         if (!(heldItem.getItem() instanceof ItemBlock)) return;
+
+        if (!((ItemBlock) heldItem.getItem()).canPlaceBlockOnSide(
+                mc.world,
+                placePos,
+                facing.getOpposite(),
+                mc.player,
+                heldItem
+        )
+        ) {
+            return;
+        }
+        if(!Objects.requireNonNull(placePos.getState()).getBlock().canCollideCheck(placePos.getState(), false)){
+            return;
+        }
+
 
         if(!clickCheck.is("None")){
             RayTraceResult rayTraceResult = performBlockRaytrace(RotationHandler.getCurrentRotation());
