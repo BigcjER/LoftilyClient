@@ -47,7 +47,7 @@ import static java.lang.Math.abs;
 import static loftily.utils.math.CalculateUtils.getMoveFixForward;
 import static loftily.utils.math.CalculateUtils.getVectorForRotation;
 
-@ModuleInfo(name = "Scaffold", category = ModuleCategory.Player)
+@ModuleInfo(name = "Scaffold", category = ModuleCategory.PLAYER)
 public class Scaffold extends Module {
 
     //Mode

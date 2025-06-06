@@ -14,7 +14,7 @@ import loftily.value.impl.mode.EasingModeValue;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.settings.GameSettings;
 
-@ModuleInfo(name = "Camera", category = ModuleCategory.Render)
+@ModuleInfo(name = "Camera", category = ModuleCategory.RENDER)
 public final class CameraModule extends Module {
     private final BooleanValue noHurtCamera = new BooleanValue("NoHurtCamera", true);
     //Zoom

@@ -35,11 +35,11 @@ public class MultiBooleanRenderer extends ValueRenderer<MultiBooleanValue> {
         expandAnimation.run(expanded ? (value.getValue().size()) * BoxHeight : BoxHeight);
         height = expandAnimation.getValuef() + 4F;
         
-        float BoxX = x + width - BoxWidth - ClickGui.Padding;
+        float BoxX = x + width - BoxWidth - ClickGui.PADDING;
         float BoxY = y + 2;
         float modeBoxHeight = expandAnimation.getValuef();
         
-        RenderUtils.drawRoundedRect(BoxX, BoxY, BoxWidth, modeBoxHeight, ClickGui.CornerRadius - 1, Colors.BackGround.color);
+        RenderUtils.drawRoundedRect(BoxX, BoxY, BoxWidth, modeBoxHeight, ClickGui.CORNER_RADIUS - 1, Colors.BackGround.color);
         
         
         //获取所有启用的Boolean，绘制在没展开的Box上
@@ -86,7 +86,7 @@ public class MultiBooleanRenderer extends ValueRenderer<MultiBooleanValue> {
         
         if (!expanded) return;
         
-        float BoxX = x + width - BoxWidth - ClickGui.Padding;
+        float BoxX = x + width - BoxWidth - ClickGui.PADDING;
         float BoxY = y + 2;
         
         float textYOffset = 0;

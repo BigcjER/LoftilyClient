@@ -7,7 +7,7 @@ import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
 import net.lenni0451.lambdaevents.EventHandler;
 
-@ModuleInfo(name = "Notification", category = ModuleCategory.Render, defaultToggled = true)
+@ModuleInfo(name = "Notification", category = ModuleCategory.RENDER, defaultToggled = true)
 public class NotificationModule extends Module {
     @EventHandler
     public void onRender2D(Render2DEvent event) {

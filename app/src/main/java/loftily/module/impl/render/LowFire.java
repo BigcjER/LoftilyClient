@@ -7,7 +7,7 @@ import loftily.module.ModuleInfo;
 import loftily.value.impl.NumberValue;
 import net.lenni0451.lambdaevents.EventHandler;
 
-@ModuleInfo(name = "LowFire", category = ModuleCategory.Render)
+@ModuleInfo(name = "LowFire", category = ModuleCategory.RENDER)
 public class LowFire extends Module {
     public final NumberValue fireTranslateY = new NumberValue("FireTranslateY", -0.5F, -1F, 0, 0.1F);
     

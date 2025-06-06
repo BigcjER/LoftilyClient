@@ -18,7 +18,7 @@ import net.minecraft.item.ItemFood;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketEntityAction;
 
-@ModuleInfo(name = "Sprint", category = ModuleCategory.Movement)
+@ModuleInfo(name = "Sprint", category = ModuleCategory.MOVEMENT)
 public class Sprint extends Module {
     private final BooleanValue legitSprint = new BooleanValue("Legit",false);
     private final BooleanValue allDirections = new BooleanValue("AllDirections",false);

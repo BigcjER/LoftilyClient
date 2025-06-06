@@ -7,7 +7,7 @@ import loftily.core.AbstractManager;
 import java.io.File;
 
 public class FileManager extends AbstractManager<Config> {
-    public final static File RootDir = new File(Client.Name);
+    public final static File RootDir = new File(Client.NAME);
     public final static File SkinsCacheDir = new File(RootDir, "caches");
     public final static File ConfigDir = new File(RootDir, "configs");
     

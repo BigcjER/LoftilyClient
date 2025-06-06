@@ -25,7 +25,7 @@ public class ModeRenderer extends ValueRenderer<ModeValue> {
         
         for (Mode mode : value.getModes()) {
             if (font.getStringWidth(mode.getName()) > longestModeNameWidth) {
-                longestModeNameWidth = (int) (font.getStringWidth(mode.getName()) + ClickGui.Padding);
+                longestModeNameWidth = (int) (font.getStringWidth(mode.getName()) + ClickGui.PADDING);
             }
         }
     }
@@ -47,10 +47,10 @@ public class ModeRenderer extends ValueRenderer<ModeValue> {
         
         float modeBoxWidth = Math.max(63, longestModeNameWidth);
         float modeBoxHeight = expandAnimation.getValuef();
-        float modeBoxX = x + width - modeBoxWidth - ClickGui.Padding;
+        float modeBoxX = x + width - modeBoxWidth - ClickGui.PADDING;
         float modeBoxY = y + 2;
         
-        RenderUtils.drawRoundedRect(modeBoxX, modeBoxY, modeBoxWidth, modeBoxHeight, ClickGui.CornerRadius - 1, Colors.BackGround.color);
+        RenderUtils.drawRoundedRect(modeBoxX, modeBoxY, modeBoxWidth, modeBoxHeight, ClickGui.CORNER_RADIUS - 1, Colors.BackGround.color);
         
         FontRenderer valueFont = FontManager.NotoSans.of(14);
         
@@ -81,7 +81,7 @@ public class ModeRenderer extends ValueRenderer<ModeValue> {
         if ((mouseButton != 0 && mouseButton != 1)) return;
         
         float modeBoxWidth = Math.max(63, longestModeNameWidth);
-        float modeBoxX = x + width - modeBoxWidth - ClickGui.Padding;
+        float modeBoxX = x + width - modeBoxWidth - ClickGui.PADDING;
         float modeBoxY = y + 2;
         
         

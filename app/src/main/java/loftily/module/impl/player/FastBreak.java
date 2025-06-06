@@ -7,7 +7,7 @@ import loftily.module.ModuleInfo;
 import loftily.value.impl.NumberValue;
 import net.lenni0451.lambdaevents.EventHandler;
 
-@ModuleInfo(name = "FastBreak",category = ModuleCategory.Player)
+@ModuleInfo(name = "FastBreak", category = ModuleCategory.PLAYER)
 public class FastBreak extends Module {
     private final NumberValue blockDamage = new NumberValue("BlockDamage",0.1,0.0,1.0);
 

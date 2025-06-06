@@ -56,7 +56,7 @@ public class MainMenu extends GuiScreen {
             RenderUtils.drawRoundedRect(startX - 2, startY - 2, backgroundWidth + 4, backgroundHeight + 4, 5, Colors.BackGround.color);
             RenderUtils.drawRoundedRect(startX, startY, backgroundWidth, backgroundHeight, 3, Colors.OnBackGround.color);
             
-            FontManager.NotoSans.of(30).drawCenteredStringWithShadow(Client.Name, width / 2F, height / 8F, Colors.Text.color.getRGB());
+            FontManager.NotoSans.of(30).drawCenteredStringWithShadow(Client.NAME, width / 2F, height / 8F, Colors.Text.color.getRGB());
             
             super.drawScreen(mouseX, mouseY, partialTicks);
         };

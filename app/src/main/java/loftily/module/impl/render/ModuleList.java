@@ -23,7 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@ModuleInfo(name = "ModuleList", category = ModuleCategory.Render, defaultToggled = true)
+@ModuleInfo(name = "ModuleList", category = ModuleCategory.RENDER, defaultToggled = true)
 public class ModuleList extends Module {
     
     private final List<ModuleEntry> moduleEntries = new ArrayList<>();
@@ -62,7 +62,7 @@ public class ModuleList extends Module {
         FontRenderer font = FontManager.NotoSans.of(fontSize.getValue().intValue());
         
         List<ModuleEntry> sortedEntries = moduleEntries.stream()
-                .filter(entry -> !(entry.module.getModuleCategory() == ModuleCategory.Render && noRenderModule.getValue()))
+                .filter(entry -> !(entry.module.getModuleCategory() == ModuleCategory.RENDER && noRenderModule.getValue()))
                 .sorted(Comparator.comparingInt(entry -> -font.getStringWidth(
                         entry.module.getName() + (entry.module.getTag().isEmpty() ? "" : " §f" + entry.module.getTag())
                 )))

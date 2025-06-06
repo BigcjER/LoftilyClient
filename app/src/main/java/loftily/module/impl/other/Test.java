@@ -6,7 +6,7 @@ import loftily.module.ModuleInfo;
 import net.minecraft.util.EnumHand;
 
 @SuppressWarnings("unused")
-@ModuleInfo(name = "Test", category = ModuleCategory.Other)
+@ModuleInfo(name = "Test", category = ModuleCategory.OTHER)
 public class Test extends Module {
     
     @Override

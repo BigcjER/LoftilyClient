@@ -38,10 +38,10 @@ public class ModuleButton extends Component {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
         hovering = RenderUtils.isHovering(mouseX, mouseY, x, y, width, height);
-        RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CornerRadius, Colors.OnBackGround.color);
+        RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CORNER_RADIUS, Colors.OnBackGround.color);
         
         //Ripple
-        RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CornerRadius, new Color(0, 0, 0)));
+        RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CORNER_RADIUS, new Color(0, 0, 0)));
         clickRippleAnimation.draw();
         RenderUtils.stopGlStencil();
         
@@ -67,7 +67,7 @@ public class ModuleButton extends Component {
                 y + 13.8F,
                 7,
                 7,
-                ClickGui.CornerRadius - 0.8F,
+                ClickGui.CORNER_RADIUS - 0.8F,
                 ColorUtils.colorWithAlpha(Colors.Active.color, animation.getValuei()));
         
         FontManager.MaterialSymbolsSharp.of(15).drawString(

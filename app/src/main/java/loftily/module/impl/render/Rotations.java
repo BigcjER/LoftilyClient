@@ -9,7 +9,7 @@ import loftily.value.impl.BooleanValue;
 import net.lenni0451.lambdaevents.EventHandler;
 
 
-@ModuleInfo(name = "Rotations", category = ModuleCategory.Render)
+@ModuleInfo(name = "Rotations", category = ModuleCategory.RENDER)
 public class Rotations extends Module {
     
     private final BooleanValue body = new BooleanValue("BodyRotation", true);

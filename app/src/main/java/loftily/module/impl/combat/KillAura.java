@@ -43,7 +43,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-@ModuleInfo(name = "KillAura", key = Keyboard.KEY_R, category = ModuleCategory.Combat)
+@ModuleInfo(name = "KillAura", key = Keyboard.KEY_R, category = ModuleCategory.COMBAT)
 public class KillAura extends Module {
     
     //Attack

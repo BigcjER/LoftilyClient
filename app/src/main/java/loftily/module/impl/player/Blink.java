@@ -17,7 +17,7 @@ import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
 
-@ModuleInfo(name = "Blink",category = ModuleCategory.Player)
+@ModuleInfo(name = "Blink", category = ModuleCategory.PLAYER)
 public class Blink extends Module {
     private final BooleanValue noC0F = new BooleanValue("NoCOF",false);
     private final BooleanValue noC00 = new BooleanValue("NoCO0",false);

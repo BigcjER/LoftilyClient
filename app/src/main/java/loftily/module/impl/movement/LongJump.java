@@ -7,7 +7,7 @@ import loftily.value.impl.BooleanValue;
 import loftily.value.impl.mode.ModeValue;
 import lombok.NonNull;
 
-@ModuleInfo(name = "LongJump",category = ModuleCategory.Movement)
+@ModuleInfo(name = "LongJump", category = ModuleCategory.MOVEMENT)
 public class LongJump extends Module {
     private final ModeValue mode = new ModeValue("LongJumpMode", "Matrix", this,
             ModeValue.getModes(getClass().getPackage().getName() + ".longjumps")

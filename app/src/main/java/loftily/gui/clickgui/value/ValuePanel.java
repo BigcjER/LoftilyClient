@@ -54,8 +54,8 @@ public class ValuePanel {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         animation.run(out ? 1 : 0);
         
-        RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CornerRadius, Colors.OnBackGround.color);
-        RenderUtils.drawRoundedRect(x, y, ClickGui.CornerRadius, height, 0, Colors.OnBackGround.color);
+        RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CORNER_RADIUS, Colors.OnBackGround.color);
+        RenderUtils.drawRoundedRect(x, y, ClickGui.CORNER_RADIUS, height, 0, Colors.OnBackGround.color);
         
         float maxHeight = 0;
         for (ValueRenderer<?> valueRenderer : valueRenderers) {
@@ -78,7 +78,7 @@ public class ValuePanel {
         
         
         float HeaderHeight = 26;
-        RenderUtils.drawRoundedRect(x, y - 1, width, HeaderHeight, ClickGui.CornerRadius, Colors.OnBackGround.color);
+        RenderUtils.drawRoundedRect(x, y - 1, width, HeaderHeight, ClickGui.CORNER_RADIUS, Colors.OnBackGround.color);
         RenderUtils.drawRoundedRect(x, y + HeaderHeight - 0.5F, width, 0.5F, 0, Colors.BackGround.color
                 .darker().darker());
         FontManager.NotoSans.of(16).drawString("· " + module.getName(),

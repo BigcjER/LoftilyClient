@@ -11,7 +11,7 @@ import net.minecraft.item.ItemStack;
 
 import java.util.Objects;
 
-@ModuleInfo(name = "Teams",category = ModuleCategory.Combat)
+@ModuleInfo(name = "Teams", category = ModuleCategory.COMBAT)
 public class Teams extends Module {
     private final BooleanValue scoreboardValue = new BooleanValue("ScoreboardTeam", true);
     private final BooleanValue colorValue = new BooleanValue("NameColor", true);

@@ -54,13 +54,13 @@ public class CategoryButton extends Component {
         boolean active = Client.INSTANCE.getClickGui().currentCategoryButton == this;
         
         /* bottomest ripple animation */
-        RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CornerRadius, new Color(0, 0, 0)));
+        RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CORNER_RADIUS, new Color(0, 0, 0)));
         clickRippleAnimation.draw();
         RenderUtils.stopGlStencil();
         
         /* background */
         if (active)
-            RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CornerRadius, ColorUtils.colorWithAlpha(Colors.Active.color, 60));
+            RenderUtils.drawRoundedRect(x, y, width, height, ClickGui.CORNER_RADIUS, ColorUtils.colorWithAlpha(Colors.Active.color, 60));
         
         /* icon,text */
         textAnimation.run(hovering || active ? 7 : 0);
@@ -68,7 +68,7 @@ public class CategoryButton extends Component {
         String icon = MaterialIcons.get(moduleCategory.icon);
         
         iconFont.drawCenteredString(icon, x + 10F + (textAnimation.getValuef() * 1.05F), y + height / 3 - 1, Colors.Text.color);
-        FontManager.NotoSans.of(16).drawStringWithShadow(moduleCategory.name(),
+        FontManager.NotoSans.of(16).drawStringWithShadow(moduleCategory.name,
                 x + 7 + iconFont.getStringWidth(icon) + textAnimation.getValue(),
                 y + height / 3, Colors.Text.color.getRGB());
     }

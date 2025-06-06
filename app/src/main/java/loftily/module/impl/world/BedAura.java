@@ -31,7 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-@ModuleInfo(name = "BedAura",category = ModuleCategory.World)
+@ModuleInfo(name = "BedAura", category = ModuleCategory.WORLD)
 public class BedAura extends Module {
     private final ModeValue mode = new ModeValue("Mode","Vanilla",this,new StringMode("Vanilla"),
             new StringMode("Matrix"));

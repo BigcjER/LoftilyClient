@@ -16,7 +16,7 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketEntityAction;
 
-@ModuleInfo(name = "InvMove",category = ModuleCategory.Movement)
+@ModuleInfo(name = "InvMove", category = ModuleCategory.MOVEMENT)
 public class InvMove extends Module {
     private final ModeValue mode = new ModeValue("Mode","Vanilla", this,
             new StringMode("Vanilla"),

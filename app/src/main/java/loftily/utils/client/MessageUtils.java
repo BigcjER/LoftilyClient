@@ -7,7 +7,7 @@ import net.minecraft.util.text.TextFormatting;
 public class MessageUtils implements ClientUtils {
     public static void clientMessageWithWaterMark(Object message) {
         clientMessage(String.format("%s %s",
-                Client.StringPreFix,
+                Client.STRING_PREFIX,
                 TextFormatting.WHITE + message.toString()));
     }
     

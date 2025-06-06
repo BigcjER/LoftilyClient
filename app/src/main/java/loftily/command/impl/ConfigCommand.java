@@ -65,7 +65,7 @@ public class ConfigCommand extends Command {
                         style.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ".config load " + configFileName));
                         if (configFileName.equals(currentConfig)) style.setColor(TextFormatting.GREEN);
                         
-                        TextComponentString textWithWaterMark = new TextComponentString(TextFormatting.DARK_AQUA + Client.Name + " » §f");
+                        TextComponentString textWithWaterMark = new TextComponentString(TextFormatting.DARK_AQUA + Client.NAME + " » §f");
                         textWithWaterMark.appendSibling(text);
                         mc.ingameGUI.getChatGUI().printChatMessage(textWithWaterMark);
                     }

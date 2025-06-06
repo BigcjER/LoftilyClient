@@ -39,7 +39,7 @@ public class AltManagerMenu extends GuiScreen {
     //Button
     private static final ExecutorService SkinDownloadExecutor = Executors.newCachedThreadPool();
     private static final int ButtonWidth = 180, ButtonHeight = 40, Spacing = 10;
-    public static final Color buttonColor = Colors.OnBackGround.color.brighter();
+    public static final Color BUTTON_COLOR = Colors.OnBackGround.color.brighter();
     private GuiButton removeButton, loginButton, randomAltButton;
     private AltButton focusedButton;
     //Async
@@ -66,11 +66,11 @@ public class AltManagerMenu extends GuiScreen {
         
         int btnY = 10;
         int size = alts.size();
-        this.buttonList.add(new CustomButton(size, 10, btnY, 80, 20, "Add", buttonColor));
-        this.buttonList.add(this.loginButton = new CustomButton(size + 1, 10, btnY + 25, 80, 20, "Login", buttonColor));
-        this.buttonList.add(this.removeButton = new CustomButton(size + 2, 10, btnY + 50, 80, 20, "Remove", buttonColor));
-        this.buttonList.add(this.randomAltButton = new CustomButton(size + 3, 10, btnY + 75, 80, 20, "RandomAlt", buttonColor));
-        this.buttonList.add(new CustomButton(size + 4, 10, btnY + 100, 80, 20, "RandomOffline", buttonColor));
+        this.buttonList.add(new CustomButton(size, 10, btnY, 80, 20, "Add", BUTTON_COLOR));
+        this.buttonList.add(this.loginButton = new CustomButton(size + 1, 10, btnY + 25, 80, 20, "Login", BUTTON_COLOR));
+        this.buttonList.add(this.removeButton = new CustomButton(size + 2, 10, btnY + 50, 80, 20, "Remove", BUTTON_COLOR));
+        this.buttonList.add(this.randomAltButton = new CustomButton(size + 3, 10, btnY + 75, 80, 20, "RandomAlt", BUTTON_COLOR));
+        this.buttonList.add(new CustomButton(size + 4, 10, btnY + 100, 80, 20, "RandomOffline", BUTTON_COLOR));
         
         removeButton.enabled = false;
         loginButton.enabled = false;

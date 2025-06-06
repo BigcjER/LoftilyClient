@@ -8,7 +8,7 @@ import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
 import net.lenni0451.lambdaevents.EventHandler;
 
-@ModuleInfo(name = "NoDelay",category = ModuleCategory.Other)
+@ModuleInfo(name = "NoDelay", category = ModuleCategory.OTHER)
 public class NoDelay extends Module {
     private final BooleanValue noHitDelay = new BooleanValue("NoClickDelay", false);
     private final BooleanValue noJumpDelay = new BooleanValue("NoJumpDelay", false);

@@ -19,9 +19,7 @@ import net.minecraft.network.play.server.SPacketSpawnPlayer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.viaversion.viaversion.util.ChatColorUtil.stripColor;
-
-@ModuleInfo(name = "AntiBot",category = ModuleCategory.Combat)
+@ModuleInfo(name = "AntiBot", category = ModuleCategory.COMBAT)
 public class AntiBot extends Module {
     private final BooleanValue tabValue = new BooleanValue("Tab",false);
     private final BooleanValue spawnValue = new BooleanValue("Spawn",false);

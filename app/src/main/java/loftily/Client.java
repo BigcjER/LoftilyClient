@@ -19,14 +19,14 @@ import net.minecraft.util.text.TextFormatting;
 public enum Client {
     INSTANCE;
     
-    public static final String Name = "Loftily";
-    public static final String Version = "v0.1";
-    public static final String StringPreFix = String.format("%s%s%s",
+    public static final String NAME = "Loftily";
+    public static final String VERSION = "v0.1";
+    public static final String STRING_PREFIX = String.format("%s%s%s",
             TextFormatting.YELLOW + "[",
-            TextFormatting.DARK_AQUA + Name,
+            TextFormatting.DARK_AQUA + NAME,
             TextFormatting.YELLOW + "]");
     
-    public static final boolean DevelopmentBuild = true;
+    public static final boolean DEVELOPMENT_BUILD = true;
     
     private ModuleManager moduleManager;
     private LambdaManager eventManager;
@@ -39,7 +39,7 @@ public enum Client {
     
     public void init() {
         long start = System.currentTimeMillis();
-        ClientUtils.Logger.info("Initializing {}...", Name);
+        ClientUtils.Logger.info("Initializing {}...", NAME);
         
         SplashScreen.INSTANCE.setProgressAndDraw("Initializing Modules", 40);
         eventManager = LambdaManager.basic(new LambdaMetaFactoryGenerator());
@@ -80,8 +80,8 @@ public enum Client {
     
     public String getTitle() {
         return String.format("%s %s%s",
-                Name,
-                Version,
-                DevelopmentBuild ? " | Development Build" : "");
+                NAME,
+                VERSION,
+                DEVELOPMENT_BUILD ? " | Development Build" : "");
     }
 }

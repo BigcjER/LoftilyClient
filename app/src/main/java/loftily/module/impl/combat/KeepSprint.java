@@ -9,7 +9,7 @@ import loftily.value.impl.NumberValue;
 import net.lenni0451.lambdaevents.EventHandler;
 
 
-@ModuleInfo(name = "KeepSprint",category = ModuleCategory.Combat)
+@ModuleInfo(name = "KeepSprint", category = ModuleCategory.COMBAT)
 public class KeepSprint extends Module {
     private final NumberValue groundMotion = new NumberValue("GroundMotion",0.6,0.0,1.0,0.01);
     private final NumberValue airMotion = new NumberValue("AirMotion",0.6,0.0,1.0,0.01);

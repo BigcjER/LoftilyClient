@@ -8,7 +8,7 @@ import loftily.value.impl.NumberValue;
 import lombok.NonNull;
 import net.lenni0451.lambdaevents.EventHandler;
 
-@ModuleInfo(name = "Timer", category = ModuleCategory.World)
+@ModuleInfo(name = "Timer", category = ModuleCategory.WORLD)
 public class TimerModule extends Module {
     private final NumberValue timerSpeed = new NumberValue("TimerSpeed", 1, 0.01, 10, 0.01);
     

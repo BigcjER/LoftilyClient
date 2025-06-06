@@ -1,17 +1,18 @@
 package loftily.module;
 
 public enum ModuleCategory {
-    Combat("swords"),
-    Movement("directions_run"),
-    Render("visibility"),
-    World("public"),
-    Player("person"),
-    Exploit("bug_report"),
-    Other("help");
+    COMBAT("swords", "Combat"),
+    MOVEMENT("directions_run", "Movement"),
+    RENDER("visibility", "Render"),
+    WORLD("public", "World"),
+    PLAYER("person", "Player"),
+    EXPLOIT("bug_report", "Exploit"),
+    OTHER("help", "Other");
     
-    public final String icon;
+    public final String icon, name;
     
-    ModuleCategory(String icon) {
+    ModuleCategory(String icon, String name) {
         this.icon = icon;
+        this.name = name;
     }
 }

@@ -43,7 +43,7 @@ public class BooleanRenderer extends ValueRenderer<BooleanValue> {
                     indicatorY,
                     widthHeight,
                     widthHeight,
-                    ClickGui.CornerRadius - 0.8F,
+                    ClickGui.CORNER_RADIUS - 0.8F,
                     Colors.BackGround.color);
         }
         
@@ -54,7 +54,7 @@ public class BooleanRenderer extends ValueRenderer<BooleanValue> {
                 indicatorY,
                 widthHeight,
                 widthHeight,
-                ClickGui.CornerRadius - 0.8F,
+                ClickGui.CORNER_RADIUS - 0.8F,
                 ColorUtils.colorWithAlpha(Colors.Active.color, animation.getValuei()));
         
         FontManager.MaterialSymbolsSharp.of(15).drawString(
