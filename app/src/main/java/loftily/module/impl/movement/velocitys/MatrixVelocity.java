@@ -19,15 +19,17 @@ public class MatrixVelocity extends Mode {
         if (packet instanceof SPacketEntityVelocity) {
             if (((SPacketEntityVelocity) packet).getEntityID() == mc.player.getEntityId()) {
                 event.setCancelled(true);
-                mc.player.motionY = ((SPacketEntityVelocity) packet).getMotionY() / 8000f;
-                if(!MoveUtils.isMoving()){
-                    MoveUtils.setSpeed(Math.max(
-                            MoveUtils.getSpeed(
-                                    ((SPacketEntityVelocity) packet).getMotionX() / 8000f,
-                                    ((SPacketEntityVelocity) packet).getMotionZ() / 8000f),
-                            0.5),false);
-                }else {
-                    MoveUtils.setSpeed(MoveUtils.getSpeed((float) mc.player.motionX, (float) mc.player.motionZ),false);
+                if (((SPacketEntityVelocity) packet).getMotionY() / 8000f > 0.2) {
+                    mc.player.motionY = ((SPacketEntityVelocity) packet).getMotionY() / 8000f;
+                    if (!MoveUtils.isMoving()) {
+                        MoveUtils.setSpeed(Math.max(
+                                MoveUtils.getSpeed(
+                                        ((SPacketEntityVelocity) packet).getMotionX() / 8000f,
+                                        ((SPacketEntityVelocity) packet).getMotionZ() / 8000f),
+                                0.5), false);
+                    } else {
+                        MoveUtils.setSpeed(MoveUtils.getSpeed((float) mc.player.motionX, (float) mc.player.motionZ), false);
+                    }
                 }
             }
         }

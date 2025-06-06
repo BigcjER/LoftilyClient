@@ -26,11 +26,13 @@ import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
 import lombok.NonNull;
 import net.lenni0451.lambdaevents.EventHandler;
+import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketAnimation;
@@ -323,7 +325,11 @@ public class KillAura extends Module {
     
     private EntityLivingBase getTarget() {
         if (mc.player == null) return null;
-        
+
+        if(target != null && target instanceof EntityPlayerMP && target.isSpectatedByPlayer((EntityPlayerMP) target)){
+            target = null;
+        }
+
         if (target != null) {
             if (CalculateUtils.getClosetDistance(mc.player, target) <= attackRange.getValue()) {
                 if (mode.is("Single")) return target;

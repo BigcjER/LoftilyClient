@@ -6,6 +6,7 @@ import java.util.Set;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.INetHandlerPlayClient;
+import net.minecraft.util.text.ITextComponent;
 
 public class SPacketPlayerPosLook implements Packet<INetHandlerPlayClient>
 {
