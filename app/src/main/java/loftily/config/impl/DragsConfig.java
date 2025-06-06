@@ -49,7 +49,7 @@ public class DragsConfig extends Config {
             JsonObject json = new JsonObject();
             
             DraggableHandler.getDraggableList().forEach(draggable -> {
-                if (draggable == null) return;
+                if (draggable == null || draggable.getDraggable() == null) return;
                 json.add(draggable.getName(), GSON.toJsonTree(new int[]{draggable.getDraggable().getPosX(), draggable.getDraggable().getPosY()}));
             });
             
