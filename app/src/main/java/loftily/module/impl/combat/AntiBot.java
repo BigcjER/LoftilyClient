@@ -8,6 +8,7 @@ import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
 import loftily.value.impl.BooleanValue;
 import net.lenni0451.lambdaevents.EventHandler;
+import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
@@ -18,7 +19,9 @@ import net.minecraft.network.play.server.SPacketDestroyEntities;
 import net.minecraft.network.play.server.SPacketSpawnPlayer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static com.viaversion.viaversion.util.ChatColorUtil.stripColor;
 
@@ -98,7 +101,16 @@ public class AntiBot extends Module {
             return true;
         }
 
-        if(!mc.player.connection.getPlayerInfoMap().equals(entity) && tabValue.getValue()){
+        if(tabValue.getValue()) {
+            for (NetworkPlayerInfo networkPlayerInfo : mc.player.connection.getPlayerInfoMap()) {
+                String targetName = stripColor(entity.getDisplayName().getFormattedText());
+                if (networkPlayerInfo.getDisplayName() != null) {
+                    String netWorkName = stripColor(networkPlayerInfo.getDisplayName().getFormattedText());
+                    if (Objects.equals(targetName, netWorkName)) {
+                        return false;
+                    }
+                }
+            }
             return true;
         }
 
