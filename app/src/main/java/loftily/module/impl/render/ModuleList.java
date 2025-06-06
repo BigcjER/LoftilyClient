@@ -1,12 +1,14 @@
 package loftily.module.impl.render;
 
 import loftily.Client;
+import loftily.config.impl.DragsConfig;
 import loftily.event.impl.render.Render2DEvent;
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
 import loftily.gui.font.FontManager;
 import loftily.gui.font.FontRenderer;
-import loftily.gui.interaction.Draggable;
+import loftily.gui.interaction.draggable.Draggable;
+import loftily.gui.interaction.draggable.IDraggable;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
@@ -24,7 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ModuleInfo(name = "ModuleList", category = ModuleCategory.RENDER, defaultToggled = true)
-public class ModuleList extends Module {
+public class ModuleList extends Module implements IDraggable {
     
     private final List<ModuleEntry> moduleEntries = new ArrayList<>();
     
@@ -34,8 +36,8 @@ public class ModuleList extends Module {
                     .setOnValueChange(mode -> moduleEntries.clear());
     private final BooleanValue noRenderModule = new BooleanValue("NoRenderModule", true);
     private final BooleanValue fontShadow = new BooleanValue("FontShadow", true);
-    
     private Draggable draggable;
+    
     
     @Override
     public void onDisable() {
@@ -49,6 +51,7 @@ public class ModuleList extends Module {
         
         if (draggable == null) {
             draggable = new Draggable(event.getScaledResolution().getScaledWidth() - 3, 0, 1);
+            Client.INSTANCE.getFileManager().get(DragsConfig.class).read();
         }
         
         if (moduleEntries.isEmpty()) {
@@ -84,7 +87,7 @@ public class ModuleList extends Module {
             }
         }
         
-        draggable.updateDrag(
+        getDraggable().updateDrag(
                 pair.getFirst(),
                 pair.getSecond(),
                 longestStringWidth,
@@ -93,9 +96,9 @@ public class ModuleList extends Module {
                 event.getScaledResolution().getScaledHeight());
         
         int finalLongestStringWidth = longestStringWidth;
-        draggable.applyDragEffect(() -> {
-            int y = draggable.getPosY();
-            int x = draggable.getPosX();
+        getDraggable().applyDragEffect(() -> {
+            int y = getDraggable().getPosY();
+            int x = getDraggable().getPosX();
             for (ModuleEntry entry : sortedEntries) {
                 Module module = entry.module;
                 Animation animation = entry.animation;
@@ -105,7 +108,7 @@ public class ModuleList extends Module {
                 int stringWidth = font.getStringWidth(text);
                 
                 boolean isLeft = event.getScaledResolution().getScaledWidth() / 2 > (x + finalLongestStringWidth / 2);
-                float baseX = draggable.getPosX();
+                float baseX = getDraggable().getPosX();
                 float drawX;
                 
                 if (isLeft) {
@@ -123,6 +126,16 @@ public class ModuleList extends Module {
                 y += (int) ((font.getHeight() - 2) * animation.getValuef());
             }
         });
+    }
+    
+    @Override
+    public Draggable getDraggable() {
+        return draggable;
+    }
+    
+    @Override
+    public String getName() {
+        return "ModuleList";
     }
     
     

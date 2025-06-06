@@ -162,7 +162,7 @@ public class AltManagerMenu extends GuiScreen {
             return null;
         }
         
-        File cacheFile = new File(FileManager.SkinsCacheDir, playerUUID + ".png");
+        File cacheFile = new File(FileManager.SKINS_CACHE_DIR, playerUUID + ".png");
         //如果有缓存直接返回
         if (skinCache.containsKey(uuidString)) return skinCache.get(uuidString);
         //如果在下载直接返回

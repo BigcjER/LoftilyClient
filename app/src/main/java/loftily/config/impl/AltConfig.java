@@ -18,7 +18,7 @@ import java.util.List;
 
 public class AltConfig extends Config {
     public AltConfig() {
-        super(new File(FileManager.RootDir, "Alts.json"));
+        super(new File(FileManager.ROOT_DIR, "Alts.json"));
     }
     
     @Override
@@ -28,7 +28,11 @@ public class AltConfig extends Config {
             }.getType();
             List<Alt> altList = GSON.fromJson(reader, listType);
             
-            altList.forEach(alt -> Client.INSTANCE.getAltManager().getAlts().add(alt));
+            if (altList != null) {
+                altList.forEach(alt -> Client.INSTANCE.getAltManager().getAlts().add(alt));
+            } else {
+                write();
+            }
             
         } catch (IOException e) {
             throw new RuntimeException(e);

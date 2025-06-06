@@ -1,10 +1,13 @@
-package loftily.gui.interaction;
+package loftily.gui.interaction.draggable;
 
+import loftily.Client;
+import loftily.config.impl.DragsConfig;
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
 import loftily.utils.client.ClientUtils;
 import loftily.utils.render.RenderUtils;
 import lombok.Getter;
+import lombok.Setter;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
@@ -16,6 +19,7 @@ public class Draggable implements ClientUtils {
     private boolean isDragging = false;
     private int prevX = 0, prevY = 0;
     @Getter
+    @Setter
     private int posX, posY;
     private int width, height;
     
@@ -29,7 +33,7 @@ public class Draggable implements ClientUtils {
     }
     
     public Draggable(int startX, int startY, int margin) {
-        this(startX, startY, margin, null);
+        this(startX, startY, margin, () -> Client.INSTANCE.getFileManager().get(DragsConfig.class).write());
     }
     
     public void updateDrag(int mouseX, int mouseY, int dragWidth, int dragHeight, int width, int height, int screenWidth, int screenHeight) {

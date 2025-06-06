@@ -1,7 +1,6 @@
 package loftily.config.impl;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import loftily.Client;
@@ -25,11 +24,7 @@ public class ModuleConfig extends Config {
     public void read() {
         try (FileReader reader = new FileReader(configFile)) {
             JsonElement jsonElement = JsonParser.parseReader(reader);
-            
-            if (jsonElement instanceof JsonNull) {
-                write();
-                return;
-            }
+            checkJsonElement(jsonElement);
             
             JsonObject json = jsonElement.getAsJsonObject();
             
@@ -58,19 +53,19 @@ public class ModuleConfig extends Config {
     
     @Override
     public void write() {
-        JsonObject json = new JsonObject();
-        
-        Client.INSTANCE.getModuleManager().forEach(module -> {
-            JsonObject modJson = new JsonObject();
-            modJson.addProperty("Toggled", module.isToggled());
-            modJson.addProperty("KeyBind", Keyboard.getKeyName(module.getKey()));
-            module.getValues().forEach(value -> modJson.add(value.getName(), value.write()));
-            
-            json.add(module.getName(), modJson);
-        });
-        
         try (FileWriter writer = new FileWriter(configFile)) {
-            writer.write(GSON.toJson(json));
+            JsonObject json = new JsonObject();
+            
+            Client.INSTANCE.getModuleManager().forEach(module -> {
+                JsonObject modJson = new JsonObject();
+                modJson.addProperty("Toggled", module.isToggled());
+                modJson.addProperty("KeyBind", Keyboard.getKeyName(module.getKey()));
+                module.getValues().forEach(value -> modJson.add(value.getName(), value.write()));
+                
+                json.add(module.getName(), modJson);
+            });
+            
+            GSON.toJson(json, writer);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

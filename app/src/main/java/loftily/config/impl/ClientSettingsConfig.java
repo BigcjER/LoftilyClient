@@ -1,5 +1,6 @@
 package loftily.config.impl;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import loftily.Client;
@@ -19,7 +20,7 @@ import java.lang.reflect.Type;
 
 public class ClientSettingsConfig extends Config {
     public ClientSettingsConfig() {
-        super(new File(FileManager.RootDir, "ClientSettings.json"));
+        super(new File(FileManager.ROOT_DIR, "ClientSettings.json"));
     }
     
     //确保比ModuleConfig先加载
@@ -33,14 +34,17 @@ public class ClientSettingsConfig extends Config {
         super.init();
         ModuleConfig moduleConfig = Client.INSTANCE.getFileManager().get(ModuleConfig.class);
         
-        File lastConfigFile = new File(FileManager.ConfigDir, ClientSettings.lastModuleConfig.get());
+        File lastConfigFile = new File(FileManager.CONFIG_DIR, ClientSettings.lastModuleConfig.get());
         moduleConfig.setConfigFile(lastConfigFile);
     }
     
     @Override
     public void read() {
         try (FileReader reader = new FileReader(configFile)) {
-            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            JsonElement jsonElement = JsonParser.parseReader(reader);
+            checkJsonElement(jsonElement);
+            
+            JsonObject json = jsonElement.getAsJsonObject();
             
             for (Field field : ClientSettings.class.getDeclaredFields()) {
                 if (!Modifier.isStatic(field.getModifiers())) continue;

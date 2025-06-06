@@ -3,6 +3,8 @@ package loftily.module;
 import loftily.Client;
 import loftily.core.AbstractManager;
 import loftily.event.impl.client.KeyboardEvent;
+import loftily.gui.interaction.draggable.IDraggable;
+import loftily.handlers.impl.DraggableHandler;
 import loftily.value.Value;
 import loftily.value.impl.mode.ModeValue;
 import net.lenni0451.lambdaevents.EventHandler;
@@ -16,6 +18,8 @@ public class ModuleManager extends AbstractManager<Module> {
         super("impl", Module.class);
         
         for (Module module : this) {
+            if (module instanceof IDraggable) DraggableHandler.getDraggableList().add((IDraggable) module);
+            
             Field[] fields = module.getClass().getDeclaredFields();
             
             for (Field field : fields) {

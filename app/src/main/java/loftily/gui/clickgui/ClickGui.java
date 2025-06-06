@@ -10,8 +10,9 @@ import loftily.gui.clickgui.value.ValuePanel;
 import loftily.gui.components.CustomTextField;
 import loftily.gui.components.MaterialIcons;
 import loftily.gui.font.FontManager;
-import loftily.gui.interaction.Draggable;
 import loftily.gui.interaction.Scrollable;
+import loftily.gui.interaction.draggable.Draggable;
+import loftily.gui.interaction.draggable.IDraggable;
 import loftily.module.ModuleCategory;
 import loftily.utils.render.ColorUtils;
 import loftily.utils.render.Colors;
@@ -28,13 +29,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 //TODO:All ValueRenderer
-public class ClickGui extends GuiScreen {
+public class ClickGui extends GuiScreen implements IDraggable {
     //Positions
     public static final int CORNER_RADIUS = 3, PADDING = 5;
     private final int width, height;
     private final Scrollable scrollableModuleButtons;
     private final float valuePanelWidth = 160;
-    private final Draggable draggable;
+    private Draggable draggable;
     private int x, y;
     
     //CategoryButtons,ModuleButtons
@@ -54,7 +55,6 @@ public class ClickGui extends GuiScreen {
     public ClickGui() {
         this.width = 430;
         this.height = 270;
-        this.draggable = new Draggable(100, 100, 1);
         
         this.categoryButtons = new ArrayList<>();
         
@@ -86,9 +86,9 @@ public class ClickGui extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
         
-        draggable.updateDrag(mouseX, mouseY, width, height / 10, width, height, super.width, super.height);
-        x = draggable.getPosX();
-        y = draggable.getPosY();
+        getDraggable().updateDrag(mouseX, mouseY, width, height / 10, width, height, super.width, super.height);
+        x = getDraggable().getPosX();
+        y = getDraggable().getPosY();
         
         /* Background */
         RenderUtils.drawRoundedRect(x, y, width, height, CORNER_RADIUS, Colors.BackGround.color);
@@ -355,5 +355,13 @@ public class ClickGui extends GuiScreen {
     public void updateScreen() {
         super.updateScreen();
         searchBox.updateCursorCounter();
+    }
+    
+    @Override
+    public Draggable getDraggable() {
+        if (draggable == null) {
+            draggable = new Draggable(100, 100, 1, null);
+        }
+        return draggable;
     }
 }

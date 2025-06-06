@@ -7,15 +7,15 @@ import loftily.core.AbstractManager;
 import java.io.File;
 
 public class FileManager extends AbstractManager<Config> {
-    public final static File RootDir = new File(Client.NAME);
-    public final static File SkinsCacheDir = new File(RootDir, "caches");
-    public final static File ConfigDir = new File(RootDir, "configs");
+    public final static File ROOT_DIR = new File(Client.NAME);
+    public final static File SKINS_CACHE_DIR = new File(ROOT_DIR, "caches");
+    public final static File CONFIG_DIR = new File(ROOT_DIR, "configs");
     
     public FileManager() {
         super("impl", Config.class);
-        if (!SkinsCacheDir.exists()) SkinsCacheDir.mkdirs();
-        if (!RootDir.exists()) RootDir.mkdirs();
-        if (!ConfigDir.exists()) ConfigDir.mkdirs();
+        if (!SKINS_CACHE_DIR.exists()) SKINS_CACHE_DIR.mkdirs();
+        if (!ROOT_DIR.exists()) ROOT_DIR.mkdirs();
+        if (!CONFIG_DIR.exists()) CONFIG_DIR.mkdirs();
     }
     
     public void init() {

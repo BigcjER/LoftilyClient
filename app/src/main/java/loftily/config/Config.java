@@ -2,6 +2,8 @@ package loftily.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,6 +37,13 @@ public abstract class Config implements Comparable<Config> {
     @Override
     public int compareTo(Config other) {
         return Integer.compare(other.getPriority(), this.getPriority());
+    }
+    
+    protected void checkJsonElement(JsonElement jsonElement) {
+        if (jsonElement == null || jsonElement.isJsonNull() || !jsonElement.isJsonObject()) {
+            write();
+            throw new JsonParseException(String.format("File '%s' is not a valid JsonObject.", configFile.getPath()));
+        }
     }
     
 }

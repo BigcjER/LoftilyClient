@@ -34,7 +34,7 @@ public class ConfigCommand extends Command {
             switch (command) {
                 case "folder":
                     try {
-                        Desktop.getDesktop().open(FileManager.ConfigDir);
+                        Desktop.getDesktop().open(FileManager.CONFIG_DIR);
                         MessageUtils.clientMessageWithWaterMark("Configuration folder opened.");
                     } catch (IOException e) {
                         MessageUtils.clientMessageWithWaterMark(TextFormatting.RED + "Failed to open configuration folder!");
@@ -44,7 +44,7 @@ public class ConfigCommand extends Command {
                 
                 case "list":
                     List<File> configFiles = Arrays.asList(
-                            Objects.requireNonNull(FileManager.ConfigDir.listFiles((dir, name) -> name.endsWith(".json"))));
+                            Objects.requireNonNull(FileManager.CONFIG_DIR.listFiles((dir, name) -> name.endsWith(".json"))));
                     
                     if (configFiles.isEmpty()) {
                         MessageUtils.clientMessageWithWaterMark(TextFormatting.RED + "No configurations found.");
@@ -88,7 +88,7 @@ public class ConfigCommand extends Command {
         if (args.length == 3) {
             String command = args[1].toLowerCase();
             String configName = args[2];
-            File configFile = new File(FileManager.ConfigDir, configName + ".json");
+            File configFile = new File(FileManager.CONFIG_DIR, configName + ".json");
             
             switch (command) {
                 case "load":
@@ -103,7 +103,7 @@ public class ConfigCommand extends Command {
                 case "save":
                     File originFile = moduleConfig.getConfigFile();
                     moduleConfig.write();
-                    moduleConfig.setConfigFile(new File(FileManager.ConfigDir, configName + ".json"));
+                    moduleConfig.setConfigFile(new File(FileManager.CONFIG_DIR, configName + ".json"));
                     moduleConfig.write();
                     moduleConfig.setConfigFile(originFile);
                     MessageUtils.clientMessageWithWaterMark(TextFormatting.GREEN + String.format("Configuration %s saved.", configName));
@@ -121,7 +121,7 @@ public class ConfigCommand extends Command {
                         if (!module.isDefaultToggled() || !module.isToggled()) module.setToggled(false, false, false);
                     });
                     
-                    moduleConfig.setConfigFile(new File(FileManager.ConfigDir, configName + ".json"));
+                    moduleConfig.setConfigFile(new File(FileManager.CONFIG_DIR, configName + ".json"));
                     moduleConfig.write();
                     ClientSettings.lastModuleConfig.set(moduleConfig.getConfigFile().getName());
                     
