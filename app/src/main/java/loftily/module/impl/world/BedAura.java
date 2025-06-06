@@ -61,6 +61,7 @@ public class BedAura extends Module {
         disableMatrix = false;
         stop = false;
         delayTimer.reset();
+        target = null;
     }
 
     @EventHandler
