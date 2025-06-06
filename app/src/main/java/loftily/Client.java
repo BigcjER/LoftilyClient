@@ -39,7 +39,7 @@ public enum Client {
     
     public void init() {
         long start = System.currentTimeMillis();
-        ClientUtils.Logger.info("Initializing {}...", NAME);
+        ClientUtils.LOGGER.info("Initializing {}...", NAME);
         
         SplashScreen.INSTANCE.setProgressAndDraw("Initializing Modules", 40);
         eventManager = LambdaManager.basic(new LambdaMetaFactoryGenerator());
@@ -70,11 +70,11 @@ public enum Client {
         long time = System.currentTimeMillis();
         while (System.currentTimeMillis() - time <= 500) ;//waiting for 0.5s
         
-        ClientUtils.Logger.info("Initialization completed, took {} ms.", (System.currentTimeMillis() - start));
+        ClientUtils.LOGGER.info("Initialization completed, took {} ms.", (System.currentTimeMillis() - start));
     }
     
     public void shutdown() {
-        ClientUtils.Logger.info("Saving all configs");
+        ClientUtils.LOGGER.info("Saving all configs");
         fileManager.saveAll();
     }
     

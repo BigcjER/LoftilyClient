@@ -32,7 +32,7 @@ public abstract class AbstractManager<T> extends ArrayList<T> {
                 .filter(item -> item.getClass() == clazz)
                 .findFirst()
                 .orElseGet(() -> {
-                    ClientUtils.Logger.error("Item {} is null", clazz.getSimpleName());
+                    ClientUtils.LOGGER.error("Item {} is null", clazz.getSimpleName());
                     return null;
                 });
     }

@@ -158,7 +158,7 @@ public class AltManagerMenu extends GuiScreen {
                 playerUUID = UUID.fromString(uuidString);
             }
         } catch (IllegalArgumentException e) {
-            ClientUtils.Logger.error("Invalid UUID for alt {} ({}): {}", alt.getName(), uuidString, e.getMessage());
+            ClientUtils.LOGGER.error("Invalid UUID for alt {} ({}): {}", alt.getName(), uuidString, e.getMessage());
             return null;
         }
         

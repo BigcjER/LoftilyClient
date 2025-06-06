@@ -56,10 +56,10 @@ public class MicrosoftLoginThread extends Thread implements ClientUtils {
                 
                 doLogin(accessToken, refreshToken, true);
             } catch (InterruptedException e) {
-                Logger.warn("Microsoft login thread interrupted.");
+                LOGGER.warn("Microsoft login thread interrupted.");
                 Thread.currentThread().interrupt();
             } catch (TimeoutException te) {
-                Logger.error("Timed out waiting for authorization code", te);
+                LOGGER.error("Timed out waiting for authorization code", te);
                 currentText = TextFormatting.RED + "Login timed out. Please try again.";
             } catch (Exception e) {
                 currentText = TextFormatting.RED + "Error: " + e.getMessage();
@@ -73,7 +73,7 @@ public class MicrosoftLoginThread extends Thread implements ClientUtils {
                 try {
                     callbackServer.close();
                 } catch (IOException e) {
-                    Logger.error(e);
+                    LOGGER.error(e);
                 }
             }
         }
@@ -105,7 +105,7 @@ public class MicrosoftLoginThread extends Thread implements ClientUtils {
     
     public void setAndPrintCurrentText(String currentText) {
         this.currentText = currentText;
-        Logger.info(currentText);
+        LOGGER.info(currentText);
     }
     
     private void doLogin(String accessToken, String refreshToken, boolean add) throws Exception {

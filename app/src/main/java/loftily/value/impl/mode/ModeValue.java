@@ -122,7 +122,7 @@ public class ModeValue extends Value<Mode, ModeValue> {
         });
         
         if (modes.isEmpty())
-            ClientUtils.Logger.warn("No mode found in '{}',please check that the packageName is existed!", packageName);
+            ClientUtils.LOGGER.warn("No mode found in '{}',please check that the packageName is existed!", packageName);
         
         return modes.toArray(new Mode[0]);
     }

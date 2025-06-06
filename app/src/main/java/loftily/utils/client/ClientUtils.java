@@ -6,11 +6,11 @@ import org.apache.logging.log4j.Logger;
 
 public interface ClientUtils {
     Minecraft mc = Minecraft.getMinecraft();
-    Logger Logger = LogManager.getLogger(ClientUtils.class);
+    Logger LOGGER = LogManager.getLogger(ClientUtils.class);
     
     
     default void info(Object o) {
-        Logger.info(o);
+        LOGGER.info(o);
     }
     
     default void println(Object o) {
