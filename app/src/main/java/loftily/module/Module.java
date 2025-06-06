@@ -53,7 +53,7 @@ public abstract class Module extends AbstractModule {
         
         if (notification)
             Client.INSTANCE.getNotificationManager().add(
-                    NotificationType.Info,
+                    NotificationType.INFO,
                     "ModuleManager",
                     String.format("%s %s", name, toggled ? "Enabled" : "Disabled"),
                     1500);

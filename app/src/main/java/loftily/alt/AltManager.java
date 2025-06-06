@@ -50,7 +50,7 @@ public class AltManager implements ClientUtils {
         } else {
             mc.setSession(new Session(alt.getName(), "", "", Session.Type.LEGACY.sessionType));
             this.currentAlt = alt;
-            callback.accept("");
+            callback.accept("Logged in as " + alt.getName());
         }
     }
     

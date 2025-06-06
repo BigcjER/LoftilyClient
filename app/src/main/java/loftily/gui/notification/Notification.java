@@ -34,13 +34,13 @@ public class Notification {
         }
         this.title = title;
         this.message = message;
-        this.duration = duration;
+        this.duration = duration != 0 ? duration : FontManager.NotoSans.of(15).getStringWidth(message) * 30L;
         
         this.start = System.currentTimeMillis();
         this.xAnimation = new Animation(Easing.EaseOutExpo, 250);
         this.yAnimation = new Animation(Easing.EaseOutExpo, 300);
         
-        width = Math.max(FontManager.NotoSans.of(15).getStringWidth(message) + 35, width);
+        this.width = Math.max(FontManager.NotoSans.of(15).getStringWidth(message) + 50, width);
     }
     
     public void drawNotification() {

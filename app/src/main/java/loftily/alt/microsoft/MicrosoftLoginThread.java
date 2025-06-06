@@ -140,6 +140,6 @@ public class MicrosoftLoginThread extends Thread implements ClientUtils {
             Client.INSTANCE.getAltManager().add(alt);
         }
         
-        setAndPrintCurrentText(TextFormatting.GREEN + "Login successful! Logged in as " + name);
+        setAndPrintCurrentText("Login successful! Logged in as " + name);
     }
 }

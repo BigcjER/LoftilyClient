@@ -9,14 +9,13 @@ import loftily.config.FileManager;
 import loftily.gui.animation.Ripple;
 import loftily.gui.components.CustomButton;
 import loftily.gui.font.FontManager;
-import loftily.gui.font.FontRenderer;
 import loftily.gui.interaction.Scrollable;
+import loftily.gui.notification.NotificationType;
 import loftily.utils.client.ClientUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.render.ColorUtils;
 import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
-import loftily.utils.timer.DelayTimer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -39,15 +38,12 @@ public class AltManagerMenu extends GuiScreen {
     //Button
     private static final ExecutorService SkinDownloadExecutor = Executors.newCachedThreadPool();
     private static final int ButtonWidth = 180, ButtonHeight = 40, Spacing = 10;
-    public static final Color BUTTON_COLOR = Colors.OnBackGround.color.brighter();
+    public static final Color BUTTON_COLOR = Colors.OnBackGround.color;
     private GuiButton removeButton, loginButton, randomAltButton;
     private AltButton focusedButton;
     //Async
     private static final Set<String> downloadingSkins = Collections.synchronizedSet(new HashSet<>());
     private static final Map<String, ResourceLocation> skinCache = new HashMap<>();
-    //Text
-    private final DelayTimer timer = new DelayTimer();
-    private String currentText = "";
     //other
     private final List<Alt> alts = Client.INSTANCE.getAltManager().getAlts();
     private final Scrollable scrollable = new Scrollable(8);
@@ -103,17 +99,6 @@ public class AltManagerMenu extends GuiScreen {
                 button.drawScreen(mc, mouseX, mouseY, partialTicks);
             }
         }
-        FontRenderer font = FontManager.NotoSans.of(16);
-        
-        if (!timer.hasTimeElapsed(3000)) {
-            font.drawString(currentText, 10, height - 30, Colors.Text.color);
-        }
-        
-        String visibleText = font.trimStringToWidth(
-                "Current: " + Client.INSTANCE.getAltManager().getCurrentAlt().getName(), 65, false);
-        if (font.getWidth(visibleText) >= 65) visibleText = visibleText + "...";
-        font.drawString(visibleText, 10, height - 15, Colors.Text.color);
-        
     }
     
     private void drawPlayerHead(int x, int y, Alt alt) {
@@ -243,9 +228,15 @@ public class AltManagerMenu extends GuiScreen {
             //双击登录
             if (clickedButton.doubleClick) {
                 Alt account = alts.get(clickedButton.id);
-                Client.INSTANCE.getAltManager().login(account, text -> this.currentText = text);
+                Client.INSTANCE.getAltManager().login(account,
+                        text -> {
+                            if (text.contains("failed")) {
+                                Client.INSTANCE.getNotificationManager().add(NotificationType.WARING, "AltManager", text, 5000);
+                            } else {
+                                Client.INSTANCE.getNotificationManager().add(NotificationType.SUCCESS, "AltManager", text, 5000);
+                            }
+                        });
                 clickedButton.doubleClick = false;
-                timer.reset();
             }
             return;
         }
@@ -257,13 +248,21 @@ public class AltManagerMenu extends GuiScreen {
             case 1:
                 if (focusedButton != null) {
                     Alt accountToLogin = alts.get(focusedButton.id);
-                    Client.INSTANCE.getAltManager().login(accountToLogin);
+                    Client.INSTANCE.getAltManager().login(accountToLogin,
+                            text -> {
+                                if (text.contains("failed")) {
+                                    Client.INSTANCE.getNotificationManager().add(NotificationType.WARING, "AltManager", text, 5000);
+                                } else {
+                                    Client.INSTANCE.getNotificationManager().add(NotificationType.SUCCESS, "AltManager", text, 5000);
+                                }
+                            });
                 }
                 break;
             case 2:
                 if (focusedButton != null) {
                     Alt accountToRemove = alts.get(focusedButton.id);
                     Client.INSTANCE.getAltManager().remove(accountToRemove);
+                    Client.INSTANCE.getNotificationManager().add(NotificationType.SUCCESS, "AltManager", "Removed account " + accountToRemove.getName(), 5000);
                     focusedButton = null;
                     initGui();
                 }
@@ -272,10 +271,14 @@ public class AltManagerMenu extends GuiScreen {
                 if (!alts.isEmpty()) {
                     Alt account = alts.get(RandomUtils.randomInt(0, alts.size()));
                     Client.INSTANCE.getAltManager().login(account);
+                    Client.INSTANCE.getNotificationManager().add(NotificationType.SUCCESS, "AltManager", "Logged in as " + account.getName(), 5000);
+                    
                 }
                 break;
             case 4:
+                String name = RandomUtils.randomString(8);
                 Client.INSTANCE.getAltManager().login(new Alt(RandomUtils.randomString(8)));
+                Client.INSTANCE.getNotificationManager().add(NotificationType.SUCCESS, "AltManager", "Logged in as " + name, 5000);
                 break;
         }
     }

@@ -9,6 +9,7 @@ import loftily.event.impl.render.HurtCameraEvent;
 import loftily.event.impl.render.Render3DEvent;
 import loftily.handlers.impl.RotationHandler;
 import loftily.module.impl.other.RayTraceFixer;
+import loftily.module.impl.render.DrawScreenEvent;
 import loftily.utils.math.CalculateUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
@@ -1383,6 +1384,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
                     else
                     {
                         this.mc.currentScreen.drawScreen(k1, l1, this.mc.func_193989_ak());
+                        Client.INSTANCE.getEventManager().call(new DrawScreenEvent(k1, l1, this.mc.func_193989_ak()));
                     }
                 }
                 catch (Throwable throwable1)

@@ -11,6 +11,12 @@ import net.lenni0451.lambdaevents.EventHandler;
 public class NotificationModule extends Module {
     @EventHandler
     public void onRender2D(Render2DEvent event) {
+        if (mc.currentScreen == null)
+            Client.INSTANCE.getNotificationManager().renderNotifications();
+    }
+    
+    @EventHandler
+    public void onDrawScreen(DrawScreenEvent event) {
         Client.INSTANCE.getNotificationManager().renderNotifications();
     }
 }
