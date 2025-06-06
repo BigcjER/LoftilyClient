@@ -11,7 +11,8 @@ import lombok.Setter;
 @Setter
 public class Notification {
     public final Animation xAnimation, yAnimation;
-    protected final float Width = 150, Height = 40, Radius = 2;
+    protected final float HEIGHT = 40, RADIUS = 2;
+    protected float width = 150;
     private final String icon, title, message;
     private final long duration;
     public boolean out;
@@ -20,13 +21,13 @@ public class Notification {
     
     public Notification(NotificationType type, String title, String message, long duration) {
         switch (type) {
-            case Waring:
+            case WARING:
                 icon = MaterialIcons.get("warning");
                 break;
-            case Success:
+            case SUCCESS:
                 icon = MaterialIcons.get("check_circle");
                 break;
-            case Info:
+            case INFO:
             default:
                 icon = MaterialIcons.get("info");
                 break;
@@ -38,6 +39,8 @@ public class Notification {
         this.start = System.currentTimeMillis();
         this.xAnimation = new Animation(Easing.EaseOutExpo, 250);
         this.yAnimation = new Animation(Easing.EaseOutExpo, 300);
+        
+        width = Math.max(FontManager.NotoSans.of(15).getStringWidth(message) + 35, width);
     }
     
     public void drawNotification() {
@@ -45,9 +48,9 @@ public class Notification {
         
         //背景
         Runnable backGroundRunnable = () -> {
-            RenderUtils.drawRoundedRect(x, y, Width, Height, Radius, Colors.BackGround.color);
-            RenderUtils.drawRoundedRect(x + Width - Radius, y, Radius, Height, 0, Colors.BackGround.color);
-            RenderUtils.drawRoundedRect(x, y + Height - Radius, Width, Radius, 0, Colors.BackGround.color);
+            RenderUtils.drawRoundedRect(x, y, width, HEIGHT, RADIUS, Colors.BackGround.color);
+            RenderUtils.drawRoundedRect(x + width - RADIUS, y, RADIUS, HEIGHT, 0, Colors.BackGround.color);
+            RenderUtils.drawRoundedRect(x, y + HEIGHT - RADIUS, width, RADIUS, 0, Colors.BackGround.color);
         };
         backGroundRunnable.run();
         
@@ -55,7 +58,7 @@ public class Notification {
         FontManager.NotoSans.of(16).drawString(title, x + 23, y + 6.5F, Colors.Text.color);
         FontManager.NotoSans.of(15).drawString(message, x + 23, y + 21F, Colors.Text.color);
         
-        RenderUtils.drawRoundedRect(x - 0.1F, y + Height - .7F, Math.min((int) ((Width / duration) * getTime()), Width), 1.2f, 0, Colors.Active.color);
+        RenderUtils.drawRoundedRect(x - 0.1F, y + HEIGHT - .7F, Math.min((int) ((width / duration) * getTime()), width), 1.2f, 0, Colors.Active.color);
     }
     
     public boolean isFinished() {

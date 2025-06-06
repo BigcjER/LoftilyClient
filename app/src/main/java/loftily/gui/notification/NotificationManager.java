@@ -29,7 +29,7 @@ public class NotificationManager implements ClientUtils {
             
             xAnim.run(notification.out ? 1 : 0);
             yAnim.run(index * 60);
-            notification.x = sr.getScaledWidth() - (notification.Width * xAnim.getValuef());
+            notification.x = sr.getScaledWidth() - (notification.width * xAnim.getValuef());
             notification.y = sr.getScaledHeight() - 50 - yAnim.getValuef();
             index++;
             
