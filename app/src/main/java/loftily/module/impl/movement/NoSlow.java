@@ -50,12 +50,14 @@ public class NoSlow extends Module {
     private final NumberValue bowStrafe = new NumberValue("BowStrafe",0.2f,0.0f,1.0f,0.01f);
 
     public Item getUseItem(){
-        return mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
+        if(mc.player.isHandActive()) {
+            return mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
+        }else return null;
     }
 
     @EventHandler
     public void onMotion(MotionEvent event){
-        if(mc.player == null || !mc.player.isHandActive()) return;
+        if(mc.player == null || !mc.player.isHandActive() || getUseItem() == null) return;
 
         if(getUseItem() instanceof ItemSword || getUseItem() instanceof ItemShield) {
             blockingMode.getValue().forEach(
@@ -131,6 +133,8 @@ public class NoSlow extends Module {
 
     @EventHandler
     public void onSlowDown(ItemSlowDownEvent event) {
+        if(getUseItem() == null)return;
+
         if(getUseItem() instanceof ItemShield){
             event.setForwardMultiplier(blockingForward.getValue().floatValue());
             event.setStrafeMultiplier(blockingStrafe.getValue().floatValue());

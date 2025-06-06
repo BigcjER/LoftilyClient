@@ -37,6 +37,7 @@ public class TargetsHandler extends Handler {
                 .filter(entity -> entity instanceof EntityLivingBase)
                 .map(entity -> (EntityLivingBase) entity)
                 .filter(entity -> entity != mc.player)
+                .filter(entityLivingBase -> entityLivingBase.deathTime <= 0)
                 .filter(entity -> (!teams.isToggled() || !teams.isInTeam(entity)))
                 .filter(entity -> (!antiBot.isToggled() || !antiBot.isBot(entity)))
                 .filter(entityLivingBase -> !(entityLivingBase instanceof EntityArmorStand))
