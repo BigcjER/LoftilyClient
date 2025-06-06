@@ -61,63 +61,6 @@ public class RotationUtils implements ClientUtils {
         );
     }
 
-    public static Rotation findBestRotationMultiCriteria(Entity player, Entity target) {
-        AxisAlignedBB targetBB = target.getBox();
-
-        Vec3d[] points = new Vec3d[]{
-                new Vec3d((targetBB.minX + targetBB.maxX) / 2, (targetBB.minY + targetBB.maxY) / 2, (targetBB.minZ + targetBB.maxZ) / 2),
-                new Vec3d(targetBB.minX, targetBB.minY, targetBB.minZ),
-                new Vec3d(targetBB.minX, targetBB.minY, targetBB.maxZ),
-                new Vec3d(targetBB.minX, targetBB.maxY, targetBB.minZ),
-                new Vec3d(targetBB.minX, targetBB.maxY, targetBB.maxZ),
-                new Vec3d(targetBB.maxX, targetBB.minY, targetBB.minZ),
-                new Vec3d(targetBB.maxX, targetBB.minY, targetBB.maxZ),
-                new Vec3d(targetBB.maxX, targetBB.maxY, targetBB.minZ),
-                new Vec3d(targetBB.maxX, targetBB.maxY, targetBB.maxZ)
-        };
-
-        Vec3d eyePos = player.getPositionEyes(1.0F);
-        float currentYaw = player.rotationYaw;
-        float currentPitch = player.rotationPitch;
-
-        Rotation bestRotation = null;
-        double bestScore = Double.NEGATIVE_INFINITY;
-
-        // 权重设置（可调）
-        double weightAngle = 0.3;
-        double weightDistance = 0.1;
-        double weightHeight = 0.6;
-
-        for (Vec3d point : points) {
-            if (player.world.rayTraceBlocks(eyePos, point) == null) {
-                Rotation rot = toRotation(point, player);
-
-                double yawDiff = MathHelper.wrapAngleTo180_float(rot.yaw - currentYaw);
-                double pitchDiff = MathHelper.wrapAngleTo180_float(rot.pitch - currentPitch);
-                double angleDiff = Math.sqrt(yawDiff * yawDiff + pitchDiff * pitchDiff);
-
-                double distance = eyePos.distanceTo(point);
-                double heightDiff = Math.abs(point.yCoord - eyePos.yCoord);
-
-                // 归一化方法（简单示例，你可以用更复杂的方法）
-                // 角度差和距离越小越好，转换成得分时用负值
-                double angleScore = -angleDiff;
-                double distanceScore = -distance;
-                double heightScore = -heightDiff;
-
-                // 计算总分
-                double score = weightAngle * angleScore + weightDistance * distanceScore + weightHeight * heightScore;
-
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestRotation = rot;
-                }
-            }
-        }
-
-        return bestRotation;
-    }
-
     public static Rotation findBestRotationSimulatedAnnealing(Entity player, Entity target) {
         AxisAlignedBB targetBB = target.getBox();
 

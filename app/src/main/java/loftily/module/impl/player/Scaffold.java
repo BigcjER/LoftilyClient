@@ -11,6 +11,7 @@ import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
 import loftily.utils.block.BlockUtils;
+import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
 import loftily.utils.player.MoveUtils;
@@ -34,6 +35,7 @@ import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -70,6 +72,7 @@ public class Scaffold extends Module {
             new StringMode("Normal"),
             new StringMode("Round45") ,
             new StringMode("Sexy"),
+            new StringMode("Optimal"),
             new StringMode("None")
     );
     private final ModeValue rotationTiming = new ModeValue("RotationTiming","Normal",this,
@@ -231,6 +234,12 @@ public class Scaffold extends Module {
                         Math.round(rotation.yaw / 45f) * 45f,
                         rotation.pitch
                 );
+                break;
+            case "Box":
+                Vec3d c2 = Objects.requireNonNull(blockPos.getState()).getSelectedBoundingBox(mc.world,blockPos).getCenter().addVector(
+                        directionVec.xCoord * 0.5, directionVec.yCoord * 0.5, directionVec.zCoord * 0.5
+                );
+                rotation = RotationUtils.toRotation(c2, mc.player);
                 break;
         }
 

@@ -3,6 +3,11 @@ package loftily.utils.player;
 import loftily.utils.client.ClientUtils;
 
 public class MoveUtils implements ClientUtils {
+
+    public static float getSpeed(float motionX, float motionZ){
+        return (float) Math.sqrt(motionX * motionX + motionZ * motionZ);
+    }
+
     public static double getDirection(float rotationYaw, double moveForward, double moveStrafing) {
         if (moveForward < 0F) rotationYaw += 180F;
         

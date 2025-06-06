@@ -3,6 +3,7 @@ package loftily.module.impl.world;
 import loftily.event.impl.packet.PacketSendEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.player.motion.MoveEvent;
+import loftily.event.impl.render.Render2DEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.handlers.impl.RotationHandler;
 import loftily.module.Module;
@@ -26,7 +27,9 @@ import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BossInfo;
 
+import java.awt.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -35,6 +38,7 @@ import java.util.Objects;
 public class BedAura extends Module {
     private final ModeValue mode = new ModeValue("Mode","Vanilla",this,new StringMode("Vanilla"),
             new StringMode("Matrix"));
+    private final BooleanValue debug = new BooleanValue("Debug",false);
     private final NumberValue range = new NumberValue("Range", 3, 0, 8, 0.1);
     private final ModeValue breakmode = new ModeValue("BreakMode", "Normal",this,new StringMode("Normal"),new StringMode("Packet"));
     private final BooleanValue swing = new BooleanValue("Swing", true);
@@ -89,6 +93,13 @@ public class BedAura extends Module {
     }
 
     @EventHandler
+    public void onRender2D(Render2DEvent event) {
+        if(debug.getValue() && target != null){
+            mc.fontRendererObj.drawString("BlockDamage:" + mc.playerController.curBlockDamageMP, 500,250 ,new Color(255,255,255,255).getRGB());
+        }
+    }
+
+    @EventHandler
     public void onUpdate(LivingUpdateEvent event) {
         if (rotationValue.getValue() && rotation != null) {
             RotationHandler.setClientRotation(rotation,2,2,moveFixMode.getValueByName());
@@ -118,7 +129,7 @@ public class BedAura extends Module {
                     mc.player.swingArm(EnumHand.MAIN_HAND);
                 }
                 if (rotationValue.getValue()) {
-                    rotation = RotationUtils.getBlockRotation(target);
+                    rotation = RotationUtils.getBlockRotation(target).fixedSensitivity(0);
                 }
                 switch (breakmode.getValueByName()) {
                     case "Normal":
@@ -159,7 +170,7 @@ public class BedAura extends Module {
                     mc.player.swingArm(EnumHand.MAIN_HAND);
                 }
                 if (rotationValue.getValue()) {
-                    rotation = RotationUtils.getBlockRotation(target);
+                    rotation = RotationUtils.getBlockRotation(target).fixedSensitivity(0);
                 }
                 switch (breakmode.getValue().getName()) {
                     case "Normal":

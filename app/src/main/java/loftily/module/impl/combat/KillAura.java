@@ -5,6 +5,7 @@ import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.render.Render3DEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
+import loftily.event.impl.world.UpdateEvent;
 import loftily.handlers.impl.RotationHandler;
 import loftily.handlers.impl.TargetsHandler;
 import loftily.module.Module;
@@ -27,14 +28,18 @@ import lombok.NonNull;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketAnimation;
+import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.network.play.client.CPacketUseEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.input.Keyboard;
 
@@ -95,9 +100,9 @@ public class KillAura extends Module {
             new StringMode("LockCenter"),
             new StringMode("LockHead"),
             new StringMode("NearestCenter"),
+            new StringMode("Lower"),
             new StringMode("Normal"),
             new StringMode("Advance"),
-            new StringMode("Advance2"),
             new StringMode("None"));
     private final RangeSelectionNumberValue yawTurnSpeed = new RangeSelectionNumberValue("YawTurnSpeed", 100, 150, 0, 360, 0.1);
     private final RangeSelectionNumberValue pitchTurnSpeed = new RangeSelectionNumberValue("PitchTurnSpeed", 100, 150, 0, 360, 0.1);
@@ -172,6 +177,27 @@ public class KillAura extends Module {
             case "LockCenter":
                 center = target.getBox().lerpWith(0.5, 0.5, 0.5);
                 break;
+            case "Lower":
+                for (double x = 0.4; x <= 0.6; x += 0.1) {
+                    for (double y = 0.1; y <= 0.6; y += 0.1) {
+                        for (double z = 0.4; z <= 0.6; z += 0.1) {
+                            Vec3d preCenter = target.getBox().lerpWith(x, y, z);
+
+                            if(rayCast.getValue() && !rayCastThroughWalls.getValue()){
+                                Rotation rotation = RotationUtils.toRotation(preCenter,mc.player);
+                                Entity entity = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (e -> e instanceof EntityLivingBase));
+                                if(entity == null || (entity != target && rayCastOnlyTarget.getValue())) continue;
+                            }
+                            if (CalculateUtils.isVisible(preCenter) || throughWallsAim.getValue()) {
+                                if (center == null || RotationUtils.getRotationDifference(RotationUtils.toRotation(preCenter, mc.player), RotationHandler.getRotation()) < RotationUtils.getRotationDifference(RotationUtils.toRotation(center, mc.player), RotationHandler.getRotation())
+                                || mc.player.getEyes().distanceTo(preCenter) < mc.player.getEyes().distanceTo(center)) {
+                                    center = preCenter;
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
             case "LockHead":
                 center = target.getBox().lerpWith(0.5, 0.7, 0.5);
                 break;
@@ -184,6 +210,11 @@ public class KillAura extends Module {
                         for (double z = 0.2; z <= 0.8; z += 0.1) {
                             Vec3d preCenter = target.getBox().lerpWith(x, y, z);
 
+                            if(rayCast.getValue() && !rayCastThroughWalls.getValue()){
+                                Rotation rotation = RotationUtils.toRotation(preCenter,mc.player);
+                                Entity entity = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (e -> e instanceof EntityLivingBase));
+                                if(entity == null || (entity != target && rayCastOnlyTarget.getValue())) continue;
+                            }
                             if (CalculateUtils.isVisible(preCenter) || throughWallsAim.getValue()) {
                                 if (center == null || RotationUtils.getRotationDifference(RotationUtils.toRotation(preCenter, mc.player), RotationHandler.getRotation()) < RotationUtils.getRotationDifference(RotationUtils.toRotation(center, mc.player), RotationHandler.getRotation())) {
                                     center = preCenter;
@@ -209,9 +240,6 @@ public class KillAura extends Module {
             case "Advance":
                 currentRotation = RotationUtils.findBestRotationSimulatedAnnealing(mc.player,target);
                 break;
-            case "Advance2":
-                currentRotation = RotationUtils.findBestRotationMultiCriteria(mc.player,target);
-                break;
         }
         
         return currentRotation;
@@ -226,6 +254,13 @@ public class KillAura extends Module {
         if (mc.player == null) return;
 
         target = getTarget();
+
+        if (autoBlockMode.is("MatrixDamage") && canBlock() && target != null) {
+            if (canAttackTimes <= 0) {
+            } else {
+                mc.gameSettings.keyBindUseItem.setPressed(false);
+            }
+        }
 
         if (attackTimeMode.is("Tick")) {
             attackTarget(target);
@@ -262,7 +297,7 @@ public class KillAura extends Module {
     public void onRender3D(Render3DEvent event) {
         if (mc.player == null) return;
 
-        if (attackTimer.hasTimeElapsed(attackDelay) && target != null && (fastOnFirstHit.getValue() || CalculateUtils.getClosetDistance(mc.player, target) <= swingRange.getValue() + 0.1)) {
+        if (attackTimer.hasTimeElapsed(attackDelay) && target != null && ((fastOnFirstHit.getValue() && canAttackTimes <= 1) || CalculateUtils.getClosetDistance(mc.player, target) <= swingRange.getValue() + 0.1)) {
             canAttackTimes++;
             attackDelay = calculateDelay();
             attackTimer.reset();

@@ -14,12 +14,15 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.SPacketDestroyEntities;
 import net.minecraft.network.play.server.SPacketSpawnPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@ModuleInfo(name = "AntiBot", category = ModuleCategory.COMBAT)
+import static com.viaversion.viaversion.util.ChatColorUtil.stripColor;
+
+@ModuleInfo(name = "AntiBot",category = ModuleCategory.COMBAT)
 public class AntiBot extends Module {
     private final BooleanValue tabValue = new BooleanValue("Tab",false);
     private final BooleanValue spawnValue = new BooleanValue("Spawn",false);
@@ -32,6 +35,7 @@ public class AntiBot extends Module {
     private final BooleanValue villagerValue = new BooleanValue("Villager",false);
 
     private final List<Integer> spawnInCombat = new ArrayList<>();
+    private final List<Integer> hasRemovedEntities = new ArrayList<>();
 
     @EventHandler
     public void onWorld(WorldLoadEvent event){
@@ -45,16 +49,22 @@ public class AntiBot extends Module {
 
     public void clear(){
         spawnInCombat.clear();
+        hasRemovedEntities.clear();
     }
 
     @EventHandler
     public void onPacket(PacketReceiveEvent event){
         Packet packet = event.getPacket();
         if(packet instanceof SPacketSpawnPlayer){
-            if(spawnValue.getValue()){
+            if(spawnValue.getValue() && !hasRemovedEntities.contains(((SPacketSpawnPlayer) packet).getEntityID())){
                 if(!spawnInCombatValue.getValue() || CombatHandler.inCombat){
                     spawnInCombat.add(((SPacketSpawnPlayer) packet).getEntityID());
                 }
+            }
+        }else if(packet instanceof SPacketDestroyEntities){
+            int[] entityIDz = ((SPacketDestroyEntities) packet).getEntityIDs();
+            for(int entityID : entityIDz){
+                hasRemovedEntities.add(entityID);
             }
         }
     }
