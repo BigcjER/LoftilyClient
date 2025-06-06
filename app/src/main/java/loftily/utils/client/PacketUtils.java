@@ -14,4 +14,17 @@ public class PacketUtils implements ClientUtils {
         else
             mc.player.connection.sendPacketNoEvent(packet);
     }
+    
+    public static void receivePacket(Packet<?> packet) {
+        sendPacket(packet, true);
+    }
+    
+    public static void receivePacket(Packet<?> packet, boolean callEvent) {
+        if (mc.player == null) return;
+        if (callEvent)
+            mc.player.connection.getNetworkManager().receivePacket(packet);
+        else {
+            mc.player.connection.getNetworkManager().receivePacketNoEvent(packet);
+        }
+    }
 }
