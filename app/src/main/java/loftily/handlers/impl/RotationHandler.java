@@ -5,18 +5,14 @@ import loftily.event.impl.player.RotationEvent;
 import loftily.event.impl.player.motion.JumpEvent;
 import loftily.event.impl.player.motion.StrafeEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
-import loftily.event.impl.world.UpdateEvent;
 import loftily.handlers.Handler;
 import loftily.utils.math.Rotation;
-import loftily.utils.player.MoveUtils;
 import loftily.utils.player.RotationUtils;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.math.MathHelper;
-
-import java.util.Objects;
 
 import static java.lang.Math.round;
 import static net.minecraft.util.math.MathHelper.abs;
@@ -28,34 +24,48 @@ public class RotationHandler extends Handler {
     public static Rotation serverRotation = null;
     public static int keepRotationTicks = 0;
     public static int backRotationTicks = 0;
-    public static int moveFixStatus = 0;
+    public static MoveFix moveFix = MoveFix.NONE;
 
     public static void setClientRotation(Rotation setRotation, Integer keepTicks, Integer backTicks,String moveFix) {
+        MoveFix moveFixEnum = MoveFix.NONE;
+        
+        switch (moveFix) {
+            case "Strict":
+                moveFixEnum = MoveFix.STRICT;
+                break;
+            case "Silent":
+                moveFixEnum = MoveFix.SILENT;
+                break;
+            case "45Angle":
+                moveFixEnum = MoveFix.ANGLE_45;
+                break;
+        }
+        
+        RotationHandler.setClientRotation(setRotation, keepTicks, backTicks, moveFixEnum);
+    }
+    
+    public static void setClientRotation(Rotation setRotation, Integer keepTicks, Integer backTicks, MoveFix moveFix) {
         if (setRotation.pitch > 90 || setRotation.pitch < -90) {
             return;
         }//legit pitch
-
+        
         clientRotation = setRotation;
         keepRotationTicks = keepTicks;
         backRotationTicks = backTicks;
-        if(Objects.equals(moveFix, "Strict")){
-            moveFixStatus = 1;
-        }else if(Objects.equals(moveFix, "Silent")){
-            moveFixStatus = 2;
-        }else if(Objects.equals(moveFix, "45Angle")){
-            moveFixStatus = 3;
-        }
+        
+        RotationHandler.moveFix = moveFix;
+        
     }
-
+    
     @EventHandler
     public void onStrafe(StrafeEvent event) {
         if(clientRotation == null)return;
-        if(moveFixStatus > 0){
+        if (moveFix != MoveFix.NONE) {
             event.setYaw(clientRotation.yaw);
-            if(moveFixStatus >= 2){
+            if (moveFix.ordinal() >= MoveFix.SILENT.ordinal()) {
                 EntityPlayer player = mc.player;
-
-                float playerDirection = moveFixStatus == 2 ? player.rotationYaw : Math.round(player.rotationYaw / 45f) * 45f;
+                
+                float playerDirection = moveFix == MoveFix.SILENT ? player.rotationYaw : Math.round(player.rotationYaw / 45f) * 45f;
                 float diff = (playerDirection - clientRotation.yaw) * (float) (Math.PI / 180);
 
                 float calcForward;
@@ -85,7 +95,7 @@ public class RotationHandler extends Handler {
     public void onJump(JumpEvent event) {
         if(mc.player == null || mc.world == null)return;
         if(clientRotation == null)return;
-        if(moveFixStatus > 0){
+        if (moveFix != MoveFix.NONE) {
             event.setMovementYaw(clientRotation.yaw);
         }
     }
@@ -93,7 +103,7 @@ public class RotationHandler extends Handler {
     @EventHandler
     public void onUpdate(LivingUpdateEvent event) {
         if (clientRotation == null) {
-            moveFixStatus = 0;
+            moveFix = MoveFix.NONE;
             return;
         }
 
@@ -141,5 +151,12 @@ public class RotationHandler extends Handler {
 
     public static Rotation getRotation() {
         return serverRotation == null ? new Rotation(mc.player.rotationYaw,mc.player.rotationPitch) : serverRotation;
+    }
+    
+    public enum MoveFix {
+        NONE,
+        STRICT,
+        SILENT,
+        ANGLE_45
     }
 }

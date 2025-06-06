@@ -1,5 +1,6 @@
 package loftily.utils.math;
 
+import loftily.handlers.impl.RotationHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Math.round;
-import static loftily.handlers.impl.RotationHandler.moveFixStatus;
+import static loftily.handlers.impl.RotationHandler.moveFix;
 import static loftily.utils.client.ClientUtils.mc;
 import static net.minecraft.util.math.MathHelper.abs;
 import static net.minecraft.util.math.MathHelper.ceil;
@@ -19,7 +20,7 @@ import static net.minecraft.util.math.MathHelper.ceil;
 public class CalculateUtils {
 
     public static float getMoveFixForward(Rotation rotation) {
-        float playerDirection = moveFixStatus == 2 ? mc.player.rotationYaw : Math.round(mc.player.rotationYaw / 45f) * 45f;
+        float playerDirection = moveFix == RotationHandler.MoveFix.SILENT ? mc.player.rotationYaw : Math.round(mc.player.rotationYaw / 45f) * 45f;
         float diff = (playerDirection - rotation.yaw) * (float) (Math.PI / 180);
 
         float calcForward;
