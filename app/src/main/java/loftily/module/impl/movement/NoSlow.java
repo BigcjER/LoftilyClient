@@ -13,6 +13,7 @@ import lombok.NonNull;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.item.*;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
+import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.network.play.server.SPacketCombatEvent;
 import net.minecraft.util.EnumFacing;
@@ -77,7 +78,7 @@ public class NoSlow extends Module {
                                     }
                                     break;
                                 case "Extra":
-                                    PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(new BlockPos(-1,-1,-1), EnumFacing.DOWN,mc.player.getActiveHand(),0f,0f,0f));
+                                    PacketUtils.sendPacket(new CPacketPlayerTryUseItem(mc.player.getActiveHand()));
                                     break;
                             }
                         }

@@ -701,13 +701,14 @@ public class Block
         NoSlowBreak noSlowBreak = Client.INSTANCE.getModuleManager().get(NoSlowBreak.class);
         Minecraft mc = Minecraft.getMinecraft();
 
-        if(noSlowBreak.noSlowAir.getValue() && !mc.player.onGround){
-            f /= 5.0F;
+        if(noSlowBreak.isToggled()) {
+            if (noSlowBreak.noSlowAir.getValue() && !mc.player.onGround) {
+                f /= 5.0F;
+            }
+            if (noSlowBreak.noSlowWater.getValue() && mc.player.isInsideOfMaterial(Material.WATER) && !EnchantmentHelper.getAquaAffinityModifier(player)) {
+                f /= 5.0F;
+            }
         }
-        if(noSlowBreak.noSlowWater.getValue() && mc.player.isInsideOfMaterial(Material.WATER) && !EnchantmentHelper.getAquaAffinityModifier(player)){
-            f /= 5.0F;
-        }
-
         if (f < 0.0F)
         {
             return 0.0F;
