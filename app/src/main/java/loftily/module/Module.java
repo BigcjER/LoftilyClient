@@ -14,6 +14,8 @@ import lombok.Setter;
 @Getter
 public abstract class Module extends AbstractModule {
     private boolean defaultToggled, canBeToggled;
+    @Setter
+    private AutoDisableType autoDisableType;
     private ModuleCategory moduleCategory;
     private boolean toggled;
     @Setter
@@ -30,6 +32,7 @@ public abstract class Module extends AbstractModule {
             this.moduleCategory = moduleInfo.category();
             this.defaultToggled = moduleInfo.defaultToggled();
             this.canBeToggled = moduleInfo.canBeToggled();
+            this.autoDisableType = moduleInfo.autoDisable();
         }
     }
     

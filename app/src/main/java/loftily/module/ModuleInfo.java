@@ -17,4 +17,6 @@ public @interface ModuleInfo {
     boolean defaultToggled() default false;
     
     boolean canBeToggled() default true;
+    
+    AutoDisableType autoDisable() default AutoDisableType.NONE;
 }
