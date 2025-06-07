@@ -54,6 +54,53 @@ public class RenderUtils implements ClientUtils {
         GlStateManager.disableBlend();
     }
     
+    public static void drawArc(float centerX, float centerY, float radius,
+                               float startAngleDegrees, float endAngleDegrees,
+                               float thickness, Color color) {
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(
+                GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
+        );
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
+        GL11.glLineWidth(thickness);
+        GlStateManager.color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F);
+        GL11.glBegin(GL11.GL_LINE_STRIP);
+        
+        
+        final float angleStepDegrees = 3.6f;
+        
+        float angleSweep = Math.abs(endAngleDegrees - startAngleDegrees);
+        int segments = (int) Math.ceil(angleSweep / angleStepDegrees);
+        //System.out.println(segments);
+        for (int i = 0; i <= segments; i++) {
+            float currentAngleDegrees = startAngleDegrees + i * angleStepDegrees;
+            if (currentAngleDegrees > endAngleDegrees) {
+                currentAngleDegrees = endAngleDegrees;
+            }
+            
+            double currentAngleRad = Math.toRadians(currentAngleDegrees);
+            float x = centerX + (float) (radius * Math.cos(currentAngleRad));
+            float y = centerY + (float) (radius * Math.sin(currentAngleRad));
+            GL11.glVertex2f(x, y);
+            
+            if (currentAngleDegrees == endAngleDegrees) break;
+        }
+        
+        double endAngleRad = Math.toRadians(endAngleDegrees);
+        float endX = centerX + (float) (radius * Math.cos(endAngleRad));
+        float endY = centerY + (float) (radius * Math.sin(endAngleRad));
+        GL11.glVertex2f(endX, endY);
+        GL11.glEnd();
+        
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+        resetColor();
+    }
+    
     public static void drawRectHW(int x, int y, int width, int height, Color color) {
         drawRect(x, y, x + width, y + height, color.getRGB());
     }
@@ -165,6 +212,8 @@ public class RenderUtils implements ClientUtils {
     }
     
     public static Pair<Integer, Integer> getMouse(ScaledResolution scaledResolution) {
+        if (mc.currentScreen == null) return new Pair<>(-1, -1);
+        
         int screenWidth = scaledResolution.getScaledWidth();
         int j1 = scaledResolution.getScaledHeight();
         final int mouseX = Mouse.getX() * screenWidth / mc.displayWidth;

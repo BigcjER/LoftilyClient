@@ -2,6 +2,7 @@ package net.minecraft.client.multiplayer;
 
 import io.netty.buffer.Unpooled;
 import loftily.Client;
+import loftily.event.impl.player.AttackEvent;
 import loftily.event.impl.player.ClickWindowEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCommandBlock;
@@ -33,8 +34,6 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
-
-import java.util.Objects;
 
 public class PlayerControllerMP
 {
@@ -521,6 +520,10 @@ public class PlayerControllerMP
      */
     public void attackEntity(EntityPlayer playerIn, Entity targetEntity)
     {
+        AttackEvent event = new AttackEvent(targetEntity);
+        Client.INSTANCE.getEventManager().call(event);
+        if (event.isCancelled()) return;
+        
         this.syncCurrentPlayItem();
         this.connection.sendPacket(new CPacketUseEntity(targetEntity));
 

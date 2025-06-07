@@ -16,6 +16,7 @@ import java.awt.*;
 public class Draggable implements ClientUtils {
     private final int margin;
     private final Runnable afterDrag;
+    @Getter
     private boolean isDragging = false;
     private int prevX = 0, prevY = 0;
     @Getter
@@ -64,7 +65,7 @@ public class Draggable implements ClientUtils {
         posY = Math.max(margin, Math.min(posY, screenHeight - height - margin));
     }
     
-    public void applyDragEffect(Runnable runnable) {
+    public void applyDragEffect(Runnable runnable, int offset) {
         dragEffectAnimation.run(isDragging ? 1 : 0);
         
         float scale = 1.0f - 0.08f * dragEffectAnimation.getValuef();
@@ -73,9 +74,9 @@ public class Draggable implements ClientUtils {
         
         if (!dragEffectAnimation.isFinished() || isDragging) {
             RenderUtils.drawRoundedRectOutline(
-                    posX,
+                    posX + offset,
                     posY,
-                    width,
+                    width - offset * 2,
                     height,
                     5,
                     0.8F,
@@ -92,6 +93,10 @@ public class Draggable implements ClientUtils {
         runnable.run();
         
         GL11.glPopMatrix();
+    }
+    
+    public void applyDragEffect(Runnable runnable) {
+        this.applyDragEffect(runnable, 0);
     }
     
     

@@ -2,10 +2,11 @@ package loftily.module.impl.combat;
 
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
+import loftily.Client;
+import loftily.event.impl.player.AttackEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.render.Render3DEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
-import loftily.event.impl.world.UpdateEvent;
 import loftily.handlers.impl.RotationHandler;
 import loftily.handlers.impl.TargetsHandler;
 import loftily.module.Module;
@@ -26,23 +27,17 @@ import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
 import lombok.NonNull;
 import net.lenni0451.lambdaevents.EventHandler;
-import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketAnimation;
-import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.network.play.client.CPacketUseEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.input.Keyboard;
 
@@ -259,10 +254,8 @@ public class KillAura extends Module {
         target = getTarget();
 
         if (autoBlockMode.is("MatrixDamage") && canBlock() && target != null) {
-            if (canAttackTimes <= 0) {
-            } else {
+            if (canAttackTimes > 0)
                 mc.gameSettings.keyBindUseItem.setPressed(false);
-            }
         }
 
         if (attackTimeMode.is("Tick")) {
@@ -468,6 +461,11 @@ public class KillAura extends Module {
                     if(!ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8)){
                         swing();
                     }
+                    
+                    AttackEvent event = new AttackEvent(target);
+                    Client.INSTANCE.getEventManager().call(event);
+                    if (event.isCancelled()) return;
+                    
                     PacketUtils.sendPacket(new CPacketUseEntity(bestTarget));
                     if(ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8)){
                         swing();
