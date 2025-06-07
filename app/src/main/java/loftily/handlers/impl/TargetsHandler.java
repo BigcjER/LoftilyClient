@@ -9,6 +9,7 @@ import loftily.module.impl.player.Blink;
 import loftily.utils.math.CalculateUtils;
 import lombok.Getter;
 import net.lenni0451.lambdaevents.EventHandler;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,23 +28,46 @@ public class TargetsHandler extends Handler {
                 .filter(entity -> CalculateUtils.getDistanceToEntity(entity, mc.player) < range && entity.getEntityId() != Blink.FAKE_ENTITY_ID)
                 .collect(Collectors.toList());
     }
-    
+
+    public static boolean canAdd(Entity target) {
+        Teams teams = Client.INSTANCE.getModuleManager().get(Teams.class);
+        AntiBot antiBot = Client.INSTANCE.getModuleManager().get(AntiBot.class);
+        if(!(target instanceof EntityLivingBase))return false;
+
+        if(target instanceof EntityPlayer){
+            if(((EntityPlayer) target).isSpectator()) {
+                return false;
+            }
+            if(!mc.player.canAttackPlayer((EntityPlayer) target)){
+                return false;
+            }
+        }
+
+        if(target instanceof EntityPlayerMP){
+            if(((EntityPlayerMP) target).isSpectator() || target.isSpectatedByPlayer((EntityPlayerMP) target) || ((EntityPlayerMP) target).isCreative()){
+                return false;
+            }
+        }
+
+        if(target.isDead){
+            return false;
+        }
+
+        return ((EntityLivingBase) target).getHealth() > 0
+                && target != mc.player && ((EntityLivingBase) target).deathTime <= 0 &&
+                (!teams.isToggled() || !teams.isInTeam((EntityLivingBase) target)) &&
+                (!antiBot.isToggled() || !antiBot.isBot((EntityLivingBase) target))
+                && !(target instanceof EntityArmorStand) && !((EntityLivingBase) target).isPlayerSleeping();
+    }
+
     @EventHandler(priority = 500)
     public void onTick(ClientTickEvent event) {
         if (mc.player == null || mc.world == null) return;
 
-        Teams teams = Client.INSTANCE.getModuleManager().get(Teams.class);
-        AntiBot antiBot = Client.INSTANCE.getModuleManager().get(AntiBot.class);
-
         List<EntityLivingBase> filteredTargets = mc.world.loadedEntityList.stream()
                 .filter(entity -> entity instanceof EntityLivingBase)
                 .map(entity -> (EntityLivingBase) entity)
-                .filter(entity -> entity != mc.player)
-                .filter(entityLivingBase -> entityLivingBase.deathTime <= 0)
-                .filter(entity -> (!teams.isToggled() || !teams.isInTeam(entity)))
-                .filter(entity -> (!antiBot.isToggled() || !antiBot.isBot(entity)))
-                .filter(entityLivingBase -> !(entityLivingBase instanceof EntityArmorStand))
-                .filter(entityLivingBase -> !(entityLivingBase instanceof EntityPlayer) || !((EntityPlayer) entityLivingBase).isSpectator())
+                .filter(TargetsHandler::canAdd)
                 .collect(Collectors.toList());
         
         if (targets.size() != filteredTargets.size()) {

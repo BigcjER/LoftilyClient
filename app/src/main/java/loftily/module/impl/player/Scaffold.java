@@ -519,7 +519,7 @@ public class Scaffold extends Module {
             }
         }
 
-        if(mc.playerController.processRightClickBlock(mc.player, mc.world, placePos, facing.getOpposite(), hitVec, hand) != EnumActionResult.FAIL) {
+        if(mc.playerController.processRightClickBlock(mc.player, mc.world, placePos, facing.getOpposite(), hitVec, hand) == EnumActionResult.SUCCESS) {
             mc.player.swingArm(hand);
         }
     }

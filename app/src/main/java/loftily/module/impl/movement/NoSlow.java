@@ -78,7 +78,7 @@ public class NoSlow extends Module {
                                     }
                                     break;
                                 case "Extra":
-                                    PacketUtils.sendPacket(new CPacketPlayerTryUseItem(mc.player.getActiveHand()));
+                                    PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(new BlockPos(-1,-1,-1), EnumFacing.DOWN,mc.player.getActiveHand(),0f,0f,0f));
                                     break;
                             }
                         }

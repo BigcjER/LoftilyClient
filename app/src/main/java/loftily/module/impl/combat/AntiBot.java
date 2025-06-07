@@ -106,7 +106,7 @@ public class AntiBot extends Module {
                 String targetName = stripColor(entity.getDisplayName().getFormattedText());
                 if (networkPlayerInfo.getDisplayName() != null) {
                     String netWorkName = stripColor(networkPlayerInfo.getDisplayName().getFormattedText());
-                    if (Objects.equals(targetName, netWorkName)) {
+                    if (netWorkName.contains(targetName)) {
                         return false;
                     }
                 }

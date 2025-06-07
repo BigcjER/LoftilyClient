@@ -2,8 +2,6 @@ package loftily.module.impl.combat;
 
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
-import loftily.Client;
-import loftily.event.impl.player.AttackEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.render.Render3DEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
@@ -31,7 +29,6 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketAnimation;
@@ -41,10 +38,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.input.Keyboard;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @ModuleInfo(name = "KillAura", key = Keyboard.KEY_R, category = ModuleCategory.COMBAT)
 public class KillAura extends Module {
@@ -64,7 +58,14 @@ public class KillAura extends Module {
             new StringMode("Packet"),
             new StringMode("NoPacket")
     );
-    private final RangeSelectionNumberValue CPSValue = new RangeSelectionNumberValue("CPS", 8, 15, 0, 20, 0.1);
+    private final ModeValue cpsMode = new ModeValue("CPSMode","Normal",this,
+            new StringMode("Normal"),
+            new StringMode("Gaussian"),
+            new StringMode("Jitter")
+    );
+    private final RangeSelectionNumberValue jitterPercent = new RangeSelectionNumberValue("JitterPercent", 0.1, 0.5, 0.0, 1.0, 0.01);
+    private final NumberValue gaussianSigma = new NumberValue("Gaussian-Sigma",2.5,0.0,10.0,0.01).setVisible(()->cpsMode.is("Gaussian"));
+    private final RangeSelectionNumberValue cpsValue = new RangeSelectionNumberValue("CPS", 8, 15, 0, 20, 0.1);
     private final BooleanValue fastOnFirstHit = new BooleanValue("FastOnFirstHit", false);
     private final ModeValue noDoubleHit = new ModeValue("NoDoubleHit", "Cancel", this, new StringMode("Cancel"), new StringMode("NextHit"), new StringMode("None"));
     private final NumberValue hurtTime = new NumberValue("HurtTime", 0, 0, 20);
@@ -125,6 +126,7 @@ public class KillAura extends Module {
     public EntityLivingBase target = null;
     private int attackDelay = 0;
     private int canAttackTimes = 0;
+    private int lastDelay;
     
     {
         rotationRange = new NumberValue("RotationRange", 6, 0, 10, 0.1);
@@ -247,15 +249,17 @@ public class KillAura extends Module {
     public void onLivingUpdate(LivingUpdateEvent event) {
         if (mc.player == null || rotationMode.is("None")) return;
 
+        target = getTarget();
+
         rotation(target);
 
         if (mc.player == null) return;
 
-        target = getTarget();
-
         if (autoBlockMode.is("MatrixDamage") && canBlock() && target != null) {
-            if (canAttackTimes > 0)
+            if (canAttackTimes <= 0) {
+            } else {
                 mc.gameSettings.keyBindUseItem.setPressed(false);
+            }
         }
 
         if (attackTimeMode.is("Tick")) {
@@ -284,6 +288,7 @@ public class KillAura extends Module {
     
     @Override
     public void onDisable() {
+        lastDelay = 0;
         target = null;
         targets.clear();
         mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
@@ -320,8 +325,10 @@ public class KillAura extends Module {
     private EntityLivingBase getTarget() {
         if (mc.player == null) return null;
 
-        if(target != null && target instanceof EntityPlayer && ((EntityPlayer) target).isSpectator()){
-            target = null;
+        if(target != null){
+            if(!TargetsHandler.canAdd(target)) {
+                target = null;
+            }
         }
 
         if (target != null) {
@@ -366,7 +373,7 @@ public class KillAura extends Module {
         targets.sort((Comparator.comparingDouble(entityLivingBase -> Math.max(0,CalculateUtils.getClosetDistance(mc.player, entityLivingBase) - attackRange.getValue()))));
         
         for (EntityLivingBase entity : targets) {
-            if (entity == mc.player || entity == null || (entity instanceof EntityPlayer && ((EntityPlayer) entity).isSpectator())) continue;
+            if (entity == mc.player || entity == null || !TargetsHandler.canAdd(entity)) continue;
             targetTimer.reset();
             return entity;
         }
@@ -422,21 +429,13 @@ public class KillAura extends Module {
         }else {
             mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
         }
-        
-        if (target.hurtTime > hurtTime.getValue()) return;
-        
-        if (target.getHealth() <= 0) {
-            this.target = null;
-            canAttackTimes = 0;
-            return;
-        }
 
         if(noInventory.getValue() && mc.currentScreen instanceof GuiInventory) {
             return;
         }
 
         if (Objects.equals(noDoubleHit.getValue().getName(), "Cancel")) {
-            if (canAttackTimes > 1) {
+            if (canAttackTimes >= 2) {
                 canAttackTimes = 1;
             }
         }
@@ -454,6 +453,14 @@ public class KillAura extends Module {
             return;
         }
 
+        if (((EntityLivingBase)bestTarget).hurtTime > hurtTime.getValue()) return;
+
+        if (!TargetsHandler.canAdd(bestTarget)) {
+            this.target = null;
+            canAttackTimes = 1;
+            return;
+        }
+
         while (canAttackTimes > 0) {
             canAttackTimes--;
             if (CalculateUtils.getClosetDistance(mc.player, (EntityLivingBase) bestTarget) <= attackRange.getValue()) {
@@ -461,11 +468,6 @@ public class KillAura extends Module {
                     if(!ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8)){
                         swing();
                     }
-                    
-                    AttackEvent event = new AttackEvent(target);
-                    Client.INSTANCE.getEventManager().call(event);
-                    if (event.isCancelled()) return;
-                    
                     PacketUtils.sendPacket(new CPacketUseEntity(bestTarget));
                     if(ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8)){
                         swing();
@@ -503,7 +505,21 @@ public class KillAura extends Module {
     }
 
     private int calculateDelay() {
-        return  (1000 /  (int) Math.round(RandomUtils.randomDouble(CPSValue.getFirst(), CPSValue.getSecond())));
+        Random random = new Random();
+        int cps = (int) Math.round(RandomUtils.randomDouble(cpsValue.getFirst(), cpsValue.getSecond()));
+        int basicDelay = (1000 / (cps == 0 ? 1 : cps));
+        switch (cpsMode.getValueByName()) {
+            case "Normal":
+                return basicDelay;
+            case "Gaussian":
+                return (int) (1000 / (Math.sqrt(gaussianSigma.getValue()) * random.nextGaussian() + (float)cps));
+            case "Jitter":
+                double jitterAmount = basicDelay * RandomUtils.randomDouble(jitterPercent.getFirst(),jitterPercent.getSecond());
+
+                double jitter = (random.nextDouble() * 2 - 1) * jitterAmount;
+                return (int) (basicDelay + (long) jitter);
+        }
+        return 200;
     }
 
     private boolean canBlock(){
