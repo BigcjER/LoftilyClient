@@ -104,8 +104,11 @@ public class TargetHUD extends Module implements IDraggable {
         double roundedHealth = MathUtils.round(health, 1);
         double roundedMaxHealth = MathUtils.round(maxHealth, 1);
         double myHealth = mc.player.getHealth() + mc.player.getAbsorptionAmount();
+        String name = target.getName();
+        String healthText = String.format("%s/%s", roundedHealth, roundedMaxHealth);
+        int width = Math.max(WIDTH, Math.max(FontManager.NotoSans.of(18).getWidth(name), FontManager.NotoSans.of(16).getWidth(healthText)) + 10);
         
-        Runnable backGround = () -> RenderUtils.drawRoundedRect(x, y, WIDTH, HEIGHT, 3, Colors.BackGround.color);
+        Runnable backGround = () -> RenderUtils.drawRoundedRect(x, y, width, HEIGHT, 3, Colors.BackGround.color);
         
         getDraggable().applyDragEffect(() -> {
             //计算Animation
@@ -124,7 +127,7 @@ public class TargetHUD extends Module implements IDraggable {
                             translateY = (event.getScaledResolution().getScaledHeight() - y) * (1 - inOutAnimation.getValuef());
                             break;
                         case "Left":
-                            translateX = -(x + (double) WIDTH / 2) * (1 - inOutAnimation.getValue());
+                            translateX = -(x + (double) width / 2) * (1 - inOutAnimation.getValue());
                             break;
                         case "Right":
                             translateX = (event.getScaledResolution().getScaledWidth() - x) * (1 - inOutAnimation.getValuef());
@@ -135,15 +138,15 @@ public class TargetHUD extends Module implements IDraggable {
                 }
                 case "ScaleIn": {
                     if (!clip.getValue()) {
-                        GlStateManager.translate((x + (double) WIDTH / 2) * (1 - inOutAnimation.getValue()), (y + (double) HEIGHT / 2) * (1 - inOutAnimation.getValue()), 0);
+                        GlStateManager.translate((x + (double) width / 2) * (1 - inOutAnimation.getValue()), (y + (double) HEIGHT / 2) * (1 - inOutAnimation.getValue()), 0);
                         GlStateManager.scale(inOutAnimation.getValue(), inOutAnimation.getValue(), 0);
                     } else {
                         inOutAnimation.setEasing(in ? Easing.EaseInCubic : Easing.EaseOutCubic);//更换一个缓动系数小的Ease让动画看起来更好
                         RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(
-                                x + (WIDTH / 2F * (1 - inOutAnimation.getValuef())),
+                                x + (width / 2F * (1 - inOutAnimation.getValuef())),
                                 y + (HEIGHT / 2F * (1 - inOutAnimation.getValuef())),
-                                WIDTH * inOutAnimation.getValuef(),
-                                HEIGHT * inOutAnimation.getValuef(), 3, Colors.BackGround.color));
+                                width * inOutAnimation.getValuef(),
+                                width * inOutAnimation.getValuef(), 3, Colors.BackGround.color));
                     }
                     break;
                 }
@@ -167,9 +170,9 @@ public class TargetHUD extends Module implements IDraggable {
             
             
             //Text
-            FontManager.NotoSans.of(18).drawString(target.getName(), x + headSize + 11, y + 5, Colors.Text.color);
+            FontManager.NotoSans.of(18).drawString(name, x + headSize + 11, y + 5, Colors.Text.color);
             
-            FontManager.NotoSans.of(16).drawString(String.format("%s/%s", roundedHealth, roundedMaxHealth), x + headSize + 11, y + 18, Colors.Text.color.darker());
+            FontManager.NotoSans.of(16).drawString(healthText, x + headSize + 11, y + 18, Colors.Text.color.darker());
             if (health != myHealth) {
                 String text = health <= myHealth ? "Winning" : "Losing";
                 
@@ -182,7 +185,7 @@ public class TargetHUD extends Module implements IDraggable {
             float endAngle = (float) (startAngle + 360F * (health / maxHealth));
             healthArcAnimation.run(endAngle);
             RenderUtils.drawArc(
-                    getDraggable().getPosX() + WIDTH - 20,
+                    getDraggable().getPosX() + width - 20,
                     getDraggable().getPosY() + HEIGHT / 2f,
                     headSize / 2F - 3,
                     startAngle,
