@@ -147,7 +147,7 @@ public class TargetHUD extends Module implements IDraggable {
                                 x + (width / 2F * (1 - inOutAnimation.getValuef())),
                                 y + (HEIGHT / 2F * (1 - inOutAnimation.getValuef())),
                                 width * inOutAnimation.getValuef(),
-                                width * inOutAnimation.getValuef(), 3, Colors.BackGround.color));
+                                HEIGHT * inOutAnimation.getValuef(), 3, Colors.BackGround.color));
                     }
                     break;
                 }
