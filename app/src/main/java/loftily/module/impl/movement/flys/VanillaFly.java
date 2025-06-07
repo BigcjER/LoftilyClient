@@ -1,6 +1,7 @@
 package loftily.module.impl.movement.flys;
 
 import loftily.event.impl.world.UpdateEvent;
+import loftily.module.impl.movement.Fly;
 import loftily.utils.player.MoveUtils;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
@@ -8,7 +9,7 @@ import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.settings.GameSettings;
 
-public class VanillaFly extends Mode {
+public class VanillaFly extends Mode<Fly> {
 
     public VanillaFly() {
         super("Vanilla");

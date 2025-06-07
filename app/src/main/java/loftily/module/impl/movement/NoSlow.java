@@ -26,7 +26,8 @@ public class NoSlow extends Module {
 
     private final MultiBooleanValue blockingMode = new MultiBooleanValue("BlockingPacketMode")
             .add("Switch", false)
-            .add("Extra",false)
+            .add("Extra1",false)
+            .add("Extra2",false)
             .add("NoGround",false)
             .add("Jump", false);
 
@@ -77,9 +78,16 @@ public class NoSlow extends Module {
                                         mc.player.tryJump();
                                     }
                                     break;
-                                case "Extra":
-                                    PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(new BlockPos(-1,-1,-1), EnumFacing.DOWN,mc.player.getActiveHand(),0f,0f,0f));
-                                    break;
+                                case "Extra1":
+                                    if(event.isPre()) {
+                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(new BlockPos(-1, -1, -1), EnumFacing.DOWN, mc.player.getActiveHand(), 0f, 0f, 0f));
+                                        break;
+                                    }
+                                case "Extra2":
+                                    if(event.isPre()) {
+                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(BlockPos.ORIGIN, EnumFacing.DOWN, mc.player.getActiveHand(), 0f, 0f, 0f));
+                                        break;
+                                    }
                             }
                         }
                     }
@@ -106,7 +114,7 @@ public class NoSlow extends Module {
                                     PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(new BlockPos(-1,-1,-1), EnumFacing.DOWN,mc.player.getActiveHand(),0f,0f,0f));
                                     break;
                                 case "Clip":
-                                    event.setY(event.getY() + 1e-13);
+                                    event.setY(event.getY() + 1e-14);
                                     break;
                             }
                         }

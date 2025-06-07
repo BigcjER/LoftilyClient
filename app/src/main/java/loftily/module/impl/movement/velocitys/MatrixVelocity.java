@@ -22,7 +22,7 @@ public class MatrixVelocity extends Mode {
                 if (((SPacketEntityVelocity) packet).getMotionY() / 8000f > 0.22) {
                     mc.player.motionY = ((SPacketEntityVelocity) packet).getMotionY() / 8000f;
                     if (!MoveUtils.isMoving()) {
-                        MoveUtils.setSpeed(Math.max(
+                        MoveUtils.setSpeed(Math.min(
                                 MoveUtils.getSpeed(
                                         ((SPacketEntityVelocity) packet).getMotionX() / 8000f,
                                         ((SPacketEntityVelocity) packet).getMotionZ() / 8000f),
