@@ -2,6 +2,8 @@ package loftily.module.impl.combat;
 
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
+import loftily.Client;
+import loftily.event.impl.player.AttackEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.render.Render3DEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
@@ -468,6 +470,11 @@ public class KillAura extends Module {
                     if(!ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8)){
                         swing();
                     }
+                    
+                    AttackEvent event = new AttackEvent(target);
+                    Client.INSTANCE.getEventManager().call(event);
+                    if (event.isCancelled()) return;
+                    
                     PacketUtils.sendPacket(new CPacketUseEntity(bestTarget));
                     if(ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8)){
                         swing();
