@@ -317,7 +317,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
     public void processInput(CPacketInput packetIn)
     {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.playerEntity.getServerWorld());
-        this.playerEntity.setEntityActionState(packetIn.getStrafeSpeed(), packetIn.func_192620_b(), packetIn.isJumping(), packetIn.isSneaking());
+        this.playerEntity.setEntityActionState(packetIn.getStrafeSpeed(), packetIn.getForwardSpeed(), packetIn.isJumping(), packetIn.isSneaking());
     }
 
     private static boolean isMovePlayerPacketInvalid(CPacketPlayer packetIn)

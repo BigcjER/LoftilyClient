@@ -11,6 +11,7 @@ import lombok.Getter;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class TargetsHandler extends Handler {
                 .filter(entity -> (!teams.isToggled() || !teams.isInTeam(entity)))
                 .filter(entity -> (!antiBot.isToggled() || !antiBot.isBot(entity)))
                 .filter(entityLivingBase -> !(entityLivingBase instanceof EntityArmorStand))
-                .filter(entityLivingBase -> !(entityLivingBase instanceof EntityPlayerMP) || !entityLivingBase.isSpectatedByPlayer((EntityPlayerMP)entityLivingBase))
+                .filter(entityLivingBase -> !(entityLivingBase instanceof EntityPlayer) || !((EntityPlayer) entityLivingBase).isSpectator())
                 .collect(Collectors.toList());
         
         if (targets.size() != filteredTargets.size()) {

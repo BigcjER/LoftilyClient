@@ -32,6 +32,7 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemSword;
@@ -326,7 +327,7 @@ public class KillAura extends Module {
     private EntityLivingBase getTarget() {
         if (mc.player == null) return null;
 
-        if(target != null && target instanceof EntityPlayerMP && target.isSpectatedByPlayer((EntityPlayerMP) target)){
+        if(target != null && target instanceof EntityPlayer && ((EntityPlayer) target).isSpectator()){
             target = null;
         }
 
@@ -372,7 +373,7 @@ public class KillAura extends Module {
         targets.sort((Comparator.comparingDouble(entityLivingBase -> Math.max(0,CalculateUtils.getClosetDistance(mc.player, entityLivingBase) - attackRange.getValue()))));
         
         for (EntityLivingBase entity : targets) {
-            if (entity == mc.player || entity == null) continue;
+            if (entity == mc.player || entity == null || (entity instanceof EntityPlayer && ((EntityPlayer) entity).isSpectator())) continue;
             targetTimer.reset();
             return entity;
         }

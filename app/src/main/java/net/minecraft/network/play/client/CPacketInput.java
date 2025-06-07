@@ -9,7 +9,7 @@ public class CPacketInput implements Packet<INetHandlerPlayServer>
 {
     /** Positive for left strafe, negative for right */
     private float strafeSpeed;
-    private float field_192621_b;
+    private float forwardSpeed;
     private boolean jumping;
     private boolean sneaking;
 
@@ -20,7 +20,7 @@ public class CPacketInput implements Packet<INetHandlerPlayServer>
     public CPacketInput(float strafeSpeedIn, float forwardSpeedIn, boolean jumpingIn, boolean sneakingIn)
     {
         this.strafeSpeed = strafeSpeedIn;
-        this.field_192621_b = forwardSpeedIn;
+        this.forwardSpeed = forwardSpeedIn;
         this.jumping = jumpingIn;
         this.sneaking = sneakingIn;
     }
@@ -31,7 +31,7 @@ public class CPacketInput implements Packet<INetHandlerPlayServer>
     public void readPacketData(PacketBuffer buf) throws IOException
     {
         this.strafeSpeed = buf.readFloat();
-        this.field_192621_b = buf.readFloat();
+        this.forwardSpeed = buf.readFloat();
         byte b0 = buf.readByte();
         this.jumping = (b0 & 1) > 0;
         this.sneaking = (b0 & 2) > 0;
@@ -43,7 +43,7 @@ public class CPacketInput implements Packet<INetHandlerPlayServer>
     public void writePacketData(PacketBuffer buf) throws IOException
     {
         buf.writeFloat(this.strafeSpeed);
-        buf.writeFloat(this.field_192621_b);
+        buf.writeFloat(this.forwardSpeed);
         byte b0 = 0;
 
         if (this.jumping)
@@ -72,9 +72,9 @@ public class CPacketInput implements Packet<INetHandlerPlayServer>
         return this.strafeSpeed;
     }
 
-    public float func_192620_b()
+    public float getForwardSpeed()
     {
-        return this.field_192621_b;
+        return this.forwardSpeed;
     }
 
     public boolean isJumping()
