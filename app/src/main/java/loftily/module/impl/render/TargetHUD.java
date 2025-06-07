@@ -107,7 +107,9 @@ public class TargetHUD extends Module implements IDraggable {
         double myHealth = mc.player.getHealth() + mc.player.getAbsorptionAmount();
         String name = target.getName();
         String healthText = String.format("%s/%s", roundedHealth, roundedMaxHealth);
-        int width = Math.max(WIDTH, Math.max(FontManager.NotoSans.of(18).getWidth(name), FontManager.NotoSans.of(16).getWidth(healthText)) + 10);
+        int width = Math.max(WIDTH,
+                Math.max(FontManager.NotoSans.of(18).getWidth(name), FontManager.NotoSans.of(16).getWidth(healthText))
+                        + 80);
         
         Runnable backGround = () -> RenderUtils.drawRoundedRect(x, y, width, HEIGHT, 3, Colors.BackGround.color);
         

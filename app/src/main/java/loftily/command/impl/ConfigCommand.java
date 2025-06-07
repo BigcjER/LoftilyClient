@@ -118,7 +118,8 @@ public class ConfigCommand extends Command {
                     
                     Client.INSTANCE.getModuleManager().forEach(module -> module.getValues().forEach(value -> value.setValue(value.getDefaultValue())));
                     Client.INSTANCE.getModuleManager().forEach(module -> {
-                        if (!module.isDefaultToggled() || !module.isToggled()) module.setToggled(false, false, false);
+                        if (!module.isToggled())
+                            module.setToggled(module.isDefaultToggled(), false, false);
                     });
                     
                     moduleConfig.setConfigFile(new File(FileManager.CONFIG_DIR, configName + ".json"));

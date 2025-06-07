@@ -100,7 +100,7 @@ public class Blink extends Module {
     @Override
     public void onDisable() {
         BlinkHandler.setBlinkState(false,false,false,true);
-        if(fakePlayer.getValue()) {
+        if (fakePlayer.getValue() && fakePlayerEntity != null) {
             mc.world.removeEntityFromWorld(fakePlayerEntity.getEntityId());
             fakePlayerEntity = null;
         }
