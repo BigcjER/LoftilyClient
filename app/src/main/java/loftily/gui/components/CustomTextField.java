@@ -1,12 +1,16 @@
 package loftily.gui.components;
 
+import loftily.gui.animation.Animation;
+import loftily.gui.animation.Easing;
 import loftily.gui.animation.Ripple;
 import loftily.gui.font.FontManager;
 import loftily.gui.font.FontRenderer;
+import loftily.utils.render.ColorUtils;
 import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 import lombok.Setter;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.util.math.MathHelper;
 
 import java.awt.*;
 
@@ -16,13 +20,18 @@ public class CustomTextField extends GuiTextField {
     private Color backGroundColor;
     private boolean drawRipple;
     private final Ripple ripple;
-    
+    private final Animation cursorAnimation;
+    private final Animation cursorXAnimation;
+    private int prevXPosition;
     public CustomTextField(int componentId, net.minecraft.client.gui.FontRenderer fontrendererObj, int x, int y, int par5Width, int par6Height) {
         super(componentId, fontrendererObj, x, y, par5Width, par6Height);
-        this.font = FontManager.NotoSans.of(16);
+        this.font = FontManager.NotoSans.of(18);
         this.backGroundColor = Colors.OnBackGround.color.brighter();
         this.drawRipple = false;
         this.ripple = new Ripple();
+        this.cursorAnimation = new Animation(Easing.EaseOutCirc, 250);
+        this.cursorXAnimation = new Animation(Easing.EaseOutCirc, 200);
+        this.cursorXAnimation.setValue(x);
     }
     
     @Override
@@ -44,7 +53,7 @@ public class CustomTextField extends GuiTextField {
         int selectionEnd = this.getSelectionEnd() - this.lineScrollOffset;
         
         String visibleText = font.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth(), false);
-        boolean cursorVisible = this.isFocused && this.cursorCounter / 6 % 2 == 0 && cursorPos >= 0 && cursorPos <= visibleText.length();
+        boolean cursorVisible = this.isFocused && this.cursorCounter / 7 % 3 == 0 && cursorPos >= 0 && cursorPos <= visibleText.length();
         
         int paddingX = (this.enableBackgroundDrawing ? this.xPosition + 6 : this.xPosition + 3);
         int paddingY = this.enableBackgroundDrawing ? this.yPosition + (this.height - 8) / 2 : this.yPosition;
@@ -52,26 +61,36 @@ public class CustomTextField extends GuiTextField {
         selectionEnd = Math.min(selectionEnd, visibleText.length());
         
         String beforeCursor = visibleText.substring(0, Math.max(0, Math.min(cursorPos, visibleText.length())));
-        font.drawStringWithShadow(beforeCursor, paddingX, paddingY, color);
+        font.drawString(beforeCursor, paddingX, paddingY, color);
         int cursorX = paddingX + font.getStringWidth(beforeCursor);
         
         if (cursorPos < visibleText.length()) {
             String afterCursor = visibleText.substring(cursorPos);
-            font.drawStringWithShadow(afterCursor, cursorX + 5, paddingY, color);
+            font.drawString(afterCursor, cursorX, paddingY, color);
         }
         
-        if (cursorVisible) {
-            if (this.cursorPosition < this.text.length() || this.text.length() >= this.getMaxStringLength()) {
-                FontManager.NotoSans.of(18).drawStringWithShadow("|", cursorX + 1.3F, paddingY - 1.5, -3092272);
-            } else {
-                font.drawStringWithShadow("_", cursorX, paddingY, color);
-            }
+        cursorXAnimation.run(cursorX);
+        cursorAnimation.run(cursorVisible ? 1 : 0);
+        if (Math.abs(xPosition - prevXPosition) > 100) {
+            cursorXAnimation.run(xPosition);
+            cursorXAnimation.setValue(xPosition);
+        }
+        
+        int alpha = MathHelper.clamp((int) (254 * cursorAnimation.getValuef()), 1, 255);
+        if (this.cursorPosition < this.text.length() || this.text.length() >= this.getMaxStringLength()) {
+            font.drawString("|", cursorXAnimation.getValuef() - 1F, paddingY - 0.5F,
+                    ColorUtils.colorWithAlpha(new Color(-3092272), alpha));
+        } else {
+            font.drawString("_", cursorXAnimation.getValuef(), paddingY,
+                    ColorUtils.colorWithAlpha(new Color(color), alpha).getRGB());
         }
         
         if (selectionEnd != cursorPos) {
             int selectionX = paddingX + font.getStringWidth(visibleText.substring(0, selectionEnd));
             this.drawCursorVertical(cursorX, paddingY - 2, selectionX, paddingY + font.getFontHeight() - 2);
         }
+        
+        prevXPosition = xPosition;
     }
     
     @Override

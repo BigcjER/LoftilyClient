@@ -66,7 +66,7 @@ public class ClickGui extends GuiScreen implements IDraggable {
         
         this.scrollableModuleButtons = new Scrollable(8);
         
-        this.searchBox = new CustomTextField(0, Minecraft.getMinecraft().fontRendererObj, 0, 0, 110, 25);
+        this.searchBox = new CustomTextField(0, Minecraft.getMinecraft().fontRendererObj, 0, 0, 140, 25);
         this.searchBox.setMaxStringLength(128);
         this.searchBox.setText("");
         this.searchBox.setFocused(false);
@@ -121,12 +121,15 @@ public class ClickGui extends GuiScreen implements IDraggable {
     }
     
     private void processAndRenderSearch(int mouseX, int mouseY) {
-        hoveringSearchButton = RenderUtils.isHovering(mouseX, mouseY, x + 15, y + 20.5F, 98, 20);
+        final float buttonYOffset = 23F;
+        hoveringSearchButton = RenderUtils.isHovering(mouseX, mouseY, x + 15, y + buttonYOffset, 98, 20);
         
         searchButtonAnimation.run(hoveringSearchButton || isSearching ? 7 : 0);
         //SearchButton
-        FontManager.MaterialSymbolsSharp.of(30).drawString(MaterialIcons.get("search"), x + 17 + (searchButtonAnimation.getValuef() * 1.05F), y + 24.5F, Colors.Text.color);
-        FontManager.NotoSans.of(18).drawString("Search", x + 34 + searchButtonAnimation.getValuef(), y + 30 - FontManager.NotoSans.of(16).getHeight() / 3F, Colors.Text.color);
+        FontManager.MaterialSymbolsSharp.of(30).drawString(MaterialIcons.get("search"), x + 17 + (searchButtonAnimation.getValuef() * 1.05F),
+                y + buttonYOffset + 4, Colors.Text.color);
+        FontManager.NotoSans.of(18).drawString("Search", x + 34 + searchButtonAnimation.getValuef(),
+                y + buttonYOffset + 9.5F - FontManager.NotoSans.of(16).getHeight() / 3F, Colors.Text.color);
         
         //TextBox
         searchBoxInOutAnimation.run(isSearching ? 1 : -0.5);
@@ -225,7 +228,7 @@ public class ClickGui extends GuiScreen implements IDraggable {
         
         float categoryButtonsYOffset = 0;
         int categoryButtonX = x + 14;
-        int categoryButtonY = y + 55;
+        int categoryButtonY = y + 50;
         for (CategoryButton categoryButton : categoryButtons) {
             categoryButton.setPosition(categoryButtonX, categoryButtonY + categoryButtonsYOffset);
             categoryButton.drawScreen(mouseX, mouseY, partialTicks);
