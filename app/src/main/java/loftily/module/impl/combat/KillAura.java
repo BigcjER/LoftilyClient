@@ -29,14 +29,21 @@ import lombok.NonNull;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketAnimation;
+import net.minecraft.network.play.client.CPacketPlayerDigging;
+import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.network.play.client.CPacketUseEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.input.Keyboard;
 
@@ -119,8 +126,9 @@ public class KillAura extends Module {
     //AutoBlock
     private final ModeValue autoBlockMode = new ModeValue("AutoBlockMode", "None", this,
             new StringMode("HoldKey"),
-            new StringMode("None"),
-            new StringMode("MatrixDamage"));
+            new StringMode("MatrixDamage"),
+            new StringMode("AfterTick"),
+            new StringMode("None"));
 
     private final List<EntityLivingBase> targets = new ArrayList<>();
     private final DelayTimer attackTimer = new DelayTimer();
@@ -128,7 +136,6 @@ public class KillAura extends Module {
     public EntityLivingBase target = null;
     private int attackDelay = 0;
     private int canAttackTimes = 0;
-    private int lastDelay;
     
     {
         rotationRange = new NumberValue("RotationRange", 6, 0, 10, 0.1);
@@ -290,7 +297,6 @@ public class KillAura extends Module {
     
     @Override
     public void onDisable() {
-        lastDelay = 0;
         target = null;
         targets.clear();
         mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
@@ -426,6 +432,22 @@ public class KillAura extends Module {
                     mc.gameSettings.keyBindUseItem.setPressed(true);
                     break;
                 case "MatrixDamage":
+                    break;
+                case "AfterTick":
+                    Item handItem = mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
+                    if(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
+                        if (canAttackTimes > 0) {
+                            if (handItem instanceof ItemSword || handItem instanceof ItemShield) {
+                                PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+                            }
+                        } else {
+                            if (!mc.player.isHandActive()) {
+                                //PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                                PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
+                            }
+                            mc.gameSettings.keyBindUseItem.setPressed(true);
+                        }
+                    }
                     break;
             }
         }else {

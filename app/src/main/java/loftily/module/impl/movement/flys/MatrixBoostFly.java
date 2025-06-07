@@ -5,6 +5,7 @@ import loftily.event.impl.packet.PacketSendEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.event.impl.world.UpdateEvent;
+import loftily.module.impl.movement.Fly;
 import loftily.utils.player.MoveUtils;
 import loftily.value.impl.NumberValue;
 import loftily.value.impl.mode.Mode;
@@ -13,7 +14,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
-public class MatrixBoostFly extends Mode {
+public class MatrixBoostFly extends Mode<Fly> {
     public MatrixBoostFly() {
         super("MatrixBoost");
     }
@@ -71,6 +72,7 @@ public class MatrixBoostFly extends Mode {
             mc.player.motionX = lastMotionX;
             mc.player.motionY = lastMotionY;
             mc.player.motionZ = lastMotionZ;
+            this.getParent().toggle();
         }
     }
 
