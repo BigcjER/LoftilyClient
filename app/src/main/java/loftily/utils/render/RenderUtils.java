@@ -1,7 +1,6 @@
 package loftily.utils.render;
 
 import loftily.utils.client.ClientUtils;
-import loftily.utils.math.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
@@ -211,14 +210,14 @@ public class RenderUtils implements ClientUtils {
         GlStateManager.disableBlend();
     }
     
-    public static Pair<Integer, Integer> getMouse(ScaledResolution scaledResolution) {
-        if (mc.currentScreen == null) return new Pair<>(-1, -1);
+    public static Point getMouse(ScaledResolution scaledResolution) {
+        if (mc.currentScreen == null) return new Point(-1, -1);
         
         int screenWidth = scaledResolution.getScaledWidth();
         int j1 = scaledResolution.getScaledHeight();
         final int mouseX = Mouse.getX() * screenWidth / mc.displayWidth;
         final int mouseY = j1 - Mouse.getY() * j1 / mc.displayHeight - 1;
         
-        return new Pair<>(mouseX, mouseY);
+        return new Point(mouseX, mouseY);
     }
 }

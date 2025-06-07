@@ -13,7 +13,6 @@ import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
 import loftily.utils.math.MathUtils;
-import loftily.utils.math.Pair;
 import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 import loftily.utils.timer.DelayTimer;
@@ -28,6 +27,8 @@ import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
 import org.lwjgl.opengl.GL11;
+
+import java.awt.*;
 
 @ModuleInfo(name = "TargetHUD", category = ModuleCategory.RENDER, defaultToggled = true)
 public class TargetHUD extends Module implements IDraggable {
@@ -64,10 +65,10 @@ public class TargetHUD extends Module implements IDraggable {
             draggable = new Draggable(event.getScaledResolution().getScaledWidth() / 2 + 10, event.getScaledResolution().getScaledHeight() / 2 + 10, 1);
             Client.INSTANCE.getFileManager().get(DragsConfig.class).read();
         }
-        Pair<Integer, Integer> pair = RenderUtils.getMouse(event.getScaledResolution());
+        Point mouse = RenderUtils.getMouse(event.getScaledResolution());
         getDraggable().updateDrag(
-                pair.getFirst(),
-                pair.getSecond(),
+                mouse.x,
+                mouse.y,
                 WIDTH,
                 HEIGHT,
                 event.getScaledResolution().getScaledWidth(),

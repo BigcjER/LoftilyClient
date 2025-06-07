@@ -12,7 +12,6 @@ import loftily.gui.interaction.draggable.IDraggable;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
-import loftily.utils.math.Pair;
 import loftily.utils.render.RenderUtils;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
@@ -20,6 +19,7 @@ import loftily.value.impl.mode.EasingModeValue;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.util.text.TextFormatting;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -60,7 +60,7 @@ public class ModuleList extends Module implements IDraggable {
             }
         }
         
-        Pair<Integer, Integer> pair = RenderUtils.getMouse(event.getScaledResolution());
+        Point mouse = RenderUtils.getMouse(event.getScaledResolution());
         
         FontRenderer font = FontManager.NotoSans.of(fontSize.getValue().intValue());
         
@@ -88,8 +88,8 @@ public class ModuleList extends Module implements IDraggable {
         }
         
         getDraggable().updateDrag(
-                pair.getFirst(),
-                pair.getSecond(),
+                mouse.x,
+                mouse.y,
                 longestStringWidth,
                 totalHeight,
                 event.getScaledResolution().getScaledWidth(),

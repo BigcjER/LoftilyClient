@@ -1,5 +1,7 @@
 package loftily.gui.animation;
 
+import loftily.Client;
+import loftily.module.impl.render.AnimationModule;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,7 +37,7 @@ public class Animation {
             this.destinationValue = destinationValue;
             this.reset();
         } else {
-            this.finished = this.millis - this.duration > this.startTime;
+            this.finished = this.millis - getDuration() > this.startTime;
             if (this.finished) {
                 this.value = destinationValue;
                 return;
@@ -56,7 +58,7 @@ public class Animation {
      * @return value between 0 and 1
      */
     public double getProgress() {
-        return (double) (System.currentTimeMillis() - this.startTime) / (double) this.duration;
+        return (double) (System.currentTimeMillis() - this.startTime) / getDuration();
     }
     
     /**
@@ -74,5 +76,9 @@ public class Animation {
     
     public float getValuef() {
         return (float) value;
+    }
+    
+    public long getDuration() {
+        return (long) (duration * Client.INSTANCE.getModuleManager().get(AnimationModule.class).getAnimationDuringMultiplier().getValue());
     }
 }
