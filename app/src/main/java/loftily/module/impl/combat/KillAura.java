@@ -83,6 +83,8 @@ public class KillAura extends Module {
     private final BooleanValue rayCastOnlyTarget = new BooleanValue("RayCastOnlyTarget", false);
     private final ModeValue keepSprintMode = new ModeValue("KeepSprintMode", "None", this, new StringMode("None"), new StringMode("Always"), new StringMode("WhenNotHurt"));
     private final BooleanValue noInventory = new BooleanValue("NoInventory", false);
+    private final BooleanValue noGui = new BooleanValue("NoGui", false);
+
     //Range
     private final NumberValue rotationRange;
     private final NumberValue swingRange;
@@ -428,7 +430,8 @@ public class KillAura extends Module {
         
         if (mc.player == null || target == null) return;
 
-        if(noInventory.getValue() && mc.currentScreen instanceof GuiInventory) {
+        if((noInventory.getValue() && mc.currentScreen instanceof GuiInventory) || (noGui.getValue() && mc.currentScreen != null)) {
+            mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
             return;
         }
 
