@@ -101,7 +101,7 @@ public class RenderItemFrame extends Render<EntityItemFrame>
     {
         ItemStack itemstack = itemFrame.getDisplayedItem();
 
-        if (!itemstack.func_190926_b())
+        if (!itemstack.isEmptyStack())
         {
             if (!Config.zoomMode)
             {
@@ -155,7 +155,7 @@ public class RenderItemFrame extends Render<EntityItemFrame>
 
     protected void renderName(EntityItemFrame entity, double x, double y, double z)
     {
-        if (Minecraft.isGuiEnabled() && !entity.getDisplayedItem().func_190926_b() && entity.getDisplayedItem().hasDisplayName() && this.renderManager.pointedEntity == entity)
+        if (Minecraft.isGuiEnabled() && !entity.getDisplayedItem().isEmptyStack() && entity.getDisplayedItem().hasDisplayName() && this.renderManager.pointedEntity == entity)
         {
             double d0 = entity.getDistanceSqToEntity(this.renderManager.renderViewEntity);
             float f = entity.isSneaking() ? 32.0F : 64.0F;

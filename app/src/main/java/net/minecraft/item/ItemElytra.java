@@ -50,7 +50,7 @@ public class ItemElytra extends Item
         EntityEquipmentSlot entityequipmentslot = EntityLiving.getSlotForItemStack(itemstack);
         ItemStack itemstack1 = worldIn.getItemStackFromSlot(entityequipmentslot);
 
-        if (itemstack1.func_190926_b())
+        if (itemstack1.isEmptyStack())
         {
             worldIn.setItemStackToSlot(entityequipmentslot, itemstack.copy());
             itemstack.func_190920_e(0);

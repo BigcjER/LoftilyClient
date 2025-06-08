@@ -20,11 +20,11 @@ public class RecipesMapCloning implements IRecipe
         {
             ItemStack itemstack1 = inv.getStackInSlot(j);
 
-            if (!itemstack1.func_190926_b())
+            if (!itemstack1.isEmptyStack())
             {
                 if (itemstack1.getItem() == Items.FILLED_MAP)
                 {
-                    if (!itemstack.func_190926_b())
+                    if (!itemstack.isEmptyStack())
                     {
                         return false;
                     }
@@ -43,7 +43,7 @@ public class RecipesMapCloning implements IRecipe
             }
         }
 
-        return !itemstack.func_190926_b() && i > 0;
+        return !itemstack.isEmptyStack() && i > 0;
     }
 
     /**
@@ -58,11 +58,11 @@ public class RecipesMapCloning implements IRecipe
         {
             ItemStack itemstack1 = inv.getStackInSlot(j);
 
-            if (!itemstack1.func_190926_b())
+            if (!itemstack1.isEmptyStack())
             {
                 if (itemstack1.getItem() == Items.FILLED_MAP)
                 {
-                    if (!itemstack.func_190926_b())
+                    if (!itemstack.isEmptyStack())
                     {
                         return ItemStack.field_190927_a;
                     }
@@ -81,7 +81,7 @@ public class RecipesMapCloning implements IRecipe
             }
         }
 
-        if (!itemstack.func_190926_b() && i >= 1)
+        if (!itemstack.isEmptyStack() && i >= 1)
         {
             ItemStack itemstack2 = new ItemStack(Items.FILLED_MAP, i + 1, itemstack.getMetadata());
 

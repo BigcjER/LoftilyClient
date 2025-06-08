@@ -95,15 +95,15 @@ public class SlotCrafting extends Slot
             ItemStack itemstack = this.craftMatrix.getStackInSlot(i);
             ItemStack itemstack1 = nonnulllist.get(i);
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 this.craftMatrix.decrStackSize(i, 1);
                 itemstack = this.craftMatrix.getStackInSlot(i);
             }
 
-            if (!itemstack1.func_190926_b())
+            if (!itemstack1.isEmptyStack())
             {
-                if (itemstack.func_190926_b())
+                if (itemstack.isEmptyStack())
                 {
                     this.craftMatrix.setInventorySlotContents(i, itemstack1);
                 }

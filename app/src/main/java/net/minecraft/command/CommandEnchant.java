@@ -69,7 +69,7 @@ public class CommandEnchant extends CommandBase
                 int i = 1;
                 ItemStack itemstack = entitylivingbase.getHeldItemMainhand();
 
-                if (itemstack.func_190926_b())
+                if (itemstack.isEmptyStack())
                 {
                     throw new CommandException("commands.enchant.noItem", new Object[0]);
                 }

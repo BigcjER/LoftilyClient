@@ -27,7 +27,7 @@ public class InventoryHelper
         {
             ItemStack itemstack = inventory.getStackInSlot(i);
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 spawnItemStack(worldIn, x, y, z, itemstack);
             }
@@ -40,7 +40,7 @@ public class InventoryHelper
         float f1 = RANDOM.nextFloat() * 0.8F + 0.1F;
         float f2 = RANDOM.nextFloat() * 0.8F + 0.1F;
 
-        while (!stack.func_190926_b())
+        while (!stack.isEmptyStack())
         {
             EntityItem entityitem = new EntityItem(worldIn, x + (double)f, y + (double)f1, z + (double)f2, stack.splitStack(RANDOM.nextInt(21) + 10));
             float f3 = 0.05F;

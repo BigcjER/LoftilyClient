@@ -88,7 +88,7 @@ public class Slot
      */
     public boolean getHasStack()
     {
-        return !this.getStack().func_190926_b();
+        return !this.getStack().isEmptyStack();
     }
 
     /**

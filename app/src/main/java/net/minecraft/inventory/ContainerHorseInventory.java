@@ -117,7 +117,7 @@ public class ContainerHorseInventory extends Container
                 return ItemStack.field_190927_a;
             }
 
-            if (itemstack1.func_190926_b())
+            if (itemstack1.isEmptyStack())
             {
                 slot.putStack(ItemStack.field_190927_a);
             }

@@ -107,7 +107,7 @@ public class InventoryChangeTrigger implements ICriterionTrigger<InventoryChange
             {
                 ItemStack itemstack = p_192265_1_.getStackInSlot(l);
 
-                if (itemstack.func_190926_b())
+                if (itemstack.isEmptyStack())
                 {
                     ++j;
                 }

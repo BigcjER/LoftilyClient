@@ -47,7 +47,7 @@ public class InventoryEnderChest extends InventoryBasic
         {
             ItemStack itemstack = this.getStackInSlot(i);
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 NBTTagCompound nbttagcompound = new NBTTagCompound();
                 nbttagcompound.setByte("Slot", (byte)i);

@@ -79,7 +79,7 @@ public class CommandGive extends CommandBase
                 entityplayer.inventoryContainer.detectAndSendChanges();
             }
 
-            if (flag && itemstack.func_190926_b())
+            if (flag && itemstack.isEmptyStack())
             {
                 itemstack.func_190920_e(1);
                 sender.setCommandStat(CommandResultStats.Type.AFFECTED_ITEMS, i);

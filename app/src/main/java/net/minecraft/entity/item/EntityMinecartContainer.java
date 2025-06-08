@@ -60,7 +60,7 @@ public abstract class EntityMinecartContainer extends EntityMinecart implements 
     {
         for (ItemStack itemstack : this.minecartContainerItems)
         {
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 return false;
             }
@@ -95,7 +95,7 @@ public abstract class EntityMinecartContainer extends EntityMinecart implements 
         this.addLoot((EntityPlayer)null);
         ItemStack itemstack = this.minecartContainerItems.get(index);
 
-        if (itemstack.func_190926_b())
+        if (itemstack.isEmptyStack())
         {
             return ItemStack.field_190927_a;
         }
@@ -114,7 +114,7 @@ public abstract class EntityMinecartContainer extends EntityMinecart implements 
         this.addLoot((EntityPlayer)null);
         this.minecartContainerItems.set(index, stack);
 
-        if (!stack.func_190926_b() && stack.func_190916_E() > this.getInventoryStackLimit())
+        if (!stack.isEmptyStack() && stack.func_190916_E() > this.getInventoryStackLimit())
         {
             stack.func_190920_e(this.getInventoryStackLimit());
         }

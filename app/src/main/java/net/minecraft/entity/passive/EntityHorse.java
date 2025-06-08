@@ -65,7 +65,7 @@ public class EntityHorse extends AbstractHorse
         super.writeEntityToNBT(compound);
         compound.setInteger("Variant", this.getHorseVariant());
 
-        if (!this.horseChest.getStackInSlot(1).func_190926_b())
+        if (!this.horseChest.getStackInSlot(1).isEmptyStack())
         {
             compound.setTag("ArmorItem", this.horseChest.getStackInSlot(1).writeToNBT(new NBTTagCompound()));
         }
@@ -83,7 +83,7 @@ public class EntityHorse extends AbstractHorse
         {
             ItemStack itemstack = new ItemStack(compound.getCompoundTag("ArmorItem"));
 
-            if (!itemstack.func_190926_b() && HorseArmorType.isHorseArmor(itemstack.getItem()))
+            if (!itemstack.isEmptyStack() && HorseArmorType.isHorseArmor(itemstack.getItem()))
             {
                 this.horseChest.setInventorySlotContents(1, itemstack);
             }
@@ -254,7 +254,7 @@ public class EntityHorse extends AbstractHorse
     public boolean processInteract(EntityPlayer player, EnumHand hand)
     {
         ItemStack itemstack = player.getHeldItem(hand);
-        boolean flag = !itemstack.func_190926_b();
+        boolean flag = !itemstack.isEmptyStack();
 
         if (flag && itemstack.getItem() == Items.SPAWN_EGG)
         {

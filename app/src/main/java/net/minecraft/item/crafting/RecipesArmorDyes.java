@@ -24,13 +24,13 @@ public class RecipesArmorDyes implements IRecipe
         {
             ItemStack itemstack1 = inv.getStackInSlot(i);
 
-            if (!itemstack1.func_190926_b())
+            if (!itemstack1.isEmptyStack())
             {
                 if (itemstack1.getItem() instanceof ItemArmor)
                 {
                     ItemArmor itemarmor = (ItemArmor)itemstack1.getItem();
 
-                    if (itemarmor.getArmorMaterial() != ItemArmor.ArmorMaterial.LEATHER || !itemstack.func_190926_b())
+                    if (itemarmor.getArmorMaterial() != ItemArmor.ArmorMaterial.LEATHER || !itemstack.isEmptyStack())
                     {
                         return false;
                     }
@@ -49,7 +49,7 @@ public class RecipesArmorDyes implements IRecipe
             }
         }
 
-        return !itemstack.func_190926_b() && !list.isEmpty();
+        return !itemstack.isEmptyStack() && !list.isEmpty();
     }
 
     /**
@@ -67,13 +67,13 @@ public class RecipesArmorDyes implements IRecipe
         {
             ItemStack itemstack1 = inv.getStackInSlot(k);
 
-            if (!itemstack1.func_190926_b())
+            if (!itemstack1.isEmptyStack())
             {
                 if (itemstack1.getItem() instanceof ItemArmor)
                 {
                     itemarmor = (ItemArmor)itemstack1.getItem();
 
-                    if (itemarmor.getArmorMaterial() != ItemArmor.ArmorMaterial.LEATHER || !itemstack.func_190926_b())
+                    if (itemarmor.getArmorMaterial() != ItemArmor.ArmorMaterial.LEATHER || !itemstack.isEmptyStack())
                     {
                         return ItemStack.field_190927_a;
                     }

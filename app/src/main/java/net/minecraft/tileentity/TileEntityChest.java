@@ -76,7 +76,7 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
     {
         for (ItemStack itemstack : this.chestContents)
         {
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 return false;
             }

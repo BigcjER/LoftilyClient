@@ -204,7 +204,7 @@ public class EntityArmorStand extends EntityLivingBase
             entityequipmentslot = EntityEquipmentSlot.FEET;
         }
 
-        if (!itemStackIn.func_190926_b() && !EntityLiving.isItemStackInSlot(entityequipmentslot, itemStackIn) && entityequipmentslot != EntityEquipmentSlot.HEAD)
+        if (!itemStackIn.isEmptyStack() && !EntityLiving.isItemStackInSlot(entityequipmentslot, itemStackIn) && entityequipmentslot != EntityEquipmentSlot.HEAD)
         {
             return false;
         }
@@ -232,7 +232,7 @@ public class EntityArmorStand extends EntityLivingBase
         {
             NBTTagCompound nbttagcompound = new NBTTagCompound();
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 itemstack.writeToNBT(nbttagcompound);
             }
@@ -247,7 +247,7 @@ public class EntityArmorStand extends EntityLivingBase
         {
             NBTTagCompound nbttagcompound1 = new NBTTagCompound();
 
-            if (!itemstack1.func_190926_b())
+            if (!itemstack1.isEmptyStack())
             {
                 itemstack1.writeToNBT(nbttagcompound1);
             }
@@ -405,7 +405,7 @@ public class EntityArmorStand extends EntityLivingBase
             {
                 EntityEquipmentSlot entityequipmentslot = EntityLiving.getSlotForItemStack(itemstack);
 
-                if (itemstack.func_190926_b())
+                if (itemstack.isEmptyStack())
                 {
                     EntityEquipmentSlot entityequipmentslot1 = this.func_190772_a(vec);
                     EntityEquipmentSlot entityequipmentslot2 = this.isDisabled(entityequipmentslot1) ? entityequipmentslot : entityequipmentslot1;
@@ -479,19 +479,19 @@ public class EntityArmorStand extends EntityLivingBase
     {
         ItemStack itemstack = this.getItemStackFromSlot(p_184795_2_);
 
-        if (itemstack.func_190926_b() || (this.disabledSlots & 1 << p_184795_2_.getSlotIndex() + 8) == 0)
+        if (itemstack.isEmptyStack() || (this.disabledSlots & 1 << p_184795_2_.getSlotIndex() + 8) == 0)
         {
-            if (!itemstack.func_190926_b() || (this.disabledSlots & 1 << p_184795_2_.getSlotIndex() + 16) == 0)
+            if (!itemstack.isEmptyStack() || (this.disabledSlots & 1 << p_184795_2_.getSlotIndex() + 16) == 0)
             {
-                if (player.capabilities.isCreativeMode && itemstack.func_190926_b() && !p_184795_3_.func_190926_b())
+                if (player.capabilities.isCreativeMode && itemstack.isEmptyStack() && !p_184795_3_.isEmptyStack())
                 {
                     ItemStack itemstack2 = p_184795_3_.copy();
                     itemstack2.func_190920_e(1);
                     this.setItemStackToSlot(p_184795_2_, itemstack2);
                 }
-                else if (!p_184795_3_.func_190926_b() && p_184795_3_.func_190916_E() > 1)
+                else if (!p_184795_3_.isEmptyStack() && p_184795_3_.func_190916_E() > 1)
                 {
-                    if (itemstack.func_190926_b())
+                    if (itemstack.isEmptyStack())
                     {
                         ItemStack itemstack1 = p_184795_3_.copy();
                         itemstack1.func_190920_e(1);
@@ -675,7 +675,7 @@ public class EntityArmorStand extends EntityLivingBase
         {
             ItemStack itemstack = this.handItems.get(i);
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 Block.spawnAsEntity(this.world, (new BlockPos(this)).up(), itemstack);
                 this.handItems.set(i, ItemStack.field_190927_a);
@@ -686,7 +686,7 @@ public class EntityArmorStand extends EntityLivingBase
         {
             ItemStack itemstack1 = this.armorItems.get(j);
 
-            if (!itemstack1.func_190926_b())
+            if (!itemstack1.isEmptyStack())
             {
                 Block.spawnAsEntity(this.world, (new BlockPos(this)).up(), itemstack1);
                 this.armorItems.set(j, ItemStack.field_190927_a);

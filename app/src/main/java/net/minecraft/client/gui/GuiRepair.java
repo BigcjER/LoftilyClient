@@ -203,10 +203,10 @@ public class GuiRepair extends GuiContainer implements IContainerListener
     {
         if (slotInd == 0)
         {
-            this.nameField.setText(stack.func_190926_b() ? "" : stack.getDisplayName());
-            this.nameField.setEnabled(!stack.func_190926_b());
+            this.nameField.setText(stack.isEmptyStack() ? "" : stack.getDisplayName());
+            this.nameField.setEnabled(!stack.isEmptyStack());
 
-            if (!stack.func_190926_b())
+            if (!stack.isEmptyStack())
             {
                 this.renameItem();
             }

@@ -140,7 +140,7 @@ public class EntitySkeletonHorse extends AbstractHorse
     public boolean processInteract(EntityPlayer player, EnumHand hand)
     {
         ItemStack itemstack = player.getHeldItem(hand);
-        boolean flag = !itemstack.func_190926_b();
+        boolean flag = !itemstack.isEmptyStack();
 
         if (flag && itemstack.getItem() == Items.SPAWN_EGG)
         {

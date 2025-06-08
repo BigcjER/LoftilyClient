@@ -162,7 +162,7 @@ public class ContainerEnchantment extends Container
         {
             ItemStack itemstack = inventoryIn.getStackInSlot(0);
 
-            if (!itemstack.func_190926_b() && itemstack.isItemEnchantable())
+            if (!itemstack.isEmptyStack() && itemstack.isItemEnchantable())
             {
                 if (!this.worldPointer.isRemote)
                 {
@@ -263,11 +263,11 @@ public class ContainerEnchantment extends Container
         ItemStack itemstack1 = this.tableInventory.getStackInSlot(1);
         int i = id + 1;
 
-        if ((itemstack1.func_190926_b() || itemstack1.func_190916_E() < i) && !playerIn.capabilities.isCreativeMode)
+        if ((itemstack1.isEmptyStack() || itemstack1.func_190916_E() < i) && !playerIn.capabilities.isCreativeMode)
         {
             return false;
         }
-        else if (this.enchantLevels[id] > 0 && !itemstack.func_190926_b() && (playerIn.experienceLevel >= i && playerIn.experienceLevel >= this.enchantLevels[id] || playerIn.capabilities.isCreativeMode))
+        else if (this.enchantLevels[id] > 0 && !itemstack.isEmptyStack() && (playerIn.experienceLevel >= i && playerIn.experienceLevel >= this.enchantLevels[id] || playerIn.capabilities.isCreativeMode))
         {
             if (!this.worldPointer.isRemote)
             {
@@ -302,7 +302,7 @@ public class ContainerEnchantment extends Container
                     {
                         itemstack1.func_190918_g(i);
 
-                        if (itemstack1.func_190926_b())
+                        if (itemstack1.isEmptyStack())
                         {
                             this.tableInventory.setInventorySlotContents(1, ItemStack.field_190927_a);
                         }
@@ -346,7 +346,7 @@ public class ContainerEnchantment extends Container
     public int getLapisAmount()
     {
         ItemStack itemstack = this.tableInventory.getStackInSlot(1);
-        return itemstack.func_190926_b() ? 0 : itemstack.func_190916_E();
+        return itemstack.isEmptyStack() ? 0 : itemstack.func_190916_E();
     }
 
     /**
@@ -423,14 +423,14 @@ public class ContainerEnchantment extends Container
                     ((Slot)this.inventorySlots.get(0)).putStack(itemstack1.copy());
                     itemstack1.func_190920_e(0);
                 }
-                else if (!itemstack1.func_190926_b())
+                else if (!itemstack1.isEmptyStack())
                 {
                     ((Slot)this.inventorySlots.get(0)).putStack(new ItemStack(itemstack1.getItem(), 1, itemstack1.getMetadata()));
                     itemstack1.func_190918_g(1);
                 }
             }
 
-            if (itemstack1.func_190926_b())
+            if (itemstack1.isEmptyStack())
             {
                 slot.putStack(ItemStack.field_190927_a);
             }

@@ -42,7 +42,7 @@ public class EnchantmentHelper
      */
     public static int getEnchantmentLevel(Enchantment enchID, ItemStack stack)
     {
-        if (stack.func_190926_b())
+        if (stack.isEmptyStack())
         {
             return 0;
         }
@@ -126,7 +126,7 @@ public class EnchantmentHelper
      */
     private static void applyEnchantmentModifier(EnchantmentHelper.IModifier modifier, ItemStack stack)
     {
-        if (!stack.func_190926_b())
+        if (!stack.isEmptyStack())
         {
             NBTTagList nbttaglist = stack.getEnchantmentTagList();
 
@@ -323,7 +323,7 @@ public class EnchantmentHelper
 
             for (ItemStack itemstack : list)
             {
-                if (!itemstack.func_190926_b() && getEnchantmentLevel(p_92099_0_, itemstack) > 0)
+                if (!itemstack.isEmptyStack() && getEnchantmentLevel(p_92099_0_, itemstack) > 0)
                 {
                     list1.add(itemstack);
                 }

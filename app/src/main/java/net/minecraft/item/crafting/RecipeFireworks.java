@@ -32,7 +32,7 @@ public class RecipeFireworks implements IRecipe
         {
             ItemStack itemstack = inv.getStackInSlot(k1);
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 if (itemstack.getItem() == Items.GUNPOWDER)
                 {
@@ -126,7 +126,7 @@ public class RecipeFireworks implements IRecipe
                 {
                     ItemStack itemstack2 = inv.getStackInSlot(l1);
 
-                    if (!itemstack2.func_190926_b())
+                    if (!itemstack2.isEmptyStack())
                     {
                         if (itemstack2.getItem() == Items.DYE)
                         {
@@ -180,7 +180,7 @@ public class RecipeFireworks implements IRecipe
                 {
                     ItemStack itemstack1 = inv.getStackInSlot(i2);
 
-                    if (!itemstack1.func_190926_b())
+                    if (!itemstack1.isEmptyStack())
                     {
                         if (itemstack1.getItem() == Items.DYE)
                         {
@@ -201,7 +201,7 @@ public class RecipeFireworks implements IRecipe
                     aint[j2] = ((Integer)list1.get(j2)).intValue();
                 }
 
-                if (!this.resultItem.func_190926_b() && this.resultItem.hasTagCompound())
+                if (!this.resultItem.isEmptyStack() && this.resultItem.hasTagCompound())
                 {
                     NBTTagCompound nbttagcompound4 = this.resultItem.getTagCompound().getCompoundTag("Explosion");
 

@@ -70,7 +70,7 @@ public class ShapelessRecipes implements IRecipe
             {
                 ItemStack itemstack = inv.getStackInRowAndColumn(j, i);
 
-                if (!itemstack.func_190926_b())
+                if (!itemstack.isEmptyStack())
                 {
                     boolean flag = false;
 

@@ -113,7 +113,7 @@ public abstract class AbstractChestHorse extends AbstractHorse
             {
                 ItemStack itemstack = this.horseChest.getStackInSlot(i);
 
-                if (!itemstack.func_190926_b())
+                if (!itemstack.isEmptyStack())
                 {
                     NBTTagCompound nbttagcompound = new NBTTagCompound();
                     nbttagcompound.setByte("Slot", (byte)i);
@@ -158,7 +158,7 @@ public abstract class AbstractChestHorse extends AbstractHorse
     {
         if (inventorySlot == 499)
         {
-            if (this.func_190695_dh() && itemStackIn.func_190926_b())
+            if (this.func_190695_dh() && itemStackIn.isEmptyStack())
             {
                 this.setChested(false);
                 this.initHorseChest();
@@ -200,7 +200,7 @@ public abstract class AbstractChestHorse extends AbstractHorse
                 }
             }
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 boolean flag = this.func_190678_b(player, itemstack);
 

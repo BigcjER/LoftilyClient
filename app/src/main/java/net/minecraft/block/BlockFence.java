@@ -164,7 +164,7 @@ public class BlockFence extends Block
         else
         {
             ItemStack itemstack = playerIn.getHeldItem(hand);
-            return itemstack.getItem() == Items.LEAD || itemstack.func_190926_b();
+            return itemstack.getItem() == Items.LEAD || itemstack.isEmptyStack();
         }
     }
 

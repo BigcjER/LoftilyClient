@@ -21,7 +21,7 @@ public class ItemEmptyMap extends ItemMapBase
         ItemStack itemstack1 = worldIn.getHeldItem(playerIn);
         itemstack1.func_190918_g(1);
 
-        if (itemstack1.func_190926_b())
+        if (itemstack1.isEmptyStack())
         {
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
         }

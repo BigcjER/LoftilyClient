@@ -89,7 +89,7 @@ public class EntityLlama extends AbstractChestHorse implements IRangedAttackMob
         compound.setInteger("Variant", this.func_190719_dM());
         compound.setInteger("Strength", this.func_190707_dL());
 
-        if (!this.horseChest.getStackInSlot(1).func_190926_b())
+        if (!this.horseChest.getStackInSlot(1).isEmptyStack())
         {
             compound.setTag("DecorItem", this.horseChest.getStackInSlot(1).writeToNBT(new NBTTagCompound()));
         }

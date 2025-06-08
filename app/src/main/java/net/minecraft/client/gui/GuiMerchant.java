@@ -195,7 +195,7 @@ public class GuiMerchant extends GuiContainer
             this.itemRender.renderItemAndEffectIntoGUI(itemstack, i + 36, j + 24);
             this.itemRender.renderItemOverlays(this.fontRendererObj, itemstack, i + 36, j + 24);
 
-            if (!itemstack1.func_190926_b())
+            if (!itemstack1.isEmptyStack())
             {
                 this.itemRender.renderItemAndEffectIntoGUI(itemstack1, i + 62, j + 24);
                 this.itemRender.renderItemOverlays(this.fontRendererObj, itemstack1, i + 62, j + 24);
@@ -206,15 +206,15 @@ public class GuiMerchant extends GuiContainer
             this.itemRender.zLevel = 0.0F;
             GlStateManager.disableLighting();
 
-            if (this.isPointInRegion(36, 24, 16, 16, mouseX, mouseY) && !itemstack.func_190926_b())
+            if (this.isPointInRegion(36, 24, 16, 16, mouseX, mouseY) && !itemstack.isEmptyStack())
             {
                 this.renderToolTip(itemstack, mouseX, mouseY);
             }
-            else if (!itemstack1.func_190926_b() && this.isPointInRegion(62, 24, 16, 16, mouseX, mouseY) && !itemstack1.func_190926_b())
+            else if (!itemstack1.isEmptyStack() && this.isPointInRegion(62, 24, 16, 16, mouseX, mouseY) && !itemstack1.isEmptyStack())
             {
                 this.renderToolTip(itemstack1, mouseX, mouseY);
             }
-            else if (!itemstack2.func_190926_b() && this.isPointInRegion(120, 24, 16, 16, mouseX, mouseY) && !itemstack2.func_190926_b())
+            else if (!itemstack2.isEmptyStack() && this.isPointInRegion(120, 24, 16, 16, mouseX, mouseY) && !itemstack2.isEmptyStack())
             {
                 this.renderToolTip(itemstack2, mouseX, mouseY);
             }

@@ -126,7 +126,7 @@ public class ItemBucket extends Item
         {
             emptyBuckets.func_190918_g(1);
 
-            if (emptyBuckets.func_190926_b())
+            if (emptyBuckets.isEmptyStack())
             {
                 return new ItemStack(fullBucket);
             }

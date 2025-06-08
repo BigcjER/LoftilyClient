@@ -64,7 +64,7 @@ public class ItemRenderer
 
     public void renderItemSide(EntityLivingBase entitylivingbaseIn, ItemStack heldStack, ItemCameraTransforms.TransformType transform, boolean leftHanded)
     {
-        if (!heldStack.func_190926_b())
+        if (!heldStack.isEmptyStack())
         {
             Item item = heldStack.getItem();
             Block block = Block.getBlockFromItem(item);
@@ -331,7 +331,7 @@ public class ItemRenderer
         {
             ItemStack itemstack = abstractclientplayer.getActiveItemStack();
 
-            if (!itemstack.func_190926_b() && itemstack.getItem() == Items.BOW)
+            if (!itemstack.isEmptyStack() && itemstack.getItem() == Items.BOW)
             {
                 EnumHand enumhand1 = abstractclientplayer.getActiveHand();
                 flag = enumhand1 == EnumHand.MAIN_HAND;
@@ -378,7 +378,7 @@ public class ItemRenderer
             EnumHandSide enumhandside = flag ? p_187457_1_.getPrimaryHand() : p_187457_1_.getPrimaryHand().opposite();
             GlStateManager.pushMatrix();
 
-            if (p_187457_6_.func_190926_b())
+            if (p_187457_6_.isEmptyStack())
             {
                 if (flag && !p_187457_1_.isInvisible())
                 {
@@ -387,7 +387,7 @@ public class ItemRenderer
             }
             else if (p_187457_6_.getItem() instanceof ItemMap)
             {
-                if (flag && this.itemStackOffHand.func_190926_b())
+                if (flag && this.itemStackOffHand.isEmptyStack())
                 {
                     this.renderMapFirstPerson(p_187457_3_, p_187457_7_, p_187457_5_);
                 }

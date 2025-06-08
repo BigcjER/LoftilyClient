@@ -362,7 +362,7 @@ public class EntityVillager extends EntityAgeable implements INpc, IMerchant
         {
             ItemStack itemstack = this.villagerInventory.getStackInSlot(i);
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 nbttaglist.appendTag(itemstack.writeToNBT(new NBTTagCompound()));
             }
@@ -395,7 +395,7 @@ public class EntityVillager extends EntityAgeable implements INpc, IMerchant
         {
             ItemStack itemstack = new ItemStack(nbttaglist.getCompoundTagAt(i));
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 this.villagerInventory.addItem(itemstack);
             }
@@ -554,7 +554,7 @@ public class EntityVillager extends EntityAgeable implements INpc, IMerchant
             {
                 ItemStack itemstack = this.villagerInventory.getStackInSlot(i);
 
-                if (!itemstack.func_190926_b())
+                if (!itemstack.isEmptyStack())
                 {
                     if (itemstack.getItem() == Items.BREAD && itemstack.func_190916_E() >= 3)
                     {
@@ -635,7 +635,7 @@ public class EntityVillager extends EntityAgeable implements INpc, IMerchant
         if (!this.world.isRemote && this.livingSoundTime > -this.getTalkInterval() + 20)
         {
             this.livingSoundTime = -this.getTalkInterval();
-            this.playSound(stack.func_190926_b() ? SoundEvents.ENTITY_VILLAGER_NO : SoundEvents.ENTITY_VILLAGER_YES, this.getSoundVolume(), this.getSoundPitch());
+            this.playSound(stack.isEmptyStack() ? SoundEvents.ENTITY_VILLAGER_NO : SoundEvents.ENTITY_VILLAGER_YES, this.getSoundVolume(), this.getSoundPitch());
         }
     }
 
@@ -935,7 +935,7 @@ public class EntityVillager extends EntityAgeable implements INpc, IMerchant
         {
             ItemStack itemstack1 = this.villagerInventory.addItem(itemstack);
 
-            if (itemstack1.func_190926_b())
+            if (itemstack1.isEmptyStack())
             {
                 itemEntity.setDead();
             }
@@ -990,7 +990,7 @@ public class EntityVillager extends EntityAgeable implements INpc, IMerchant
         {
             ItemStack itemstack = this.villagerInventory.getStackInSlot(i);
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 if (itemstack.getItem() == Items.BREAD && itemstack.func_190916_E() >= 3 * multiplier || itemstack.getItem() == Items.POTATO && itemstack.func_190916_E() >= 12 * multiplier || itemstack.getItem() == Items.CARROT && itemstack.func_190916_E() >= 12 * multiplier || itemstack.getItem() == Items.BEETROOT && itemstack.func_190916_E() >= 12 * multiplier)
                 {
@@ -1016,7 +1016,7 @@ public class EntityVillager extends EntityAgeable implements INpc, IMerchant
         {
             ItemStack itemstack = this.villagerInventory.getStackInSlot(i);
 
-            if (!itemstack.func_190926_b() && (itemstack.getItem() == Items.WHEAT_SEEDS || itemstack.getItem() == Items.POTATO || itemstack.getItem() == Items.CARROT || itemstack.getItem() == Items.BEETROOT_SEEDS))
+            if (!itemstack.isEmptyStack() && (itemstack.getItem() == Items.WHEAT_SEEDS || itemstack.getItem() == Items.POTATO || itemstack.getItem() == Items.CARROT || itemstack.getItem() == Items.BEETROOT_SEEDS))
             {
                 return true;
             }

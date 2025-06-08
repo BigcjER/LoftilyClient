@@ -99,7 +99,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
         {
             InventoryPlayer inventoryplayer1 = this.mc.player.inventory;
 
-            if (!inventoryplayer1.getItemStack().func_190926_b())
+            if (!inventoryplayer1.getItemStack().isEmptyStack())
             {
                 if (mouseButton == 0)
                 {
@@ -144,7 +144,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
                     this.mc.playerController.sendPacketDropItem(itemstack);
                     this.mc.playerController.sendSlotPacket(itemstack1, ((GuiContainerCreative.CreativeSlot)slotIn).slot.slotNumber);
                 }
-                else if (type == ClickType.THROW && !this.mc.player.inventory.getItemStack().func_190926_b())
+                else if (type == ClickType.THROW && !this.mc.player.inventory.getItemStack().isEmptyStack())
                 {
                     this.mc.player.dropItem(this.mc.player.inventory.getItemStack(), true);
                     this.mc.playerController.sendPacketDropItem(this.mc.player.inventory.getItemStack());
@@ -164,7 +164,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
 
                 if (type == ClickType.SWAP)
                 {
-                    if (!itemstack7.func_190926_b() && mouseButton >= 0 && mouseButton < 9)
+                    if (!itemstack7.isEmptyStack() && mouseButton >= 0 && mouseButton < 9)
                     {
                         ItemStack itemstack10 = itemstack7.copy();
                         itemstack10.func_190920_e(itemstack10.getMaxStackSize());
@@ -177,7 +177,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
 
                 if (type == ClickType.CLONE)
                 {
-                    if (inventoryplayer.getItemStack().func_190926_b() && slotIn.getHasStack())
+                    if (inventoryplayer.getItemStack().isEmptyStack() && slotIn.getHasStack())
                     {
                         ItemStack itemstack9 = slotIn.getStack().copy();
                         itemstack9.func_190920_e(itemstack9.getMaxStackSize());
@@ -189,7 +189,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
 
                 if (type == ClickType.THROW)
                 {
-                    if (!itemstack7.func_190926_b())
+                    if (!itemstack7.isEmptyStack())
                     {
                         ItemStack itemstack8 = itemstack7.copy();
                         itemstack8.func_190920_e(mouseButton == 0 ? 1 : itemstack8.getMaxStackSize());
@@ -200,7 +200,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
                     return;
                 }
 
-                if (!itemstack5.func_190926_b() && !itemstack7.func_190926_b() && itemstack5.isItemEqual(itemstack7) && ItemStack.areItemStackTagsEqual(itemstack5, itemstack7))
+                if (!itemstack5.isEmptyStack() && !itemstack7.isEmptyStack() && itemstack5.isItemEqual(itemstack7) && ItemStack.areItemStackTagsEqual(itemstack5, itemstack7))
                 {
                     if (mouseButton == 0)
                     {
@@ -218,7 +218,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
                         itemstack5.func_190918_g(1);
                     }
                 }
-                else if (!itemstack7.func_190926_b() && itemstack5.func_190926_b())
+                else if (!itemstack7.isEmptyStack() && itemstack5.isEmptyStack())
                 {
                     inventoryplayer.setItemStack(itemstack7.copy());
                     itemstack5 = inventoryplayer.getItemStack();
@@ -259,7 +259,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
                     {
                         this.mc.playerController.sendSlotPacket(itemstack3, i - this.inventorySlots.inventorySlots.size() + 9 + 36);
                     }
-                    else if (type == ClickType.THROW && !itemstack3.func_190926_b())
+                    else if (type == ClickType.THROW && !itemstack3.isEmptyStack())
                     {
                         ItemStack itemstack2 = itemstack3.copy();
                         itemstack2.func_190920_e(mouseButton == 0 ? 1 : itemstack2.getMaxStackSize());

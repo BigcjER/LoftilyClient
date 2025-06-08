@@ -59,7 +59,7 @@ public class BlockCake extends Block
         else
         {
             ItemStack itemstack = playerIn.getHeldItem(hand);
-            return this.eatCake(worldIn, pos, state, playerIn) || itemstack.func_190926_b();
+            return this.eatCake(worldIn, pos, state, playerIn) || itemstack.isEmptyStack();
         }
     }
 

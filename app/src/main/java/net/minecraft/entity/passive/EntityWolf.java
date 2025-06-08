@@ -418,7 +418,7 @@ public class EntityWolf extends EntityTameable
 
         if (this.isTamed())
         {
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 if (itemstack.getItem() instanceof ItemFood)
                 {

@@ -36,7 +36,7 @@ public class InventoryMerchant implements IInventory
     {
         for (ItemStack itemstack : this.theInventory)
         {
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 return false;
             }
@@ -60,7 +60,7 @@ public class InventoryMerchant implements IInventory
     {
         ItemStack itemstack = this.theInventory.get(index);
 
-        if (index == 2 && !itemstack.func_190926_b())
+        if (index == 2 && !itemstack.isEmptyStack())
         {
             return ItemStackHelper.getAndSplit(this.theInventory, index, itemstack.func_190916_E());
         }
@@ -68,7 +68,7 @@ public class InventoryMerchant implements IInventory
         {
             ItemStack itemstack1 = ItemStackHelper.getAndSplit(this.theInventory, index, count);
 
-            if (!itemstack1.func_190926_b() && this.inventoryResetNeededOnSlotChange(index))
+            if (!itemstack1.isEmptyStack() && this.inventoryResetNeededOnSlotChange(index))
             {
                 this.resetRecipeAndSlots();
             }
@@ -100,7 +100,7 @@ public class InventoryMerchant implements IInventory
     {
         this.theInventory.set(index, stack);
 
-        if (!stack.func_190926_b() && stack.func_190916_E() > this.getInventoryStackLimit())
+        if (!stack.isEmptyStack() && stack.func_190916_E() > this.getInventoryStackLimit())
         {
             stack.func_190920_e(this.getInventoryStackLimit());
         }
@@ -183,13 +183,13 @@ public class InventoryMerchant implements IInventory
         ItemStack itemstack = this.theInventory.get(0);
         ItemStack itemstack1 = this.theInventory.get(1);
 
-        if (itemstack.func_190926_b())
+        if (itemstack.isEmptyStack())
         {
             itemstack = itemstack1;
             itemstack1 = ItemStack.field_190927_a;
         }
 
-        if (itemstack.func_190926_b())
+        if (itemstack.isEmptyStack())
         {
             this.setInventorySlotContents(2, ItemStack.field_190927_a);
         }
@@ -206,7 +206,7 @@ public class InventoryMerchant implements IInventory
                     this.currentRecipe = merchantrecipe;
                     this.setInventorySlotContents(2, merchantrecipe.getItemToSell().copy());
                 }
-                else if (!itemstack1.func_190926_b())
+                else if (!itemstack1.isEmptyStack())
                 {
                     merchantrecipe = merchantrecipelist.canRecipeBeUsed(itemstack1, itemstack, this.currentRecipeIndex);
 

@@ -54,7 +54,7 @@ public class ItemCarrotOnAStick extends Item
                 {
                     itemstack.damageItem(7, worldIn);
 
-                    if (itemstack.func_190926_b())
+                    if (itemstack.isEmptyStack())
                     {
                         ItemStack itemstack1 = new ItemStack(Items.FISHING_ROD);
                         itemstack1.setTagCompound(itemstack.getTagCompound());

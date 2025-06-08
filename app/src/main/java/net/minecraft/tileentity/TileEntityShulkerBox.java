@@ -347,7 +347,7 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
     {
         for (ItemStack itemstack : this.field_190596_f)
         {
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 return false;
             }

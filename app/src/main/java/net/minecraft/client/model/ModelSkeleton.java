@@ -75,7 +75,7 @@ public class ModelSkeleton extends ModelBiped
         ItemStack itemstack = ((EntityLivingBase)entityIn).getHeldItemMainhand();
         AbstractSkeleton abstractskeleton = (AbstractSkeleton)entityIn;
 
-        if (abstractskeleton.isSwingingArms() && (itemstack.func_190926_b() || itemstack.getItem() != Items.BOW))
+        if (abstractskeleton.isSwingingArms() && (itemstack.isEmptyStack() || itemstack.getItem() != Items.BOW))
         {
             float f = MathHelper.sin(this.swingProgress * (float)Math.PI);
             float f1 = MathHelper.sin((1.0F - (1.0F - this.swingProgress) * (1.0F - this.swingProgress)) * (float)Math.PI);

@@ -66,7 +66,7 @@ public class LootTable
                 return;
             }
 
-            if (itemstack.func_190926_b())
+            if (itemstack.isEmptyStack())
             {
                 inventory.setInventorySlotContents(((Integer)list1.remove(list1.size() - 1)).intValue(), ItemStack.field_190927_a);
             }
@@ -89,7 +89,7 @@ public class LootTable
         {
             ItemStack itemstack = iterator.next();
 
-            if (itemstack.func_190926_b())
+            if (itemstack.isEmptyStack())
             {
                 iterator.remove();
             }
@@ -137,7 +137,7 @@ public class LootTable
 
         for (int i = 0; i < inventory.getSizeInventory(); ++i)
         {
-            if (inventory.getStackInSlot(i).func_190926_b())
+            if (inventory.getStackInSlot(i).isEmptyStack())
             {
                 list.add(Integer.valueOf(i));
             }

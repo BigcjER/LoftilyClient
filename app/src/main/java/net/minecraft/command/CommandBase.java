@@ -70,7 +70,7 @@ public abstract class CommandBase implements ICommand
         {
             ItemStack itemstack = ((EntityPlayer)theEntity).inventory.getCurrentItem();
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 nbttagcompound.setTag("SelectedItem", itemstack.writeToNBT(new NBTTagCompound()));
             }

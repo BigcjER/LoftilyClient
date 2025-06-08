@@ -69,7 +69,7 @@ public class EntityFireworkRocket extends Entity
         this.setPosition(x, y, z);
         int i = 1;
 
-        if (!givenItem.func_190926_b() && givenItem.hasTagCompound())
+        if (!givenItem.isEmptyStack() && givenItem.hasTagCompound())
         {
             this.dataManager.set(FIREWORK_ITEM, givenItem.copy());
             NBTTagCompound nbttagcompound = givenItem.getTagCompound();
@@ -207,7 +207,7 @@ public class EntityFireworkRocket extends Entity
     {
         float f = 0.0F;
         ItemStack itemstack = (ItemStack)this.dataManager.get(FIREWORK_ITEM);
-        NBTTagCompound nbttagcompound = itemstack.func_190926_b() ? null : itemstack.getSubCompound("Fireworks");
+        NBTTagCompound nbttagcompound = itemstack.isEmptyStack() ? null : itemstack.getSubCompound("Fireworks");
         NBTTagList nbttaglist = nbttagcompound != null ? nbttagcompound.getTagList("Explosions", 10) : null;
 
         if (nbttaglist != null && !nbttaglist.hasNoTags())
@@ -262,7 +262,7 @@ public class EntityFireworkRocket extends Entity
         if (id == 17 && this.world.isRemote)
         {
             ItemStack itemstack = (ItemStack)this.dataManager.get(FIREWORK_ITEM);
-            NBTTagCompound nbttagcompound = itemstack.func_190926_b() ? null : itemstack.getSubCompound("Fireworks");
+            NBTTagCompound nbttagcompound = itemstack.isEmptyStack() ? null : itemstack.getSubCompound("Fireworks");
             this.world.makeFireworks(this.posX, this.posY, this.posZ, this.motionX, this.motionY, this.motionZ, nbttagcompound);
         }
 
@@ -283,7 +283,7 @@ public class EntityFireworkRocket extends Entity
         compound.setInteger("LifeTime", this.lifetime);
         ItemStack itemstack = (ItemStack)this.dataManager.get(FIREWORK_ITEM);
 
-        if (!itemstack.func_190926_b())
+        if (!itemstack.isEmptyStack())
         {
             compound.setTag("FireworksItem", itemstack.writeToNBT(new NBTTagCompound()));
         }
@@ -302,7 +302,7 @@ public class EntityFireworkRocket extends Entity
         {
             ItemStack itemstack = new ItemStack(nbttagcompound);
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 this.dataManager.set(FIREWORK_ITEM, itemstack);
             }

@@ -59,7 +59,7 @@ public class EntityPotion extends EntityThrowable
     {
         super(worldIn, x, y, z);
 
-        if (!potionDamageIn.func_190926_b())
+        if (!potionDamageIn.isEmptyStack())
         {
             this.setItem(potionDamageIn);
         }
@@ -265,7 +265,7 @@ public class EntityPotion extends EntityThrowable
         super.readEntityFromNBT(compound);
         ItemStack itemstack = new ItemStack(compound.getCompoundTag("Potion"));
 
-        if (itemstack.func_190926_b())
+        if (itemstack.isEmptyStack())
         {
             this.setDead();
         }
@@ -283,7 +283,7 @@ public class EntityPotion extends EntityThrowable
         super.writeEntityToNBT(compound);
         ItemStack itemstack = this.getPotion();
 
-        if (!itemstack.func_190926_b())
+        if (!itemstack.isEmptyStack())
         {
             compound.setTag("Potion", itemstack.writeToNBT(new NBTTagCompound()));
         }

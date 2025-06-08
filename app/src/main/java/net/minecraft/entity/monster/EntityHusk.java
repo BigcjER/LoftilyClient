@@ -71,7 +71,7 @@ public class EntityHusk extends EntityZombie
     {
         boolean flag = super.attackEntityAsMob(entityIn);
 
-        if (flag && this.getHeldItemMainhand().func_190926_b() && entityIn instanceof EntityLivingBase)
+        if (flag && this.getHeldItemMainhand().isEmptyStack() && entityIn instanceof EntityLivingBase)
         {
             float f = this.world.getDifficultyForLocation(new BlockPos(this)).getAdditionalDifficulty();
             ((EntityLivingBase)entityIn).addPotionEffect(new PotionEffect(MobEffects.HUNGER, 140 * (int)f));

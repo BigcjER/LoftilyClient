@@ -217,7 +217,7 @@ public class EntityZombie extends EntityMob
                 boolean flag = true;
                 ItemStack itemstack = this.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
 
-                if (!itemstack.func_190926_b())
+                if (!itemstack.isEmptyStack())
                 {
                     if (itemstack.isItemStackDamageable())
                     {
@@ -308,7 +308,7 @@ public class EntityZombie extends EntityMob
         {
             float f = this.world.getDifficultyForLocation(new BlockPos(this)).getAdditionalDifficulty();
 
-            if (this.getHeldItemMainhand().func_190926_b() && this.isBurning() && this.rand.nextFloat() < f * 0.3F)
+            if (this.getHeldItemMainhand().isEmptyStack() && this.isBurning() && this.rand.nextFloat() < f * 0.3F)
             {
                 entityIn.setFire(2 * (int)f);
             }
@@ -516,7 +516,7 @@ public class EntityZombie extends EntityMob
         this.setEquipmentBasedOnDifficulty(difficulty);
         this.setEnchantmentBasedOnDifficulty(difficulty);
 
-        if (this.getItemStackFromSlot(EntityEquipmentSlot.HEAD).func_190926_b())
+        if (this.getItemStackFromSlot(EntityEquipmentSlot.HEAD).isEmptyStack())
         {
             Calendar calendar = this.world.getCurrentDate();
 
@@ -600,7 +600,7 @@ public class EntityZombie extends EntityMob
                 entitycreeper.incrementDroppedSkulls();
                 ItemStack itemstack = this.func_190732_dj();
 
-                if (!itemstack.func_190926_b())
+                if (!itemstack.isEmptyStack())
                 {
                     this.entityDropItem(itemstack, 0.0F);
                 }

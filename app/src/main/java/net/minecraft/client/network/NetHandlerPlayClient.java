@@ -1079,11 +1079,11 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
 
             if (packetIn.getWindowId() == 0 && packetIn.getSlot() >= 36 && i < 45)
             {
-                if (!itemstack.func_190926_b())
+                if (!itemstack.isEmptyStack())
                 {
                     ItemStack itemstack1 = entityplayer.inventoryContainer.getSlot(i).getStack();
 
-                    if (itemstack1.func_190926_b() || itemstack1.func_190916_E() < itemstack.func_190916_E())
+                    if (itemstack1.isEmptyStack() || itemstack1.func_190916_E() < itemstack.func_190916_E())
                     {
                         itemstack.func_190915_d(5);
                     }

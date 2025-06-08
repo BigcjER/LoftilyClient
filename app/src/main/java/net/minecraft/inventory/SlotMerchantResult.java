@@ -96,14 +96,14 @@ public class SlotMerchantResult extends Slot
 
         if (firstItem.getItem() == itemstack.getItem() && firstItem.func_190916_E() >= itemstack.func_190916_E())
         {
-            if (!itemstack1.func_190926_b() && !secondItem.func_190926_b() && itemstack1.getItem() == secondItem.getItem() && secondItem.func_190916_E() >= itemstack1.func_190916_E())
+            if (!itemstack1.isEmptyStack() && !secondItem.isEmptyStack() && itemstack1.getItem() == secondItem.getItem() && secondItem.func_190916_E() >= itemstack1.func_190916_E())
             {
                 firstItem.func_190918_g(itemstack.func_190916_E());
                 secondItem.func_190918_g(itemstack1.func_190916_E());
                 return true;
             }
 
-            if (itemstack1.func_190926_b() && secondItem.func_190926_b())
+            if (itemstack1.isEmptyStack() && secondItem.isEmptyStack())
             {
                 firstItem.func_190918_g(itemstack.func_190916_E());
                 return true;

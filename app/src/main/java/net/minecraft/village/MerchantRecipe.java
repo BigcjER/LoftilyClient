@@ -81,7 +81,7 @@ public class MerchantRecipe
      */
     public boolean hasSecondItemToBuy()
     {
-        return !this.secondItemToBuy.func_190926_b();
+        return !this.secondItemToBuy.isEmptyStack();
     }
 
     /**
@@ -173,7 +173,7 @@ public class MerchantRecipe
         nbttagcompound.setTag("buy", this.itemToBuy.writeToNBT(new NBTTagCompound()));
         nbttagcompound.setTag("sell", this.itemToSell.writeToNBT(new NBTTagCompound()));
 
-        if (!this.secondItemToBuy.func_190926_b())
+        if (!this.secondItemToBuy.isEmptyStack())
         {
             nbttagcompound.setTag("buyB", this.secondItemToBuy.writeToNBT(new NBTTagCompound()));
         }

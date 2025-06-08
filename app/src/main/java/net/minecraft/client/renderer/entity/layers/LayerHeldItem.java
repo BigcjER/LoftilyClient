@@ -24,7 +24,7 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
         ItemStack itemstack = flag ? entitylivingbaseIn.getHeldItemOffhand() : entitylivingbaseIn.getHeldItemMainhand();
         ItemStack itemstack1 = flag ? entitylivingbaseIn.getHeldItemMainhand() : entitylivingbaseIn.getHeldItemOffhand();
 
-        if (!itemstack.func_190926_b() || !itemstack1.func_190926_b())
+        if (!itemstack.isEmptyStack() || !itemstack1.isEmptyStack())
         {
             GlStateManager.pushMatrix();
 
@@ -43,7 +43,7 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
 
     private void renderHeldItem(EntityLivingBase p_188358_1_, ItemStack p_188358_2_, ItemCameraTransforms.TransformType p_188358_3_, EnumHandSide handSide)
     {
-        if (!p_188358_2_.func_190926_b())
+        if (!p_188358_2_.isEmptyStack())
         {
             GlStateManager.pushMatrix();
             this.func_191361_a(handSide);

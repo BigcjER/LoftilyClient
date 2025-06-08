@@ -82,7 +82,7 @@ public class ItemGlassBottle extends Item
         p_185061_1_.func_190918_g(1);
         player.addStat(StatList.getObjectUseStats(this));
 
-        if (p_185061_1_.func_190926_b())
+        if (p_185061_1_.isEmptyStack())
         {
             return stack;
         }

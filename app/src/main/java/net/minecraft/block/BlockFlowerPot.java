@@ -91,7 +91,7 @@ public class BlockFlowerPot extends BlockContainer
         {
             ItemStack itemstack1 = tileentityflowerpot.getFlowerItemStack();
 
-            if (itemstack1.func_190926_b())
+            if (itemstack1.isEmptyStack())
             {
                 if (!this.func_190951_a(itemstack))
                 {
@@ -108,7 +108,7 @@ public class BlockFlowerPot extends BlockContainer
             }
             else
             {
-                if (itemstack.func_190926_b())
+                if (itemstack.isEmptyStack())
                 {
                     playerIn.setHeldItem(hand, itemstack1);
                 }
@@ -149,7 +149,7 @@ public class BlockFlowerPot extends BlockContainer
         {
             ItemStack itemstack = tileentityflowerpot.getFlowerItemStack();
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 return itemstack;
             }

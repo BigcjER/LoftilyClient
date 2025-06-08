@@ -247,7 +247,7 @@ public class EntityXPOrb extends Entity
                 entityIn.onItemPickup(this, 1);
                 ItemStack itemstack = EnchantmentHelper.getEnchantedItem(Enchantments.MENDING, entityIn);
 
-                if (!itemstack.func_190926_b() && itemstack.isItemDamaged())
+                if (!itemstack.isEmptyStack() && itemstack.isItemDamaged())
                 {
                     int i = Math.min(this.xpToDurability(this.xpValue), itemstack.getItemDamage());
                     this.xpValue -= this.durabilityToXp(i);

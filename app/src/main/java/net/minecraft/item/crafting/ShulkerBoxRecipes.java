@@ -22,7 +22,7 @@ public class ShulkerBoxRecipes
             {
                 ItemStack itemstack = inv.getStackInSlot(k);
 
-                if (!itemstack.func_190926_b())
+                if (!itemstack.isEmptyStack())
                 {
                     if (Block.getBlockFromItem(itemstack.getItem()) instanceof BlockShulkerBox)
                     {
@@ -57,7 +57,7 @@ public class ShulkerBoxRecipes
             {
                 ItemStack itemstack2 = inv.getStackInSlot(i);
 
-                if (!itemstack2.func_190926_b())
+                if (!itemstack2.isEmptyStack())
                 {
                     if (Block.getBlockFromItem(itemstack2.getItem()) instanceof BlockShulkerBox)
                     {

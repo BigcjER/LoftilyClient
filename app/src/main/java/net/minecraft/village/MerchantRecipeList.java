@@ -30,7 +30,7 @@ public class MerchantRecipeList extends ArrayList<MerchantRecipe>
         if (p_77203_3_ > 0 && p_77203_3_ < this.size())
         {
             MerchantRecipe merchantrecipe1 = (MerchantRecipe)this.get(p_77203_3_);
-            return !this.areItemStacksExactlyEqual(p_77203_1_, merchantrecipe1.getItemToBuy()) || (!p_77203_2_.func_190926_b() || merchantrecipe1.hasSecondItemToBuy()) && (!merchantrecipe1.hasSecondItemToBuy() || !this.areItemStacksExactlyEqual(p_77203_2_, merchantrecipe1.getSecondItemToBuy())) || p_77203_1_.func_190916_E() < merchantrecipe1.getItemToBuy().func_190916_E() || merchantrecipe1.hasSecondItemToBuy() && p_77203_2_.func_190916_E() < merchantrecipe1.getSecondItemToBuy().func_190916_E() ? null : merchantrecipe1;
+            return !this.areItemStacksExactlyEqual(p_77203_1_, merchantrecipe1.getItemToBuy()) || (!p_77203_2_.isEmptyStack() || merchantrecipe1.hasSecondItemToBuy()) && (!merchantrecipe1.hasSecondItemToBuy() || !this.areItemStacksExactlyEqual(p_77203_2_, merchantrecipe1.getSecondItemToBuy())) || p_77203_1_.func_190916_E() < merchantrecipe1.getItemToBuy().func_190916_E() || merchantrecipe1.hasSecondItemToBuy() && p_77203_2_.func_190916_E() < merchantrecipe1.getSecondItemToBuy().func_190916_E() ? null : merchantrecipe1;
         }
         else
         {
@@ -38,7 +38,7 @@ public class MerchantRecipeList extends ArrayList<MerchantRecipe>
             {
                 MerchantRecipe merchantrecipe = (MerchantRecipe)this.get(i);
 
-                if (this.areItemStacksExactlyEqual(p_77203_1_, merchantrecipe.getItemToBuy()) && p_77203_1_.func_190916_E() >= merchantrecipe.getItemToBuy().func_190916_E() && (!merchantrecipe.hasSecondItemToBuy() && p_77203_2_.func_190926_b() || merchantrecipe.hasSecondItemToBuy() && this.areItemStacksExactlyEqual(p_77203_2_, merchantrecipe.getSecondItemToBuy()) && p_77203_2_.func_190916_E() >= merchantrecipe.getSecondItemToBuy().func_190916_E()))
+                if (this.areItemStacksExactlyEqual(p_77203_1_, merchantrecipe.getItemToBuy()) && p_77203_1_.func_190916_E() >= merchantrecipe.getItemToBuy().func_190916_E() && (!merchantrecipe.hasSecondItemToBuy() && p_77203_2_.isEmptyStack() || merchantrecipe.hasSecondItemToBuy() && this.areItemStacksExactlyEqual(p_77203_2_, merchantrecipe.getSecondItemToBuy()) && p_77203_2_.func_190916_E() >= merchantrecipe.getSecondItemToBuy().func_190916_E()))
                 {
                     return merchantrecipe;
                 }
@@ -63,9 +63,9 @@ public class MerchantRecipeList extends ArrayList<MerchantRecipe>
             buffer.writeItemStackToBuffer(merchantrecipe.getItemToBuy());
             buffer.writeItemStackToBuffer(merchantrecipe.getItemToSell());
             ItemStack itemstack = merchantrecipe.getSecondItemToBuy();
-            buffer.writeBoolean(!itemstack.func_190926_b());
+            buffer.writeBoolean(!itemstack.isEmptyStack());
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 buffer.writeItemStackToBuffer(itemstack);
             }

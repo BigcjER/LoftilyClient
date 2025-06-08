@@ -23,7 +23,7 @@ public class RecipeTippedArrow implements IRecipe
                 {
                     ItemStack itemstack = inv.getStackInRowAndColumn(i, j);
 
-                    if (itemstack.func_190926_b())
+                    if (itemstack.isEmptyStack())
                     {
                         return false;
                     }

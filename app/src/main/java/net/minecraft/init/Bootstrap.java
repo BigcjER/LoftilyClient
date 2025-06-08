@@ -296,7 +296,7 @@ public class Bootstrap
                 world.setBlockToAir(blockpos);
                 stack.func_190918_g(1);
 
-                if (stack.func_190926_b())
+                if (stack.isEmptyStack())
                 {
                     return new ItemStack(item);
                 }
@@ -441,7 +441,7 @@ public class Bootstrap
                         stack.func_190918_g(1);
                     }
                 }
-                else if (ItemArmor.dispenseArmor(source, stack).func_190926_b())
+                else if (ItemArmor.dispenseArmor(source, stack).isEmptyStack())
                 {
                     this.field_190911_b = false;
                 }
@@ -471,7 +471,7 @@ public class Bootstrap
                 {
                     ItemStack itemstack = ItemArmor.dispenseArmor(source, stack);
 
-                    if (itemstack.func_190926_b())
+                    if (itemstack.isEmptyStack())
                     {
                         this.field_190911_b = false;
                     }

@@ -55,7 +55,7 @@ public class ItemSlab extends ItemBlock
     {
         ItemStack itemstack = stack.getHeldItem(pos);
 
-        if (!itemstack.func_190926_b() && stack.canPlayerEdit(worldIn.offset(hand), hand, itemstack))
+        if (!itemstack.isEmptyStack() && stack.canPlayerEdit(worldIn.offset(hand), hand, itemstack))
         {
             Comparable<?> comparable = this.singleSlab.getTypeForItem(itemstack);
             IBlockState iblockstate = playerIn.getBlockState(worldIn);

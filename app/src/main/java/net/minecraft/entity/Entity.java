@@ -2205,7 +2205,7 @@ public abstract class Entity implements ICommandSender
      */
     public EntityItem entityDropItem(ItemStack stack, float offsetY)
     {
-        if (stack.func_190926_b())
+        if (stack.isEmptyStack())
         {
             return null;
         }

@@ -310,7 +310,7 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
 
     public boolean func_191420_l()
     {
-        return this.payment.func_190926_b();
+        return this.payment.isEmptyStack();
     }
 
     /**
@@ -326,7 +326,7 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
      */
     public ItemStack decrStackSize(int index, int count)
     {
-        if (index == 0 && !this.payment.func_190926_b())
+        if (index == 0 && !this.payment.isEmptyStack())
         {
             if (count >= this.payment.func_190916_E())
             {

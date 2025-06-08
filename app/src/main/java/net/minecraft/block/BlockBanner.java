@@ -100,7 +100,7 @@ public class BlockBanner extends BlockContainer
     public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
     {
         ItemStack itemstack = this.getTileDataItemStack(worldIn, pos);
-        return itemstack.func_190926_b() ? new ItemStack(Items.BANNER) : itemstack;
+        return itemstack.isEmptyStack() ? new ItemStack(Items.BANNER) : itemstack;
     }
 
     /**
@@ -110,7 +110,7 @@ public class BlockBanner extends BlockContainer
     {
         ItemStack itemstack = this.getTileDataItemStack(worldIn, pos);
 
-        if (itemstack.func_190926_b())
+        if (itemstack.isEmptyStack())
         {
             super.dropBlockAsItemWithChance(worldIn, pos, state, chance, fortune);
         }

@@ -37,7 +37,7 @@ public class LootEntryItem extends LootEntry
             }
         }
 
-        if (!itemstack.func_190926_b())
+        if (!itemstack.isEmptyStack())
         {
             if (itemstack.func_190916_E() < this.item.getItemStackLimit())
             {

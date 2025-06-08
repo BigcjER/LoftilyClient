@@ -92,12 +92,12 @@ public enum BannerPattern
 
     public boolean func_191000_d()
     {
-        return !this.field_191017_Q.func_190926_b() || this.field_191016_P[0] != null;
+        return !this.field_191017_Q.isEmptyStack() || this.field_191016_P[0] != null;
     }
 
     public boolean func_190999_e()
     {
-        return !this.field_191017_Q.func_190926_b();
+        return !this.field_191017_Q.isEmptyStack();
     }
 
     public ItemStack func_190998_f()

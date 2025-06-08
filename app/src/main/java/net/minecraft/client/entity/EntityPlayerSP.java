@@ -598,7 +598,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
     public void setActiveHand(EnumHand hand) {
         ItemStack itemstack = this.getHeldItem(hand);
 
-        if (!itemstack.func_190926_b() && !this.isHandActive()) {
+        if (!itemstack.isEmptyStack() && !this.isHandActive()) {
             super.setActiveHand(hand);
             this.handActive = true;
             this.activeHand = hand;

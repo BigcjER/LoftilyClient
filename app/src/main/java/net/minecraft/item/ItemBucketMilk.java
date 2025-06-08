@@ -43,7 +43,7 @@ public class ItemBucketMilk extends Item
             entityLiving.clearActivePotions();
         }
 
-        return stack.func_190926_b() ? new ItemStack(Items.BUCKET) : stack;
+        return stack.isEmptyStack() ? new ItemStack(Items.BUCKET) : stack;
     }
 
     /**

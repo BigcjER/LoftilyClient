@@ -79,7 +79,7 @@ public class TileEntityBrewingStand extends TileEntityLockable implements ITicka
     {
         for (ItemStack itemstack : this.brewingItemStacks)
         {
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 return false;
             }
@@ -169,7 +169,7 @@ public class TileEntityBrewingStand extends TileEntityLockable implements ITicka
 
         for (int i = 0; i < 3; ++i)
         {
-            if (!((ItemStack)this.brewingItemStacks.get(i)).func_190926_b())
+            if (!((ItemStack)this.brewingItemStacks.get(i)).isEmptyStack())
             {
                 aboolean[i] = true;
             }
@@ -182,7 +182,7 @@ public class TileEntityBrewingStand extends TileEntityLockable implements ITicka
     {
         ItemStack itemstack = this.brewingItemStacks.get(3);
 
-        if (itemstack.func_190926_b())
+        if (itemstack.isEmptyStack())
         {
             return false;
         }
@@ -196,7 +196,7 @@ public class TileEntityBrewingStand extends TileEntityLockable implements ITicka
             {
                 ItemStack itemstack1 = this.brewingItemStacks.get(i);
 
-                if (!itemstack1.func_190926_b() && PotionHelper.hasConversions(itemstack1, itemstack))
+                if (!itemstack1.isEmptyStack() && PotionHelper.hasConversions(itemstack1, itemstack))
                 {
                     return true;
                 }
@@ -222,7 +222,7 @@ public class TileEntityBrewingStand extends TileEntityLockable implements ITicka
         {
             ItemStack itemstack1 = new ItemStack(itemstack.getItem().getContainerItem());
 
-            if (itemstack.func_190926_b())
+            if (itemstack.isEmptyStack())
             {
                 itemstack = itemstack1;
             }
@@ -357,7 +357,7 @@ public class TileEntityBrewingStand extends TileEntityLockable implements ITicka
             }
             else
             {
-                return (item == Items.POTIONITEM || item == Items.SPLASH_POTION || item == Items.LINGERING_POTION || item == Items.GLASS_BOTTLE) && this.getStackInSlot(index).func_190926_b();
+                return (item == Items.POTIONITEM || item == Items.SPLASH_POTION || item == Items.LINGERING_POTION || item == Items.GLASS_BOTTLE) && this.getStackInSlot(index).isEmptyStack();
             }
         }
     }

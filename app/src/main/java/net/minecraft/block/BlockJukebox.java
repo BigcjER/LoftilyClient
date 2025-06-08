@@ -77,7 +77,7 @@ public class BlockJukebox extends BlockContainer
                 BlockJukebox.TileEntityJukebox blockjukebox$tileentityjukebox = (BlockJukebox.TileEntityJukebox)tileentity;
                 ItemStack itemstack = blockjukebox$tileentityjukebox.getRecord();
 
-                if (!itemstack.func_190926_b())
+                if (!itemstack.isEmptyStack())
                 {
                     worldIn.playEvent(1010, pos, 0);
                     worldIn.playRecord(pos, (SoundEvent)null);
@@ -136,7 +136,7 @@ public class BlockJukebox extends BlockContainer
         {
             ItemStack itemstack = ((BlockJukebox.TileEntityJukebox)tileentity).getRecord();
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 return Item.getIdFromItem(itemstack.getItem()) + 1 - Item.getIdFromItem(Items.RECORD_13);
             }
@@ -197,7 +197,7 @@ public class BlockJukebox extends BlockContainer
         {
             super.writeToNBT(compound);
 
-            if (!this.getRecord().func_190926_b())
+            if (!this.getRecord().isEmptyStack())
             {
                 compound.setTag("RecordItem", this.getRecord().writeToNBT(new NBTTagCompound()));
             }

@@ -11,7 +11,6 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntListIterator;
 import java.util.BitSet;
 import java.util.List;
-import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -24,7 +23,7 @@ public class RecipeItemHelper
 
     public void func_194112_a(ItemStack p_194112_1_)
     {
-        if (!p_194112_1_.func_190926_b() && !p_194112_1_.isItemDamaged() && !p_194112_1_.isItemEnchanted() && !p_194112_1_.hasDisplayName())
+        if (!p_194112_1_.isEmptyStack() && !p_194112_1_.isItemDamaged() && !p_194112_1_.isItemEnchanted() && !p_194112_1_.hasDisplayName())
         {
             int i = func_194113_b(p_194112_1_);
             int j = p_194112_1_.func_190916_E();

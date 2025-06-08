@@ -164,7 +164,7 @@ public class RenderItem implements IResourceManagerReloadListener
 
     public void renderItem(ItemStack stack, IBakedModel model)
     {
-        if (!stack.func_190926_b())
+        if (!stack.isEmptyStack())
         {
             GlStateManager.pushMatrix();
             GlStateManager.translate(-0.5F, -0.5F, -0.5F);
@@ -274,7 +274,7 @@ public class RenderItem implements IResourceManagerReloadListener
 
     private void func_191970_a(BufferBuilder p_191970_1_, List<BakedQuad> p_191970_2_, int p_191970_3_, ItemStack p_191970_4_)
     {
-        boolean flag = p_191970_3_ == -1 && !p_191970_4_.func_190926_b();
+        boolean flag = p_191970_3_ == -1 && !p_191970_4_.isEmptyStack();
         int i = 0;
 
         for (int j = p_191970_2_.size(); i < j; ++i)
@@ -311,7 +311,7 @@ public class RenderItem implements IResourceManagerReloadListener
 
     public void renderItem(ItemStack stack, ItemCameraTransforms.TransformType cameraTransformType)
     {
-        if (!stack.func_190926_b())
+        if (!stack.isEmptyStack())
         {
             IBakedModel ibakedmodel = this.getItemModelWithOverrides(stack, (World)null, (EntityLivingBase)null);
             this.renderItemModel(stack, ibakedmodel, cameraTransformType, false);
@@ -355,7 +355,7 @@ public class RenderItem implements IResourceManagerReloadListener
 
     public void renderItem(ItemStack stack, EntityLivingBase entitylivingbaseIn, ItemCameraTransforms.TransformType transform, boolean leftHanded)
     {
-        if (!stack.func_190926_b() && entitylivingbaseIn != null)
+        if (!stack.isEmptyStack() && entitylivingbaseIn != null)
         {
             IBakedModel ibakedmodel = this.getItemModelWithOverrides(stack, entitylivingbaseIn.world, entitylivingbaseIn);
             this.renderItemModel(stack, ibakedmodel, transform, leftHanded);
@@ -364,7 +364,7 @@ public class RenderItem implements IResourceManagerReloadListener
 
     protected void renderItemModel(ItemStack stack, IBakedModel bakedmodel, ItemCameraTransforms.TransformType transform, boolean leftHanded)
     {
-        if (!stack.func_190926_b())
+        if (!stack.isEmptyStack())
         {
             this.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
             this.textureManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
@@ -472,7 +472,7 @@ public class RenderItem implements IResourceManagerReloadListener
 
     public void renderItemAndEffectIntoGUI(@Nullable EntityLivingBase p_184391_1_, final ItemStack p_184391_2_, int p_184391_3_, int p_184391_4_)
     {
-        if (!p_184391_2_.func_190926_b())
+        if (!p_184391_2_.isEmptyStack())
         {
             this.zLevel += 50.0F;
 
@@ -529,7 +529,7 @@ public class RenderItem implements IResourceManagerReloadListener
      */
     public void renderItemOverlayIntoGUI(FontRenderer fr, ItemStack stack, int xPosition, int yPosition, @Nullable String text)
     {
-        if (!stack.func_190926_b())
+        if (!stack.isEmptyStack())
         {
             if (stack.func_190916_E() != 1 || text != null)
             {

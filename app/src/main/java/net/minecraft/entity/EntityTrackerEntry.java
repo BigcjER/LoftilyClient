@@ -444,7 +444,7 @@ public class EntityTrackerEntry
                         {
                             ItemStack itemstack = ((EntityLivingBase)this.trackedEntity).getItemStackFromSlot(entityequipmentslot);
 
-                            if (!itemstack.func_190926_b())
+                            if (!itemstack.isEmptyStack())
                             {
                                 playerMP.connection.sendPacket(new SPacketEntityEquipment(this.trackedEntity.getEntityId(), entityequipmentslot, itemstack));
                             }

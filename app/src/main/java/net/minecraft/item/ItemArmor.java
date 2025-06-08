@@ -39,7 +39,7 @@ public class ItemArmor extends Item
         protected ItemStack dispenseStack(IBlockSource source, ItemStack stack)
         {
             ItemStack itemstack = ItemArmor.dispenseArmor(source, stack);
-            return itemstack.func_190926_b() ? super.dispenseStack(source, stack) : itemstack;
+            return itemstack.isEmptyStack() ? super.dispenseStack(source, stack) : itemstack;
         }
     };
 
@@ -231,7 +231,7 @@ public class ItemArmor extends Item
         EntityEquipmentSlot entityequipmentslot = EntityLiving.getSlotForItemStack(itemstack);
         ItemStack itemstack1 = worldIn.getItemStackFromSlot(entityequipmentslot);
 
-        if (itemstack1.func_190926_b())
+        if (itemstack1.isEmptyStack())
         {
             worldIn.setItemStackToSlot(entityequipmentslot, itemstack.copy());
             itemstack.func_190920_e(0);

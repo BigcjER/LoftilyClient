@@ -21,11 +21,11 @@ public class RecipeBookCloning implements IRecipe
         {
             ItemStack itemstack1 = inv.getStackInSlot(j);
 
-            if (!itemstack1.func_190926_b())
+            if (!itemstack1.isEmptyStack())
             {
                 if (itemstack1.getItem() == Items.WRITTEN_BOOK)
                 {
-                    if (!itemstack.func_190926_b())
+                    if (!itemstack.isEmptyStack())
                     {
                         return false;
                     }
@@ -44,7 +44,7 @@ public class RecipeBookCloning implements IRecipe
             }
         }
 
-        return !itemstack.func_190926_b() && itemstack.hasTagCompound() && i > 0;
+        return !itemstack.isEmptyStack() && itemstack.hasTagCompound() && i > 0;
     }
 
     /**
@@ -59,11 +59,11 @@ public class RecipeBookCloning implements IRecipe
         {
             ItemStack itemstack1 = inv.getStackInSlot(j);
 
-            if (!itemstack1.func_190926_b())
+            if (!itemstack1.isEmptyStack())
             {
                 if (itemstack1.getItem() == Items.WRITTEN_BOOK)
                 {
-                    if (!itemstack.func_190926_b())
+                    if (!itemstack.isEmptyStack())
                     {
                         return ItemStack.field_190927_a;
                     }
@@ -82,7 +82,7 @@ public class RecipeBookCloning implements IRecipe
             }
         }
 
-        if (!itemstack.func_190926_b() && itemstack.hasTagCompound() && i >= 1 && ItemWrittenBook.getGeneration(itemstack) < 2)
+        if (!itemstack.isEmptyStack() && itemstack.hasTagCompound() && i >= 1 && ItemWrittenBook.getGeneration(itemstack) < 2)
         {
             ItemStack itemstack2 = new ItemStack(Items.WRITTEN_BOOK, i);
             itemstack2.setTagCompound(itemstack.getTagCompound().copy());

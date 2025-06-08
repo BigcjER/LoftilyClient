@@ -202,7 +202,7 @@ public class BlockDoublePlant extends BlockBush implements IGrowable
                     {
                         worldIn.setBlockToAir(pos.down());
                     }
-                    else if (!player.getHeldItemMainhand().func_190926_b() && player.getHeldItemMainhand().getItem() == Items.SHEARS)
+                    else if (!player.getHeldItemMainhand().isEmptyStack() && player.getHeldItemMainhand().getItem() == Items.SHEARS)
                     {
                         this.onHarvest(worldIn, pos, iblockstate, player);
                         worldIn.setBlockToAir(pos.down());

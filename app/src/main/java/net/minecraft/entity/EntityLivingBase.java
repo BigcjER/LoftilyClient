@@ -558,7 +558,7 @@ public abstract class EntityLivingBase extends Entity
 
     protected void playEquipSound(ItemStack stack)
     {
-        if (!stack.func_190926_b())
+        if (!stack.isEmptyStack())
         {
             SoundEvent soundevent = SoundEvents.ITEM_ARMOR_EQUIP_GENERIC;
             Item item = stack.getItem();
@@ -591,7 +591,7 @@ public abstract class EntityLivingBase extends Entity
         {
             ItemStack itemstack = this.getItemStackFromSlot(entityequipmentslot);
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 this.getAttributeMap().removeAttributeModifiers(itemstack.getAttributeModifiers(entityequipmentslot));
             }
@@ -603,7 +603,7 @@ public abstract class EntityLivingBase extends Entity
         {
             ItemStack itemstack1 = this.getItemStackFromSlot(entityequipmentslot1);
 
-            if (!itemstack1.func_190926_b())
+            if (!itemstack1.isEmptyStack())
             {
                 this.getAttributeMap().applyAttributeModifiers(itemstack1.getAttributeModifiers(entityequipmentslot1));
             }
@@ -986,7 +986,7 @@ public abstract class EntityLivingBase extends Entity
             {
                 float f = amount;
 
-                if ((source == DamageSource.anvil || source == DamageSource.fallingBlock) && !this.getItemStackFromSlot(EntityEquipmentSlot.HEAD).func_190926_b())
+                if ((source == DamageSource.anvil || source == DamageSource.fallingBlock) && !this.getItemStackFromSlot(EntityEquipmentSlot.HEAD).isEmptyStack())
                 {
                     this.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem((int)(amount * 4.0F + this.rand.nextFloat() * amount * 2.0F), this);
                     amount *= 0.75F;
@@ -1826,7 +1826,7 @@ public abstract class EntityLivingBase extends Entity
 
     public boolean func_190630_a(EntityEquipmentSlot p_190630_1_)
     {
-        return !this.getItemStackFromSlot(p_190630_1_).func_190926_b();
+        return !this.getItemStackFromSlot(p_190630_1_).isEmptyStack();
     }
 
     public abstract Iterable<ItemStack> getArmorInventoryList();
@@ -2348,12 +2348,12 @@ public abstract class EntityLivingBase extends Entity
                 {
                     ((WorldServer)this.world).getEntityTracker().sendToAllTrackingEntity(this, new SPacketEntityEquipment(this.getEntityId(), entityequipmentslot, itemstack1));
 
-                    if (!itemstack.func_190926_b())
+                    if (!itemstack.isEmptyStack())
                     {
                         this.getAttributeMap().removeAttributeModifiers(itemstack.getAttributeModifiers(entityequipmentslot));
                     }
 
-                    if (!itemstack1.func_190926_b())
+                    if (!itemstack1.isEmptyStack())
                     {
                         this.getAttributeMap().applyAttributeModifiers(itemstack1.getAttributeModifiers(entityequipmentslot));
                     }
@@ -2361,11 +2361,11 @@ public abstract class EntityLivingBase extends Entity
                     switch (entityequipmentslot.getSlotType())
                     {
                         case HAND:
-                            this.handInventory.set(entityequipmentslot.getIndex(), itemstack1.func_190926_b() ? ItemStack.field_190927_a : itemstack1.copy());
+                            this.handInventory.set(entityequipmentslot.getIndex(), itemstack1.isEmptyStack() ? ItemStack.field_190927_a : itemstack1.copy());
                             break;
 
                         case ARMOR:
-                            this.armorArray.set(entityequipmentslot.getIndex(), itemstack1.func_190926_b() ? ItemStack.field_190927_a : itemstack1.copy());
+                            this.armorArray.set(entityequipmentslot.getIndex(), itemstack1.isEmptyStack() ? ItemStack.field_190927_a : itemstack1.copy());
                     }
                 }
             }
@@ -2917,7 +2917,7 @@ public abstract class EntityLivingBase extends Entity
     {
         ItemStack itemstack = this.getHeldItem(hand);
 
-        if (!itemstack.func_190926_b() && !this.isHandActive())
+        if (!itemstack.isEmptyStack() && !this.isHandActive())
         {
             this.activeItemStack = itemstack;
             this.activeItemStackUseCount = itemstack.getMaxItemUseDuration();
@@ -2942,16 +2942,16 @@ public abstract class EntityLivingBase extends Entity
 
         if (HAND_STATES.equals(key) && this.world.isRemote)
         {
-            if (this.isHandActive() && this.activeItemStack.func_190926_b())
+            if (this.isHandActive() && this.activeItemStack.isEmptyStack())
             {
                 this.activeItemStack = this.getHeldItem(this.getActiveHand());
 
-                if (!this.activeItemStack.func_190926_b())
+                if (!this.activeItemStack.isEmptyStack())
                 {
                     this.activeItemStackUseCount = this.activeItemStack.getMaxItemUseDuration();
                 }
             }
-            else if (!this.isHandActive() && !this.activeItemStack.func_190926_b())
+            else if (!this.isHandActive() && !this.activeItemStack.isEmptyStack())
             {
                 this.activeItemStack = ItemStack.field_190927_a;
                 this.activeItemStackUseCount = 0;
@@ -2964,7 +2964,7 @@ public abstract class EntityLivingBase extends Entity
      */
     protected void updateItemUse(ItemStack stack, int eatingParticleCount)
     {
-        if (!stack.func_190926_b() && this.isHandActive())
+        if (!stack.isEmptyStack() && this.isHandActive())
         {
             if (stack.getItemUseAction() == EnumAction.DRINK)
             {
@@ -3004,7 +3004,7 @@ public abstract class EntityLivingBase extends Entity
      */
     protected void onItemUseFinish()
     {
-        if (!this.activeItemStack.func_190926_b() && this.isHandActive())
+        if (!this.activeItemStack.isEmptyStack() && this.isHandActive())
         {
             this.updateItemUse(this.activeItemStack, 16);
             this.setHeldItem(this.getActiveHand(), this.activeItemStack.onItemUseFinish(this.world, this));
@@ -3029,7 +3029,7 @@ public abstract class EntityLivingBase extends Entity
 
     public void stopActiveHand()
     {
-        if (!this.activeItemStack.func_190926_b())
+        if (!this.activeItemStack.isEmptyStack())
         {
             this.activeItemStack.onPlayerStoppedUsing(this.world, this, this.getItemInUseCount());
         }
@@ -3050,7 +3050,7 @@ public abstract class EntityLivingBase extends Entity
 
     public boolean isActiveItemStackBlocking()
     {
-        if (this.isHandActive() && !this.activeItemStack.func_190926_b())
+        if (this.isHandActive() && !this.activeItemStack.isEmptyStack())
         {
             Item item = this.activeItemStack.getItem();
 

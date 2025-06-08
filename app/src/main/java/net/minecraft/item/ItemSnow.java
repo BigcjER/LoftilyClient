@@ -30,7 +30,7 @@ public class ItemSnow extends ItemBlock
     {
         ItemStack itemstack = stack.getHeldItem(pos);
 
-        if (!itemstack.func_190926_b() && stack.canPlayerEdit(worldIn, hand, itemstack))
+        if (!itemstack.isEmptyStack() && stack.canPlayerEdit(worldIn, hand, itemstack))
         {
             IBlockState iblockstate = playerIn.getBlockState(worldIn);
             Block block = iblockstate.getBlock();

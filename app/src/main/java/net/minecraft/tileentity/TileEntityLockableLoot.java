@@ -121,7 +121,7 @@ public abstract class TileEntityLockableLoot extends TileEntityLockable implemen
         this.fillWithLoot((EntityPlayer)null);
         ItemStack itemstack = ItemStackHelper.getAndSplit(this.func_190576_q(), index, count);
 
-        if (!itemstack.func_190926_b())
+        if (!itemstack.isEmptyStack())
         {
             this.markDirty();
         }

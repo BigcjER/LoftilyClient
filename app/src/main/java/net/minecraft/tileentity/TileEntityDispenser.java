@@ -30,7 +30,7 @@ public class TileEntityDispenser extends TileEntityLockableLoot
     {
         for (ItemStack itemstack : this.stacks)
         {
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 return false;
             }
@@ -47,7 +47,7 @@ public class TileEntityDispenser extends TileEntityLockableLoot
 
         for (int k = 0; k < this.stacks.size(); ++k)
         {
-            if (!((ItemStack)this.stacks.get(k)).func_190926_b() && RNG.nextInt(j++) == 0)
+            if (!((ItemStack)this.stacks.get(k)).isEmptyStack() && RNG.nextInt(j++) == 0)
             {
                 i = k;
             }
@@ -64,7 +64,7 @@ public class TileEntityDispenser extends TileEntityLockableLoot
     {
         for (int i = 0; i < this.stacks.size(); ++i)
         {
-            if (((ItemStack)this.stacks.get(i)).func_190926_b())
+            if (((ItemStack)this.stacks.get(i)).isEmptyStack())
             {
                 this.setInventorySlotContents(i, stack);
                 return i;

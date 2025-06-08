@@ -29,11 +29,9 @@ import lombok.NonNull;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketAnimation;
@@ -130,7 +128,16 @@ public class KillAura extends Module {
             new StringMode("HoldKey"),
             new StringMode("MatrixDamage"),
             new StringMode("AfterTick"),
+            new StringMode("Packet"),
             new StringMode("None"));
+    private final ModeValue blockTiming = new ModeValue("AutoBlockTiming","Normal",this,
+            new StringMode("Normal"),
+            new StringMode("Tick"),
+            new StringMode("Pre"),
+            new StringMode("Post"),
+            new StringMode("AfterAttack")
+    );
+    private final BooleanValue onlyWhileKeyBinding = new BooleanValue("OnlyWhileKeyBinding", false);
 
     private final List<EntityLivingBase> targets = new ArrayList<>();
     private final DelayTimer attackTimer = new DelayTimer();
@@ -274,6 +281,10 @@ public class KillAura extends Module {
             }
         }
 
+        if(blockTiming.is("Tick")){
+            runAutoBlock();
+        }
+
         if (attackTimeMode.is("Tick")) {
             attackTarget(target);
         }
@@ -283,6 +294,11 @@ public class KillAura extends Module {
     @EventHandler
     public void onMotion(MotionEvent event) {
         if (mc.player == null) return;
+
+        if ((blockTiming.is("Pre") && event.isPre())
+                || (blockTiming.is("Post") && event.isPost())) {
+            runAutoBlock();
+        }
         
         if ((attackTimeMode.is("Pre") && event.isPre())
                 || (attackTimeMode.is("Post") && event.isPost())) {
@@ -425,7 +441,48 @@ public class KillAura extends Module {
 
         return false;
     }
-    
+
+    private void runAutoBlock(){
+        if(onlyWhileKeyBinding.getValue() && !GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)){
+            return;
+        }
+        if(canBlock()) {
+            switch (autoBlockMode.getValueByName()) {
+                case "HoldKey":
+                    mc.gameSettings.keyBindUseItem.setPressed(true);
+                    break;
+                case "MatrixDamage":
+                    break;
+                case "AfterTick":
+                    if (canAttackTimes > 0) {
+                        if(blockingTick) {
+                            Item handItem = mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
+                            if ((handItem instanceof ItemSword || handItem instanceof ItemShield)) {
+                                PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+                                blockingTick = false;
+                            }
+                        }
+                    } else {
+                        if (!blockingTick) {
+                            //PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                            PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
+                            blockingTick = true;
+                        }
+                        //mc.gameSettings.keyBindUseItem.setPressed(false);
+                    }
+                    break;
+                case "Packet":
+                    if(!mc.player.isHandActive()){
+                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
+                    }
+                    break;
+            }
+        }else {
+            mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
+        }
+    }
+
     private void attackTarget(EntityLivingBase target) {
         
         if (mc.player == null || target == null) return;
@@ -440,45 +497,18 @@ public class KillAura extends Module {
                 canAttackTimes = 1;
             }
         }
+
         Entity bestTarget;
         Rotation rotation = RotationHandler.clientRotation == null ? RotationHandler.getRotation() : RotationHandler.clientRotation;
-
-        if(canBlock()) {
-            switch (autoBlockMode.getValueByName()) {
-                case "HoldKey":
-                    mc.gameSettings.keyBindUseItem.setPressed(true);
-                    break;
-                case "MatrixDamage":
-                    break;
-                case "AfterTick":
-                    if(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
-                        if (canAttackTimes > 0) {
-                            if(blockingTick) {
-                                Item handItem = mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
-                                if ((handItem instanceof ItemSword || handItem instanceof ItemShield)) {
-                                    PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
-                                    blockingTick = false;
-                                }
-                            }
-                        } else {
-                            if (!blockingTick) {
-                                //PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
-                                PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
-                                blockingTick = true;
-                            }
-                            //mc.gameSettings.keyBindUseItem.setPressed(false);
-                        }
-                    }
-                    break;
-            }
-        }else {
-            mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
-        }
 
         if (!rayCast.getValue()) {
             bestTarget = target;
         } else {
             bestTarget = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (entity -> entity instanceof EntityLivingBase));
+        }
+
+        if(autoBlockMode.is("Normal")) {
+            runAutoBlock();
         }
 
         if (bestTarget == null || (bestTarget != target && rayCastOnlyTarget.getValue())) return;
@@ -528,6 +558,10 @@ public class KillAura extends Module {
                 break;
             }
         }
+
+        if(blockTiming.is("AfterAttack")){
+            runAutoBlock();
+        }
     }
 
     private void swing(){
@@ -565,7 +599,7 @@ public class KillAura extends Module {
         if(noInventory.getValue() && mc.currentScreen instanceof GuiInventory){
             return false;
         }
-        return mc.player.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword && (mc.player.getHeldItem(EnumHand.OFF_HAND).func_190926_b()
+        return mc.player.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword && (mc.player.getHeldItem(EnumHand.OFF_HAND).isEmptyStack()
         || mc.player.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemShield);
     }
     

@@ -91,7 +91,7 @@ public class EntityItem extends Entity
      */
     public void onUpdate()
     {
-        if (this.getEntityItem().func_190926_b())
+        if (this.getEntityItem().isEmptyStack())
         {
             this.setDead();
         }
@@ -319,7 +319,7 @@ public class EntityItem extends Entity
         {
             return false;
         }
-        else if (!this.getEntityItem().func_190926_b() && this.getEntityItem().getItem() == Items.NETHER_STAR && source.isExplosion())
+        else if (!this.getEntityItem().isEmptyStack() && this.getEntityItem().getItem() == Items.NETHER_STAR && source.isExplosion())
         {
             return false;
         }
@@ -361,7 +361,7 @@ public class EntityItem extends Entity
             compound.setString("Owner", this.owner);
         }
 
-        if (!this.getEntityItem().func_190926_b())
+        if (!this.getEntityItem().isEmptyStack())
         {
             compound.setTag("Item", this.getEntityItem().writeToNBT(new NBTTagCompound()));
         }
@@ -393,7 +393,7 @@ public class EntityItem extends Entity
         NBTTagCompound nbttagcompound = compound.getCompoundTag("Item");
         this.setEntityItemStack(new ItemStack(nbttagcompound));
 
-        if (this.getEntityItem().func_190926_b())
+        if (this.getEntityItem().isEmptyStack())
         {
             this.setDead();
         }
@@ -414,7 +414,7 @@ public class EntityItem extends Entity
             {
                 entityIn.onItemPickup(this, i);
 
-                if (itemstack.func_190926_b())
+                if (itemstack.isEmptyStack())
                 {
                     this.setDead();
                     itemstack.func_190920_e(i);

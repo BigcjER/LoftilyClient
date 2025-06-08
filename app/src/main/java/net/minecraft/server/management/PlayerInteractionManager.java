@@ -180,7 +180,7 @@ public class PlayerInteractionManager
                 {
                     ItemStack itemstack = this.thisPlayerMP.getHeldItemMainhand();
 
-                    if (itemstack.func_190926_b())
+                    if (itemstack.isEmptyStack())
                     {
                         return;
                     }
@@ -276,7 +276,7 @@ public class PlayerInteractionManager
      */
     public boolean tryHarvestBlock(BlockPos pos)
     {
-        if (this.gameType.isCreative() && !this.thisPlayerMP.getHeldItemMainhand().func_190926_b() && this.thisPlayerMP.getHeldItemMainhand().getItem() instanceof ItemSword)
+        if (this.gameType.isCreative() && !this.thisPlayerMP.getHeldItemMainhand().isEmptyStack() && this.thisPlayerMP.getHeldItemMainhand().getItem() instanceof ItemSword)
         {
             return false;
         }
@@ -304,7 +304,7 @@ public class PlayerInteractionManager
                     {
                         ItemStack itemstack = this.thisPlayerMP.getHeldItemMainhand();
 
-                        if (itemstack.func_190926_b())
+                        if (itemstack.isEmptyStack())
                         {
                             return false;
                         }
@@ -326,10 +326,10 @@ public class PlayerInteractionManager
                 else
                 {
                     ItemStack itemstack1 = this.thisPlayerMP.getHeldItemMainhand();
-                    ItemStack itemstack2 = itemstack1.func_190926_b() ? ItemStack.field_190927_a : itemstack1.copy();
+                    ItemStack itemstack2 = itemstack1.isEmptyStack() ? ItemStack.field_190927_a : itemstack1.copy();
                     boolean flag = this.thisPlayerMP.canHarvestBlock(iblockstate);
 
-                    if (!itemstack1.func_190926_b())
+                    if (!itemstack1.isEmptyStack())
                     {
                         itemstack1.onBlockDestroyed(this.theWorld, iblockstate, pos, this.thisPlayerMP);
                     }
@@ -384,7 +384,7 @@ public class PlayerInteractionManager
                     }
                 }
 
-                if (itemstack.func_190926_b())
+                if (itemstack.isEmptyStack())
                 {
                     player.setHeldItem(hand, ItemStack.field_190927_a);
                 }
@@ -431,7 +431,7 @@ public class PlayerInteractionManager
         }
         else
         {
-            if (!player.isSneaking() || player.getHeldItemMainhand().func_190926_b() && player.getHeldItemOffhand().func_190926_b())
+            if (!player.isSneaking() || player.getHeldItemMainhand().isEmptyStack() && player.getHeldItemOffhand().isEmptyStack())
             {
                 IBlockState iblockstate = worldIn.getBlockState(pos);
 
@@ -441,7 +441,7 @@ public class PlayerInteractionManager
                 }
             }
 
-            if (stack.func_190926_b())
+            if (stack.isEmptyStack())
             {
                 return EnumActionResult.PASS;
             }

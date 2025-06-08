@@ -13,6 +13,7 @@ import lombok.NonNull;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.item.*;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
+import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.network.play.server.SPacketCombatEvent;
@@ -26,10 +27,11 @@ public class NoSlow extends Module {
 
     private final MultiBooleanValue blockingMode = new MultiBooleanValue("BlockingPacketMode")
             .add("Switch", false)
-            .add("Extra1",false)
-            .add("Extra2",false)
+            .add("Extra",false)
             .add("NoGround",false)
-            .add("Jump", false);
+            .add("Jump", false)
+            .add("HandPacket",false)
+            .add("Post",false);
 
     private final MultiBooleanValue foodMode = new MultiBooleanValue("FoodMode")
             .add("Switch", false)
@@ -78,16 +80,23 @@ public class NoSlow extends Module {
                                         mc.player.tryJump();
                                     }
                                     break;
-                                case "Extra1":
+                                case "Extra":
                                     if(event.isPre()) {
                                         PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(new BlockPos(-1, -1, -1), EnumFacing.DOWN, mc.player.getActiveHand(), 0f, 0f, 0f));
                                         break;
                                     }
-                                case "Extra2":
+                                case "HandPacket":
                                     if(event.isPre()) {
-                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(BlockPos.ORIGIN, EnumFacing.DOWN, mc.player.getActiveHand(), 0f, 0f, 0f));
-                                        break;
+                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(mc.player.getActiveHand()));
                                     }
+                                    break;
+                                case "Post":
+                                    if(event.isPre()) {
+                                        PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM,BlockPos.ORIGIN,EnumFacing.DOWN));
+                                    }else{
+                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(mc.player.getActiveHand()));
+                                    }
+                                    break;
                             }
                         }
                     }

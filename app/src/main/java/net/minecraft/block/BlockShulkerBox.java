@@ -257,7 +257,7 @@ public class BlockShulkerBox extends BlockContainer
 
                 for (ItemStack itemstack : nonnulllist)
                 {
-                    if (!itemstack.func_190926_b())
+                    if (!itemstack.isEmptyStack())
                     {
                         ++j;
 

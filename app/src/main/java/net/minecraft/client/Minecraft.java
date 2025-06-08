@@ -18,6 +18,7 @@ import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.Client;
 import loftily.event.impl.client.ClientTickEvent;
 import loftily.event.impl.client.KeyboardEvent;
+import loftily.event.impl.player.BlockDigEvent;
 import loftily.event.impl.world.WorldLoadEvent;
 import loftily.gui.menu.SplashScreen;
 import loftily.gui.menu.mainmenu.MainMenu;
@@ -1442,6 +1443,11 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
                 if (this.world.getBlockState(blockpos).getMaterial() != Material.AIR && this.playerController.onPlayerDamageBlock(blockpos, this.objectMouseOver.sideHit))
                 {
+                    BlockDigEvent event = new BlockDigEvent(blockpos,this.objectMouseOver.sideHit);
+                    Client.INSTANCE.getEventManager().call(event);
+                    if(event.isCancelled()){
+                        return;
+                    }
                     this.effectRenderer.addBlockHitEffects(blockpos, this.objectMouseOver.sideHit);
                     this.player.swingArm(EnumHand.MAIN_HAND);
                 }
@@ -1553,7 +1559,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
                                     {
                                         this.player.swingArm(enumhand);
 
-                                        if (!itemstack.func_190926_b() && (itemstack.func_190916_E() != i || this.playerController.isInCreativeMode()))
+                                        if (!itemstack.isEmptyStack() && (itemstack.func_190916_E() != i || this.playerController.isInCreativeMode()))
                                         {
                                             this.entityRenderer.itemRenderer.resetEquippedProgress(enumhand);
                                         }
@@ -1564,7 +1570,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
                         }
                     }
 
-                    if (!itemstack.func_190926_b() && this.playerController.processRightClick(this.player, this.world, enumhand) == EnumActionResult.SUCCESS)
+                    if (!itemstack.isEmptyStack() && this.playerController.processRightClick(this.player, this.world, enumhand) == EnumActionResult.SUCCESS)
                     {
                         this.entityRenderer.itemRenderer.resetEquippedProgress(enumhand);
                         return;
@@ -2593,7 +2599,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
                 itemstack = block.getItem(this.world, blockpos, iblockstate);
 
-                if (itemstack.func_190926_b())
+                if (itemstack.isEmptyStack())
                 {
                     return;
                 }
@@ -2623,7 +2629,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
                     EntityItemFrame entityitemframe = (EntityItemFrame)this.objectMouseOver.entityHit;
                     ItemStack itemstack1 = entityitemframe.getDisplayedItem();
 
-                    if (itemstack1.func_190926_b())
+                    if (itemstack1.isEmptyStack())
                     {
                         itemstack = new ItemStack(Items.ITEM_FRAME);
                     }
@@ -2691,7 +2697,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
                 }
             }
 
-            if (itemstack.func_190926_b())
+            if (itemstack.isEmptyStack())
             {
                 String s = "";
 

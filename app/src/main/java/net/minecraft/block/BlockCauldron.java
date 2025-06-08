@@ -93,7 +93,7 @@ public class BlockCauldron extends Block
     {
         ItemStack itemstack = playerIn.getHeldItem(hand);
 
-        if (itemstack.func_190926_b())
+        if (itemstack.isEmptyStack())
         {
             return true;
         }
@@ -126,7 +126,7 @@ public class BlockCauldron extends Block
                     {
                         itemstack.func_190918_g(1);
 
-                        if (itemstack.func_190926_b())
+                        if (itemstack.isEmptyStack())
                         {
                             playerIn.setHeldItem(hand, new ItemStack(Items.WATER_BUCKET));
                         }
@@ -153,7 +153,7 @@ public class BlockCauldron extends Block
                         playerIn.addStat(StatList.CAULDRON_USED);
                         itemstack.func_190918_g(1);
 
-                        if (itemstack.func_190926_b())
+                        if (itemstack.isEmptyStack())
                         {
                             playerIn.setHeldItem(hand, itemstack3);
                         }
@@ -225,7 +225,7 @@ public class BlockCauldron extends Block
                             this.setWaterLevel(worldIn, pos, state, i - 1);
                         }
 
-                        if (itemstack.func_190926_b())
+                        if (itemstack.isEmptyStack())
                         {
                             playerIn.setHeldItem(hand, itemstack1);
                         }

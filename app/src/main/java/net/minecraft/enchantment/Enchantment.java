@@ -72,7 +72,7 @@ public abstract class Enchantment
         {
             ItemStack itemstack = entityIn.getItemStackFromSlot(entityequipmentslot);
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 list.add(itemstack);
             }

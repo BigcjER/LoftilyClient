@@ -26,7 +26,7 @@ public class InventoryCraftResult implements IInventory
     {
         for (ItemStack itemstack : this.stackResult)
         {
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 return false;
             }

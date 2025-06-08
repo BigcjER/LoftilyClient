@@ -173,7 +173,7 @@ public class GuiCreateFlatWorld extends GuiScreen
             this.drawItemBackground(x + 1, z + 1);
             GlStateManager.enableRescaleNormal();
 
-            if (!itemToDraw.func_190926_b())
+            if (!itemToDraw.isEmptyStack())
             {
                 RenderHelper.enableGUIStandardItemLighting();
                 GuiCreateFlatWorld.this.itemRender.renderItemIntoGUI(itemToDraw, x + 2, z + 2);

@@ -15,7 +15,7 @@ public class Ingredient implements Predicate<ItemStack>
     {
         public boolean apply(@Nullable ItemStack p_apply_1_)
         {
-            return p_apply_1_.func_190926_b();
+            return p_apply_1_.isEmptyStack();
         }
     };
     private final ItemStack[] field_193371_b;
@@ -96,7 +96,7 @@ public class Ingredient implements Predicate<ItemStack>
         {
             for (ItemStack itemstack : p_193369_0_)
             {
-                if (!itemstack.func_190926_b())
+                if (!itemstack.isEmptyStack())
                 {
                     return new Ingredient(p_193369_0_);
                 }

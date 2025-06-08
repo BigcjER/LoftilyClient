@@ -159,7 +159,7 @@ public class StatList
         {
             ItemStack itemstack = irecipe.getRecipeOutput();
 
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 set.add(irecipe.getRecipeOutput().getItem());
             }

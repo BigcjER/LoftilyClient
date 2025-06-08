@@ -38,7 +38,7 @@ public class EntityMooshroom extends EntityCow
         {
             itemstack.func_190918_g(1);
 
-            if (itemstack.func_190926_b())
+            if (itemstack.isEmptyStack())
             {
                 player.setHeldItem(hand, new ItemStack(Items.MUSHROOM_STEW));
             }

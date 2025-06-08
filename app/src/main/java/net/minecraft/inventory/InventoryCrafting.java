@@ -41,7 +41,7 @@ public class InventoryCrafting implements IInventory
     {
         for (ItemStack itemstack : this.stackList)
         {
-            if (!itemstack.func_190926_b())
+            if (!itemstack.isEmptyStack())
             {
                 return false;
             }
@@ -105,7 +105,7 @@ public class InventoryCrafting implements IInventory
     {
         ItemStack itemstack = ItemStackHelper.getAndSplit(this.stackList, index, count);
 
-        if (!itemstack.func_190926_b())
+        if (!itemstack.isEmptyStack())
         {
             this.eventHandler.onCraftMatrixChanged(this);
         }
