@@ -136,6 +136,7 @@ public class KillAura extends Module {
     public EntityLivingBase target = null;
     private int attackDelay = 0;
     private int canAttackTimes = 0;
+    private boolean blockingTick = false;
     
     {
         rotationRange = new NumberValue("RotationRange", 6, 0, 10, 0.1);
@@ -297,6 +298,7 @@ public class KillAura extends Module {
     
     @Override
     public void onDisable() {
+        blockingTick = false;
         target = null;
         targets.clear();
         mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
@@ -426,34 +428,6 @@ public class KillAura extends Module {
         
         if (mc.player == null || target == null) return;
 
-        if(canBlock()) {
-            switch (autoBlockMode.getValueByName()) {
-                case "HoldKey":
-                    mc.gameSettings.keyBindUseItem.setPressed(true);
-                    break;
-                case "MatrixDamage":
-                    break;
-                case "AfterTick":
-                    Item handItem = mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
-                    if(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
-                        if (canAttackTimes > 0) {
-                            if (handItem instanceof ItemSword || handItem instanceof ItemShield) {
-                                PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
-                            }
-                        } else {
-                            if (!mc.player.isHandActive()) {
-                                //PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
-                                PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
-                            }
-                            mc.gameSettings.keyBindUseItem.setPressed(true);
-                        }
-                    }
-                    break;
-            }
-        }else {
-            mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
-        }
-
         if(noInventory.getValue() && mc.currentScreen instanceof GuiInventory) {
             return;
         }
@@ -465,6 +439,39 @@ public class KillAura extends Module {
         }
         Entity bestTarget;
         Rotation rotation = RotationHandler.clientRotation == null ? RotationHandler.getRotation() : RotationHandler.clientRotation;
+
+        if(canBlock()) {
+            switch (autoBlockMode.getValueByName()) {
+                case "HoldKey":
+                    mc.gameSettings.keyBindUseItem.setPressed(true);
+                    break;
+                case "MatrixDamage":
+                    break;
+                case "AfterTick":
+                    if(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
+                        if (canAttackTimes > 0) {
+                            if(blockingTick) {
+                                Item handItem = mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
+                                if ((handItem instanceof ItemSword || handItem instanceof ItemShield)) {
+                                    PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+                                    blockingTick = false;
+                                }
+                            }
+                        } else {
+                            if (!blockingTick) {
+                                //PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                                PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
+                                blockingTick = true;
+                            }
+                            //mc.gameSettings.keyBindUseItem.setPressed(false);
+                        }
+                    }
+                    break;
+            }
+        }else {
+            mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
+        }
+
         if (!rayCast.getValue()) {
             bestTarget = target;
         } else {
