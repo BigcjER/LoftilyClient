@@ -358,6 +358,7 @@ public class ClickGui extends GuiScreen implements IDraggable {
     public void updateScreen() {
         super.updateScreen();
         searchBox.updateCursorCounter();
+        if (currentValuePanel != null) currentValuePanel.updateScreen();
     }
     
     @Override

@@ -10,10 +10,7 @@ import loftily.module.Module;
 import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 import loftily.value.Value;
-import loftily.value.impl.BooleanValue;
-import loftily.value.impl.MultiBooleanValue;
-import loftily.value.impl.NumberValue;
-import loftily.value.impl.RangeSelectionNumberValue;
+import loftily.value.impl.*;
 import loftily.value.impl.mode.ModeValue;
 import lombok.Setter;
 
@@ -43,7 +40,8 @@ public class ValuePanel {
                 valueRenderers.add(new RangeSelectionNumberRenderer((RangeSelectionNumberValue) value));
             if (value instanceof MultiBooleanValue)
                 valueRenderers.add(new MultiBooleanRenderer((MultiBooleanValue) value));
-            
+            if (value instanceof TextValue)
+                valueRenderers.add(new TextRenderer((TextValue) value));
         }
     }
     
@@ -105,5 +103,9 @@ public class ValuePanel {
     
     public void keyTyped(char typedChar, int keyCode) {
         valueRenderers.forEach(valueRenderer -> valueRenderer.keyTyped(typedChar, keyCode));
+    }
+    
+    public void updateScreen() {
+        valueRenderers.forEach(ValueRenderer::updateScreen);
     }
 }

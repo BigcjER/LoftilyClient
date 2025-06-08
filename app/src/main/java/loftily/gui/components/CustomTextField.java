@@ -22,7 +22,9 @@ public class CustomTextField extends GuiTextField {
     private final Ripple ripple;
     private final Animation cursorAnimation;
     private final Animation cursorXAnimation;
-    private int prevXPosition;
+    private int prevXPosition, textXOffset;
+    
+    
     public CustomTextField(int componentId, net.minecraft.client.gui.FontRenderer fontrendererObj, int x, int y, int par5Width, int par6Height) {
         super(componentId, fontrendererObj, x, y, par5Width, par6Height);
         this.font = FontManager.NotoSans.of(18);
@@ -55,7 +57,7 @@ public class CustomTextField extends GuiTextField {
         String visibleText = font.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth(), false);
         boolean cursorVisible = this.isFocused && this.cursorCounter / 7 % 3 == 0 && cursorPos >= 0 && cursorPos <= visibleText.length();
         
-        int paddingX = (this.enableBackgroundDrawing ? this.xPosition + 6 : this.xPosition + 3);
+        int paddingX = (this.enableBackgroundDrawing ? this.xPosition + 6 : this.xPosition + 3) + textXOffset;
         int paddingY = this.enableBackgroundDrawing ? this.yPosition + (this.height - 8) / 2 : this.yPosition;
         
         selectionEnd = Math.min(selectionEnd, visibleText.length());
