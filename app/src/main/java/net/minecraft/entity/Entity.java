@@ -7,6 +7,7 @@ import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.Client;
 import loftily.event.impl.player.PushEvent;
+import loftily.event.impl.player.motion.MoveEvent;
 import loftily.event.impl.player.motion.StrafeEvent;
 import loftily.handlers.impl.RotationHandler;
 import loftily.module.impl.other.RayTraceFixer;
@@ -18,7 +19,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.block.state.pattern.BlockPattern;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.crash.CrashReport;
@@ -709,16 +709,21 @@ public abstract class Entity implements ICommandSender
     /**
      * Tries to move the entity towards the specified location.
      */
-    public void moveEntity(MoverType x, double p_70091_2_, double p_70091_4_, double p_70091_6_)
+    public void moveEntity(MoverType moverType, double x, double y, double z)
     {
+        MoveEvent event = new MoveEvent(x, y, z, this);
+        Client.INSTANCE.getEventManager().call(event);
+        
+        if (event.isCancelled()) return;
+        
         if (this.noClip)
         {
-            this.setEntityBoundingBox(this.getEntityBoundingBox().offset(p_70091_2_, p_70091_4_, p_70091_6_));
+            this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
             this.resetPositionToBB();
         }
         else
         {
-            if (x == MoverType.PISTON)
+            if (moverType == MoverType.PISTON)
             {
                 long i = this.world.getTotalWorldTime();
 
@@ -727,44 +732,43 @@ public abstract class Entity implements ICommandSender
                     Arrays.fill(this.field_191505_aI, 0.0D);
                     this.field_191506_aJ = i;
                 }
-
-                if (p_70091_2_ != 0.0D)
+                
+                if (x != 0.0D)
                 {
                     int j = EnumFacing.Axis.X.ordinal();
-                    double d0 = MathHelper.clamp(p_70091_2_ + this.field_191505_aI[j], -0.51D, 0.51D);
-                    p_70091_2_ = d0 - this.field_191505_aI[j];
+                    double d0 = MathHelper.clamp(x + this.field_191505_aI[j], -0.51D, 0.51D);
+                    x = d0 - this.field_191505_aI[j];
                     this.field_191505_aI[j] = d0;
-
-                    if (Math.abs(p_70091_2_) <= 9.999999747378752E-6D)
+                    
+                    if (Math.abs(x) <= 9.999999747378752E-6D)
                     {
                         return;
                     }
-                }
-                else if (p_70091_4_ != 0.0D)
+                } else if (y != 0.0D)
                 {
                     int l4 = EnumFacing.Axis.Y.ordinal();
-                    double d12 = MathHelper.clamp(p_70091_4_ + this.field_191505_aI[l4], -0.51D, 0.51D);
-                    p_70091_4_ = d12 - this.field_191505_aI[l4];
+                    double d12 = MathHelper.clamp(y + this.field_191505_aI[l4], -0.51D, 0.51D);
+                    y = d12 - this.field_191505_aI[l4];
                     this.field_191505_aI[l4] = d12;
-
-                    if (Math.abs(p_70091_4_) <= 9.999999747378752E-6D)
+                    
+                    if (Math.abs(y) <= 9.999999747378752E-6D)
                     {
                         return;
                     }
                 }
                 else
                 {
-                    if (p_70091_6_ == 0.0D)
+                    if (z == 0.0D)
                     {
                         return;
                     }
 
                     int i5 = EnumFacing.Axis.Z.ordinal();
-                    double d13 = MathHelper.clamp(p_70091_6_ + this.field_191505_aI[i5], -0.51D, 0.51D);
-                    p_70091_6_ = d13 - this.field_191505_aI[i5];
+                    double d13 = MathHelper.clamp(z + this.field_191505_aI[i5], -0.51D, 0.51D);
+                    z = d13 - this.field_191505_aI[i5];
                     this.field_191505_aI[i5] = d13;
-
-                    if (Math.abs(p_70091_6_) <= 9.999999747378752E-6D)
+                    
+                    if (Math.abs(z) <= 9.999999747378752E-6D)
                     {
                         return;
                     }
@@ -779,143 +783,139 @@ public abstract class Entity implements ICommandSender
             if (this.isInWeb)
             {
                 this.isInWeb = false;
-                p_70091_2_ *= 0.25D;
-                p_70091_4_ *= 0.05000000074505806D;
-                p_70091_6_ *= 0.25D;
+                x *= 0.25D;
+                y *= 0.05000000074505806D;
+                z *= 0.25D;
                 this.motionX = 0.0D;
                 this.motionY = 0.0D;
                 this.motionZ = 0.0D;
             }
-
-            double d2 = p_70091_2_;
-            double d3 = p_70091_4_;
-            double d4 = p_70091_6_;
-
-            if ((x == MoverType.SELF || x == MoverType.PLAYER) && this.onGround && this.isSneaking() && this instanceof EntityPlayer)
+            
+            double d2 = x;
+            double d3 = y;
+            double d4 = z;
+            
+            if ((moverType == MoverType.SELF || moverType == MoverType.PLAYER) && this.onGround && this.isSneaking() && this instanceof EntityPlayer || event.isSafeWalk())
             {
-                for (double d5 = 0.05D; p_70091_2_ != 0.0D && this.world.getCollisionBoxes(this, this.getEntityBoundingBox().offset(p_70091_2_, (double)(-this.stepHeight), 0.0D)).isEmpty(); d2 = p_70091_2_)
+                for (double d5 = 0.05D; x != 0.0D && this.world.getCollisionBoxes(this, this.getEntityBoundingBox().offset(x, (double) (-this.stepHeight), 0.0D)).isEmpty(); d2 = x)
                 {
-                    if (p_70091_2_ < 0.05D && p_70091_2_ >= -0.05D)
+                    if (x < 0.05D && x >= -0.05D)
                     {
-                        p_70091_2_ = 0.0D;
-                    }
-                    else if (p_70091_2_ > 0.0D)
+                        x = 0.0D;
+                    } else if (x > 0.0D)
                     {
-                        p_70091_2_ -= 0.05D;
+                        x -= 0.05D;
                     }
                     else
                     {
-                        p_70091_2_ += 0.05D;
+                        x += 0.05D;
                     }
                 }
-
-                for (; p_70091_6_ != 0.0D && this.world.getCollisionBoxes(this, this.getEntityBoundingBox().offset(0.0D, (double)(-this.stepHeight), p_70091_6_)).isEmpty(); d4 = p_70091_6_)
+                
+                for (; z != 0.0D && this.world.getCollisionBoxes(this, this.getEntityBoundingBox().offset(0.0D, (double) (-this.stepHeight), z)).isEmpty(); d4 = z)
                 {
-                    if (p_70091_6_ < 0.05D && p_70091_6_ >= -0.05D)
+                    if (z < 0.05D && z >= -0.05D)
                     {
-                        p_70091_6_ = 0.0D;
-                    }
-                    else if (p_70091_6_ > 0.0D)
+                        z = 0.0D;
+                    } else if (z > 0.0D)
                     {
-                        p_70091_6_ -= 0.05D;
+                        z -= 0.05D;
                     }
                     else
                     {
-                        p_70091_6_ += 0.05D;
+                        z += 0.05D;
                     }
                 }
-
-                for (; p_70091_2_ != 0.0D && p_70091_6_ != 0.0D && this.world.getCollisionBoxes(this, this.getEntityBoundingBox().offset(p_70091_2_, (double)(-this.stepHeight), p_70091_6_)).isEmpty(); d4 = p_70091_6_)
+                
+                for (; x != 0.0D && z != 0.0D && this.world.getCollisionBoxes(this, this.getEntityBoundingBox().offset(x, (double) (-this.stepHeight), z)).isEmpty(); d4 = z)
                 {
-                    if (p_70091_2_ < 0.05D && p_70091_2_ >= -0.05D)
+                    if (x < 0.05D && x >= -0.05D)
                     {
-                        p_70091_2_ = 0.0D;
-                    }
-                    else if (p_70091_2_ > 0.0D)
+                        x = 0.0D;
+                    } else if (x > 0.0D)
                     {
-                        p_70091_2_ -= 0.05D;
-                    }
-                    else
-                    {
-                        p_70091_2_ += 0.05D;
-                    }
-
-                    d2 = p_70091_2_;
-
-                    if (p_70091_6_ < 0.05D && p_70091_6_ >= -0.05D)
-                    {
-                        p_70091_6_ = 0.0D;
-                    }
-                    else if (p_70091_6_ > 0.0D)
-                    {
-                        p_70091_6_ -= 0.05D;
+                        x -= 0.05D;
                     }
                     else
                     {
-                        p_70091_6_ += 0.05D;
+                        x += 0.05D;
+                    }
+                    
+                    d2 = x;
+                    
+                    if (z < 0.05D && z >= -0.05D)
+                    {
+                        z = 0.0D;
+                    } else if (z > 0.0D)
+                    {
+                        z -= 0.05D;
+                    }
+                    else
+                    {
+                        z += 0.05D;
                     }
                 }
             }
-
-            List<AxisAlignedBB> list1 = this.world.getCollisionBoxes(this, this.getEntityBoundingBox().addCoord(p_70091_2_, p_70091_4_, p_70091_6_));
+            
+            List<AxisAlignedBB> list1 = this.world.getCollisionBoxes(this, this.getEntityBoundingBox().addCoord(x, y, z));
             AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
-
-            if (p_70091_4_ != 0.0D)
+            
+            if (y != 0.0D)
             {
                 int k = 0;
 
                 for (int l = list1.size(); k < l; ++k)
                 {
-                    p_70091_4_ = ((AxisAlignedBB)list1.get(k)).calculateYOffset(this.getEntityBoundingBox(), p_70091_4_);
+                    y = ((AxisAlignedBB) list1.get(k)).calculateYOffset(this.getEntityBoundingBox(), y);
                 }
-
-                this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, p_70091_4_, 0.0D));
+                
+                this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, y, 0.0D));
             }
-
-            if (p_70091_2_ != 0.0D)
+            
+            if (x != 0.0D)
             {
                 int j5 = 0;
 
                 for (int l5 = list1.size(); j5 < l5; ++j5)
                 {
-                    p_70091_2_ = ((AxisAlignedBB)list1.get(j5)).calculateXOffset(this.getEntityBoundingBox(), p_70091_2_);
+                    x = ((AxisAlignedBB) list1.get(j5)).calculateXOffset(this.getEntityBoundingBox(), x);
                 }
-
-                if (p_70091_2_ != 0.0D)
+                
+                if (x != 0.0D)
                 {
-                    this.setEntityBoundingBox(this.getEntityBoundingBox().offset(p_70091_2_, 0.0D, 0.0D));
+                    this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, 0.0D, 0.0D));
                 }
             }
-
-            if (p_70091_6_ != 0.0D)
+            
+            if (z != 0.0D)
             {
                 int k5 = 0;
 
                 for (int i6 = list1.size(); k5 < i6; ++k5)
                 {
-                    p_70091_6_ = ((AxisAlignedBB)list1.get(k5)).calculateZOffset(this.getEntityBoundingBox(), p_70091_6_);
+                    z = ((AxisAlignedBB) list1.get(k5)).calculateZOffset(this.getEntityBoundingBox(), z);
                 }
-
-                if (p_70091_6_ != 0.0D)
+                
+                if (z != 0.0D)
                 {
-                    this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, 0.0D, p_70091_6_));
+                    this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, 0.0D, z));
                 }
             }
-
-            boolean flag = this.onGround || d3 != p_70091_4_ && d3 < 0.0D;
-
-            if (this.stepHeight > 0.0F && flag && (d2 != p_70091_2_ || d4 != p_70091_6_))
+            
+            boolean flag = this.onGround || d3 != y && d3 < 0.0D;
+            
+            if (this.stepHeight > 0.0F && flag && (d2 != x || d4 != z))
             {
-                double d14 = p_70091_2_;
-                double d6 = p_70091_4_;
-                double d7 = p_70091_6_;
+                double d14 = x;
+                double d6 = y;
+                double d7 = z;
                 AxisAlignedBB axisalignedbb1 = this.getEntityBoundingBox();
                 this.setEntityBoundingBox(axisalignedbb);
-                p_70091_4_ = (double)this.stepHeight;
-                List<AxisAlignedBB> list = this.world.getCollisionBoxes(this, this.getEntityBoundingBox().addCoord(d2, p_70091_4_, d4));
+                y = (double) this.stepHeight;
+                List<AxisAlignedBB> list = this.world.getCollisionBoxes(this, this.getEntityBoundingBox().addCoord(d2, y, d4));
                 AxisAlignedBB axisalignedbb2 = this.getEntityBoundingBox();
                 AxisAlignedBB axisalignedbb3 = axisalignedbb2.addCoord(d2, 0.0D, d4);
-                double d8 = p_70091_4_;
+                double d8 = y;
                 int j1 = 0;
 
                 for (int k1 = list.size(); j1 < k1; ++j1)
@@ -943,7 +943,7 @@ public abstract class Entity implements ICommandSender
 
                 axisalignedbb2 = axisalignedbb2.offset(0.0D, 0.0D, d19);
                 AxisAlignedBB axisalignedbb4 = this.getEntityBoundingBox();
-                double d20 = p_70091_4_;
+                double d20 = y;
                 int l2 = 0;
 
                 for (int i3 = list.size(); l2 < i3; ++l2)
@@ -975,16 +975,16 @@ public abstract class Entity implements ICommandSender
 
                 if (d23 > d9)
                 {
-                    p_70091_2_ = d18;
-                    p_70091_6_ = d19;
-                    p_70091_4_ = -d8;
+                    x = d18;
+                    z = d19;
+                    y = -d8;
                     this.setEntityBoundingBox(axisalignedbb2);
                 }
                 else
                 {
-                    p_70091_2_ = d21;
-                    p_70091_6_ = d22;
-                    p_70091_4_ = -d20;
+                    x = d21;
+                    z = d22;
+                    y = -d20;
                     this.setEntityBoundingBox(axisalignedbb4);
                 }
 
@@ -992,16 +992,16 @@ public abstract class Entity implements ICommandSender
 
                 for (int k4 = list.size(); j4 < k4; ++j4)
                 {
-                    p_70091_4_ = ((AxisAlignedBB)list.get(j4)).calculateYOffset(this.getEntityBoundingBox(), p_70091_4_);
+                    y = ((AxisAlignedBB) list.get(j4)).calculateYOffset(this.getEntityBoundingBox(), y);
                 }
-
-                this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, p_70091_4_, 0.0D));
-
-                if (d14 * d14 + d7 * d7 >= p_70091_2_ * p_70091_2_ + p_70091_6_ * p_70091_6_)
+                
+                this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, y, 0.0D));
+                
+                if (d14 * d14 + d7 * d7 >= x * x + z * z)
                 {
-                    p_70091_2_ = d14;
-                    p_70091_4_ = d6;
-                    p_70091_6_ = d7;
+                    x = d14;
+                    y = d6;
+                    z = d7;
                     this.setEntityBoundingBox(axisalignedbb1);
                 }
             }
@@ -1009,8 +1009,8 @@ public abstract class Entity implements ICommandSender
             this.world.theProfiler.endSection();
             this.world.theProfiler.startSection("rest");
             this.resetPositionToBB();
-            this.isCollidedHorizontally = d2 != p_70091_2_ || d4 != p_70091_6_;
-            this.isCollidedVertically = d3 != p_70091_4_;
+            this.isCollidedHorizontally = d2 != x || d4 != z;
+            this.isCollidedVertically = d3 != y;
             this.onGround = this.isCollidedVertically && d3 < 0.0D;
             this.isCollided = this.isCollidedHorizontally || this.isCollidedVertically;
             int j6 = MathHelper.floor(this.posX);
@@ -1031,22 +1031,22 @@ public abstract class Entity implements ICommandSender
                     blockpos = blockpos1;
                 }
             }
-
-            this.updateFallState(p_70091_4_, this.onGround, iblockstate, blockpos);
-
-            if (d2 != p_70091_2_)
+            
+            this.updateFallState(y, this.onGround, iblockstate, blockpos);
+            
+            if (d2 != x)
             {
                 this.motionX = 0.0D;
             }
-
-            if (d4 != p_70091_6_)
+            
+            if (d4 != z)
             {
                 this.motionZ = 0.0D;
             }
 
             Block block = iblockstate.getBlock();
-
-            if (d3 != p_70091_4_)
+            
+            if (d3 != y)
             {
                 block.onLanded(this.world, this);
             }

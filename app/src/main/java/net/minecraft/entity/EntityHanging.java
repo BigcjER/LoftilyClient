@@ -1,7 +1,6 @@
 package net.minecraft.entity;
 
 import com.google.common.base.Predicate;
-import javax.annotation.Nullable;
 import net.minecraft.block.BlockRedstoneDiode;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.effect.EntityLightningBolt;
@@ -18,6 +17,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
+
+import javax.annotation.Nullable;
 
 public abstract class EntityHanging extends Entity
 {
@@ -218,9 +219,9 @@ public abstract class EntityHanging extends Entity
     /**
      * Tries to move the entity towards the specified location.
      */
-    public void moveEntity(MoverType x, double p_70091_2_, double p_70091_4_, double p_70091_6_)
+    public void moveEntity(MoverType moverType, double x, double y, double z)
     {
-        if (!this.world.isRemote && !this.isDead && p_70091_2_ * p_70091_2_ + p_70091_4_ * p_70091_4_ + p_70091_6_ * p_70091_6_ > 0.0D)
+        if (!this.world.isRemote && !this.isDead && x * x + y * y + z * z > 0.0D)
         {
             this.setDead();
             this.onBroken((Entity)null);

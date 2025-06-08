@@ -2,8 +2,6 @@ package net.minecraft.entity.projectile;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -28,12 +26,11 @@ import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.datafix.DataFixer;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public abstract class EntityArrow extends Entity implements IProjectile
 {
@@ -480,9 +477,9 @@ public abstract class EntityArrow extends Entity implements IProjectile
     /**
      * Tries to move the entity towards the specified location.
      */
-    public void moveEntity(MoverType x, double p_70091_2_, double p_70091_4_, double p_70091_6_)
+    public void moveEntity(MoverType moverType, double x, double y, double z)
     {
-        super.moveEntity(x, p_70091_2_, p_70091_4_, p_70091_6_);
+        super.moveEntity(moverType, x, y, z);
 
         if (this.inGround)
         {
