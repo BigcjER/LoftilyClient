@@ -11,9 +11,10 @@ import org.lwjgl.input.Keyboard;
 
 public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNumberValue> {
     private final Animation leftAnim, rightAnim;
-    private DraggingState draggingState = DraggingState.None;
+    private DraggingState draggingState = DraggingState.NONE;
     private float dragOffset;
     private boolean hovering;
+    private int lastMouseX;
     
     public RangeSelectionNumberRenderer(RangeSelectionNumberValue value) {
         super(value, 25);
@@ -30,7 +31,7 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
     @Override
     public void onGuiClosed() {
         super.onGuiClosed();
-        draggingState = DraggingState.None;
+        draggingState = DraggingState.NONE;
         hovering = false;
         Keyboard.enableRepeatEvents(false);
     }
@@ -38,6 +39,7 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
+        this.lastMouseX = mouseX;
         hovering = RenderUtils.isHovering(mouseX, mouseY, x, y, width, height);
         
         float startX = x + 6;
@@ -87,7 +89,7 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
         drawThumb(startX + animatedRight, sliderY, sliderHeight);
         
         //拖动逻辑
-        if (draggingState != DraggingState.None) {
+        if (draggingState != DraggingState.NONE) {
             float mousePercent = (mouseX - startX - dragOffset) / sliderWidth;
             mousePercent = Math.max(0, Math.min(1, mousePercent));
             
@@ -96,13 +98,13 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
             newValue = Math.round(newValue / step) * step;
             
             switch (draggingState) {
-                case Left:
+                case LEFT:
                     value.setFirst(Math.min(newValue, value.getSecond()));
                     break;
-                case Right:
+                case RIGHT:
                     value.setSecond(Math.max(newValue, value.getFirst()));
                     break;
-                case Middle:
+                case MIDDLE:
                     double range = value.getSecond() - value.getFirst();
                     double rawCenterValue = min + mousePercent * (max - min);
                     double alignedCenter = Math.round(rawCenterValue / value.getStep()) * value.getStep();
@@ -122,6 +124,7 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
         
     }
     
+    //微调部分
     @Override
     public void keyTyped(char typedChar, int keyCode) {
         super.keyTyped(typedChar, keyCode);
@@ -132,23 +135,64 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
         double step = value.getStep();
         double first = value.getFirst();
         double second = value.getSecond();
-        double range = second - first;
+        
+        float startX = x + 6;
+        float sliderWidth = width - 12;
+        float leftThumbPos = startX + (float) ((first - min) / (max - min) * sliderWidth);
+        float rightThumbPos = startX + (float) ((second - min) / (max - min) * sliderWidth);
+        
+        MouseRegion region;
+        if (lastMouseX < leftThumbPos) {
+            region = MouseRegion.LEFT_EMPTY;
+        } else if (lastMouseX > rightThumbPos) {
+            region = MouseRegion.RIGHT_EMPTY;
+        } else {
+            region = MouseRegion.ACTIVE_RANGE;
+        }
         
         switch (keyCode) {
             case Keyboard.KEY_LEFT: {
-                double newFirst = Math.max(min, first - step);
-                double newSecond = newFirst + range;
-                
-                value.setFirst(Math.round(newFirst / step) * step);
-                value.setSecond(Math.round(newSecond / step) * step);
+                switch (region) {
+                    case LEFT_EMPTY:
+                        double newFirst = Math.max(min, first - step);
+                        value.setFirst(Math.round(newFirst / step) * step);
+                        break;
+                    case ACTIVE_RANGE:
+                        if (first > min) {
+                            double range = second - first;
+                            double newFirstRange = Math.max(min, first - step);
+                            double newSecondRange = newFirstRange + range;
+                            value.setFirst(Math.round(newFirstRange / step) * step);
+                            value.setSecond(Math.round(newSecondRange / step) * step);
+                        }
+                        break;
+                    case RIGHT_EMPTY:
+                        double newSecond = Math.max(first, second - step);
+                        value.setSecond(Math.round(newSecond / step) * step);
+                        break;
+                }
                 break;
             }
             case Keyboard.KEY_RIGHT: {
-                double newSecond = Math.min(max, second + step);
-                double newFirst = newSecond - range;
-                
-                value.setFirst(Math.round(newFirst / step) * step);
-                value.setSecond(Math.round(newSecond / step) * step);
+                switch (region) {
+                    case LEFT_EMPTY:
+                        double newFirst = Math.min(second, first + step);
+                        value.setFirst(Math.round(newFirst / step) * step);
+                        break;
+                    case ACTIVE_RANGE:
+                        if (second < max) {
+                            double range = second - first;
+                            double newSecondRange = Math.min(max, second + step);
+                            double newFirstRange = newSecondRange - range;
+                            value.setFirst(Math.round(newFirstRange / step) * step);
+                            value.setSecond(Math.round(newSecondRange / step) * step);
+                        }
+                        break;
+                    case RIGHT_EMPTY:
+                        double newSecond = Math.min(max, second + step);
+                        value.setSecond(Math.round(newSecond / step) * step);
+                        break;
+                }
                 break;
             }
         }
@@ -196,13 +240,13 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
         
         //点击检测逻辑
         if (Math.abs(mouseX - currentLeft) < 8) {
-            draggingState = DraggingState.Left;
+            draggingState = DraggingState.LEFT;
             dragOffset = mouseX - currentLeft;
         } else if (Math.abs(mouseX - currentRight) < 8) {
-            draggingState = DraggingState.Right;
+            draggingState = DraggingState.RIGHT;
             dragOffset = mouseX - currentRight;
         } else if (mouseX > currentLeft && mouseX < currentRight) {
-            draggingState = DraggingState.Middle;
+            draggingState = DraggingState.MIDDLE;
             dragOffset = mouseX - (currentLeft + (currentRight - currentLeft) / 2);
         }
     }
@@ -220,7 +264,7 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
     @Override
     public void mouseReleased(int mouseX, int mouseY, int state) {
         super.mouseReleased(mouseX, mouseY, state);
-        draggingState = DraggingState.None;
+        draggingState = DraggingState.NONE;
     }
     
     private String formatNumber(double value) {
@@ -230,6 +274,10 @@ public class RangeSelectionNumberRenderer extends ValueRenderer<RangeSelectionNu
     }
     
     private enum DraggingState {
-        None, Left, Right, Middle
+        NONE, LEFT, RIGHT, MIDDLE
+    }
+    
+    private enum MouseRegion {
+        LEFT_EMPTY, ACTIVE_RANGE, RIGHT_EMPTY
     }
 }

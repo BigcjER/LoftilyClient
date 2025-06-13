@@ -1,6 +1,8 @@
 package loftily.value.impl;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import loftily.utils.client.ClientUtils;
 import loftily.value.Value;
 
 import java.util.LinkedHashMap;
@@ -40,7 +42,7 @@ public class MultiBooleanValue extends Value<Map<String, Boolean>, MultiBooleanV
     
     @Override
     public JsonElement write() {
-        com.google.gson.JsonObject jsonObject = new com.google.gson.JsonObject();
+        JsonObject jsonObject = new JsonObject();
         for (Map.Entry<String, Boolean> entry : getValue().entrySet()) {
             jsonObject.addProperty(entry.getKey(), entry.getValue());
         }
@@ -50,10 +52,15 @@ public class MultiBooleanValue extends Value<Map<String, Boolean>, MultiBooleanV
     @Override
     public Value<Map<String, Boolean>, MultiBooleanValue> read(JsonElement element) {
         if (element.isJsonObject()) {
-            com.google.gson.JsonObject jsonObject = element.getAsJsonObject();
-            Map<String, Boolean> newValues = new LinkedHashMap<>();
+            JsonObject jsonObject = element.getAsJsonObject();
+            Map<String, Boolean> newValues = new LinkedHashMap<>(getValue());
+            
             for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-                newValues.put(entry.getKey(), entry.getValue().getAsBoolean());
+                if (newValues.containsKey(entry.getKey())) {
+                    newValues.put(entry.getKey(), entry.getValue().getAsBoolean());
+                } else {
+                    ClientUtils.LOGGER.warn("Found unknown key '{}' in value '{}'. It will be ignored.", entry.getKey(), this.getName());
+                }
             }
             super.setValue(newValues);
         }
