@@ -541,16 +541,13 @@ public class KillAura extends Module {
                 case "AfterTick":
                     if (canAttackTimes > 0) {
                         if(blockingTick) {
-                            Item handItem = mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
-                            if ((handItem instanceof ItemSword || handItem instanceof ItemShield)) {
-                                PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
-                                blockingTick = false;
-                            }
+                            //Item handItem = mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
+                            PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+                            blockingTick = false;
                         }
                     } else {
                         if (!blockingTick) {
-                            sendInteractPacket(target);
-                            PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
+                            blockingPacket(target);
                             blockingTick = true;
                         }
                         mc.gameSettings.keyBindUseItem.setPressed(true);

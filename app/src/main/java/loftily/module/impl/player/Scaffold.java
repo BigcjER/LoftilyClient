@@ -1,6 +1,7 @@
 package loftily.module.impl.player;
 
 import com.google.common.collect.Lists;
+import loftily.Client;
 import loftily.event.impl.player.motion.JumpEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.player.motion.MoveEvent;
@@ -11,6 +12,7 @@ import loftily.handlers.impl.RotationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
+import loftily.module.impl.other.RayTraceFixer;
 import loftily.utils.block.BlockUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
