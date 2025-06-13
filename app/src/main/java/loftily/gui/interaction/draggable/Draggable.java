@@ -37,9 +37,10 @@ public class Draggable implements ClientUtils {
         this(startX, startY, margin, () -> Client.INSTANCE.getFileManager().get(DragsConfig.class).write());
     }
     
-    public void updateDrag(int mouseX, int mouseY, int dragWidth, int dragHeight, int width, int height, int screenWidth, int screenHeight) {
+    public void updateDrag(int mouseX, int mouseY, int dragWidth, int dragHeight, int width, int height, int screenWidth, int screenHeight, int clampStartX, int clampStartY) {
         this.width = width;
         this.height = height;
+        boolean prevDragging = this.isDragging;
         
         if (Mouse.isButtonDown(0)) {
             if (!isDragging && RenderUtils.isHovering(mouseX, mouseY, posX, posY, dragWidth, dragHeight)) {
@@ -51,18 +52,28 @@ public class Draggable implements ClientUtils {
             if (isDragging) {
                 posX = mouseX - prevX;
                 posY = mouseY - prevY;
-                
-                posX = Math.max(0, Math.min(posX, screenWidth - width));
-                posY = Math.max(0, Math.min(posY, screenHeight - height));
-                if (afterDrag != null) {
-                    afterDrag.run();
-                }
             }
         } else {
             isDragging = false;
         }
-        posX = Math.max(margin, Math.min(posX, screenWidth - width - margin));
-        posY = Math.max(margin, Math.min(posY, screenHeight - height - margin));
+        
+        if (prevDragging && !isDragging && afterDrag != null) {
+            afterDrag.run();
+        }
+        
+        final int finalClampX = Math.max(margin, clampStartX);
+        final int finalClampY = Math.max(margin, clampStartY);
+        
+        posX = Math.max(finalClampX, Math.min(posX, screenWidth - width - margin));
+        posY = Math.max(finalClampY, Math.min(posY, screenHeight - height - margin));
+    }
+    
+    public void updateDrag(int mouseX, int mouseY, int dragWidth, int dragHeight, int width, int height, int screenWidth, int screenHeight) {
+        updateDrag(mouseX, mouseY, dragWidth, dragHeight, width, height, screenWidth, screenHeight, 0, 0);
+    }
+    
+    public void updateDrag(int mouseX, int mouseY, int width, int height, int screenWidth, int screenHeight) {
+        this.updateDrag(mouseX, mouseY, width, height, width, height, screenWidth, screenHeight);
     }
     
     public void applyDragEffect(Runnable runnable, int offset) {
@@ -85,7 +96,6 @@ public class Draggable implements ClientUtils {
         }
         
         GL11.glPushMatrix();
-        
         GL11.glTranslatef(centerX, centerY, 0);
         GL11.glScalef(scale, scale, 1.0f);
         GL11.glTranslatef(-centerX, -centerY, 0);
@@ -98,10 +108,4 @@ public class Draggable implements ClientUtils {
     public void applyDragEffect(Runnable runnable) {
         this.applyDragEffect(runnable, 0);
     }
-    
-    
-    public void updateDrag(int mouseX, int mouseY, int width, int height, int screenWidth, int screenHeight) {
-        this.updateDrag(mouseX, mouseY, width, height, width, height, screenWidth, screenHeight);
-    }
-    
 }
