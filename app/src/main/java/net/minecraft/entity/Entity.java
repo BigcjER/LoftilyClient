@@ -1777,7 +1777,7 @@ public abstract class Entity implements ICommandSender
         if (partialTicks == 1.0F)
         {
             RayTraceFixer rayTraceFixer = Client.INSTANCE.getModuleManager().get(RayTraceFixer.class);
-            return !rayTraceFixer.isToggled() ? this.getVectorForRotation(this.rotationPitch, this.rotationYaw) : CalculateUtils.getVectorForRotation(RotationHandler.getRotation());
+            return !rayTraceFixer.isToggled() ? this.getVectorForRotation(this.rotationPitch, this.rotationYaw) : CalculateUtils.getVectorForRotation(RotationHandler.getCurrentRotation());
         }
         else
         {
@@ -1819,7 +1819,7 @@ public abstract class Entity implements ICommandSender
     {
         RayTraceFixer rayTraceFixer = Client.INSTANCE.getModuleManager().get(RayTraceFixer.class);
         Vec3d vec3d = this.getPositionEyes(partialTicks);
-        Vec3d vec3d1 = rayTraceFixer.isToggled() ? CalculateUtils.getVectorForRotation(RotationHandler.getRotation()) : this.getLook(partialTicks);
+        Vec3d vec3d1 = rayTraceFixer.isToggled() ? CalculateUtils.getVectorForRotation(RotationHandler.getCurrentRotation()) : this.getLook(partialTicks);
         Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * blockReachDistance, vec3d1.yCoord * blockReachDistance, vec3d1.zCoord * blockReachDistance);
         return this.world.rayTraceBlocks(vec3d, vec3d2, false, false, true);
     }

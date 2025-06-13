@@ -125,7 +125,8 @@ public class RotationHandler extends Handler {
         }
     }
 
-    @EventHandler
+
+    @EventHandler(priority = -50)
     public void onRotation(RotationEvent event) {
         if(clientRotation == null) return;
 

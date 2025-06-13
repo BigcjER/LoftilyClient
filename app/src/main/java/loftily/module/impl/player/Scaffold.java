@@ -3,6 +3,7 @@ package loftily.module.impl.player;
 import com.google.common.collect.Lists;
 import loftily.event.impl.player.motion.JumpEvent;
 import loftily.event.impl.player.motion.MotionEvent;
+import loftily.event.impl.player.motion.MoveEvent;
 import loftily.event.impl.player.motion.StrafeEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.handlers.impl.MoveHandler;
@@ -15,6 +16,7 @@ import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
 import loftily.utils.player.MoveUtils;
 import loftily.utils.player.RotationUtils;
+import loftily.utils.timer.DelayTimer;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
 import loftily.value.impl.RangeSelectionNumberValue;
@@ -65,6 +67,12 @@ public class Scaffold extends Module {
             new StringMode("None"),
             new StringMode("Simple"),
             new StringMode("Strict"));
+    private final ModeValue placeDelayMode = new ModeValue("PlaceDelayMode","None",this,
+            new StringMode("None"),
+            new StringMode("Normal")
+    );
+    private final RangeSelectionNumberValue placeDelay = new RangeSelectionNumberValue("PlaceDelay",40,100,0,1000)
+            .setVisible(()->placeDelayMode.is("Normal"));
     //Rotation
     private final ModeValue rotationMode = new ModeValue("RotationMode","None",this,
             new StringMode("Normal"),
@@ -109,6 +117,10 @@ public class Scaffold extends Module {
     );
     private final BooleanValue towerFakeJump = new BooleanValue("TowerFakeJump", false);
     private final BooleanValue towerNoMove = new BooleanValue("TowerNoMove", false);
+
+    private final BooleanValue onGround = new BooleanValue("OnGroundSafeWalk",false);
+    private final BooleanValue inAir = new BooleanValue("InAirSafeWalk",false);
+
     //SameY
     private final BooleanValue sameY = new BooleanValue("SameY", false);
     private final BooleanValue allowJump = new BooleanValue("AllowJump", false);
@@ -116,9 +128,13 @@ public class Scaffold extends Module {
     private int onGroundTimes = 0;
     private double lastY = 0.0;
     private boolean towerStatus = false;
+    private DelayTimer placeTimer = new DelayTimer();
+    private int currentPlaceDelay = 0;
 
     @Override
     public void onDisable(){
+        placeTimer.reset();
+        currentPlaceDelay = RandomUtils.randomInt((int)placeDelay.getFirst(),(int)placeDelay.getSecond());
         placeInfo = null;
         onGroundTimes = 0;
     }
@@ -138,6 +154,181 @@ public class Scaffold extends Module {
         public EnumFacing facing;
         public Vec3d hitVec;
         public Rotation rotation;
+    }
+
+    @EventHandler
+    public void onMove(MoveEvent event) {
+        if(event.getEntity() != mc.player)return;
+        if((onGround.getValue() && mc.player.onGround) || (inAir.getValue() && !mc.player.onGround)) {
+            event.setSafeWalk(true);
+        }
+    }
+
+    @EventHandler
+    public void onLivingUpdate(LivingUpdateEvent event) {
+        if (mc.player == null) return;
+
+        searchBlock();
+
+        if(placeInfo == null)
+            return;
+
+        if (rotationTiming.getValueByName().equals("Always")) {
+            setRotation(placeInfo.getRotation());
+        }
+        if(rotationMode.is("Sexy")) {
+            setRotation(RotationUtils.toRotation(placeInfo.getHitVec(),mc.player));
+        }
+
+        if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && !(mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock)) {
+            for (int i = 0; i < 9; i++) {
+                ItemStack stack = mc.player.inventory.getStackInSlot(i);
+                if (stack.getItem() instanceof ItemBlock) {
+                    mc.player.inventory.currentItem = i;
+                    break;
+                }
+            }
+            return;
+        }
+
+        if(keepRotation.getValue() && RotationHandler.clientRotation != null){
+            setRotation(RotationHandler.clientRotation);
+        }
+
+        switch (scaffoldMode.getValueByName()){
+            case "Telly":
+                if(MoveUtils.isMoving() && mc.player.onGround){
+                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
+                }
+                break;
+            case "Snap":
+                if(!(mc.world.getBlockState(new BlockPos(mc.player.posX,mc.player.posY-1,mc.player.posZ)).getBlock() instanceof BlockAir)){
+                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
+                }
+                break;
+        }
+
+        if (eagleMode.is("Prediction")) {
+            IBlockState iBlockState = mc.world.getBlockState(new BlockPos(mc.player.posX + mc.player.motionX * predictMotion.getValue(),
+                    mc.player.posY - 1.0,
+                    mc.player.posZ + mc.player.motionZ * predictMotion.getValue()));
+
+            if (iBlockState.getBlock() instanceof BlockAir && mc.player.onGround) {
+                MoveHandler.setSneak(true, sneakTime.getValue().intValue());
+            }
+        }
+
+        click(placeInfo.blockPos,placeInfo.facing,placeInfo.hitVec);
+    }
+
+    @EventHandler
+    public void onStrafe(StrafeEvent event){
+        switch (scaffoldMode.getValueByName()){
+            case "Telly":
+                if(MoveUtils.isMoving()) {
+                    if (!mc.player.isSprinting() && mc.gameSettings.keyBindJump.isKeyDown()) {
+                        mc.gameSettings.keyBindJump.setPressed(false);
+                    }
+                    if (mc.player.isSprinting()) {
+                        if (mc.player.onGround && MoveUtils.isMoving()) {
+                            mc.player.tryJump();
+                        }
+                        mc.gameSettings.keyBindJump.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindJump));
+                    }
+                }else {
+                    mc.gameSettings.keyBindJump.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindJump));
+                }
+                break;
+            case "AutoJump":
+                if(mc.player.onGround && MoveUtils.isMoving()){
+                    mc.player.tryJump();
+                }
+                break;
+            case "Normal":
+            case "Snap":
+                break;
+        }
+    }
+
+    @EventHandler
+    public void onMotion(MotionEvent event) {
+        towerStatus = false;
+        towerStatus = mc.gameSettings.keyBindJump.isKeyDown();
+
+        if (placeInfo != null) {
+            if((event.isPre() && placeTiming.is("Pre")) || (event.isPost() && placeTiming.is("Post"))) {
+                click(placeInfo.blockPos, placeInfo.facing, placeInfo.hitVec);
+            }
+        }
+
+        if (towerStatus) {
+            if (allowJump.getValue()) {
+                lastY = mc.player.posY;
+            }
+            if (towerNoMove.getValue() && MoveUtils.isMoving()) return;
+            switch (towerMode.getValueByName()) {
+                case "Jump":
+                    break;
+                case "Vanilla":
+                    fakeJump();
+                    mc.player.motionY = 0.42;
+                    break;
+                case "Matrix":
+                    if (!mc.player.onGround && onGroundTimes == 0) {
+                        onGroundTimes = 1;
+                    }
+                    if (mc.player.onGround && onGroundTimes == 1) {
+                        onGroundTimes = 2;
+                    }
+                    if (onGroundTimes == 2) {
+                        if (mc.player.onGround) {
+                            fakeJump();
+                            mc.player.motionY = 0.42;
+                        } else if (mc.player.motionY < 0.19) {
+                            event.setOnGround(true);
+                            mc.player.motionY = 0.42;
+                        }
+                    }
+                    break;
+            }
+        } else {
+            onGroundTimes = 0;
+        }
+    }
+
+    private void fakeJump() {
+        if (!towerFakeJump.getValue()) {
+            return;
+        }
+        mc.player.isAirBorne = true;
+        mc.player.addStat(StatList.JUMP);
+    }
+
+    @EventHandler
+    public void onJump(JumpEvent event) {
+        if (towerStatus && towerFakeJump.getValue()) {
+            if (towerNoMove.getValue() && MoveUtils.isMoving()) return;
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = -99999)
+    public void onSprint(LivingUpdateEvent event) {
+        switch (sprintMode.getValueByName()) {
+            case "Default":
+                break;
+            case "OFF":
+                mc.player.setSprinting(false);
+                mc.gameSettings.keyBindSprint.setPressed(false);
+                break;
+            case "Legit":
+                if (RotationHandler.clientRotation != null) {
+                    if (getMoveFixForward(RotationHandler.clientRotation) < 0.8) {
+                        mc.player.setSprinting(false);
+                    }
+                }
+                break;
+        }
     }
 
     private BlockPos getOptimalPos(){
@@ -323,179 +514,14 @@ public class Scaffold extends Module {
         }
     }
 
-    @EventHandler
-    public void onLivingUpdate(LivingUpdateEvent event) {
-        if (mc.player == null) return;
-
-        searchBlock();
-
-        if(placeInfo == null)
-            return;
-
-        if (rotationTiming.getValueByName().equals("Always")) {
-            setRotation(placeInfo.getRotation());
-        }
-        if(rotationMode.is("Sexy")) {
-            setRotation(RotationUtils.toRotation(placeInfo.getHitVec(),mc.player));
-        }
-
-        if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && !(mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock)) {
-            for (int i = 0; i < 9; i++) {
-                ItemStack stack = mc.player.inventory.getStackInSlot(i);
-                if (stack.getItem() instanceof ItemBlock) {
-                    mc.player.inventory.currentItem = i;
-                    break;
-                }
-            }
-            return;
-        }
-
-        if(keepRotation.getValue() && RotationHandler.clientRotation != null){
-            setRotation(RotationHandler.clientRotation);
-        }
-
-        switch (scaffoldMode.getValueByName()){
-            case "Telly":
-                if(MoveUtils.isMoving() && mc.player.onGround){
-                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
-                }
-                break;
-            case "Snap":
-                if(!(mc.world.getBlockState(new BlockPos(mc.player.posX,mc.player.posY-1,mc.player.posZ)).getBlock() instanceof BlockAir)){
-                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
-                }
-                break;
-        }
-
-        if (eagleMode.is("Prediction")) {
-            IBlockState iBlockState = mc.world.getBlockState(new BlockPos(mc.player.posX + mc.player.motionX * predictMotion.getValue(),
-                    mc.player.posY - 1.0,
-                    mc.player.posZ + mc.player.motionZ * predictMotion.getValue()));
-
-            if (iBlockState.getBlock() instanceof BlockAir && mc.player.onGround) {
-                MoveHandler.setSneak(true, sneakTime.getValue().intValue());
-            }
-        }
-
-        click(placeInfo.blockPos,placeInfo.facing,placeInfo.hitVec);
-    }
-
-    @EventHandler
-    public void onStrafe(StrafeEvent event){
-        switch (scaffoldMode.getValueByName()){
-            case "Telly":
-                if(MoveUtils.isMoving()) {
-                    if (!mc.player.isSprinting() && mc.gameSettings.keyBindJump.isKeyDown()) {
-                        mc.gameSettings.keyBindJump.setPressed(false);
-                    }
-                    if (mc.player.isSprinting()) {
-                        if (mc.player.onGround && MoveUtils.isMoving()) {
-                            mc.player.tryJump();
-                        }
-                        mc.gameSettings.keyBindJump.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindJump));
-                    }
-                }else {
-                    mc.gameSettings.keyBindJump.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindJump));
-                }
-                break;
-            case "AutoJump":
-                if(mc.player.onGround && MoveUtils.isMoving()){
-                    mc.player.tryJump();
-                }
-                break;
-            case "Normal":
-            case "Snap":
-                break;
-        }
-    }
-
-    @EventHandler
-    public void onMotion(MotionEvent event) {
-        towerStatus = false;
-        towerStatus = mc.gameSettings.keyBindJump.isKeyDown();
-
-        if (placeInfo != null) {
-            if((event.isPre() && placeTiming.is("Pre")) || (event.isPost() && placeTiming.is("Post"))) {
-                click(placeInfo.blockPos, placeInfo.facing, placeInfo.hitVec);
-            }
-        }
-
-        if (towerStatus) {
-            if (allowJump.getValue()) {
-                lastY = mc.player.posY;
-            }
-            if (towerNoMove.getValue() && MoveUtils.isMoving()) return;
-            switch (towerMode.getValueByName()) {
-                case "Jump":
-                    break;
-                case "Vanilla":
-                    fakeJump();
-                    mc.player.motionY = 0.42;
-                    break;
-                case "Matrix":
-                    if (!mc.player.onGround && onGroundTimes == 0) {
-                        onGroundTimes = 1;
-                    }
-                    if (mc.player.onGround && onGroundTimes == 1) {
-                        onGroundTimes = 2;
-                    }
-                    if (onGroundTimes == 2) {
-                        if (mc.player.onGround) {
-                            fakeJump();
-                            mc.player.motionY = 0.42;
-                        } else if (mc.player.motionY < 0.19) {
-                            event.setOnGround(true);
-                            mc.player.motionY = 0.42;
-                        }
-                    }
-                    break;
-            }
-        } else {
-            onGroundTimes = 0;
-        }
-    }
-
-    private void fakeJump() {
-        if (!towerFakeJump.getValue()) {
-            return;
-        }
-        mc.player.isAirBorne = true;
-        mc.player.addStat(StatList.JUMP);
-    }
-
-    @EventHandler
-    public void onJump(JumpEvent event) {
-        if (towerStatus && towerFakeJump.getValue()) {
-            if (towerNoMove.getValue() && MoveUtils.isMoving()) return;
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = -99999)
-    public void onSprint(LivingUpdateEvent event) {
-        switch (sprintMode.getValueByName()) {
-            case "Default":
-                break;
-            case "OFF":
-                mc.player.setSprinting(false);
-                mc.gameSettings.keyBindSprint.setPressed(false);
-                break;
-            case "Legit":
-                if (RotationHandler.clientRotation != null) {
-                    if (getMoveFixForward(RotationHandler.clientRotation) < 0.8) {
-                        mc.player.setSprinting(false);
-                    }
-                }
-                break;
-        }
-    }
-
     private void click(BlockPos placePos, EnumFacing facing, Vec3d hitVec) {
         EnumHand hand = mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
 
         ItemStack heldItem = mc.player.getHeldItem(hand);
 
-        if (!(heldItem.getItem() instanceof ItemBlock)) return;
+        if (!(heldItem.getItem() instanceof ItemBlock)) {
+            return;
+        }
 
         if (!((ItemBlock) heldItem.getItem()).canPlaceBlockOnSide(
                 mc.world,
@@ -505,9 +531,11 @@ public class Scaffold extends Module {
                 heldItem
         )
         ) {
+            placeTimer.reset();
             return;
         }
         if(!Objects.requireNonNull(placePos.getState()).getBlock().canCollideCheck(placePos.getState(), false)){
+            placeTimer.reset();
             return;
         }
 
@@ -519,8 +547,16 @@ public class Scaffold extends Module {
             }
         }
 
+        if(placeDelayMode.is("Normal")){
+            if(!placeTimer.hasTimeElapsed(currentPlaceDelay)){
+                return;
+            }
+        }
+
         if(mc.playerController.processRightClickBlock(mc.player, mc.world, placePos, facing.getOpposite(), hitVec, hand) == EnumActionResult.SUCCESS) {
             mc.player.swingArm(hand);
+            placeTimer.reset();
+            currentPlaceDelay = RandomUtils.randomInt((int)placeDelay.getFirst(),(int)placeDelay.getSecond());
         }
     }
 }

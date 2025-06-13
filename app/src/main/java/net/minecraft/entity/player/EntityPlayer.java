@@ -140,7 +140,7 @@ public abstract class EntityPlayer extends EntityLivingBase
      */
     public float experience;
     protected int xpSeed;
-    protected float speedInAir = 0.02F;
+    public float speedInAir = 0.02F;
     private int lastXPSound;
 
     /** The player's unique game profile */

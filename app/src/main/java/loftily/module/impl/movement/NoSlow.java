@@ -18,6 +18,7 @@ import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.network.play.server.SPacketCombatEvent;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.LinkedHashMap;
@@ -82,19 +83,24 @@ public class NoSlow extends Module {
                                     break;
                                 case "Extra":
                                     if(event.isPre()) {
-                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(new BlockPos(-1, -1, -1), EnumFacing.DOWN, mc.player.getActiveHand(), 0f, 0f, 0f));
+                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(
+                                                new BlockPos(-1, -1, -1),
+                                                EnumFacing.DOWN, EnumHand.MAIN_HAND, 0.0F, 0.0F, 0.0F));
                                         break;
                                     }
                                 case "HandPacket":
                                     if(event.isPre()) {
-                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(mc.player.getActiveHand()));
+                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
                                     }
                                     break;
                                 case "Post":
                                     if(event.isPre()) {
                                         PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM,BlockPos.ORIGIN,EnumFacing.DOWN));
                                     }else{
-                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(mc.player.getActiveHand()));
+                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(
+                                                new BlockPos(-1, -1, -1),
+                                                EnumFacing.DOWN, EnumHand.MAIN_HAND, 0.0F, 0.0F, 0.0F));
                                     }
                                     break;
                             }

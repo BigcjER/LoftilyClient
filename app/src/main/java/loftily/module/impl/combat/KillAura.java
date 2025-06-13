@@ -34,14 +34,12 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemSword;
-import net.minecraft.network.play.client.CPacketAnimation;
-import net.minecraft.network.play.client.CPacketPlayerDigging;
-import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
-import net.minecraft.network.play.client.CPacketUseEntity;
+import net.minecraft.network.play.client.*;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.input.Keyboard;
 
@@ -118,6 +116,20 @@ public class KillAura extends Module {
     private final RangeSelectionNumberValue backTicks = new RangeSelectionNumberValue("ReverseTicks", 1, 2, 0, 20);
     private final BooleanValue silentRotation = new BooleanValue("SilentRotation", false);
     private final BooleanValue throughWallsAim = new BooleanValue("ThroughWallsAim", false);
+    //Improved
+    private final BooleanValue predictAimPlayer = new BooleanValue("PlayerPredict", false);
+    private final RangeSelectionNumberValue horizontalMultiplierPlayer = new RangeSelectionNumberValue("HMultiplier-Player", 0.1, 0.8, -4.00, 4.00,0.01)
+            .setVisible(predictAimPlayer::getValue);
+    private final RangeSelectionNumberValue verticalMultiplierPlayer = new RangeSelectionNumberValue("VMultiplier-Player", 0.1, 0.8, -4.00, 4.00,0.01)
+            .setVisible(predictAimPlayer::getValue);
+
+    private final BooleanValue predictAimTarget = new BooleanValue("TargetPredict", false);
+    private final RangeSelectionNumberValue horizontalMultiplierTarget = new RangeSelectionNumberValue("HMultiplier-Target", 0.1, 0.8, -4.00, 4.00,0.01)
+            .setVisible(predictAimTarget::getValue);
+    private final RangeSelectionNumberValue verticalMultiplierTarget = new RangeSelectionNumberValue("VMultiplier-Target", 0.1, 0.8, -4.00, 4.00,0.01)
+            .setVisible(predictAimTarget::getValue);
+    private final NumberValue maxHorizontalPredict = new NumberValue("MaxHorizontalPredict",1.50,0.0,6.00,0.1);
+    private final NumberValue maxVerticalPredict = new NumberValue("MaxVerticalPredict",1.5,0.0,6.00,0.1);
     //Movement
     private final ModeValue moveFixMode = new ModeValue("MoveFixMode", "None", this,
             new StringMode("None"),
@@ -138,6 +150,7 @@ public class KillAura extends Module {
             new StringMode("AfterAttack")
     );
     private final BooleanValue onlyWhileKeyBinding = new BooleanValue("OnlyWhileKeyBinding", false);
+    private final BooleanValue sendInteractPacket= new BooleanValue("InteractPacket",false);
 
     private final List<EntityLivingBase> targets = new ArrayList<>();
     private final DelayTimer attackTimer = new DelayTimer();
@@ -146,6 +159,7 @@ public class KillAura extends Module {
     private int attackDelay = 0;
     private int canAttackTimes = 0;
     private boolean blockingTick = false;
+    private boolean blockingStatus = false;
     
     {
         rotationRange = new NumberValue("RotationRange", 6, 0, 10, 0.1);
@@ -159,6 +173,53 @@ public class KillAura extends Module {
         attackRange.setMinWith(throughWallAttackRange);
         swingRange.setMinWith(attackRange);
         rotationRange.setMinWith(swingRange);
+    }
+
+    public AxisAlignedBB getTargetBox(EntityLivingBase target) {
+        AxisAlignedBB basicBox = target.getBox();
+
+        if(predictAimPlayer.getValue()){
+            double horizontal = RandomUtils.randomDouble(horizontalMultiplierPlayer.getFirst(),horizontalMultiplierPlayer.getSecond());
+            double vertical = RandomUtils.randomDouble(verticalMultiplierPlayer.getFirst(),verticalMultiplierPlayer.getSecond());
+            basicBox = basicBox.offset(
+                    mc.player.motionX * horizontal,
+                    mc.player.motionY * vertical,
+                    mc.player.motionZ * horizontal
+            );
+        }
+
+        if(predictAimTarget.getValue()){
+            double horizontal = RandomUtils.randomDouble(horizontalMultiplierTarget.getFirst(),horizontalMultiplierTarget.getSecond());
+            double vertical = RandomUtils.randomDouble(verticalMultiplierTarget.getFirst(),verticalMultiplierTarget.getSecond());
+            basicBox = basicBox.offset(
+                    (target.posX - target.lastTickPosX) * horizontal,
+                    (target.posY - target.lastTickPosY) * vertical,
+                    (target.posZ - target.lastTickPosZ) * horizontal
+            );
+        }
+        AxisAlignedBB xzExpandBox = target.getBox().expand(maxHorizontalPredict.getValue(),0.0,maxHorizontalPredict.getValue());
+        AxisAlignedBB yExpandBox = target.getBox().expand(0.0,maxVerticalPredict.getValue(),0.0);
+        if(!basicBox.intersectsWith(xzExpandBox)){
+            if(basicBox.minX > xzExpandBox.maxX){
+                basicBox = basicBox.offset(basicBox.minX - xzExpandBox.maxX,0,0);
+            }else if(basicBox.maxX < xzExpandBox.minX){
+                basicBox = basicBox.offset(basicBox.maxX - xzExpandBox.minX,0,0);
+            }
+            if(basicBox.minZ > xzExpandBox.maxZ){
+                basicBox = basicBox.offset(0,0,basicBox.minZ - xzExpandBox.maxZ);
+            }else if(basicBox.maxZ < xzExpandBox.minZ){
+                basicBox = basicBox.offset(0,0,basicBox.maxZ - xzExpandBox.minZ);
+            }
+        }
+        if(!basicBox.intersectsWith(yExpandBox)){
+            if(basicBox.minY > xzExpandBox.maxY){
+                basicBox = basicBox.offset(0,basicBox.minY - xzExpandBox.maxY,0);
+            }else if(basicBox.maxY < xzExpandBox.minY){
+                basicBox = basicBox.offset(0,basicBox.maxY - xzExpandBox.minY,0);
+            }
+        }
+
+        return basicBox;
     }
 
     public void rotation(EntityLivingBase target) {
@@ -188,19 +249,20 @@ public class KillAura extends Module {
         
         Vec3d center = null;
         Rotation currentRotation = null;
+        AxisAlignedBB targetBox = getTargetBox(target);
         
         switch (rotationMode.getValue().getName()) {
             case "Advance":
             case "Advance2":
                 break;
             case "LockCenter":
-                center = target.getBox().lerpWith(0.5, 0.5, 0.5);
+                center = targetBox.lerpWith(0.5, 0.5, 0.5);
                 break;
             case "Lower":
-                for (double x = 0.4; x <= 0.6; x += 0.1) {
+                for (double x = 0.3; x <= 0.6; x += 0.1) {
                     for (double y = 0.1; y <= 0.6; y += 0.1) {
-                        for (double z = 0.4; z <= 0.6; z += 0.1) {
-                            Vec3d preCenter = target.getBox().lerpWith(x, y, z);
+                        for (double z = 0.3; z <= 0.6; z += 0.1) {
+                            Vec3d preCenter = targetBox.lerpWith(x, y, z);
 
                             if(rayCast.getValue() && !rayCastThroughWalls.getValue()){
                                 Rotation rotation = RotationUtils.toRotation(preCenter,mc.player);
@@ -218,16 +280,16 @@ public class KillAura extends Module {
                 }
                 break;
             case "LockHead":
-                center = target.getBox().lerpWith(0.5, 0.7, 0.5);
+                center = targetBox.lerpWith(0.5, 0.7, 0.5);
                 break;
             case "NearestCenter":
-                center = CalculateUtils.getClosestPoint(mc.player.getEyes(), target.getBox());
+                center = CalculateUtils.getClosestPoint(mc.player.getEyes(), targetBox);
                 break;
             case "Normal":
                 for (double x = 0.2; x <= 0.8; x += 0.1) {
                     for (double y = 0.2; y <= 0.8; y += 0.1) {
                         for (double z = 0.2; z <= 0.8; z += 0.1) {
-                            Vec3d preCenter = target.getBox().lerpWith(x, y, z);
+                            Vec3d preCenter = targetBox.lerpWith(x, y, z);
 
                             if(rayCast.getValue() && !rayCastThroughWalls.getValue()){
                                 Rotation rotation = RotationUtils.toRotation(preCenter,mc.player);
@@ -266,7 +328,7 @@ public class KillAura extends Module {
 
     @EventHandler
     public void onLivingUpdate(LivingUpdateEvent event) {
-        if (mc.player == null || rotationMode.is("None")) return;
+        if (mc.player == null) return;
 
         target = getTarget();
 
@@ -282,7 +344,7 @@ public class KillAura extends Module {
         }
 
         if(blockTiming.is("Tick")){
-            runAutoBlock();
+            runAutoBlock(target);
         }
 
         if (attackTimeMode.is("Tick")) {
@@ -297,7 +359,7 @@ public class KillAura extends Module {
 
         if ((blockTiming.is("Pre") && event.isPre())
                 || (blockTiming.is("Post") && event.isPost())) {
-            runAutoBlock();
+            runAutoBlock(target);
         }
         
         if ((attackTimeMode.is("Pre") && event.isPre())
@@ -320,6 +382,10 @@ public class KillAura extends Module {
         target = null;
         targets.clear();
         mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
+        if(blockingStatus){
+            PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+            blockingStatus = false;
+        }
     }
     
     @EventHandler
@@ -390,7 +456,7 @@ public class KillAura extends Module {
                 break;
             case "Angle":
                 targets.sort((Comparator.comparingDouble(entityLivingBase -> RotationUtils.getRotationDifference(
-                        RotationUtils.toRotation(entityLivingBase.getBox().getCenter(),mc.player), new Rotation(mc.player.rotationYaw,mc.player.rotationPitch)
+                        RotationUtils.toRotation(getTargetBox(entityLivingBase).getCenter(),mc.player), new Rotation(mc.player.rotationYaw,mc.player.rotationPitch)
                 ))));
                 break;
             case "Random":
@@ -442,7 +508,26 @@ public class KillAura extends Module {
         return false;
     }
 
-    private void runAutoBlock(){
+    private void sendInteractPacket(Entity target){
+        if(sendInteractPacket.getValue()){
+            RayTraceResult raytrace = mc.player.rayTrace(rotationRange.getValue(),1f);
+            if(raytrace != null) {
+                mc.playerController.syncCurrentPlayItem();
+                Vec3d vec3d = new Vec3d(raytrace.hitVec.xCoord - target.posX, raytrace.hitVec.yCoord - target.posY, raytrace.hitVec.zCoord - target.posZ);
+                PacketUtils.sendPacket(new CPacketUseEntity(target,EnumHand.MAIN_HAND,vec3d));
+                PacketUtils.sendPacket(new CPacketUseEntity(target,EnumHand.MAIN_HAND,vec3d));
+            }
+        }
+    }
+
+    private void blockingPacket(Entity target){
+        sendInteractPacket(target);
+        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
+    }
+
+    private void runAutoBlock(Entity target){
+        if(target == null) return;
         if(onlyWhileKeyBinding.getValue() && !GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)){
             return;
         }
@@ -464,18 +549,15 @@ public class KillAura extends Module {
                         }
                     } else {
                         if (!blockingTick) {
-                            //PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                            sendInteractPacket(target);
                             PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
                             blockingTick = true;
                         }
-                        //mc.gameSettings.keyBindUseItem.setPressed(false);
+                        mc.gameSettings.keyBindUseItem.setPressed(true);
                     }
                     break;
                 case "Packet":
-                    if(!mc.player.isHandActive()){
-                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
-                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
-                    }
+                    blockingPacket(target);
                     break;
             }
         }else {
@@ -507,8 +589,8 @@ public class KillAura extends Module {
             bestTarget = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (entity -> entity instanceof EntityLivingBase));
         }
 
-        if(autoBlockMode.is("Normal")) {
-            runAutoBlock();
+        if(blockTiming.is("Normal")) {
+            runAutoBlock(target);
         }
 
         if (bestTarget == null || (bestTarget != target && rayCastOnlyTarget.getValue())) return;
@@ -560,7 +642,7 @@ public class KillAura extends Module {
         }
 
         if(blockTiming.is("AfterAttack")){
-            runAutoBlock();
+            runAutoBlock(target);
         }
     }
 

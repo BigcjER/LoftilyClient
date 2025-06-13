@@ -118,7 +118,7 @@ public class BedAura extends Module {
             Block block = mc.world.getBlockState(target).getBlock();
             if (block instanceof BlockBed) {
                 if(mode.is("Matrix")) {
-                    if (mc.playerController.curBlockDamageMP > 0.4) {
+                    if (mc.playerController.curBlockDamageMP > 0.8) {
                         mc.playerController.curBlockDamageMP = 1F;
                     }
                     fuckMatrix = true;
