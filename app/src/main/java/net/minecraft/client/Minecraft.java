@@ -23,6 +23,7 @@ import loftily.event.impl.world.WorldLoadEvent;
 import loftily.gui.menu.SplashScreen;
 import loftily.gui.menu.mainmenu.MainMenu;
 import loftily.module.impl.render.MotionBlur;
+import loftily.module.impl.render.NoToasts;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.block.Block;
@@ -1063,9 +1064,11 @@ public class Minecraft implements IThreadListener, ISnooperInfo
         {
             this.mcProfiler.endStartSection("gameRenderer");
             this.entityRenderer.updateCameraAndRender(this.isGamePaused ? this.field_193996_ah : this.timer.renderPartialTicks, i);
-            this.mcProfiler.endStartSection("toasts");
-            this.field_193034_aS.func_191783_a(new ScaledResolution(this));
-            this.mcProfiler.endSection();
+            if (!Client.INSTANCE.getModuleManager().get(NoToasts.class).isToggled()) {
+                this.mcProfiler.endStartSection("toasts");
+                this.field_193034_aS.func_191783_a(new ScaledResolution(this));
+                this.mcProfiler.endSection();
+            }
         }
 
         this.mcProfiler.endSection();
