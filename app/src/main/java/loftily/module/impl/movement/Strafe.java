@@ -7,6 +7,8 @@ import loftily.module.ModuleInfo;
 import loftily.utils.player.MoveUtils;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
+import loftily.value.impl.mode.ModeValue;
+import loftily.value.impl.mode.StringMode;
 import net.lenni0451.lambdaevents.EventHandler;
 
 import static java.lang.Math.cos;
@@ -15,6 +17,7 @@ import static net.minecraft.util.math.MathHelper.sqrt;
 
 @ModuleInfo(name = "Strafe",category = ModuleCategory.MOVEMENT)
 public class Strafe extends Module {
+    private final NumberValue strength = new NumberValue("Strength",1,0.0,1.0,0.01);
     private final BooleanValue onGround = new BooleanValue("OnGround",false);
     private final BooleanValue inAir = new BooleanValue("InAir",false);
     private final NumberValue delay = new NumberValue("Delay",1,1,12);
@@ -27,7 +30,7 @@ public class Strafe extends Module {
         if(mc.player.ticksExisted % delay.getValue() == 0) {
             if ((onGround.getValue() && mc.player.onGround) || (inAir.getValue() && !mc.player.onGround)) {
                 double speed = sqrt((mc.player.motionX * mc.player.motionX) + (mc.player.motionZ * mc.player.motionZ));
-                MoveUtils.setSpeed(speed,true);
+                MoveUtils.setSpeed(speed * strength.getValue(), true);
             }
         }
     }
