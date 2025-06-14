@@ -25,7 +25,7 @@ public class VanillaLongJump extends Mode<LongJump> {
     @EventHandler
     public void onJump(JumpEvent event) {
         event.setCancelled(true);
-        MoveUtils.setSpeed(boostSpeed.getValue(),true);
+        MoveUtils.setSpeed(boostSpeed.getValue(), true);
         
         mc.player.motionY = motion.getValue();
         

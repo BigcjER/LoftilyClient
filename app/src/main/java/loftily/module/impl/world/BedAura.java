@@ -5,7 +5,7 @@ import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.player.motion.MoveEvent;
 import loftily.event.impl.render.Render2DEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
-import loftily.handlers.impl.RotationHandler;
+import loftily.handlers.impl.player.RotationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
@@ -27,7 +27,6 @@ import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BossInfo;
 
 import java.awt.*;
 import java.util.Comparator;
@@ -36,11 +35,11 @@ import java.util.Objects;
 
 @ModuleInfo(name = "BedAura", category = ModuleCategory.WORLD)
 public class BedAura extends Module {
-    private final ModeValue mode = new ModeValue("Mode","Vanilla",this,new StringMode("Vanilla"),
+    private final ModeValue mode = new ModeValue("Mode", "Vanilla", this, new StringMode("Vanilla"),
             new StringMode("Matrix"));
-    private final BooleanValue debug = new BooleanValue("Debug",false);
+    private final BooleanValue debug = new BooleanValue("Debug", false);
     private final NumberValue range = new NumberValue("Range", 3, 0, 8, 0.1);
-    private final ModeValue breakmode = new ModeValue("BreakMode", "Normal",this,new StringMode("Normal"),new StringMode("Packet"));
+    private final ModeValue breakmode = new ModeValue("BreakMode", "Normal", this, new StringMode("Normal"), new StringMode("Packet"));
     private final BooleanValue swing = new BooleanValue("Swing", true);
     private final BooleanValue rotationValue = new BooleanValue("Rotation", true);
     private final ModeValue moveFixMode = new ModeValue("MoveFixMode", "None", this,
@@ -49,41 +48,41 @@ public class BedAura extends Module {
             new StringMode("Silent"));
     private Rotation rotation;
     private BlockPos target = null;
-
+    
     private boolean fuckMatrix = false;
     private boolean disableMatrix = false;
     private boolean stop = false;
-    private DelayTimer delayTimer = new DelayTimer();
-
+    private final DelayTimer delayTimer = new DelayTimer();
+    
     @Override
-    public void onDisable(){
+    public void onDisable() {
         fuckMatrix = false;
         disableMatrix = false;
         stop = false;
         delayTimer.reset();
         target = null;
     }
-
+    
     @EventHandler
     public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
-        if(packet instanceof CPacketPlayer) {
+        if (packet instanceof CPacketPlayer) {
             if (mode.is("Matrix") && disableMatrix) {
                 event.setCancelled(true);
             }
         }
     }
-
+    
     @EventHandler
     public void onMove(MoveEvent event) {
         if (mode.is("Matrix") && disableMatrix) {
             event.setCancelled(true);
         }
     }
-
+    
     @EventHandler
-    public void onMotion(MotionEvent event){
-        if(mode.is("Matrix") && fuckMatrix) {
+    public void onMotion(MotionEvent event) {
+        if (mode.is("Matrix") && fuckMatrix) {
             if (mc.player.fallDistance > 0F) {
                 mc.player.motionX = 0.0;
                 mc.player.motionY = 0.0;
@@ -92,37 +91,37 @@ public class BedAura extends Module {
             }
         }
     }
-
+    
     @EventHandler
     public void onRender2D(Render2DEvent event) {
-        if(debug.getValue() && target != null){
-            mc.fontRendererObj.drawString("BlockDamage:" + mc.playerController.curBlockDamageMP, 500,250 ,new Color(255,255,255,255).getRGB());
+        if (debug.getValue() && target != null) {
+            mc.fontRendererObj.drawString("BlockDamage:" + mc.playerController.curBlockDamageMP, 500, 250, new Color(255, 255, 255, 255).getRGB());
         }
     }
-
+    
     @EventHandler
     public void onUpdate(LivingUpdateEvent event) {
         if (rotationValue.getValue() && rotation != null) {
-            RotationHandler.setClientRotation(rotation,2,2,moveFixMode.getValueByName());
+            RotationHandler.setClientRotation(rotation, 2, 2, moveFixMode.getValueByName());
         }
-        if(stop){
-            if(delayTimer.hasTimeElapsed(250)){
+        if (stop) {
+            if (delayTimer.hasTimeElapsed(250)) {
                 delayTimer.reset();
                 disableMatrix = false;
                 fuckMatrix = false;
                 stop = false;
             }
         }
-
+        
         if (target != null) {
             Block block = mc.world.getBlockState(target).getBlock();
             if (block instanceof BlockBed) {
-                if(mode.is("Matrix")) {
+                if (mode.is("Matrix")) {
                     if (mc.playerController.curBlockDamageMP > 0.8) {
                         mc.playerController.curBlockDamageMP = 1F;
                     }
                     fuckMatrix = true;
-                    if(mc.player.onGround){
+                    if (mc.player.onGround) {
                         mc.player.tryJump();
                     }
                 }
@@ -137,7 +136,7 @@ public class BedAura extends Module {
                         mc.playerController.onPlayerDamageBlock(target, mc.objectMouseOver.sideHit);
                         break;
                     case "Packet":
-                        PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, target, EnumFacing.DOWN),true);
+                        PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, target, EnumFacing.DOWN), true);
                         PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, target, EnumFacing.DOWN));
                         break;
                 }
@@ -146,23 +145,23 @@ public class BedAura extends Module {
                 target = null;
                 rotation = null;
             }
-        }else {
-            if(!fuckMatrix){
+        } else {
+            if (!fuckMatrix) {
                 delayTimer.reset();
-
-                if(disableMatrix) {
+                
+                if (disableMatrix) {
                     disableMatrix = false;
                 }
             }
-            if(fuckMatrix){
+            if (fuckMatrix) {
                 stop = true;
             }
         }
-
+        
         final List<BlockPos> searchBlock = BlockUtils.searchBlocks(range.getValue().intValue());
-        searchBlock.sort(Comparator.comparingDouble(blockPos -> mc.player.getDistance(blockPos.getX()+0.5, blockPos.getY()+0.5, blockPos.getZ()+0.5)));
+        searchBlock.sort(Comparator.comparingDouble(blockPos -> mc.player.getDistance(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5)));
         boolean foundTarget = false;
-
+        
         for (BlockPos pos : searchBlock) {
             if (Objects.requireNonNull(pos.getState()).getBlock() instanceof BlockBed) {
                 target = pos;

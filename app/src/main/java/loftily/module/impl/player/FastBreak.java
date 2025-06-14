@@ -9,13 +9,13 @@ import net.lenni0451.lambdaevents.EventHandler;
 
 @ModuleInfo(name = "FastBreak", category = ModuleCategory.PLAYER)
 public class FastBreak extends Module {
-    private final NumberValue blockDamage = new NumberValue("BlockDamage",0.1,0.0,1.0,0.1);
-
-
+    private final NumberValue blockDamage = new NumberValue("BlockDamage", 0.1, 0.0, 1.0, 0.1);
+    
+    
     @EventHandler
     public void onMotionEvent(MotionEvent event) {
-        if(event.isPre()){
-            if(mc.playerController.curBlockDamageMP > blockDamage.getValue()){
+        if (event.isPre()) {
+            if (mc.playerController.curBlockDamageMP > blockDamage.getValue()) {
                 mc.playerController.curBlockDamageMP = 1;
             }
         }

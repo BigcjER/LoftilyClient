@@ -21,7 +21,7 @@ public class RangeSelectionNumberValue extends Value<Pair<Double, Double>, Range
     }
     
     public RangeSelectionNumberValue(String name, double first, double second, double minValue, double maxValue) {
-        this(name,first,second,minValue,maxValue,1);
+        this(name, first, second, minValue, maxValue, 1);
     }
     
     public double getFirst() {

@@ -38,7 +38,7 @@ public class AltConfig extends Config {
             throw new RuntimeException(e);
         }
     }
-
+    
     @Override
     public void write() {
         JsonArray jsonArray = new JsonArray();

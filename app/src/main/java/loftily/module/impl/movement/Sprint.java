@@ -4,7 +4,7 @@ import loftily.Client;
 import loftily.event.impl.packet.PacketSendEvent;
 import loftily.event.impl.player.motion.JumpEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
-import loftily.handlers.impl.RotationHandler;
+import loftily.handlers.impl.player.RotationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
@@ -34,13 +34,13 @@ public class Sprint extends Module {
     private final BooleanValue noHunger = new BooleanValue("NoHunger", false);
     private final BooleanValue noSneaking = new BooleanValue("NoSneak", false);
     private final BooleanValue noShield = new BooleanValue("NoShield", false);
-
+    
     @EventHandler
     public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
-
+        
         if (!noC0B.getValue()) return;
-
+        
         if (packet instanceof CPacketEntityAction) {
             if (((CPacketEntityAction) packet).getAction() == CPacketEntityAction.Action.START_SPRINTING
                     || ((CPacketEntityAction) packet).getAction() == CPacketEntityAction.Action.STOP_SPRINTING) {
@@ -48,19 +48,19 @@ public class Sprint extends Module {
             }
         }
     }
-
+    
     @EventHandler(priority = -100)
     public void onJump(JumpEvent event) {
         if (!allDirectionsJump.getValue()) return;
-
+        
         event.setMovementYaw((float) Math.toDegrees(MoveUtils.getDirection()));
-
+        
     }
-
+    
     @EventHandler(priority = -10)
     public void onLivingUpdate(LivingUpdateEvent event) {
         Rotation rotation = RotationHandler.clientRotation;
-
+        
         if (!allDirections.getValue()) {
             if (!legitSprint.getValue()) {
                 if (mc.player.movementInput.moveForward < 0.8) {
@@ -72,18 +72,18 @@ public class Sprint extends Module {
         } else {
             mc.player.setSprinting(true);
         }
-
-        if(getSpeed() != null) {
-            if(getSpeed().isToggled() && getSpeed().alwaysSprint.getValue()){
+        
+        if (getSpeed() != null) {
+            if (getSpeed().isToggled() && getSpeed().alwaysSprint.getValue()) {
                 mc.player.setSprinting(true);
             }
         }
-
+        
         if (!MoveUtils.isMoving()) {
             stopSprinting();
             return;
         }
-
+        
         if (legitSprint.getValue()) {
             if (rotation != null) {
                 float calcForward = CalculateUtils.getMoveFixForward(rotation);
@@ -100,7 +100,7 @@ public class Sprint extends Module {
                 }
             }
         }
-
+        
         if (noShield.getValue()) {
             if (mc.player.isHandActive() &&
                     (mc.player.getHeldItemMainhand().getItem() instanceof ItemSword)
@@ -109,17 +109,17 @@ public class Sprint extends Module {
                 stopSprinting();
             }
         }
-
+        
         if (noSneaking.getValue()) {
             if (mc.player.isSneaking()) {
                 stopSprinting();
             }
         }
-
+        
         if ((noInventory.getValue() && mc.currentScreen instanceof GuiInventory) || (noGui.getValue() && mc.currentScreen != null)) {
             stopSprinting();
         }
-
+        
         if (noFood.getValue() && mc.player.isHandActive() &&
                 (mc.player.getHeldItemMainhand().getItem() instanceof ItemFood
                         || mc.player.getHeldItemOffhand().getItem() instanceof ItemFood
@@ -127,16 +127,16 @@ public class Sprint extends Module {
                         || mc.player.getHeldItemOffhand().getItem() instanceof ItemBucketMilk)) {
             stopSprinting();
         }
-
+        
         if (noHunger.getValue() && mc.player.getFoodStats().getFoodLevel() <= 6) {
             stopSprinting();
         }
     }
-
-    Speed getSpeed(){
+    
+    Speed getSpeed() {
         return Client.INSTANCE.getModuleManager().get(Speed.class);
     }
-
+    
     void stopSprinting() {
         mc.player.setSprinting(false);
         mc.gameSettings.keyBindSprint.setPressed(false);

@@ -10,7 +10,7 @@ import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.settings.GameSettings;
 
 public class VanillaFly extends Mode<Fly> {
-
+    
     public VanillaFly() {
         super("Vanilla");
     }
@@ -19,22 +19,22 @@ public class VanillaFly extends Mode<Fly> {
     private final NumberValue verticalSpeed = new NumberValue("VerticalSpeed", 1, 0, 5, 0.01);
     private final NumberValue keepY = new NumberValue("KeepYSpeed", 0.0, 0.0, 0.2, 0.001);
     private final BooleanValue resetMotion = new BooleanValue("ResetMotion", false);
-
+    
     @EventHandler
     public void onUpdate(UpdateEvent event) {
-        if(!MoveUtils.isMoving() && resetMotion.getValue()){
+        if (!MoveUtils.isMoving() && resetMotion.getValue()) {
             mc.player.motionX *= 0.0;
             mc.player.motionZ *= 0.0;
             mc.player.motionY *= 0.0;
         }
-        MoveUtils.setSpeed(horizontalSpeed.getValue(),true);
-
+        MoveUtils.setSpeed(horizontalSpeed.getValue(), true);
+        
         mc.player.motionY *= keepY.getValue();
-
-        if(GameSettings.isKeyDown(mc.gameSettings.keyBindJump)){
+        
+        if (GameSettings.isKeyDown(mc.gameSettings.keyBindJump)) {
             mc.player.motionY = verticalSpeed.getValue();
         }
-        if(GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)){
+        if (GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) {
             mc.player.motionY = -verticalSpeed.getValue();
         }
     }

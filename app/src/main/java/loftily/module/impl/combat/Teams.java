@@ -16,9 +16,9 @@ public class Teams extends Module {
     private final BooleanValue scoreboardValue = new BooleanValue("ScoreboardTeam", true);
     private final BooleanValue colorValue = new BooleanValue("NameColor", true);
     private final BooleanValue armorValue = new BooleanValue("ArmorColor", true);
-
-    public boolean isInTeam(EntityLivingBase entity){
-        if(mc.player == null || mc.world == null) return false;
+    
+    public boolean isInTeam(EntityLivingBase entity) {
+        if (mc.player == null || mc.world == null) return false;
         if (scoreboardValue.getValue() && mc.player.getTeam() != null && entity.getTeam() != null &&
                 Objects.requireNonNull(mc.player.getTeam()).isSameTeam(entity.getTeam())) {
             return true;
@@ -27,10 +27,10 @@ public class Teams extends Module {
             EntityPlayer entityPlayer = (EntityPlayer) entity;
             ItemStack myHead = Objects.requireNonNull(mc.player.inventory.armorInventory).get(3);
             ItemArmor myItemArmor = Objects.requireNonNull((ItemArmor) myHead.getItem());
-
+            
             ItemStack entityHead = Objects.requireNonNull(entityPlayer.inventory.armorInventory.get(3));
             ItemArmor entityItemArmor = Objects.requireNonNull((ItemArmor) entityHead.getItem());
-
+            
             if (myItemArmor.getColor(myHead) == entityItemArmor.getColor(entityHead)) {
                 return true;
             }

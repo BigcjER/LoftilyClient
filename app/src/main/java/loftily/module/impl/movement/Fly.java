@@ -6,7 +6,7 @@ import loftily.module.ModuleInfo;
 import loftily.value.impl.mode.ModeValue;
 import lombok.NonNull;
 
-@ModuleInfo(name = "Fly",category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "Fly", category = ModuleCategory.MOVEMENT)
 public class Fly extends Module {
     private final ModeValue mode = new ModeValue("Mode", "Vanilla", this,
             ModeValue.getModes(getClass().getPackage().getName() + ".flys")

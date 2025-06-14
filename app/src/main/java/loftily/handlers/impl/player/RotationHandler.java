@@ -1,4 +1,4 @@
-package loftily.handlers.impl;
+package loftily.handlers.impl.player;
 
 import loftily.event.impl.packet.PacketSendEvent;
 import loftily.event.impl.player.RotationEvent;
@@ -19,14 +19,14 @@ import static net.minecraft.util.math.MathHelper.abs;
 import static net.minecraft.util.math.MathHelper.ceil;
 
 public class RotationHandler extends Handler {
-
+    
     public static Rotation clientRotation = null;
     public static Rotation serverRotation = null;
     public static int keepRotationTicks = 0;
     public static int backRotationTicks = 0;
     public static MoveFix moveFix = MoveFix.NONE;
-
-    public static void setClientRotation(Rotation setRotation, Integer keepTicks, Integer backTicks,String moveFix) {
+    
+    public static void setClientRotation(Rotation setRotation, Integer keepTicks, Integer backTicks, String moveFix) {
         MoveFix moveFixEnum = MoveFix.NONE;
         
         switch (moveFix) {
@@ -59,7 +59,7 @@ public class RotationHandler extends Handler {
     
     @EventHandler
     public void onStrafe(StrafeEvent event) {
-        if(clientRotation == null)return;
+        if (clientRotation == null) return;
         if (moveFix != MoveFix.NONE) {
             event.setYaw(clientRotation.yaw);
             if (moveFix.ordinal() >= MoveFix.SILENT.ordinal()) {
@@ -67,56 +67,56 @@ public class RotationHandler extends Handler {
                 
                 float playerDirection = moveFix == MoveFix.SILENT ? player.rotationYaw : Math.round(player.rotationYaw / 45f) * 45f;
                 float diff = (playerDirection - clientRotation.yaw) * (float) (Math.PI / 180);
-
+                
                 float calcForward;
                 float calcStrafe;
-
+                
                 float strafe = event.getStrafe() / 0.98f;
                 float forward = event.getForward() / 0.98f;
-
+                
                 float modifiedForward = ceil(abs(forward)) * Math.signum(forward);
                 float modifiedStrafe = ceil(abs(strafe)) * Math.signum(strafe);
-
+                
                 calcForward = round(modifiedForward * MathHelper.cos(diff) + modifiedStrafe * MathHelper.sin(diff));
                 calcStrafe = round(modifiedStrafe * MathHelper.cos(diff) - modifiedForward * MathHelper.sin(diff));
-
+                
                 float f = (event.getForward() != 0f) ? event.getForward() : event.getStrafe();
-
+                
                 calcForward *= abs(f);
                 calcStrafe *= abs(f);
-
+                
                 event.setForward(calcForward);
                 event.setStrafe(calcStrafe);
             }
         }
     }
-
+    
     @EventHandler
     public void onJump(JumpEvent event) {
-        if(mc.player == null || mc.world == null)return;
-        if(clientRotation == null)return;
+        if (mc.player == null || mc.world == null) return;
+        if (clientRotation == null) return;
         if (moveFix != MoveFix.NONE) {
             event.setMovementYaw(clientRotation.yaw);
         }
     }
-
+    
     @EventHandler
     public void onUpdate(LivingUpdateEvent event) {
         if (clientRotation == null) {
             moveFix = MoveFix.NONE;
             return;
         }
-
+        
         keepRotationTicks--;
         if (keepRotationTicks > 0) return;
-
+        
         if (backRotationTicks <= 0) {
             clientRotation = null;
             return;
         }
         keepRotationTicks = 0;
         backRotationTicks--;
-
+        
         if (backRotationTicks > 0) {
             clientRotation = new Rotation(
                     clientRotation.yaw - RotationUtils.getAngleDifference(clientRotation.yaw, mc.player.rotationYaw) / backRotationTicks,
@@ -124,34 +124,34 @@ public class RotationHandler extends Handler {
             );
         }
     }
-
-
+    
+    
     @EventHandler(priority = -50)
     public void onRotation(RotationEvent event) {
-        if(clientRotation == null) return;
-
+        if (clientRotation == null) return;
+        
         event.setRotation(clientRotation);
     }
-
+    
     @EventHandler
     public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
-
+        
         if (event.isCancelled()) return;
-
+        
         if (packet instanceof CPacketPlayer) {
             if (((CPacketPlayer) packet).getRotating()) {
                 serverRotation = new Rotation(((CPacketPlayer) packet).yaw, ((CPacketPlayer) packet).pitch);
             }
         }
     }
-
+    
     public static Rotation getCurrentRotation() {
         return clientRotation == null ? new Rotation(mc.player.rotationYaw, mc.player.rotationPitch) : clientRotation;
     }
-
+    
     public static Rotation getRotation() {
-        return serverRotation == null ? new Rotation(mc.player.rotationYaw,mc.player.rotationPitch) : serverRotation;
+        return serverRotation == null ? new Rotation(mc.player.rotationYaw, mc.player.rotationPitch) : serverRotation;
     }
     
     public enum MoveFix {

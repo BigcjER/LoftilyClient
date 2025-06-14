@@ -1,4 +1,4 @@
-package loftily.handlers.impl;
+package loftily.handlers.impl.render;
 
 import loftily.gui.interaction.draggable.IDraggable;
 import loftily.handlers.Handler;

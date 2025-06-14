@@ -1,7 +1,7 @@
 package loftily.module.impl.render;
 
 import loftily.event.impl.player.RotationEvent;
-import loftily.handlers.impl.RotationHandler;
+import loftily.handlers.impl.player.RotationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;

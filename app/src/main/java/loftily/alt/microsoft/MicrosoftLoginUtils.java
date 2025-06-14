@@ -161,7 +161,7 @@ public class MicrosoftLoginUtils {
             if (json.has("access_token")) {
                 return json.get("access_token").getAsString();
             } else {
-                throw new IOException("Failed to refresh token: " + json.toString());
+                throw new IOException("Failed to refresh token: " + json);
             }
         }
     }

@@ -4,7 +4,7 @@ import loftily.Client;
 import loftily.core.AbstractManager;
 import loftily.event.impl.client.KeyboardEvent;
 import loftily.gui.interaction.draggable.IDraggable;
-import loftily.handlers.impl.DraggableHandler;
+import loftily.handlers.impl.render.DraggableHandler;
 import loftily.value.Value;
 import loftily.value.impl.mode.ModeValue;
 import net.lenni0451.lambdaevents.EventHandler;

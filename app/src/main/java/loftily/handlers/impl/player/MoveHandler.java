@@ -1,4 +1,4 @@
-package loftily.handlers.impl;
+package loftily.handlers.impl.player;
 
 import loftily.event.impl.client.MoveInputEvent;
 import loftily.event.impl.render.Render3DEvent;
@@ -12,14 +12,14 @@ public class MoveHandler extends Handler {
     public static int sneakTime = 0;
     public static DelayTimer sneakTimer = new DelayTimer();
     private static boolean startSneak = false;
-
+    
     public static void setSneak(boolean canSneak, int time) {
         sneak = canSneak;
         sneakTime = time;
         startSneak = true;
         sneakTimer.reset();
     }
-
+    
     @EventHandler(priority = -999999)
     public void onMoveInput(MoveInputEvent event) {
         if (sneak) {
@@ -29,7 +29,7 @@ public class MoveHandler extends Handler {
             }
         }
     }
-
+    
     @EventHandler
     public void onRender3D(Render3DEvent event) {
         if (sneakTimer.hasTimeElapsed(sneakTime)) {

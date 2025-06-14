@@ -1,11 +1,5 @@
 package net.minecraft.client.model;
 
-import loftily.Client;
-import loftily.handlers.impl.RotationHandler;
-import loftily.module.ModuleManager;
-import loftily.module.impl.render.Rotations;
-import loftily.utils.client.ClientUtils;
-import loftily.utils.math.Rotation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;

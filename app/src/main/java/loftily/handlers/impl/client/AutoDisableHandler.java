@@ -1,4 +1,4 @@
-package loftily.handlers.impl;
+package loftily.handlers.impl.client;
 
 import loftily.Client;
 import loftily.event.impl.client.ClientTickEvent;

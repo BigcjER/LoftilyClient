@@ -23,9 +23,9 @@ public class ModeRenderer extends ValueRenderer<ModeValue> {
         this.expandAnimation = new Animation(Easing.EaseOutQuart, 300);
         this.expanded = false;
         
-        for (Mode mode : value.getModes()) {
+        for (Mode<?> mode : value.getModes()) {
             if (font.getStringWidth(mode.getName()) > longestModeNameWidth) {
-                longestModeNameWidth = (int) (font.getStringWidth(mode.getName()) + ClickGui.PADDING);
+                longestModeNameWidth = font.getStringWidth(mode.getName()) + ClickGui.PADDING;
             }
         }
     }
@@ -63,7 +63,7 @@ public class ModeRenderer extends ValueRenderer<ModeValue> {
         //展开后的文字部分
         RenderUtils.startGlScissor((int) modeBoxX, (int) modeBoxY, (int) modeBoxWidth, (int) modeBoxHeight);
         float modesYOffset = 0;
-        for (Mode mode : value.getModes()) {
+        for (Mode<?> mode : value.getModes()) {
             if (mode == value.getValue()) continue;
             String modeName = mode.getName();
             valueFont.drawString(
@@ -87,7 +87,7 @@ public class ModeRenderer extends ValueRenderer<ModeValue> {
         
         if (expanded) {
             float modesYOffset = 0;
-            for (Mode mode : value.getModes()) {
+            for (Mode<?> mode : value.getModes()) {
                 if (mode == value.getValue()) continue;
                 if (RenderUtils.isHovering(mouseX, mouseY, modeBoxX, modeBoxY + modesYOffset + ModeBoxHeight + 0.5F, modeBoxWidth, ModeBoxHeight - 1.5F)) {
                     value.update(mode);

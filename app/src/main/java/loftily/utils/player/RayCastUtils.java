@@ -1,9 +1,7 @@
 package loftily.utils.player;
 
 import com.google.common.base.Function;
-import loftily.handlers.impl.RotationHandler;
 import loftily.utils.client.ClientUtils;
-import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.Rotation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -29,16 +27,16 @@ public class RayCastUtils implements ClientUtils {
                 vec31.yCoord * blockReachDistance,
                 vec31.zCoord * blockReachDistance
         );
-
+        
         return entity.world.rayTraceBlocks(vec3, vec32, false, false, true);
     }
-
+    
     public static RayTraceResult rayTraceWithCustomRotation(Entity entity, double blockReachDistance, Rotation rotation) {
         return rayTraceWithCustomRotation(entity, blockReachDistance, rotation.yaw, rotation.pitch);
     }
-
+    
     public static boolean overBlock(Rotation rotation, EnumFacing enumFacing, BlockPos pos, boolean strict) {
-        RayTraceResult movingObjectPosition = rayTraceWithCustomRotation(mc.player,4.5, rotation.yaw, rotation.pitch);
+        RayTraceResult movingObjectPosition = rayTraceWithCustomRotation(mc.player, 4.5, rotation.yaw, rotation.pitch);
         if (movingObjectPosition == null) {
             return false;
         }
@@ -46,11 +44,11 @@ public class RayCastUtils implements ClientUtils {
         if (hitVec == null) {
             return false;
         }
-
+        
         return movingObjectPosition.getBlockPos().equals(pos) && (!strict || movingObjectPosition.sideHit == enumFacing);
     }
-
-
+    
+    
     public static Entity raycastEntity(
             double range,
             float yaw,
@@ -58,34 +56,34 @@ public class RayCastUtils implements ClientUtils {
             Boolean throughWalls,
             Function<Entity, Boolean> entityFilter
     ) {
-        Entity renderViewEntity = mc.getRenderViewEntity();;
-
+        Entity renderViewEntity = mc.getRenderViewEntity();
+        
         if (renderViewEntity == null || mc.world == null)
             return null;
-
+        
         final double[] blockReachDistance = {range};
         Vec3d eyePosition = renderViewEntity.getEyes();
         Vec3d entityLook = getVectorForRotation(new Rotation(yaw, pitch));
         Vec3d vec = eyePosition.add(entityLook.scale(blockReachDistance[0]));
-
+        
         List<Entity> entityList = mc.world.getEntities(Entity.class, entity ->
                 entity != null && (entity instanceof EntityLivingBase || entity instanceof EntityLargeFireball) &&
                         !(entity instanceof EntityPlayer && ((EntityPlayer) entity).isSpectator()) &&
                         entity.canBeCollidedWith() &&
                         entity != renderViewEntity
         );
-
+        
         final Entity[] pointedEntity = {null};
-
+        
         for (Entity entity : entityList) {
             if (!entityFilter.apply(entity)) continue;
-
+            
             boolean[] checkResult = {false};
             Runnable checkEntity = () -> {
                 AxisAlignedBB axisAlignedBB = entity.getBox();
-
+                
                 RayTraceResult movingObjectPosition = axisAlignedBB.calculateIntercept(eyePosition, vec);
-
+                
                 if (axisAlignedBB.isVecInside(eyePosition)) {
                     if (blockReachDistance[0] >= 0.0) {
                         pointedEntity[0] = entity;
@@ -96,7 +94,7 @@ public class RayCastUtils implements ClientUtils {
                         return;
                     }
                     double eyeDistance = eyePosition.distanceTo(movingObjectPosition.hitVec);
-
+                    
                     if (eyeDistance < blockReachDistance[0] || blockReachDistance[0] == 0.0) {
                         if (entity == renderViewEntity.getRidingEntity()) {
                             if (blockReachDistance[0] == 0.0) pointedEntity[0] = entity;
@@ -106,14 +104,14 @@ public class RayCastUtils implements ClientUtils {
                         }
                     }
                 }
-
+                
                 checkResult[0] = false;
             };
-
+            
             // Check newest entity first
             checkEntity.run();
         }
-
+        
         return pointedEntity[0];
     }
 }

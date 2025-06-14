@@ -7,7 +7,7 @@ import com.google.gson.JsonParser;
 import loftily.config.Config;
 import loftily.config.FileManager;
 import loftily.gui.interaction.draggable.IDraggable;
-import loftily.handlers.impl.DraggableHandler;
+import loftily.handlers.impl.render.DraggableHandler;
 
 import java.io.File;
 import java.io.FileReader;

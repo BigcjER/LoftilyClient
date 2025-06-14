@@ -1,4 +1,4 @@
-package loftily.handlers.impl;
+package loftily.handlers.impl.client;
 
 import loftily.event.impl.packet.PacketSendEvent;
 import loftily.handlers.Handler;
@@ -12,14 +12,14 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class BlinkHandler extends Handler {
-
+    
     public static boolean BLINK = false;
-
+    
     public static boolean BLINK_NOC0F = false;
     public static boolean BLINK_NOC00 = false;
-
+    
     public final static Queue<Packet<?>> packets = new LinkedList<>();
-
+    
     public static void setBlinkState(
             boolean Blink,
             boolean noC0F,
@@ -29,18 +29,18 @@ public class BlinkHandler extends Handler {
         BLINK = Blink;
         BLINK_NOC0F = noC0F;
         BLINK_NOC00 = noC00;
-
+        
         if (release) {
             while (!packets.isEmpty()) {
                 Packet<?> packet = packets.poll();
-                PacketUtils.sendPacket(packet,false);
+                PacketUtils.sendPacket(packet, false);
             }
         }
     }
-
+    
     public static void releasePacketsCustom(int size) {
         int i = 0;
-
+        
         while (!packets.isEmpty() && i < size) {
             Packet<?> packet = packets.poll();
             if (packet != null) {
@@ -49,19 +49,19 @@ public class BlinkHandler extends Handler {
             }
         }
     }
-
+    
     @EventHandler(priority = -1000)
-    public void onPacketSend(PacketSendEvent event){
+    public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
-
-        if(!BLINK)return;
-
-        if(BLINK_NOC00 && packet instanceof CPacketKeepAlive)return;
-
-        if(BLINK_NOC0F && packet instanceof CPacketConfirmTransaction)return;
-
+        
+        if (!BLINK) return;
+        
+        if (BLINK_NOC00 && packet instanceof CPacketKeepAlive) return;
+        
+        if (BLINK_NOC0F && packet instanceof CPacketConfirmTransaction) return;
+        
         event.setCancelled(true);
         packets.add(packet);
     }
-
+    
 }

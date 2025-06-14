@@ -18,7 +18,7 @@ import net.minecraft.network.play.client.CPacketEntityAction;
 
 @ModuleInfo(name = "InvMove", category = ModuleCategory.MOVEMENT)
 public class InvMove extends Module {
-    private final ModeValue mode = new ModeValue("Mode","Vanilla", this,
+    private final ModeValue mode = new ModeValue("Mode", "Vanilla", this,
             new StringMode("Vanilla"),
             new StringMode("NoPacket"));
     
@@ -26,14 +26,14 @@ public class InvMove extends Module {
     private final BooleanValue allowSneak = new BooleanValue("AllowSneak", false)
             .setVisible(() -> !autoSneak.getValue());
     private final BooleanValue allowJump = new BooleanValue("AllowJump", false);
-
-
+    
+    
     @EventHandler
     public void onUpdate(UpdateEvent event) {
-        if(mc.player == null) return;
+        if (mc.player == null) return;
         
         if (!(mc.currentScreen instanceof GuiContainer)) return;
-
+        
         mc.gameSettings.keyBindForward.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindForward));
         mc.gameSettings.keyBindBack.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindBack));
         mc.gameSettings.keyBindLeft.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindLeft));
@@ -47,13 +47,13 @@ public class InvMove extends Module {
             mc.gameSettings.keyBindSneak.setPressed(true);
         }
     }
-
+    
     @EventHandler
     public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
-
-        if(packet instanceof CPacketEntityAction && ((CPacketEntityAction) packet).getAction() == CPacketEntityAction.Action.OPEN_INVENTORY){
-            if(mode.is("NoPacket")){
+        
+        if (packet instanceof CPacketEntityAction && ((CPacketEntityAction) packet).getAction() == CPacketEntityAction.Action.OPEN_INVENTORY) {
+            if (mode.is("NoPacket")) {
                 event.setCancelled(true);
             }
         }

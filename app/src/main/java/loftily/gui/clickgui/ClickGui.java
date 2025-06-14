@@ -132,7 +132,7 @@ public class ClickGui extends GuiScreen implements IDraggable {
         
         //TextBox
         searchBoxInOutAnimation.run(isSearching ? 1 : -0.5);
-        searchBox.xPosition = (int) (x + PADDING);
+        searchBox.xPosition = x + PADDING;
         searchBox.yPosition = (int) (y - (searchBoxInOutAnimation.getValuef() * 32F));
         searchBox.setBackGroundColor(Colors.BackGround.color.brighter());
         searchBox.setDrawRipple(true);
@@ -174,7 +174,7 @@ public class ClickGui extends GuiScreen implements IDraggable {
         RenderUtils.startGlScissor((int) (panelStartX + PADDING),
                 (int) panelStartY,
                 (int) (width - (CategoryButton.width + baseXOffset) - PADDING * 4.5F),
-                (int) (height - PADDING * 2)
+                height - PADDING * 2
         );
         
         for (ModuleButton moduleButton : currentModuleButtons) {
@@ -318,7 +318,7 @@ public class ClickGui extends GuiScreen implements IDraggable {
         categoryButtons.forEach(categoryButton -> categoryButton.mouseClicked(mouseX, mouseY, mouseButton));
         currentModuleButtons.forEach(moduleButton -> moduleButton.mouseClicked(mouseX, mouseY, mouseButton));
     }
-
+    
     
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state) {

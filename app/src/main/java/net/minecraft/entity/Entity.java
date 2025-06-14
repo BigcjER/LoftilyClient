@@ -9,7 +9,7 @@ import loftily.Client;
 import loftily.event.impl.player.PushEvent;
 import loftily.event.impl.player.motion.MoveEvent;
 import loftily.event.impl.player.motion.StrafeEvent;
-import loftily.handlers.impl.RotationHandler;
+import loftily.handlers.impl.player.RotationHandler;
 import loftily.module.impl.combat.HitBox;
 import loftily.module.impl.other.RayTraceFixer;
 import loftily.utils.math.CalculateUtils;
