@@ -135,6 +135,9 @@ public class EntityPlayerSP extends AbstractClientPlayer {
     public float renderPitchHead;
     public float prevRenderPitchHead;
     
+    public int onGroundTicks, offGroundTicks;
+    
+    
     public EntityPlayerSP(Minecraft p_i47378_1_, World p_i47378_2_, NetHandlerPlayClient p_i47378_3_, StatisticsManager p_i47378_4_, RecipeBook p_i47378_5_) {
         super(p_i47378_2_, p_i47378_3_.getGameProfile());
         this.connection = p_i47378_3_;
@@ -213,6 +216,9 @@ public class EntityPlayerSP extends AbstractClientPlayer {
      * called every tick when the player is on foot. Performs all the things that normally happen during movement.
      */
     private void onUpdateWalkingPlayer() {
+        MotionEvent motionEvent = new MotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.onGround);
+        Client.INSTANCE.getEventManager().call(motionEvent);
+        
         boolean flag = this.isSprinting();
 
         if (flag != this.serverSprintState) {
@@ -238,8 +244,6 @@ public class EntityPlayerSP extends AbstractClientPlayer {
         }
 
         if (this.isCurrentViewEntity()) {
-            MotionEvent motionEvent = new MotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.onGround);
-            Client.INSTANCE.getEventManager().call(motionEvent);
 
             double x = motionEvent.getX();
             double y = motionEvent.getY();

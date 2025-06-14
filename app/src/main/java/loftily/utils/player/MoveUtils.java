@@ -3,40 +3,44 @@ package loftily.utils.player;
 import loftily.utils.client.ClientUtils;
 
 public class MoveUtils implements ClientUtils {
-
-    public static float getSpeed(float motionX, float motionZ){
-        return (float) Math.sqrt(motionX * motionX + motionZ * motionZ);
+    
+    public static double getSpeed(double motionX, double motionZ) {
+        return Math.sqrt(motionX * motionX + motionZ * motionZ);
     }
-
-    public static double getDirection(float rotationYaw, double moveForward, double moveStrafing) {
-        if (moveForward < 0F) rotationYaw += 180F;
+    
+    public static double getSpeed() {
+        return getSpeed(mc.player.motionX, mc.player.motionZ);
+    }
+    
+    public static double getDirection(float rotationYaw, double moveForward, double moveStrafe) {
+        if (moveForward == 0.0F && moveStrafe == 0.0F) {
+            return Math.toRadians(rotationYaw);
+        }
         
-        float forward = 1F;
+        double angle = Math.atan2(-moveStrafe, moveForward);
         
-        if (moveForward < 0F) forward = -0.5F;
-        else if (moveForward > 0F) forward = 0.5F;
-        
-        if (moveStrafing > 0F) rotationYaw -= 90F * forward;
-        if (moveStrafing < 0F) rotationYaw += 90F * forward;
-        
-        return Math.toRadians(rotationYaw);
+        return angle + Math.toRadians(rotationYaw);
     }
     
     public static double getDirection() {
-        return getDirection(mc.player.movementYaw, mc.player.movementInput.moveForward, mc.player.moveStrafing);
+        return getDirection(mc.player.rotationYaw, mc.player.movementInput.moveForward, mc.player.movementInput.moveStrafe);
     }
     
     public static boolean isMoving() {
         return mc.player.movementInput.moveForward != 0f || mc.player.movementInput.moveStrafe != 0f;
     }
     
-    public static void setSpeed(final double speed,boolean movingCheck) {
+    public static void setSpeed(final double speed, boolean movingCheck) {
         if (!isMoving() && movingCheck)
             return;
         
         final double yaw = getDirection();
         mc.player.motionX = -Math.sin(yaw) * speed;
         mc.player.motionZ = Math.cos(yaw) * speed;
+    }
+    
+    public static void strafe() {
+        setSpeed(getSpeed(), true);
     }
     
     public static void stop() {

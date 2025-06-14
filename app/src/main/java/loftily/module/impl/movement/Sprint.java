@@ -22,110 +22,111 @@ import net.minecraft.network.play.client.CPacketEntityAction;
 
 @ModuleInfo(name = "Sprint", category = ModuleCategory.MOVEMENT)
 public class Sprint extends Module {
-    private final BooleanValue legitSprint = new BooleanValue("Legit",false);
-    private final BooleanValue allDirections = new BooleanValue("AllDirections",false);
-    private final BooleanValue allDirectionsJump = new BooleanValue("AllDirectionsJump",false);
-    private final BooleanValue noC0B = new BooleanValue("NoSprintPackets",false);
-    private final BooleanValue noInventory = new BooleanValue("NoInventory",false);
-    private final BooleanValue noGui = new BooleanValue("NoAnyGui",false);
-    private final BooleanValue noFood = new BooleanValue("NoFood",false);
-    private final BooleanValue noHunger = new BooleanValue("NoHunger",false);
-    private final BooleanValue noSneaking = new BooleanValue("NoSneak",false);
-    private final BooleanValue noShield = new BooleanValue("NoShield",false);
-
+    private final BooleanValue legitSprint = new BooleanValue("Legit", false);
+    private final BooleanValue allDirections = new BooleanValue("AllDirections", false);
+    private final BooleanValue allDirectionsJump = new BooleanValue("AllDirectionsJump", false);
+    private final BooleanValue noC0B = new BooleanValue("NoSprintPackets", false);
+    private final BooleanValue noInventory = new BooleanValue("NoInventory", false);
+    private final BooleanValue noGui = new BooleanValue("NoAnyGui", false)
+            .setVisible(noInventory::getValue);
+    private final BooleanValue noFood = new BooleanValue("NoFood", false);
+    private final BooleanValue noHunger = new BooleanValue("NoHunger", false);
+    private final BooleanValue noSneaking = new BooleanValue("NoSneak", false);
+    private final BooleanValue noShield = new BooleanValue("NoShield", false);
+    
     @EventHandler
     public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
-
-        if(!noC0B.getValue())return;
-
-        if(packet instanceof CPacketEntityAction){
-            if(((CPacketEntityAction) packet).getAction() == CPacketEntityAction.Action.START_SPRINTING
-            || ((CPacketEntityAction) packet).getAction() == CPacketEntityAction.Action.STOP_SPRINTING){
+        
+        if (!noC0B.getValue()) return;
+        
+        if (packet instanceof CPacketEntityAction) {
+            if (((CPacketEntityAction) packet).getAction() == CPacketEntityAction.Action.START_SPRINTING
+                    || ((CPacketEntityAction) packet).getAction() == CPacketEntityAction.Action.STOP_SPRINTING) {
                 event.setCancelled(true);
             }
         }
     }
-
-    @EventHandler
+    
+    @EventHandler(priority = -100)
     public void onJump(JumpEvent event) {
-        if(!allDirectionsJump.getValue())return;
-        event.setMovementYaw(
-                (float) (event.getMovementYaw() + Math.toDegrees(MoveUtils.getDirection()) - mc.player.rotationYaw)
-        );
+        if (!allDirectionsJump.getValue()) return;
+        
+        event.setMovementYaw((float) Math.toDegrees(MoveUtils.getDirection()));
+        
     }
-
+    
     @EventHandler(priority = -10)
     public void onLivingUpdate(LivingUpdateEvent event) {
         Rotation rotation = RotationHandler.clientRotation;
-
-        if(!allDirections.getValue()) {
-            if(!legitSprint.getValue()) {
-                if(mc.player.movementInput.moveForward < 0.8){
+        
+        if (!allDirections.getValue()) {
+            if (!legitSprint.getValue()) {
+                if (mc.player.movementInput.moveForward < 0.8) {
                     stopSprinting();
-                }else {
+                } else {
                     mc.player.setSprinting(true);
                 }
             }
-        }else {
+        } else {
             mc.player.setSprinting(true);
         }
-
-        if(!MoveUtils.isMoving()) {
+        
+        if (!MoveUtils.isMoving()) {
             stopSprinting();
             return;
         }
-
-        if(legitSprint.getValue()){
-            if(rotation != null) {
+        
+        if (legitSprint.getValue()) {
+            if (rotation != null) {
                 float calcForward = CalculateUtils.getMoveFixForward(rotation);
                 if (calcForward < 0.8) {
                     stopSprinting();
-                }else {
+                } else {
                     mc.player.setSprinting(true);
                 }
-            }else {
+            } else {
                 if (mc.player.movementInput.moveForward < 0.8) {
                     stopSprinting();
-                }else {
+                } else {
                     mc.player.setSprinting(true);
                 }
             }
         }
-
-        if(noShield.getValue()){
-            if(mc.player.isHandActive() &&
+        
+        if (noShield.getValue()) {
+            if (mc.player.isHandActive() &&
                     (mc.player.getHeldItemMainhand().getItem() instanceof ItemSword)
-            || (mc.player.getHeldItemMainhand().getItem() instanceof ItemShield)
-            || ((mc.player.getHeldItemOffhand().getItem() instanceof ItemShield))){
+                    || (mc.player.getHeldItemMainhand().getItem() instanceof ItemShield)
+                    || ((mc.player.getHeldItemOffhand().getItem() instanceof ItemShield))) {
                 stopSprinting();
             }
         }
-
-        if(noSneaking.getValue()){
-            if(mc.player.isSneaking()){
+        
+        if (noSneaking.getValue()) {
+            if (mc.player.isSneaking()) {
                 stopSprinting();
             }
         }
-
-        if((noInventory.getValue() && mc.currentScreen instanceof GuiInventory) || (noGui.getValue() && mc.currentScreen != null)) {
+        
+        if ((noInventory.getValue() && mc.currentScreen instanceof GuiInventory) || (noGui.getValue() && mc.currentScreen != null)) {
             stopSprinting();
         }
-
-        if(noFood.getValue() && mc.player.isHandActive() &&
+        
+        if (noFood.getValue() && mc.player.isHandActive() &&
                 (mc.player.getHeldItemMainhand().getItem() instanceof ItemFood
                         || mc.player.getHeldItemOffhand().getItem() instanceof ItemFood
                         || mc.player.getHeldItemMainhand().getItem() instanceof ItemBucketMilk
-                        || mc.player.getHeldItemOffhand().getItem() instanceof ItemBucketMilk)){
+                        || mc.player.getHeldItemOffhand().getItem() instanceof ItemBucketMilk)) {
             stopSprinting();
         }
-
-        if(noHunger.getValue() && mc.player.getFoodStats().getFoodLevel() <= 6) {
+        
+        if (noHunger.getValue() && mc.player.getFoodStats().getFoodLevel() <= 6) {
             stopSprinting();
         }
     }
-
-    void stopSprinting(){
+    
+    void stopSprinting() {
         mc.player.setSprinting(false);
         mc.gameSettings.keyBindSprint.setPressed(false);
     }
