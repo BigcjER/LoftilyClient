@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//TODO:All ValueRenderer
 public class ClickGui extends GuiScreen implements IDraggable {
     //Positions
     public static final int CORNER_RADIUS = 3, PADDING = 5;
