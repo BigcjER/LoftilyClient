@@ -22,6 +22,7 @@ public class ESP extends Module {
             new StringMode("Box"));
     
     private final BooleanValue positionalInterpolation = new BooleanValue("PositionalInterpolation", true);
+    private final BooleanValue rotateWithYaw = new BooleanValue("RotateWithYaw", true);
     
     private final NumberValue colorRed = new NumberValue("ColorRed", 27, 0, 255);
     private final NumberValue colorGreen = new NumberValue("ColorRed", 27, 0, 255);
@@ -36,7 +37,6 @@ public class ESP extends Module {
     
     @EventHandler
     public void onRender3DEvent(Render3DEvent event) {
-        
         for (EntityLivingBase entity : TargetsHandler.getTargets(Double.MAX_VALUE)) {
             if (entity == null || !ESPUtils.isInView(entity)) continue;
             
@@ -56,11 +56,10 @@ public class ESP extends Module {
             
             switch (mode.getValueByName().toLowerCase()) {
                 case "box":
-                    ESPUtils.drawEntityBox(entity, color, positionalInterpolation.getValue());
+                    ESPUtils.drawEntityBox(entity, color, positionalInterpolation.getValue(), rotateWithYaw.getValue());
                     break;
             }
         }
-        
     }
     
     @Override

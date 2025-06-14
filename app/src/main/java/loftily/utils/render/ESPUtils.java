@@ -25,7 +25,7 @@ public class ESPUtils implements ClientUtils {
         return false;
     }
     
-    public static void drawEntityBox(EntityLivingBase entity, Color color, boolean positionalInterpolation) {
+    public static void drawEntityBox(EntityLivingBase entity, Color color, boolean positionalInterpolation, boolean rotateWithYaw) {
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.disableDepth();
@@ -41,14 +41,21 @@ public class ESPUtils implements ClientUtils {
         double z = positionalInterpolation
                 ? (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * mc.timer.renderPartialTicks - mc.getRenderManager().renderPosZ)
                 : entity.posZ - mc.getRenderManager().renderPosZ;
+        
+        GlStateManager.translate(x, y, z);
+        if (rotateWithYaw) GlStateManager.rotate((entity.rotationYaw), 0.0F, 1.0F, 0.0F);
+        
         AxisAlignedBB entityBox = entity.getEntityBoundingBox();
-        AxisAlignedBB axisAlignedBB = AxisAlignedBB.fromBounds(
-                entityBox.minX - entity.posX + x - 0.05,
-                entityBox.minY - entity.posY + y,
-                entityBox.minZ - entity.posZ + z - 0.05,
-                entityBox.maxX - entity.posX + x + 0.05,
-                entityBox.maxY - entity.posY + y + 0.15,
-                entityBox.maxZ - entity.posZ + z + 0.05
+        double boxWidth = (entityBox.maxX - entityBox.minX);
+        double bowHeight = (entityBox.maxY - entityBox.minY);
+        
+        AxisAlignedBB axisAlignedBB = new AxisAlignedBB(
+                -boxWidth / 2 - 0.05,
+                0,
+                -boxWidth / 2 - 0.05,
+                boxWidth / 2 + 0.05,
+                bowHeight + 0.15,
+                boxWidth / 2 + 0.05
         );
         
         GlStateManager.color(
