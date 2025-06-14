@@ -13,4 +13,5 @@ public class AnimationModule extends Module {
     private final NumberValue animationDuringMultiplier = new NumberValue("AnimationDuringMultiplier", 1, 0, 3, 0.1F);
     
     private final BooleanValue blockAnimation = new BooleanValue("BlockAnimation", true);
+    private final BooleanValue swingAnimation1_8 = new BooleanValue("1.8SwingAnimation", true);
 }

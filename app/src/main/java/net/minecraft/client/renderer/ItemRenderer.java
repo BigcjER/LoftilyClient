@@ -310,7 +310,8 @@ public class ItemRenderer
     private void transformSideFirstPerson(EnumHandSide p_187459_1_, float p_187459_2_)
     {
         int i = p_187459_1_ == EnumHandSide.RIGHT ? 1 : -1;
-        GlStateManager.translate((float)i * 0.56F, -0.52F + p_187459_2_ * -0.6F, -0.72F);
+        boolean swing1_8 = Client.INSTANCE.getModuleManager().get(AnimationModule.class).getSwingAnimation1_8().getValue();
+        GlStateManager.translate((float)i * 0.56F, -0.52F + (swing1_8 ? 1 : p_187459_2_ * -0.6F), -0.72F);
     }
 
     /**
@@ -379,13 +380,6 @@ public class ItemRenderer
         GlStateManager.rotate(f * -20.0F, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(f1 * -20.0F, 0.0F, 0.0F, 1.0F);
         GlStateManager.rotate(f1 * -80.0F, 1.0F, 0.0F, 0.0F);
-    }
-    
-    public void doBlockTransformations() {
-        GlStateManager.translate(-0.5F, 0.2F, 0.0F);
-        GlStateManager.rotate(30.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(-80.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotate(60.0F, 0.0F, 1.0F, 0.0F);
     }
     
     public void renderItemInFirstPerson(AbstractClientPlayer abstractClientPlayer, float partialTicks, float pitch, EnumHand hand, float swingProgress, ItemStack stack, float equippedProgress) {
@@ -477,8 +471,8 @@ public class ItemRenderer
                     float f2 = -0.2F * MathHelper.sin(swingProgress * (float) Math.PI);
                     
                     
-                    int i = isRightHand ? 1 : -1;
-                    GlStateManager.translate((float) i * f, f1, f2);
+                    //int i = isRightHand ? 1 : -1;
+                    GlStateManager.translate(f, f1, f2);
                     this.transformSideFirstPerson(enumHandSide, equippedProgress);
                     this.transformFirstPerson(enumHandSide, swingProgress);
                 }
