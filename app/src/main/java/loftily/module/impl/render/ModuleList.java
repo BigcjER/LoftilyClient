@@ -51,9 +51,9 @@ public class ModuleList extends Module implements IDraggable {
             new StringMode("Fade"));
     private final NumberValue textColorRed = new NumberValue("TextColorRed", 255, 0, 255)
             .setVisible(() -> textColorMode.is("Normal") || textColorMode.is("Fade"));
-    private final NumberValue textColorGreen = new NumberValue("TextColorRed", 255, 0, 255)
+    private final NumberValue textColorGreen = new NumberValue("TextColorGreen", 255, 0, 255)
             .setVisible(() -> textColorMode.is("Normal") || textColorMode.is("Fade"));
-    private final NumberValue textColorBlue = new NumberValue("TextColorRed", 255, 0, 255)
+    private final NumberValue textColorBlue = new NumberValue("TextColorBlue", 255, 0, 255)
             .setVisible(() -> textColorMode.is("Normal") || textColorMode.is("Fade"));
     
     //TagColor

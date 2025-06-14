@@ -25,14 +25,14 @@ public class ESP extends Module {
     private final BooleanValue rotateWithYaw = new BooleanValue("RotateWithYaw", true);
     
     private final NumberValue colorRed = new NumberValue("ColorRed", 27, 0, 255);
-    private final NumberValue colorGreen = new NumberValue("ColorRed", 27, 0, 255);
-    private final NumberValue colorBlue = new NumberValue("ColorRed", 27, 0, 255);
+    private final NumberValue colorGreen = new NumberValue("ColorGreen", 27, 0, 255);
+    private final NumberValue colorBlue = new NumberValue("ColorBlue", 27, 0, 255);
     private final NumberValue colorAlpha = new NumberValue("ColorAlpha", 80, 0, 255);
     
     private final BooleanValue anotherColorOnDamage = new BooleanValue("AnotherColorOnDamage", true);
     private final NumberValue damageColorRed = new NumberValue("DamageColorRed", 80, 0, 255).setVisible(anotherColorOnDamage::getValue);
-    private final NumberValue damageColorGreen = new NumberValue("DamageColorRed", 22, 0, 255).setVisible(anotherColorOnDamage::getValue);
-    private final NumberValue damageColorBlue = new NumberValue("DamageColorRed", 22, 0, 255).setVisible(anotherColorOnDamage::getValue);
+    private final NumberValue damageColorGreen = new NumberValue("DamageColorGreen", 22, 0, 255).setVisible(anotherColorOnDamage::getValue);
+    private final NumberValue damageColorBlue = new NumberValue("DamageColorBlue", 22, 0, 255).setVisible(anotherColorOnDamage::getValue);
     private final NumberValue damageColorAlpha = new NumberValue("DamageColorAlpha", 80, 0, 255).setVisible(anotherColorOnDamage::getValue);
     
     @EventHandler
