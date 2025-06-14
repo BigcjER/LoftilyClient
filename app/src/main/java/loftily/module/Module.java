@@ -4,6 +4,7 @@ import loftily.Client;
 import loftily.config.impl.ModuleConfig;
 import loftily.core.AbstractModule;
 import loftily.gui.notification.NotificationType;
+import loftily.value.impl.BooleanValue;
 import loftily.value.impl.mode.Mode;
 import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
@@ -53,6 +54,16 @@ public abstract class Module extends AbstractModule {
                 .flatMap(modeValue -> modeValue.getModes().stream()
                         .filter(mode -> !(mode instanceof StringMode) && mode.equals(modeValue.getValue())))
                 .forEach(toggled ? Mode::register : Mode::unregister);
+        
+        this.values.stream()
+                .filter(value -> value instanceof BooleanValue)
+                .forEach(value -> {
+                    final BooleanValue booleanValue = (BooleanValue) value;
+                    if (booleanValue.getMode() != null) {
+                        if (this.toggled && booleanValue.getValue()) booleanValue.getMode().register();
+                        else booleanValue.getMode().unregister();
+                    }
+                });
         
         if (notification)
             Client.INSTANCE.getNotificationManager().add(

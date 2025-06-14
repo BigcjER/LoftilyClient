@@ -237,8 +237,6 @@ public class ClickGui extends GuiScreen implements IDraggable {
     
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        Client.INSTANCE.getFileManager().get(ModuleConfig.class).write();
-        
         //是否点击搜索框区域
         boolean clickedSearchBox = RenderUtils.isHovering(
                 mouseX, mouseY,
@@ -324,6 +322,8 @@ public class ClickGui extends GuiScreen implements IDraggable {
     protected void mouseReleased(int mouseX, int mouseY, int state) {
         super.mouseReleased(mouseX, mouseY, state);
         if (currentValuePanel != null) currentValuePanel.mouseReleased(mouseX, mouseY, state);
+        
+        Client.INSTANCE.getFileManager().get(ModuleConfig.class).write();
     }
     
     @Override

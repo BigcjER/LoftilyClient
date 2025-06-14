@@ -6,6 +6,7 @@ import loftily.event.impl.client.KeyboardEvent;
 import loftily.gui.interaction.draggable.IDraggable;
 import loftily.handlers.impl.render.DraggableHandler;
 import loftily.value.Value;
+import loftily.value.impl.BooleanValue;
 import loftily.value.impl.mode.ModeValue;
 import net.lenni0451.lambdaevents.EventHandler;
 
@@ -30,6 +31,12 @@ public class ModuleManager extends AbstractManager<Module> {
                         if (field.getType().isAssignableFrom(ModeValue.class)) {
                             module.getValues().add((Value<?, ?>) field.get(module));
                             ((ModeValue) field.get(module)).initModes();
+                            continue;
+                        }
+                        
+                        if (field.getType().isAssignableFrom(BooleanValue.class)) {
+                            module.getValues().add((Value<?, ?>) field.get(module));
+                            ((BooleanValue) field.get(module)).initMode();
                             continue;
                         }
                         
