@@ -31,6 +31,8 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketAnimation;
@@ -154,6 +156,7 @@ public class KillAura extends Module {
             new StringMode("Post"),
             new StringMode("AfterAttack")
     );
+    private final BooleanValue afterTickWhenShielded = new BooleanValue("AfterTickWhenShielded", false).setVisible(()->autoBlockMode.is("AfterTick"));
     private final BooleanValue onlyWhileKeyBinding = new BooleanValue("OnlyWhileKeyBinding", false);
     private final BooleanValue sendInteractPacket = new BooleanValue("InteractPacket", false);
     
@@ -376,7 +379,6 @@ public class KillAura extends Module {
     @Override
     public void onEnable() {
         attackDelay = calculateDelay();
-        canAttackTimes = 0;
         attackTimer.reset();
         targetTimer.reset();
     }
@@ -546,7 +548,12 @@ public class KillAura extends Module {
                 case "AfterTick":
                     if (canAttackTimes > 0) {
                         if (blockingTick) {
-                            //Item handItem = mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
+                            if(afterTickWhenShielded.getValue()) {
+                                Item handItem = mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
+                                if(!(handItem instanceof ItemShield) && !(handItem instanceof ItemSword)) {
+                                    break;
+                                }
+                            }
                             PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
                             blockingTick = false;
                         }

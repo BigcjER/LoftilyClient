@@ -35,6 +35,8 @@ public class MatrixSpeed extends Mode<Speed> {
         if (MoveUtils.getSpeed() <= 0.2 && !mc.player.isCollidedHorizontally) {
             MoveUtils.setSpeed(0.2, false);
         }
-        mc.player.motionY -= 0.0032;
+        if(mc.player.hurtTime <= 0) {
+            mc.player.motionY -= 0.0032;
+        }
     }
 }
