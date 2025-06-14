@@ -311,7 +311,7 @@ public class ItemRenderer
     {
         int i = p_187459_1_ == EnumHandSide.RIGHT ? 1 : -1;
         boolean swing1_8 = Client.INSTANCE.getModuleManager().get(AnimationModule.class).getSwingAnimation1_8().getValue();
-        GlStateManager.translate((float)i * 0.56F, -0.52F + (swing1_8 ? 1 : p_187459_2_ * -0.6F), -0.72F);
+        GlStateManager.translate((float) i * 0.56F, -0.52F + (swing1_8 ? 0 : p_187459_2_ * -0.6F), -0.72F);
     }
 
     /**

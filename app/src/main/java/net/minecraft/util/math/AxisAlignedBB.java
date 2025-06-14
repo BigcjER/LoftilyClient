@@ -1,8 +1,9 @@
 package net.minecraft.util.math;
 
 import com.google.common.annotations.VisibleForTesting;
-import javax.annotation.Nullable;
 import net.minecraft.util.EnumFacing;
+
+import javax.annotation.Nullable;
 
 public class AxisAlignedBB
 {
@@ -519,5 +520,15 @@ public class AxisAlignedBB
     public Vec3d getCenter()
     {
         return new Vec3d(this.minX + (this.maxX - this.minX) * 0.5D, this.minY + (this.maxY - this.minY) * 0.5D, this.minZ + (this.maxZ - this.minZ) * 0.5D);
+    }
+    
+    public static AxisAlignedBB fromBounds(double x1, double y1, double z1, double x2, double y2, double z2) {
+        double d0 = Math.min(x1, x2);
+        double d1 = Math.min(y1, y2);
+        double d2 = Math.min(z1, z2);
+        double d3 = Math.max(x1, x2);
+        double d4 = Math.max(y1, y2);
+        double d5 = Math.max(z1, z2);
+        return new AxisAlignedBB(d0, d1, d2, d3, d4, d5);
     }
 }
