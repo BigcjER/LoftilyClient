@@ -169,7 +169,8 @@ public class ModuleList extends Module implements IDraggable {
                 
                 if (!fontShadow.getValue()) {
                     font.drawString(name, drawX, y, textColor);
-                    if (drawTag.getValue()) font.drawString(tag, drawX + spaceWidth, y, tagColor);
+                    if (drawTag.getValue())
+                        font.drawString(tag, drawX + nameWidth + spaceWidth, y, tagColor);
                 } else {
                     font.drawStringWithShadow(name, drawX, y, textColor.getRGB());
                     if (drawTag.getValue())
