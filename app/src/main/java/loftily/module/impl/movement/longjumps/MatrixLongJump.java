@@ -14,7 +14,7 @@ public class MatrixLongJump extends Mode<LongJump> {
         super("Matrix");
     }
     
-    private final NumberValue boostSpeed = new NumberValue("Matrix-BoostSpeed", 1.97, -1.97, 1.97, 0.01);
+    private final NumberValue boostSpeed = new NumberValue("BoostSpeed", 1.97, -1.97, 1.97, 0.01);
     private boolean receivedFlag, canBoost, boosted;
     
     @Override

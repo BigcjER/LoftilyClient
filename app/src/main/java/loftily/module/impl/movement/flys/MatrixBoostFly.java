@@ -4,7 +4,6 @@ import loftily.event.impl.packet.PacketReceiveEvent;
 import loftily.event.impl.packet.PacketSendEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
-import loftily.event.impl.world.UpdateEvent;
 import loftily.module.impl.movement.Fly;
 import loftily.utils.player.MoveUtils;
 import loftily.value.impl.NumberValue;
@@ -18,7 +17,8 @@ public class MatrixBoostFly extends Mode<Fly> {
     public MatrixBoostFly() {
         super("MatrixBoost");
     }
-    private final NumberValue height = new NumberValue("MatrixBoost-Height",1,0.42,7,0.1);
+    
+    private final NumberValue height = new NumberValue("Height", 1, 0.42, 7, 0.1);
 
     private int jumpCounter = 0;
     private boolean receivedFlag, canBoost;

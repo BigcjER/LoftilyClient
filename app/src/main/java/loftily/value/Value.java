@@ -1,6 +1,7 @@
 package loftily.value;
 
 import com.google.gson.JsonElement;
+import loftily.value.impl.mode.Mode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +17,7 @@ public abstract class Value<T, V> {
     private final T defaultValue;
     protected T value;
     private Supplier<Boolean> visible;
+    private Mode<?> parentMode = null;
     
     public Value(String name, T value) {
         this.name = name;

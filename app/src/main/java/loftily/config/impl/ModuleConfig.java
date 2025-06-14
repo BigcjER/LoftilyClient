@@ -8,6 +8,8 @@ import loftily.config.Config;
 import loftily.module.AutoDisableType;
 import loftily.module.Module;
 import loftily.settings.ClientSettings;
+import loftily.value.Value;
+import loftily.value.impl.mode.Mode;
 import org.lwjgl.input.Keyboard;
 
 import java.io.File;
@@ -46,9 +48,28 @@ public class ModuleConfig extends Config {
                 
                 JsonObject valuesJson = modJson.getAsJsonObject("values");
                 
-                module.getValues().forEach(value -> {
-                    if (valuesJson.has(value.getName())) {
-                        value.read(valuesJson.get(value.getName()));
+                valuesJson.entrySet().forEach(valueEntry -> {
+                    String key = valueEntry.getKey();
+                    JsonElement element = valueEntry.getValue();
+                    //是嵌套Mode的，遍历里面的Value
+                    if (element.isJsonObject()) {
+                        JsonObject modeValuesJson = element.getAsJsonObject();
+                        modeValuesJson.entrySet().forEach(valueInModeEntry -> {
+                            String valueInModeName = valueInModeEntry.getKey();
+                            
+                            Value<?, ?> valueToRead = module.getValueInMode(valueInModeName, key);
+                            if (valueToRead != null) {
+                                valueToRead.read(valueInModeEntry.getValue());
+                            }
+                        });
+                        return;
+                    }
+                    
+                    //是顶层的value
+                    Value<?, ?> valueToRead = module.getTopLevelValue(key);
+                    
+                    if (valueToRead != null) {
+                        valueToRead.read(element);
                     }
                 });
             });
@@ -71,7 +92,20 @@ public class ModuleConfig extends Config {
                 modJson.addProperty("AutoDisable", module.getAutoDisableType().name);
                 
                 JsonObject valuesJson = new JsonObject();
-                module.getValues().forEach(value -> valuesJson.add(value.getName(), value.write()));
+                module.getValues().forEach(value -> {
+                    //给Mode添加嵌套
+                    if (value.getParentMode() != null) {
+                        JsonObject jsonObjectForMode = new JsonObject();
+                        
+                        Mode<?> mode = value.getParentMode();
+                        mode.getValues().forEach(valueInMode -> jsonObjectForMode.add(valueInMode.getName(), valueInMode.write()));
+                        valuesJson.add(mode.getName(), jsonObjectForMode);
+                        return;
+                    }
+                    
+                    //不在mode下
+                    valuesJson.add(value.getName(), value.write());
+                });
                 modJson.add("values", valuesJson);
                 
                 json.add(module.getName(), modJson);

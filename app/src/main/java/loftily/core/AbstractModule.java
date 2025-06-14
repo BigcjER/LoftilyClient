@@ -21,4 +21,23 @@ public abstract class AbstractModule implements ClientUtils {
     public void onToggle() {
     }
     
+    public Value<?, ?> getValueInMode(String name, String modeName) {
+        if (modeName == null) {
+            return getTopLevelValue(name);
+        }
+        
+        return this.getValues().stream()
+                .filter(v -> v.getParentMode() != null &&
+                        v.getParentMode().getName().equalsIgnoreCase(modeName) &&
+                        v.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+    }
+    
+    public Value<?, ?> getTopLevelValue(String name) {
+        return this.getValues().stream()
+                .filter(v -> v.getParentMode() == null && v.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+    }
 }

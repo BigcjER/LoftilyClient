@@ -65,7 +65,9 @@ public class ModeValue extends Value<Mode, ModeValue> {
                 if (Value.class.isAssignableFrom(field.getType())) {
                     try {
                         field.setAccessible(true);
-                        mode.getValues().add((Value<?, ?>) field.get(mode));
+                        Value<?, ?> value = (Value<?, ?>) field.get(mode);
+                        value.setParentMode(mode);
+                        mode.getValues().add(value);
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
