@@ -116,20 +116,23 @@ public class KillAura extends Module {
     private final RangeSelectionNumberValue backTicks = new RangeSelectionNumberValue("ReverseTicks", 1, 2, 0, 20);
     private final BooleanValue silentRotation = new BooleanValue("SilentRotation", false);
     private final BooleanValue throughWallsAim = new BooleanValue("ThroughWallsAim", false);
-    //Improved
+    //Improve TargetBox
     private final BooleanValue predictAimPlayer = new BooleanValue("PlayerPredict", false);
-    private final RangeSelectionNumberValue horizontalMultiplierPlayer = new RangeSelectionNumberValue("HMultiplier-Player", 0.1, 0.8, -4.00, 4.00,0.01)
+    private final RangeSelectionNumberValue horizontalMultiplierPlayer = new RangeSelectionNumberValue("PlayerHMultiplier", 0.1, 0.8, -4.00, 4.00,0.01)
             .setVisible(predictAimPlayer::getValue);
-    private final RangeSelectionNumberValue verticalMultiplierPlayer = new RangeSelectionNumberValue("VMultiplier-Player", 0.1, 0.8, -4.00, 4.00,0.01)
+    private final RangeSelectionNumberValue verticalMultiplierPlayer = new RangeSelectionNumberValue("PlayerVMultiplier", 0.1, 0.8, -4.00, 4.00,0.01)
             .setVisible(predictAimPlayer::getValue);
 
     private final BooleanValue predictAimTarget = new BooleanValue("TargetPredict", false);
-    private final RangeSelectionNumberValue horizontalMultiplierTarget = new RangeSelectionNumberValue("HMultiplier-Target", 0.1, 0.8, -4.00, 4.00,0.01)
+    private final RangeSelectionNumberValue horizontalMultiplierTarget = new RangeSelectionNumberValue("TargetHMultiplier", 0.1, 0.8, -4.00, 4.00,0.01)
             .setVisible(predictAimTarget::getValue);
-    private final RangeSelectionNumberValue verticalMultiplierTarget = new RangeSelectionNumberValue("VMultiplier-Target", 0.1, 0.8, -4.00, 4.00,0.01)
+    private final RangeSelectionNumberValue verticalMultiplierTarget = new RangeSelectionNumberValue("TargetVMultiplier", 0.1, 0.8, -4.00, 4.00,0.01)
             .setVisible(predictAimTarget::getValue);
     private final NumberValue maxHorizontalPredict = new NumberValue("MaxHorizontalPredict",1.50,0.0,6.00,0.1);
     private final NumberValue maxVerticalPredict = new NumberValue("MaxVerticalPredict",1.5,0.0,6.00,0.1);
+    private final BooleanValue boxExpand = new BooleanValue("TargetBoxExpand", false);
+    private final NumberValue expandSizeH = new NumberValue("BoxHExpandSize",0.1,-1.5,1.5,0.01).setVisible(boxExpand::getValue);
+    private final NumberValue expandSizeV = new NumberValue("BoxVExpandSize",0.1,-1.5,1.5,0.01).setVisible(boxExpand::getValue);
     //Movement
     private final ModeValue moveFixMode = new ModeValue("MoveFixMode", "None", this,
             new StringMode("None"),
@@ -177,7 +180,9 @@ public class KillAura extends Module {
 
     public AxisAlignedBB getTargetBox(EntityLivingBase target) {
         AxisAlignedBB basicBox = target.getBox();
-
+        if(boxExpand.getValue()){
+            basicBox = basicBox.expand(expandSizeH.getValue(),expandSizeV.getValue(),expandSizeH.getValue());
+        }
         if(predictAimPlayer.getValue()){
             double horizontal = RandomUtils.randomDouble(horizontalMultiplierPlayer.getFirst(),horizontalMultiplierPlayer.getSecond());
             double vertical = RandomUtils.randomDouble(verticalMultiplierPlayer.getFirst(),verticalMultiplierPlayer.getSecond());
@@ -187,7 +192,6 @@ public class KillAura extends Module {
                     mc.player.motionZ * horizontal
             );
         }
-
         if(predictAimTarget.getValue()){
             double horizontal = RandomUtils.randomDouble(horizontalMultiplierTarget.getFirst(),horizontalMultiplierTarget.getSecond());
             double vertical = RandomUtils.randomDouble(verticalMultiplierTarget.getFirst(),verticalMultiplierTarget.getSecond());

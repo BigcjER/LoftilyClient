@@ -10,6 +10,7 @@ import loftily.event.impl.player.PushEvent;
 import loftily.event.impl.player.motion.MoveEvent;
 import loftily.event.impl.player.motion.StrafeEvent;
 import loftily.handlers.impl.RotationHandler;
+import loftily.module.impl.combat.HitBox;
 import loftily.module.impl.other.RayTraceFixer;
 import loftily.utils.math.CalculateUtils;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -304,8 +305,14 @@ public abstract class Entity implements ICommandSender
     }
 
     public AxisAlignedBB getBox(){
+        AxisAlignedBB itsBox = this.getEntityBoundingBox();
+        HitBox hitBox = Client.INSTANCE.getModuleManager().get(HitBox.class);
         double size = getCollisionBorderSize();
-        return this.getEntityBoundingBox().expand(size, size, size);
+        itsBox = itsBox.expandXyz(size);
+        if(hitBox.isToggled()){
+            itsBox = itsBox.expand(hitBox.expandSizeH.getValue(),hitBox.expandSizeV.getValue(),hitBox.expandSizeH.getValue());
+        }
+        return itsBox;
     }
 
     public int getEntityId()

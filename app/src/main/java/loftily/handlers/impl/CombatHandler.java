@@ -27,6 +27,7 @@ public class CombatHandler extends Handler {
     public void onLivingUpdate(LivingUpdateEvent event) {
         if(mc.player == null) return;
         if(lastTarget == null) {
+            inCombat = false;
             delayTimer.reset();
             return;
         }

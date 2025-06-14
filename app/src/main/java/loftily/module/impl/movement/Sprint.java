@@ -15,6 +15,8 @@ import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.item.ItemBucketMilk;
 import net.minecraft.item.ItemFood;
+import net.minecraft.item.ItemShield;
+import net.minecraft.item.ItemSword;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketEntityAction;
 
@@ -29,6 +31,7 @@ public class Sprint extends Module {
     private final BooleanValue noFood = new BooleanValue("NoFood",false);
     private final BooleanValue noHunger = new BooleanValue("NoHunger",false);
     private final BooleanValue noSneaking = new BooleanValue("NoSneak",false);
+    private final BooleanValue noShield = new BooleanValue("NoShield",false);
 
     @EventHandler
     public void onPacketSend(PacketSendEvent event) {
@@ -58,7 +61,11 @@ public class Sprint extends Module {
 
         if(!allDirections.getValue()) {
             if(!legitSprint.getValue()) {
-                mc.gameSettings.keyBindSprint.setPressed(true);
+                if(mc.player.movementInput.moveForward < 0.8){
+                    stopSprinting();
+                }else {
+                    mc.player.setSprinting(true);
+                }
             }
         }else {
             mc.player.setSprinting(true);
@@ -83,6 +90,15 @@ public class Sprint extends Module {
                 }else {
                     mc.player.setSprinting(true);
                 }
+            }
+        }
+
+        if(noShield.getValue()){
+            if(mc.player.isHandActive() &&
+                    (mc.player.getHeldItemMainhand().getItem() instanceof ItemSword)
+            || (mc.player.getHeldItemMainhand().getItem() instanceof ItemShield)
+            || ((mc.player.getHeldItemOffhand().getItem() instanceof ItemShield))){
+                stopSprinting();
             }
         }
 

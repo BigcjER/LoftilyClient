@@ -408,11 +408,11 @@ public class Scaffold extends Module {
         Vec3d vec = center.subtract(eyes);
         if(enumFacing.getAxis() != EnumFacing.Axis.Y){
             double dist = abs(enumFacing.getAxis() == EnumFacing.Axis.X ? vec.xCoord : vec.zCoord);
-            if(dist < distValue.getValue()){
+            if(dist < distValue.getValue() && !mc.player.movementInput.sneak){
                 return null;
             }
         }
-
+        Rotation basicRotation = RotationUtils.toRotation(center,mc.player);
         rotation = RotationUtils.toRotation(center,mc.player);
 
         switch (rotationMode.getValueByName()) {
@@ -425,12 +425,6 @@ public class Scaffold extends Module {
                         rotation.pitch
                 );
                 break;
-            case "Box":
-                Vec3d c2 = Objects.requireNonNull(blockPos.getState()).getSelectedBoundingBox(mc.world,blockPos).getCenter().addVector(
-                        directionVec.xCoord * 0.5, directionVec.yCoord * 0.5, directionVec.zCoord * 0.5
-                );
-                rotation = RotationUtils.toRotation(c2, mc.player);
-                break;
         }
 
         if (!rayCastSearch.getValue()) {
@@ -440,11 +434,12 @@ public class Scaffold extends Module {
             if (serverRayTrace.getBlockPos().equals(placePos) && (!raycast || serverRayTrace.sideHit == enumFacing)) {
                 dPlaceInfo = new PlaceInfo<>(placePos, enumFacing, center, rotation);
             }
-            RayTraceResult rotationRayTrace = performBlockRaytrace(rotation);
+            RayTraceResult rotationRayTrace = performBlockRaytrace(basicRotation);
             if (rotationRayTrace.getBlockPos().equals(placePos) || (!raycast || rotationRayTrace.sideHit == enumFacing)) {
                 dPlaceInfo = new PlaceInfo<>(placePos, enumFacing, center, rotation);
             }
         }
+
         return dPlaceInfo;
     }
 
