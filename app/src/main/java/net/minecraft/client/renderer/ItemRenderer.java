@@ -310,8 +310,8 @@ public class ItemRenderer
     private void transformSideFirstPerson(EnumHandSide p_187459_1_, float p_187459_2_)
     {
         int i = p_187459_1_ == EnumHandSide.RIGHT ? 1 : -1;
-        boolean swing1_8 = Client.INSTANCE.getModuleManager().get(AnimationModule.class).getSwingAnimation1_8().getValue();
-        GlStateManager.translate((float) i * 0.56F, -0.52F + (swing1_8 ? 0 : p_187459_2_ * -0.6F), -0.72F);
+        boolean swing1_8 = AnimationModule.getInstance().getSwingAnimation1_8().getValue();
+        GlStateManager.translate((float) i * 0.56F, -0.52F + (p_187459_2_ * (swing1_8 && mc.player.getHeldItemMainhand().getItem() instanceof ItemSword ? 0 : -0.6F)), -0.72F);
     }
 
     /**
@@ -380,6 +380,7 @@ public class ItemRenderer
         GlStateManager.rotate(f * -20.0F, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(f1 * -20.0F, 0.0F, 0.0F, 1.0F);
         GlStateManager.rotate(f1 * -80.0F, 1.0F, 0.0F, 0.0F);
+        GlStateManager.scale(1.1F, 1.1F, 1.1F);
     }
     
     public void renderItemInFirstPerson(AbstractClientPlayer abstractClientPlayer, float partialTicks, float pitch, EnumHand hand, float swingProgress, ItemStack stack, float equippedProgress) {
@@ -390,9 +391,7 @@ public class ItemRenderer
         
         boolean hasShield = abstractClientPlayer.getHeldItemOffhand().getItem() instanceof ItemShield;
         boolean hasSword = abstractClientPlayer.getHeldItemMainhand().getItem() instanceof ItemSword;
-        
-        AnimationModule animationModule = Client.INSTANCE.getModuleManager().get(AnimationModule.class);
-        boolean blockAnimation = animationModule.getBlockAnimation().getValue();
+        boolean blockAnimation = AnimationModule.getInstance().getBlockAnimation().getValue();
         
         if (hand == EnumHand.OFF_HAND && (isSwordBlocking || (hasSword && hasShield)) && blockAnimation) return;
         if (Config.isShaders() && Shaders.isSkipRenderHand(hand)) return;

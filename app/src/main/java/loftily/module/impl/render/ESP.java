@@ -18,7 +18,7 @@ import java.awt.*;
 
 @ModuleInfo(name = "ESP", category = ModuleCategory.RENDER, defaultToggled = true)
 public class ESP extends Module {
-    private final ModeValue mode = new ModeValue("Mode", "Glow", this,
+    private final ModeValue mode = new ModeValue("Mode", "Box", this,
             new StringMode("Box"));
     
     private final BooleanValue positionalInterpolation = new BooleanValue("PositionalInterpolation", true);

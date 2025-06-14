@@ -1,6 +1,5 @@
 package loftily.gui.animation;
 
-import loftily.Client;
 import loftily.module.impl.render.AnimationModule;
 import lombok.Getter;
 import lombok.Setter;
@@ -79,6 +78,6 @@ public class Animation {
     }
     
     public long getDuration() {
-        return (long) (duration * Client.INSTANCE.getModuleManager().get(AnimationModule.class).getAnimationDuringMultiplier().getValue());
+        return (long) (duration * AnimationModule.getInstance().getAnimationDuringMultiplier().getValue());
     }
 }

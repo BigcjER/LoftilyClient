@@ -1,5 +1,6 @@
 package loftily.module.impl.render;
 
+import loftily.Client;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
@@ -14,4 +15,10 @@ public class AnimationModule extends Module {
     
     private final BooleanValue blockAnimation = new BooleanValue("BlockAnimation", true);
     private final BooleanValue swingAnimation1_8 = new BooleanValue("1.8SwingAnimation", true);
+    
+    private final BooleanValue hotbarAnimation = new BooleanValue("HotbarAnimation", true);
+    
+    public static AnimationModule getInstance() {
+        return Client.INSTANCE.getModuleManager().get(AnimationModule.class);
+    }
 }

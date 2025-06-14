@@ -5,15 +5,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import javax.annotation.Nullable;
-
 import loftily.Client;
 import loftily.event.impl.render.Render2DEvent;
+import loftily.gui.animation.Animation;
+import loftily.gui.animation.Easing;
+import loftily.module.impl.render.AnimationModule;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -22,12 +18,7 @@ import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.chat.NormalChatListener;
 import net.minecraft.client.gui.chat.OverlayChatListener;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -59,12 +50,10 @@ import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.border.WorldBorder;
-import optifine.Config;
-import optifine.CustomColors;
-import optifine.CustomItems;
-import optifine.Reflector;
-import optifine.ReflectorForge;
-import optifine.TextureAnimations;
+import optifine.*;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 public class GuiIngame extends Gui
 {
@@ -570,89 +559,83 @@ public class GuiIngame extends Gui
             }
         }
     }
-
-    protected void renderHotbar(ScaledResolution sr, float partialTicks)
-    {
-        if (this.mc.getRenderViewEntity() instanceof EntityPlayer)
-        {
+    
+    private Animation hotbarAnimation;
+    
+    protected void renderHotbar(ScaledResolution sr, float partialTicks) {
+        boolean animation = AnimationModule.getInstance().getHotbarAnimation().getValue();
+        if (hotbarAnimation == null && animation) {
+            hotbarAnimation = new Animation(Easing.EaseOutExpo, 200);
+        }
+        if (this.mc.getRenderViewEntity() instanceof EntityPlayer) {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             this.mc.getTextureManager().bindTexture(WIDGETS_TEX_PATH);
-            EntityPlayer entityplayer = (EntityPlayer)this.mc.getRenderViewEntity();
+            EntityPlayer entityplayer = (EntityPlayer) this.mc.getRenderViewEntity();
             ItemStack itemstack = entityplayer.getHeldItemOffhand();
             EnumHandSide enumhandside = entityplayer.getPrimaryHand().opposite();
             int i = sr.getScaledWidth() / 2;
             float f = this.zLevel;
-            int j = 182;
-            int k = 91;
             this.zLevel = -90.0F;
             this.drawTexturedModalRect(i - 91, sr.getScaledHeight() - 22, 0, 0, 182, 22);
-            this.drawTexturedModalRect(i - 91 - 1 + entityplayer.inventory.currentItem * 20, sr.getScaledHeight() - 22 - 1, 0, 22, 24, 22);
-
-            if (!itemstack.isEmptyStack())
-            {
-                if (enumhandside == EnumHandSide.LEFT)
-                {
+            
+            float posX = i - 91 - 1 + entityplayer.inventory.currentItem * 20;
+            if (hotbarAnimation != null)
+                hotbarAnimation.run(posX);
+            this.drawTexturedModalRect(animation && hotbarAnimation != null ? hotbarAnimation.getValuef() : posX, sr.getScaledHeight() - 22 - 1, 0, 22, 24, 22);
+            
+            if (!itemstack.isEmptyStack()) {
+                if (enumhandside == EnumHandSide.LEFT) {
                     this.drawTexturedModalRect(i - 91 - 29, sr.getScaledHeight() - 23, 24, 22, 29, 24);
-                }
-                else
-                {
+                } else {
                     this.drawTexturedModalRect(i + 91, sr.getScaledHeight() - 23, 53, 22, 29, 24);
                 }
             }
-
+            
             this.zLevel = f;
             GlStateManager.enableRescaleNormal();
             GlStateManager.enableBlend();
             GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
             RenderHelper.enableGUIStandardItemLighting();
             CustomItems.setRenderOffHand(false);
-
-            for (int l = 0; l < 9; ++l)
-            {
+            
+            for (int l = 0; l < 9; ++l) {
                 int i1 = i - 90 + l * 20 + 2;
                 int j1 = sr.getScaledHeight() - 16 - 3;
                 this.renderHotbarItem(i1, j1, partialTicks, entityplayer, entityplayer.inventory.mainInventory.get(l));
             }
-
-            if (!itemstack.isEmptyStack())
-            {
+            
+            if (!itemstack.isEmptyStack()) {
                 CustomItems.setRenderOffHand(true);
                 int l1 = sr.getScaledHeight() - 16 - 3;
-
-                if (enumhandside == EnumHandSide.LEFT)
-                {
+                
+                if (enumhandside == EnumHandSide.LEFT) {
                     this.renderHotbarItem(i - 91 - 26, l1, partialTicks, entityplayer, itemstack);
-                }
-                else
-                {
+                } else {
                     this.renderHotbarItem(i + 91 + 10, l1, partialTicks, entityplayer, itemstack);
                 }
-
+                
                 CustomItems.setRenderOffHand(false);
             }
-
-            if (this.mc.gameSettings.attackIndicator == 2)
-            {
+            
+            if (this.mc.gameSettings.attackIndicator == 2) {
                 float f1 = this.mc.player.getCooledAttackStrength(0.0F);
-
-                if (f1 < 1.0F)
-                {
+                
+                if (f1 < 1.0F) {
                     int i2 = sr.getScaledHeight() - 20;
                     int j2 = i + 91 + 6;
-
-                    if (enumhandside == EnumHandSide.RIGHT)
-                    {
+                    
+                    if (enumhandside == EnumHandSide.RIGHT) {
                         j2 = i - 91 - 22;
                     }
-
+                    
                     this.mc.getTextureManager().bindTexture(Gui.ICONS);
-                    int k1 = (int)(f1 * 19.0F);
+                    int k1 = (int) (f1 * 19.0F);
                     GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                     this.drawTexturedModalRect(j2, i2, 0, 94, 18, 18);
                     this.drawTexturedModalRect(j2, i2 + 18 - k1, 18, 112 - k1, 18, k1);
                 }
             }
-
+            
             RenderHelper.disableStandardItemLighting();
             GlStateManager.disableRescaleNormal();
             GlStateManager.disableBlend();
