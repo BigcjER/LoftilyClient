@@ -143,8 +143,8 @@ public class AntiBot extends Module {
         } else if (packet instanceof SPacketDestroyEntities) {
             for (int id : ((SPacketDestroyEntities) packet).getEntityIDs()) {
                 Entity entity = mc.world.getEntityByID(id);
-                if (entity instanceof EntityLivingBase) {
-                    UUID uuid = entity.getUniqueID();
+                if (entity instanceof EntityPlayer) {
+                    UUID uuid = ((EntityPlayer) entity).getGameProfile().getId();
                     botList.remove(uuid);
                     suspectList.remove(uuid);
                 }
