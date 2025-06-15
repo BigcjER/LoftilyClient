@@ -3,6 +3,7 @@ package net.minecraft.client.renderer;
 import com.google.common.base.MoreObjects;
 import loftily.Client;
 import loftily.event.impl.render.RenderFireEvent;
+import loftily.module.impl.combat.KillAura;
 import loftily.module.impl.render.AnimationModule;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -411,12 +412,13 @@ public class ItemRenderer
                 this.renderMapFirstPersonSide(equippedProgress, enumHandSide, swingProgress, stack);
             }
         } else {
-            if (isMainHand && isSwordBlocking & blockAnimation) {
+            if (blockAnimation && (isMainHand && isSwordBlocking || Client.INSTANCE.getModuleManager().get(KillAura.class).isBlockingStatus())) {
+                //BlockAnimation
                 float f = 1.0F - (this.prevEquippedProgressMainHand + (this.equippedProgressMainHand - this.prevEquippedProgressMainHand) * partialTicks);
-                
-                transformFirstPersonItem(f, swingProgress);
-                
-                GlStateManager.rotate(-90.0F, 15F, -0.3F, 2F);
+                if (AnimationModule.getInstance().getBlockAnimationMode().is("1.7like")) {
+                    transformFirstPersonItem(f, swingProgress);
+                    GlStateManager.rotate(-90.0F, 15F, -0.3F, 2F);
+                }
                 
                 boolean isRightHand = enumHandSide == EnumHandSide.RIGHT;
                 this.renderItemSide(abstractClientPlayer, stack, isRightHand ? ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !isRightHand);

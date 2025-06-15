@@ -25,6 +25,7 @@ import loftily.value.impl.NumberValue;
 import loftily.value.impl.RangeSelectionNumberValue;
 import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
+import lombok.Getter;
 import lombok.NonNull;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.gui.inventory.GuiInventory;
@@ -147,6 +148,7 @@ public class KillAura extends Module {
             new StringMode("MatrixDamage"),
             new StringMode("AfterTick"),
             new StringMode("Packet"),
+            new StringMode("Fake"),
             new StringMode("None"));
     private final ModeValue blockTiming = new ModeValue("AutoBlockTiming", "Normal", this,
             new StringMode("Normal"),
@@ -155,7 +157,7 @@ public class KillAura extends Module {
             new StringMode("Post"),
             new StringMode("AfterAttack")
     );
-    private final BooleanValue afterTickWhenShielded = new BooleanValue("AfterTickWhenShielded", false).setVisible(()->autoBlockMode.is("AfterTick"));
+    private final BooleanValue afterTickWhenShielded = new BooleanValue("AfterTickWhenShielded", false).setVisible(() -> autoBlockMode.is("AfterTick"));
     private final BooleanValue onlyWhileKeyBinding = new BooleanValue("OnlyWhileKeyBinding", false);
     private final BooleanValue sendInteractPacket = new BooleanValue("InteractPacket", false);
     
@@ -166,6 +168,7 @@ public class KillAura extends Module {
     private int attackDelay = 0;
     private int canAttackTimes = 0;
     private boolean blockingTick = false;
+    @Getter
     private boolean blockingStatus = false;
     
     {
@@ -539,19 +542,22 @@ public class KillAura extends Module {
         if (onlyWhileKeyBinding.getValue() && !GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
             return;
         }
+        if (autoBlockMode.is("None")) return;
+        
         if (canBlock()) {
             switch (autoBlockMode.getValueByName()) {
+                case "MatrixDamage":
+                case "Fake":
+                    break;
                 case "HoldKey":
                     mc.gameSettings.keyBindUseItem.setPressed(true);
-                    break;
-                case "MatrixDamage":
                     break;
                 case "AfterTick":
                     if (canAttackTimes > 0) {
                         if (blockingTick) {
-                            if(afterTickWhenShielded.getValue()) {
+                            if (afterTickWhenShielded.getValue()) {
                                 Item handItem = mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
-                                if(!(handItem instanceof ItemShield) && !(handItem instanceof ItemSword)) {
+                                if (!(handItem instanceof ItemShield) && !(handItem instanceof ItemSword)) {
                                     break;
                                 }
                             }
@@ -570,6 +576,8 @@ public class KillAura extends Module {
                     blockingPacket(target);
                     break;
             }
+            
+            blockingStatus = true;
         } else {
             mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
         }
