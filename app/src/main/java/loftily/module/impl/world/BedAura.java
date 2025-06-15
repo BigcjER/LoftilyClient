@@ -61,6 +61,7 @@ public class BedAura extends Module {
         stop = false;
         delayTimer.reset();
         target = null;
+        rotation = null;
     }
     
     @EventHandler
@@ -174,7 +175,7 @@ public class BedAura extends Module {
                 }
                 switch (breakmode.getValue().getName()) {
                     case "Normal":
-                        mc.playerController.onPlayerDamageBlock(target, mc.objectMouseOver.sideHit);
+                        mc.playerController.onPlayerDamageBlock(target, EnumFacing.DOWN);
                         break;
                     case "Packet":
                         PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, target, EnumFacing.DOWN), true);

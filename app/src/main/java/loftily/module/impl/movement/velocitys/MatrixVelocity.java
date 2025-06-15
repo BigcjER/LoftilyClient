@@ -23,13 +23,13 @@ public class MatrixVelocity extends Mode<Velocity> {
                 if (((SPacketEntityVelocity) packet).getMotionY() / 8000f > 0.22) {
                     mc.player.motionY = ((SPacketEntityVelocity) packet).getMotionY() / 8000f;
                     if (!MoveUtils.isMoving()) {
-                        MoveUtils.setSpeed(Math.min(
+                        MoveUtils.setSpeed(Math.max(
                                 MoveUtils.getSpeed(
                                         ((SPacketEntityVelocity) packet).getMotionX() / 8000f,
-                                        ((SPacketEntityVelocity) packet).getMotionZ() / 8000f),
-                                0.1), false);
+                                        ((SPacketEntityVelocity) packet).getMotionZ() / 8000f) * 0.1,
+                                MoveUtils.getSpeed()), false);
                     } else {
-                        MoveUtils.setSpeed(MoveUtils.getSpeed(mc.player.motionX, mc.player.motionZ), true);
+                        MoveUtils.setSpeed(MoveUtils.getSpeed(), true);
                     }
                 }
             }
