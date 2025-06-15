@@ -11,18 +11,31 @@ import loftily.value.impl.mode.ModeValue;
 import net.lenni0451.lambdaevents.EventHandler;
 
 import java.lang.reflect.Field;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class ModuleManager extends AbstractManager<Module> {
+    private final Map<String, Module> nameToModuleMap = new HashMap<>();
+    private final Map<Integer, List<Module>> keyToModuleMap = new HashMap<>();
+    private final Map<ModuleCategory, List<Module>> categoryToModuleMap = new EnumMap<>(ModuleCategory.class);
+    
     public ModuleManager() {
         super("impl", Module.class);
         
-        for (Module module : this) {
+        for (Module module : getAll()) {
+            //填充名字快速查找Map
+            nameToModuleMap.put(module.getName().toLowerCase(), module);
+            //填充Key快速查找Map
+            if (module.getKey() != 0 && module.getKey() != -1) {
+                keyToModuleMap.computeIfAbsent(module.getKey(), k -> new ArrayList<>()).add(module);
+            }
+            //填充Category快速查找Map
+            categoryToModuleMap.computeIfAbsent(module.getModuleCategory(), k -> new ArrayList<>()).add(module);
+            
             if (module instanceof IDraggable) DraggableHandler.getDraggableList().add((IDraggable) module);
             
-            Field[] fields = module.getClass().getDeclaredFields();
             
+            //添加Value
+            Field[] fields = module.getClass().getDeclaredFields();
             for (Field field : fields) {
                 if (Value.class.isAssignableFrom(field.getType())) {
                     try {
@@ -42,35 +55,61 @@ public class ModuleManager extends AbstractManager<Module> {
                         
                         module.getValues().add((Value<?, ?>) field.get(module));
                     } catch (IllegalAccessException e) {
-                        e.printStackTrace();
+                        throw new RuntimeException(e);
                     }
                 }
             }
         }
         
-        this.stream().filter(Module::isDefaultToggled).forEach(module -> module.setToggled(true, false, false));
-        this.sort((m1, m2) -> m1.getName().compareToIgnoreCase(m2.getName()));
+        //处理DefaultToggle
+        this.getAll().stream()
+                .filter(Module::isDefaultToggled)
+                .forEach(module -> module.setToggled(true, false, false));
         
         Client.INSTANCE.getEventManager().register(this);
     }
     
     @EventHandler(priority = 10)
     public void onKey(KeyboardEvent event) {
-        this.stream()
-                .filter(module -> module.getKey() == event.getKey())
-                .forEach(Module::toggle);
+        List<Module> modules = keyToModuleMap.get(event.getKey());
+        if (modules != null) {
+            modules.forEach(Module::toggle);
+        }
     }
     
     public Module get(String moduleName) {
-        return this.stream()
-                .filter(module -> moduleName.equalsIgnoreCase(module.getName()))
-                .findFirst()
-                .orElse(null);
+        return nameToModuleMap.get(moduleName.toLowerCase());
     }
     
     public List<Module> get(ModuleCategory category) {
-        return this.stream()
-                .filter(module -> module.getModuleCategory() == category)
-                .collect(Collectors.toList());
+        List<Module> modules = categoryToModuleMap.get(category);
+        return modules != null ? Collections.unmodifiableList(modules) : Collections.emptyList();
+    }
+    
+    public Map<Module, Integer> getAllKeyBinds() {
+        Map<Module, Integer> binds = new HashMap<>();
+        
+        for (List<Module> modules : keyToModuleMap.values()) {
+            for (Module module : modules) {
+                binds.put(module, module.getKey());
+            }
+        }
+        return binds;
+    }
+    
+    public void handelUpdateModuleKeybind(Module module, int oldKey, int newKey) {
+        if (oldKey != 0 && oldKey != -1) {
+            List<Module> oldList = keyToModuleMap.get(oldKey);
+            if (oldList != null) {
+                oldList.remove(module);
+                if (oldList.isEmpty()) {
+                    keyToModuleMap.remove(oldKey);
+                }
+            }
+        }
+        
+        if (newKey != 0 && newKey != -1) {
+            keyToModuleMap.computeIfAbsent(newKey, k -> new ArrayList<>()).add(module);
+        }
     }
 }

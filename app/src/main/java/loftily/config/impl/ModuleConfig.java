@@ -85,7 +85,7 @@ public class ModuleConfig extends Config {
         try (FileWriter writer = new FileWriter(configFile)) {
             JsonObject json = new JsonObject();
             
-            Client.INSTANCE.getModuleManager().forEach(module -> {
+            Client.INSTANCE.getModuleManager().getAll().forEach(module -> {
                 JsonObject modJson = new JsonObject();
                 modJson.addProperty("Toggled", module.isToggled());
                 modJson.addProperty("KeyBind", Keyboard.getKeyName(module.getKey()));
@@ -119,7 +119,7 @@ public class ModuleConfig extends Config {
     
     public void load(File configFile) {
         write();
-        Client.INSTANCE.getModuleManager().forEach(module -> module.setToggled(false, false, false));
+        Client.INSTANCE.getModuleManager().getAll().forEach(module -> module.setToggled(false, false, false));
         this.configFile = configFile;
         read();
         

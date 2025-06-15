@@ -19,10 +19,10 @@ public class FileManager extends AbstractManager<Config> {
     }
     
     public void init() {
-        this.stream().sorted().forEach(Config::init);
+        this.getAll().forEach(Config::init);
     }
     
     public void saveAll() {
-        this.forEach(Config::write);
+        this.getAll().forEach(Config::write);
     }
 }

@@ -54,7 +54,7 @@ public class AutoDisableHandler extends Handler {
                 break;
         }
         
-        for (Module module : Client.INSTANCE.getModuleManager()) {
+        for (Module module : Client.INSTANCE.getModuleManager().getAll()) {
             if (!module.isToggled() || module.getAutoDisableType() == AutoDisableType.NONE) continue;
             
             if (module.getAutoDisableType() == autoDisableType) {

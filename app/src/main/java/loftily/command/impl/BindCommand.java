@@ -7,6 +7,8 @@ import loftily.utils.client.MessageUtils;
 import net.minecraft.util.text.TextFormatting;
 import org.lwjgl.input.Keyboard;
 
+import java.util.Map;
+
 public class BindCommand extends Command {
     public BindCommand() {
         super(new int[]{2, 3}, "bind", "b");
@@ -17,16 +19,21 @@ public class BindCommand extends Command {
         /* .bind list */
         if (args[1].equalsIgnoreCase("list")) {
             StringBuilder bindList = new StringBuilder("Bound Modules:\n");
-            for (Module module : Client.INSTANCE.getModuleManager()) {
-                int key = module.getKey();
-                if (key != Keyboard.KEY_NONE) {
-                    String keyName = Keyboard.getKeyName(key);
+            
+            Map<Module, Integer> keybinds = Client.INSTANCE.getModuleManager().getAllKeyBinds();
+            for (Map.Entry<Module, Integer> entry : keybinds.entrySet()) {
+                Module module = entry.getKey();
+                int key = entry.getValue();
+                String keyName = Keyboard.getKeyName(key);
+                
+                if (keyName != null) {
                     bindList.append(module.getName())
                             .append(" -> ")
-                            .append(keyName != null ? keyName : "NONE")
+                            .append(keyName)
                             .append("\n");
                 }
             }
+            
             MessageUtils.clientMessageWithWaterMark(bindList.toString().trim());
             return;
         }

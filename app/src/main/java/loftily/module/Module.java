@@ -95,6 +95,16 @@ public abstract class Module extends AbstractModule {
         setToggled(!toggled, true, true);
     }
     
+    public void setKey(int key) {
+        int oldKey = this.key;
+        
+        if (oldKey == key) return;
+        
+        this.key = key;
+        
+        Client.INSTANCE.getModuleManager().handelUpdateModuleKeybind(this, oldKey, key);
+    }
+    
     @NonNull
     public String getTag() {
         return "";

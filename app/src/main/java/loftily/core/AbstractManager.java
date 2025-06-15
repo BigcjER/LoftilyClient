@@ -4,11 +4,12 @@ import loftily.utils.client.ClassUtils;
 import loftily.utils.client.ClientUtils;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractManager<T> extends ArrayList<T> {
+public abstract class AbstractManager<T> {
+    private final Map<Class<? extends T>, T> instanceMap = new HashMap<>();
+    
     public AbstractManager(String childPackage, Class<T> superClass) {
         if (childPackage == null) return;
         
@@ -16,8 +17,9 @@ public abstract class AbstractManager<T> extends ArrayList<T> {
         
         for (Class<?> clazz : classes) {
             try {
-                if (superClass.isAssignableFrom(clazz)) {
-                    add((T) clazz.getDeclaredConstructor().newInstance());
+                if (superClass.isAssignableFrom(clazz) && !clazz.isInterface() && !java.lang.reflect.Modifier.isAbstract(clazz.getModifiers())) {
+                    T instance = (T) clazz.getDeclaredConstructor().newInstance();
+                    instanceMap.put((Class<? extends T>) clazz, instance);
                 }
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                      InvocationTargetException e) {
@@ -28,12 +30,23 @@ public abstract class AbstractManager<T> extends ArrayList<T> {
     }
     
     public <V extends T> V get(Class<V> clazz) {
-        return (V) this.stream()
-                .filter(item -> item.getClass() == clazz)
-                .findFirst()
-                .orElseGet(() -> {
-                    ClientUtils.LOGGER.error("Item {} is null", clazz.getSimpleName());
-                    return null;
-                });
+        T instance = instanceMap.get(clazz);
+        
+        if (instance == null) {
+            ClientUtils.LOGGER.error("Item {} is null", clazz.getSimpleName());
+            return null;
+        }
+        
+        return (V) instance;
+    }
+    
+    public List<T> getAll() {
+        List<T> list = new ArrayList<>(instanceMap.values());
+        
+        if (!list.isEmpty() && list.get(0) instanceof Comparable) {
+            list.sort(null);
+        }
+        
+        return Collections.unmodifiableList(list);
     }
 }

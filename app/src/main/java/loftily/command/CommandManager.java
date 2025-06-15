@@ -7,11 +7,20 @@ import loftily.utils.client.MessageUtils;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.util.text.TextFormatting;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CommandManager extends AbstractManager<Command> {
+    private final Map<String, Command> nameToCommandMap = new HashMap<>();
     public final String PreFix = ".";
     
     public CommandManager() {
         super("impl", Command.class);
+        for (Command command : getAll()) {
+            for (String alias : command.getCommand()) {
+                nameToCommandMap.put(alias.toLowerCase(), command);
+            }
+        }
         Client.INSTANCE.getEventManager().register(this);
     }
     
@@ -43,10 +52,6 @@ public class CommandManager extends AbstractManager<Command> {
     }
     
     public Command get(String commandName) {
-        return this.stream()
-                .filter(command -> command.getCommand().stream()
-                        .anyMatch(name -> name.equalsIgnoreCase(commandName)))
-                .findFirst()
-                .orElse(null);
+        return nameToCommandMap.get(commandName.toLowerCase());
     }
 }

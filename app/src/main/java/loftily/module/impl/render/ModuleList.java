@@ -90,7 +90,7 @@ public class ModuleList extends Module implements IDraggable {
         }
         
         if (moduleEntries.isEmpty()) {
-            for (Module module : Client.INSTANCE.getModuleManager()) {
+            for (Module module : Client.INSTANCE.getModuleManager().getAll()) {
                 moduleEntries.add(new ModuleEntry(module, new Animation(moduleEasingMode.getValueByEasing(), 250)));
             }
         }

@@ -10,7 +10,7 @@ public class HandlerManager extends AbstractManager<Handler> {
     public HandlerManager() {
         super("impl", Handler.class);
         
-        for (Handler handler : this) {
+        for (Handler handler : this.getAll()) {
             if (handler.needRegister()) {
                 Client.INSTANCE.getEventManager().register(handler);
             }
