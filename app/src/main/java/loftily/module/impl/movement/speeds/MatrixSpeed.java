@@ -30,6 +30,7 @@ public class MatrixSpeed extends Mode<Speed> {
     public void onStrafe(StrafeEvent event) {
         if (!MoveUtils.isMoving()) return;
         if (mc.player.onGround) {
+            MoveUtils.strafe();
             mc.player.tryJump();
         }
         if (MoveUtils.getSpeed() <= 0.2 && !mc.player.isCollidedHorizontally) {

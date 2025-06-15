@@ -272,9 +272,9 @@ public class KillAura extends Module {
                 center = targetBox.lerpWith(0.5, 0.5, 0.5);
                 break;
             case "Lower":
-                for (double x = 0.3; x <= 0.6; x += 0.1) {
-                    for (double y = 0.1; y <= 0.6; y += 0.1) {
-                        for (double z = 0.3; z <= 0.6; z += 0.1) {
+                for (double x = 0.4; x <= 0.6; x += 0.1) {
+                    for (double y = 0.1; y <= 0.7; y += 0.1) {
+                        for (double z = 0.4; z <= 0.6; z += 0.1) {
                             Vec3d preCenter = targetBox.lerpWith(x, y, z);
                             
                             if (rayCast.getValue() && !rayCastThroughWalls.getValue()) {
@@ -283,8 +283,7 @@ public class KillAura extends Module {
                                 if (entity == null || (entity != target && rayCastOnlyTarget.getValue())) continue;
                             }
                             if (CalculateUtils.isVisible(preCenter) || throughWallsAim.getValue()) {
-                                if (center == null || RotationUtils.getRotationDifference(RotationUtils.toRotation(preCenter, mc.player), RotationHandler.getRotation()) < RotationUtils.getRotationDifference(RotationUtils.toRotation(center, mc.player), RotationHandler.getRotation())
-                                        || mc.player.getEyes().distanceTo(preCenter) < mc.player.getEyes().distanceTo(center)) {
+                                if (center == null || RotationUtils.getRotationDifference(RotationUtils.toRotation(preCenter, mc.player), RotationHandler.getRotation()) < RotationUtils.getRotationDifference(RotationUtils.toRotation(center, mc.player), RotationHandler.getRotation())) {
                                     center = preCenter;
                                 }
                             }

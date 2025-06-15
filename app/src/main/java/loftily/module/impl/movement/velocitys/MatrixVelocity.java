@@ -27,9 +27,9 @@ public class MatrixVelocity extends Mode<Velocity> {
                                 MoveUtils.getSpeed(
                                         ((SPacketEntityVelocity) packet).getMotionX() / 8000f,
                                         ((SPacketEntityVelocity) packet).getMotionZ() / 8000f),
-                                0.4), false);
+                                0.1), false);
                     } else {
-                        MoveUtils.setSpeed(MoveUtils.getSpeed(mc.player.motionX, mc.player.motionZ), false);
+                        MoveUtils.setSpeed(MoveUtils.getSpeed(mc.player.motionX, mc.player.motionZ), true);
                     }
                 }
             }

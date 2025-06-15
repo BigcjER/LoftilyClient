@@ -12,7 +12,7 @@ public class CPacketConfirmTransaction implements Packet<INetHandlerPlayServer>
 {
     private int windowId;
     private short uid;
-    private boolean accepted;
+    public boolean accepted;
 
     public CPacketConfirmTransaction()
     {
