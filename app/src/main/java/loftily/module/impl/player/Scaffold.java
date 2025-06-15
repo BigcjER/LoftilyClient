@@ -14,6 +14,7 @@ import loftily.module.ModuleInfo;
 import loftily.utils.block.BlockUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
+import loftily.utils.player.InventoryUtils;
 import loftily.utils.player.MoveUtils;
 import loftily.utils.player.RotationUtils;
 import loftily.utils.timer.DelayTimer;
@@ -124,11 +125,17 @@ public class Scaffold extends Module {
     private final BooleanValue sameY = new BooleanValue("SameY", false);
     private final BooleanValue allowJump = new BooleanValue("AllowJump", false);
     
+    //Other
+    private final BooleanValue autoSwitchToBlock = new BooleanValue("AutoSwitchToBlock", true);
+    private final BooleanValue switchBackOnDisable = new BooleanValue("SwitchBackOnDisable", true);
+    
+    private final DelayTimer placeTimer = new DelayTimer();
+    private PlaceInfo placeInfo = null;
     private int onGroundTimes = 0;
     private double lastY = 0.0;
     private boolean towerStatus = false;
-    private final DelayTimer placeTimer = new DelayTimer();
     private int currentPlaceDelay = 0;
+    private int prevSlot;
     
     @Override
     public void onDisable() {
@@ -136,23 +143,15 @@ public class Scaffold extends Module {
         currentPlaceDelay = RandomUtils.randomInt((int) placeDelay.getFirst(), (int) placeDelay.getSecond());
         placeInfo = null;
         onGroundTimes = 0;
+        if (switchBackOnDisable.getValue()) {
+            mc.player.inventory.currentItem = prevSlot;
+        }
     }
     
     @Override
     public void onEnable() {
         lastY = mc.player.posY;
-    }
-    
-    private PlaceInfo placeInfo = null;
-    
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    public static class PlaceInfo {
-        public BlockPos blockPos;
-        public EnumFacing facing;
-        public Vec3d hitVec;
-        public Rotation rotation;
+        prevSlot = mc.player.inventory.currentItem;
     }
     
     @EventHandler
@@ -179,14 +178,15 @@ public class Scaffold extends Module {
             setRotation(RotationUtils.toRotation(placeInfo.getHitVec(), mc.player));
         }
         
+        
         if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && !(mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock)) {
-            for (int i = 0; i < 9; i++) {
-                ItemStack stack = mc.player.inventory.getStackInSlot(i);
-                if (stack.getItem() instanceof ItemBlock) {
-                    mc.player.inventory.currentItem = i;
-                    break;
-                }
+            if (autoSwitchToBlock.getValue()) {
+                int slot = InventoryUtils.findBlock();
+                
+                if (slot != -1)
+                    mc.player.inventory.currentItem = slot;
             }
+            
             return;
         }
         
@@ -552,5 +552,15 @@ public class Scaffold extends Module {
             placeTimer.reset();
             currentPlaceDelay = RandomUtils.randomInt((int) placeDelay.getFirst(), (int) placeDelay.getSecond());
         }
+    }
+    
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class PlaceInfo {
+        public BlockPos blockPos;
+        public EnumFacing facing;
+        public Vec3d hitVec;
+        public Rotation rotation;
     }
 }

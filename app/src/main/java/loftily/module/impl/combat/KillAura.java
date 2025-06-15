@@ -7,8 +7,8 @@ import loftily.event.impl.player.AttackEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.render.Render3DEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
-import loftily.handlers.impl.player.RotationHandler;
 import loftily.handlers.impl.client.TargetsHandler;
+import loftily.handlers.impl.player.RotationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
@@ -32,7 +32,6 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketAnimation;
@@ -240,17 +239,19 @@ public class KillAura extends Module {
         int keepTicks = RandomUtils.randomInt((int) Math.round(this.keepTicks.getFirst()), (int) Math.round(this.keepTicks.getSecond()));
         int reverseTicks = RandomUtils.randomInt((int) Math.round(this.backTicks.getFirst()), (int) Math.round(this.backTicks.getSecond()));
         
-        Rotation calculateRot = RotationUtils.smoothRotation(
-                RotationHandler.getRotation(),
-                calculateRotation(target),
-                horizonSpeed,
-                pitchSpeed
-        ).fixedSensitivity(0);
-        if (silentRotation.getValue()) {
-            RotationHandler.setClientRotation(calculateRot, keepTicks, reverseTicks, moveFixMode.getValue().getName());
-        } else {
-            mc.player.rotationYaw = calculateRot.yaw;
-            mc.player.rotationPitch = calculateRot.pitch;
+        if (!rotationMode.is("None")) {
+            Rotation calculateRot = RotationUtils.smoothRotation(
+                    RotationHandler.getRotation(),
+                    calculateRotation(target),
+                    horizonSpeed,
+                    pitchSpeed
+            ).fixedSensitivity(0);
+            if (silentRotation.getValue()) {
+                RotationHandler.setClientRotation(calculateRot, keepTicks, reverseTicks, moveFixMode.getValue().getName());
+            } else {
+                mc.player.rotationYaw = calculateRot.yaw;
+                mc.player.rotationPitch = calculateRot.pitch;
+            }
         }
     }
     
