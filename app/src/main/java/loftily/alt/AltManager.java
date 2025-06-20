@@ -15,13 +15,8 @@ import java.util.function.Consumer;
 public class AltManager implements ClientUtils {
     private final List<Alt> alts = new ArrayList<>();
     private final MicrosoftLoginThread loginThread;
-    private Alt currentAlt;
     
     public AltManager() {
-        Session session = mc.getSession();
-        boolean isOffline = session.getToken().equals("0") || session.getToken().equals(session.getPlayerID());
-        this.currentAlt = new Alt(session.getUsername(), isOffline ? AltType.Offline : AltType.Microsoft);
-        
         this.loginThread = new MicrosoftLoginThread();
     }
     
@@ -33,7 +28,6 @@ public class AltManager implements ClientUtils {
                 try {
                     loginThread.loginWithRefreshToken(alt.getRefreshToken());
                     callback.accept(loginThread.getCurrentText());
-                    this.currentAlt = alt;
                 } catch (Exception e) {
                     callback.accept("Login failed: " + e.getMessage());
                     e.printStackTrace();
@@ -49,7 +43,6 @@ public class AltManager implements ClientUtils {
             
         } else {
             mc.setSession(new Session(alt.getName(), "", "", Session.Type.LEGACY.sessionType));
-            this.currentAlt = alt;
             callback.accept("Logged in as " + alt.getName());
         }
     }
