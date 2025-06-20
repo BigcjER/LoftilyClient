@@ -16,11 +16,14 @@ public class TimerGlideFly extends Mode<Fly> {
     }
 
     private final NumberValue timerSpeed = new NumberValue("TimerSpeed",20,10,100,0.1);
-    private final NumberValue speed = new NumberValue("Speed",0.02,0.0,0.05,0.01);
+    private final NumberValue speed = new NumberValue("Speed",0.02,0.0,1.0,0.01);
     private final BooleanValue customMotionY = new BooleanValue("CustomMotionY",false);
     private final NumberValue motionSpeed = new NumberValue("MotionSpeed",-0.01,-0.2,0.2,0.01).setVisible(customMotionY::getValue);
     private final BooleanValue smartHurt = new BooleanValue("SmartHurt",false);
     private final NumberValue flyTicks = new NumberValue("FlyTicks",900,800,1600).setVisible(smartHurt::getValue);
+    private final BooleanValue startBoost = new BooleanValue("StartBoost",false);
+    private final NumberValue boostTicks = new NumberValue("BoostTicks",7,1,10).setVisible(startBoost::getValue);
+    private final NumberValue boostSpeed = new NumberValue("BoostSpeed",0.6,0.2,1.0,0.01).setVisible(startBoost::getValue);
 
     private int ticks = 0;
     private boolean boost = false;
@@ -51,6 +54,11 @@ public class TimerGlideFly extends Mode<Fly> {
 
         if(!smartHurt.getValue() || (ticks <= flyTicks.getValue() && boost)) {
             MoveUtils.setSpeed(speed.getValue(),false);
+            if(startBoost.getValue()){
+                if(ticks <= boostTicks.getValue()){
+                    MoveUtils.setSpeed(boostSpeed.getValue(),true);
+                }
+            }
             mc.timer.timerSpeed = timerSpeed.getValue().floatValue();
             if(customMotionY.getValue()) {
                 mc.player.motionY = motionSpeed.getValue().floatValue();
