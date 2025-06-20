@@ -5,7 +5,6 @@ import loftily.alt.AltManager;
 import loftily.command.CommandManager;
 import loftily.config.FileManager;
 import loftily.gui.clickgui.ClickGui;
-import loftily.gui.menu.SplashScreen;
 import loftily.gui.notification.NotificationManager;
 import loftily.handlers.HandlerManager;
 import loftily.module.ModuleManager;
@@ -38,39 +37,23 @@ public enum Client {
     private AltManager altManager;
     
     public void init() {
-        long start = System.currentTimeMillis();
-        ClientUtils.LOGGER.info("Initializing {}...", NAME);
-        
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Modules", 40);
         eventManager = LambdaManager.basic(new LambdaMetaFactoryGenerator());
         moduleManager = new ModuleManager();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Handlers", 50);
         handlerManager = new HandlerManager();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing ViaMCP", 60);
         ViaMCP.create();
         ViaMCP.INSTANCE.initAsyncSlider();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing AltManager", 70);
         altManager = new AltManager();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Configs", 80);
         fileManager = new FileManager();
         fileManager.init();/* late init I think */
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing Commands", 85);
         commandManager = new CommandManager();
         
-        SplashScreen.INSTANCE.setProgressAndDraw("Initializing GUI", 90);
         clickGui = new ClickGui();
         notificationManager = new NotificationManager();
-        
-        SplashScreen.INSTANCE.setProgressAndDraw("Initialization Complete", 100);
-        long time = System.currentTimeMillis();
-        while (System.currentTimeMillis() - time <= 500) ;//waiting for 0.5s
-        
-        ClientUtils.LOGGER.info("Initialization completed, took {} ms.", (System.currentTimeMillis() - start));
     }
     
     public void shutdown() {
