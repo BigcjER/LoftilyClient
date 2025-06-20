@@ -43,7 +43,7 @@ public class ESPUtils implements ClientUtils {
                 : entity.posZ - mc.getRenderManager().renderPosZ;
         
         GlStateManager.translate(x, y, z);
-        if (rotateWithYaw) GlStateManager.rotate((entity.rotationYaw), 0.0F, 1.0F, 0.0F);
+        if (rotateWithYaw) GlStateManager.rotate(-(entity.rotationYaw), 0.0F, 1.0F, 0.0F);
         
         AxisAlignedBB entityBox = entity.getEntityBoundingBox();
         double boxWidth = (entityBox.maxX - entityBox.minX);
