@@ -17,6 +17,7 @@ import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
 import loftily.utils.player.MoveUtils;
+import loftily.utils.player.PlayerUtils;
 import loftily.utils.player.RayCastUtils;
 import loftily.utils.player.RotationUtils;
 import loftily.utils.timer.DelayTimer;
@@ -485,39 +486,6 @@ public class KillAura extends Module {
         return null;
     }
     
-    public static boolean canBeSeenEntity(Entity player, Entity target) {
-        AxisAlignedBB targetBB = target.getEntityBoundingBox();
-        
-        Vec3d center = new Vec3d(
-                (targetBB.minX + targetBB.maxX) / 2,
-                (targetBB.minY + targetBB.maxY) / 2,
-                (targetBB.minZ + targetBB.maxZ) / 2
-        );
-        
-        Vec3d[] corners = new Vec3d[]{
-                new Vec3d(targetBB.minX, targetBB.minY, targetBB.minZ),
-                new Vec3d(targetBB.minX, targetBB.minY, targetBB.maxZ),
-                new Vec3d(targetBB.minX, targetBB.maxY, targetBB.minZ),
-                new Vec3d(targetBB.minX, targetBB.maxY, targetBB.maxZ),
-                new Vec3d(targetBB.maxX, targetBB.minY, targetBB.minZ),
-                new Vec3d(targetBB.maxX, targetBB.minY, targetBB.maxZ),
-                new Vec3d(targetBB.maxX, targetBB.maxY, targetBB.minZ),
-                new Vec3d(targetBB.maxX, targetBB.maxY, targetBB.maxZ)
-        };
-        
-        Vec3d eyePos = player.getPositionEyes(1.0F);
-        
-        if (player.world.rayTraceBlocks(eyePos, center) == null) return true;
-        
-        for (Vec3d corner : corners) {
-            if (player.world.rayTraceBlocks(eyePos, corner) == null) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
     private void sendInteractPacket(Entity target) {
         if (sendInteractPacket.getValue()) {
             RayTraceResult raytrace = mc.player.rayTrace(rotationRange.getValue(), 1f);
@@ -612,7 +580,7 @@ public class KillAura extends Module {
         
         if (bestTarget == null || (bestTarget != target && rayCastOnlyTarget.getValue())) return;
         
-        if (!canBeSeenEntity(mc.player, bestTarget) && CalculateUtils.getClosetDistance(mc.player, (EntityLivingBase) bestTarget) > throughWallAttackRange.getValue()) {
+        if (!PlayerUtils.canBeSeenEntity(mc.player, bestTarget) && CalculateUtils.getClosetDistance(mc.player, (EntityLivingBase) bestTarget) > throughWallAttackRange.getValue()) {
             return;
         }
         
