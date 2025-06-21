@@ -1,6 +1,7 @@
 package loftily.handlers.impl.client;
 
 import loftily.event.impl.packet.PacketSendEvent;
+import loftily.event.impl.world.WorldLoadEvent;
 import loftily.handlers.Handler;
 import loftily.utils.client.PacketUtils;
 import net.lenni0451.lambdaevents.EventHandler;
@@ -49,7 +50,12 @@ public class BlinkHandler extends Handler {
             }
         }
     }
-    
+
+    @EventHandler
+    public void onWorld(WorldLoadEvent event){
+        packets.clear();
+    }
+
     @EventHandler(priority = -1000)
     public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
