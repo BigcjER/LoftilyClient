@@ -50,7 +50,6 @@ public class ChestStealer extends Module {
             return;
         
         
-        
         //Do steal
         for (int i = 0; i < containerChest.getLowerChestInventory().getSizeInventory(); i++) {
             if (containerChest.getLowerChestInventory().getStackInSlot(i).isEmptyStack() ||

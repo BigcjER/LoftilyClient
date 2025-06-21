@@ -1,16 +1,23 @@
 package loftily.utils;
 
+import com.google.common.collect.Multimap;
 import loftily.utils.client.ClientUtils;
 import net.minecraft.block.Block;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.EnumCreatureAttribute;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ContainerChest;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionUtils;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class ItemUtils implements ClientUtils {
@@ -30,10 +37,34 @@ public class ItemUtils implements ClientUtils {
         if (item instanceof ItemFood && item != Items.SPIDER_EYE) return true;
         if (item instanceof ItemPotion && !isPotionNegative(itemStack)) return true;
         if (item instanceof ItemBow || item == Items.ARROW) return true;
-        if (item instanceof ItemSword /* TODO:Best sword check */) return true;
+        if (item instanceof ItemSword && isBestSwordInChest(containerChest, itemStack)) return true;
         if (item instanceof ItemArmor /* TODO:Best armor check */) return true;
         if (item instanceof ItemBlock && !BLOCK_BLACKLIST.contains(((ItemBlock) item).getBlock())) return true;
         return item instanceof ItemEnderPearl;
+    }
+    
+    private static boolean isBestSwordInChest(ContainerChest containerChest, ItemStack itemStack) {
+        return true;
+    }
+    
+    public static double getAttackDamage(ItemStack stack) {
+        double attackDamage = 1.0D;
+        
+        if (stack == null || stack.isEmptyStack()) return attackDamage;
+        Multimap<String, AttributeModifier> attributeModifiers = stack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND);
+        
+        if (attributeModifiers.containsKey(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName())) {
+            Collection<AttributeModifier> modifiers = attributeModifiers.get(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName());
+            
+            if (!modifiers.isEmpty()) {
+                AttributeModifier modifier = modifiers.iterator().next();
+                attackDamage += modifier.getAmount();
+            }
+        }
+        
+        attackDamage += EnchantmentHelper.getModifierForCreature(stack, EnumCreatureAttribute.UNDEFINED);
+        
+        return attackDamage;
     }
     
     public static boolean isPotionNegative(ItemStack stack) {

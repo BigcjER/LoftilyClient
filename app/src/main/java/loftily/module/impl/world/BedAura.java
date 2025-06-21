@@ -39,7 +39,7 @@ public class BedAura extends Module {
             new StringMode("Matrix"));
     private final BooleanValue debug = new BooleanValue("Debug", false);
     private final NumberValue range = new NumberValue("Range", 3, 0, 8, 0.1);
-    private final ModeValue breakmode = new ModeValue("BreakMode", "Normal", this, new StringMode("Normal"), new StringMode("Packet"));
+    private final ModeValue breakMode = new ModeValue("BreakMode", "Normal", this, new StringMode("Normal"), new StringMode("Packet"));
     private final BooleanValue swing = new BooleanValue("Swing", true);
     private final BooleanValue rotationValue = new BooleanValue("Rotation", true);
     private final ModeValue moveFixMode = new ModeValue("MoveFixMode", "None", this,
@@ -132,7 +132,7 @@ public class BedAura extends Module {
                 if (rotationValue.getValue()) {
                     rotation = RotationUtils.getBlockRotation(target).fixedSensitivity(0);
                 }
-                switch (breakmode.getValueByName()) {
+                switch (breakMode.getValueByName()) {
                     case "Normal":
                         mc.playerController.onPlayerDamageBlock(target, mc.objectMouseOver.sideHit);
                         break;
@@ -173,7 +173,7 @@ public class BedAura extends Module {
                 if (rotationValue.getValue()) {
                     rotation = RotationUtils.getBlockRotation(target).fixedSensitivity(0);
                 }
-                switch (breakmode.getValue().getName()) {
+                switch (breakMode.getValue().getName()) {
                     case "Normal":
                         mc.playerController.onPlayerDamageBlock(target, EnumFacing.DOWN);
                         break;

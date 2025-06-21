@@ -75,7 +75,7 @@ public class Scaffold extends Module {
     private final RangeSelectionNumberValue placeDelay = new RangeSelectionNumberValue("PlaceDelay", 40, 100, 0, 1000)
             .setVisible(() -> placeDelayMode.is("Normal"));
     private final BooleanValue placeDelayNoTower = new BooleanValue("PlaceDelay-NotTowering",false)
-            .setVisible(() -> placeDelayMode.is("Normal"));;
+            .setVisible(() -> placeDelayMode.is("Normal"));
     //Rotation
     private final ModeValue rotationMode = new ModeValue("RotationMode", "None", this,
             new StringMode("Normal"),
@@ -183,7 +183,7 @@ public class Scaffold extends Module {
         
         if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && !(mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock)) {
             if (autoSwitchToBlock.getValue()) {
-                int slot = InventoryUtils.findBlock();
+                int slot = InventoryUtils.findBlockInSlot();
                 
                 if (slot != -1)
                     mc.player.inventory.currentItem = slot;
