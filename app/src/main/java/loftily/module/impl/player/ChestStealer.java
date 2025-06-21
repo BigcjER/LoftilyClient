@@ -20,9 +20,11 @@ import org.lwjgl.input.Keyboard;
 public class ChestStealer extends Module {
     private final RangeSelectionNumberValue openDelay = new RangeSelectionNumberValue("OpenDelay", 50, 100, 0, 1000);
     private final RangeSelectionNumberValue clickDelay = new RangeSelectionNumberValue("ClickDelay", 50, 100, 0, 1000);
+    private final RangeSelectionNumberValue autoCloseDelay = new RangeSelectionNumberValue("AutoCloseDelay", 50, 100, 0, 1000);
     
     private final DelayTimer openTimer = new DelayTimer();
     private final DelayTimer clickTimer = new DelayTimer();
+    private final DelayTimer autoCloseTimer = new DelayTimer();
     
     @EventHandler
     public void onUpdate(UpdateEvent event) {
@@ -42,7 +44,13 @@ public class ChestStealer extends Module {
                 break;
             }
         }
-        if (!hasUsefulItems) mc.player.closeScreen();
+        
+        
+        if (!hasUsefulItems) {
+            if(autoCloseTimer.hasTimeElapsed(RandomUtils.randomInt((int) autoCloseDelay.getFirst(), (int) autoCloseDelay.getSecond())))
+                mc.player.closeScreen();
+            return;
+        }
         
         
         //Check open timer
@@ -60,6 +68,7 @@ public class ChestStealer extends Module {
             
             mc.playerController.windowClick(containerChest.windowId, i, 0, ClickType.QUICK_MOVE, mc.player);
             clickTimer.reset();
+            autoCloseTimer.reset();
         }
     }
     

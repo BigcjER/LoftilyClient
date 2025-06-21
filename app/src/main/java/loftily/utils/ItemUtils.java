@@ -3,6 +3,7 @@ package loftily.utils;
 import com.google.common.collect.Multimap;
 import loftily.utils.client.ClientUtils;
 import net.minecraft.block.Block;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -20,6 +21,7 @@ import net.minecraft.potion.PotionUtils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class ItemUtils implements ClientUtils {
     public static final List<Block> BLOCK_BLACKLIST = Arrays.asList(
@@ -45,7 +47,65 @@ public class ItemUtils implements ClientUtils {
     }
     
     private static boolean isBestArmor(ContainerChest containerChest, ItemStack itemStack) {
-        return true;
+        Item item = itemStack.getItem();
+        if (!(item instanceof ItemArmor)) return false;
+        
+        ItemArmor itemArmor = (ItemArmor) item;
+        EntityEquipmentSlot armorType = itemArmor.armorType;
+        
+        double thisArmorWeight = getArmorWeight(itemStack);
+        double maxArmorWeight = 0D;
+        
+        //与当前穿的盔甲对比
+        ItemStack playerArmor = mc.player.inventory.armorInventory.get(armorType.getIndex());
+        if (!playerArmor.isEmptyStack() && getArmorWeight(playerArmor) >= thisArmorWeight) {
+            return false;
+        }
+        
+        for (Slot slot : containerChest.inventorySlots) {
+            ItemStack slotStack = slot.getStack();
+            
+            if (!slotStack.isEmptyStack() && slotStack.getItem() instanceof ItemArmor) {
+                ItemArmor slotArmor = (ItemArmor) slotStack.getItem();
+                
+                if (slotArmor.armorType == armorType) {
+                    double tempWeight = getArmorWeight(slotStack);
+                    if (tempWeight > maxArmorWeight) {
+                        maxArmorWeight = tempWeight;
+                    }
+                }
+            }
+        }
+        
+        return thisArmorWeight >= maxArmorWeight;
+    }
+    
+    /**
+     * @return 盔甲权重
+     */
+    private static double getArmorWeight(ItemStack itemStack) {
+        if (itemStack.isEmptyStack() || !(itemStack.getItem() instanceof ItemArmor)) return 0.0;
+        
+        ItemArmor itemArmor = (ItemArmor) itemStack.getItem();
+        double value = itemArmor.damageReduceAmount;
+        
+        if (itemStack.isItemEnchanted()) {
+            final Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(itemStack);
+            for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
+                Enchantment enchantment = entry.getKey();
+                int level = entry.getValue();
+                
+                if (enchantment.getName().contains("protection")) {
+                    if (Enchantment.getEnchantmentID(enchantment) == 0) {
+                        value += level * 1.25;
+                    } else {
+                        value += level * 1.1;
+                    }
+                }
+            }
+        }
+        
+        return value;
     }
     
     private static boolean isBestSword(ContainerChest containerChest, ItemStack itemStack) {
