@@ -104,7 +104,7 @@ public class MultiBooleanRenderer extends ValueRenderer<MultiBooleanValue> {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         if (mouseButton != 0 && mouseButton != 1) return;
         
-        if (RenderUtils.isHovering(mouseX, mouseY, x, y, width, NOT_EXPANDED_BOX_HEIGHT))
+        if (RenderUtils.isHovering(mouseX, mouseY, x, y, width, boxY - y + NOT_EXPANDED_BOX_HEIGHT))
             expanded = !expanded;
         
         if (!expanded) return;

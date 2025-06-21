@@ -77,15 +77,16 @@ public class ModuleButton extends Component {
                 ColorUtils.colorWithAlpha(Colors.BackGround.color, animation.getValuei()));
     }
     
-    @Override
-    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
+    //Return true if click on module button
+    public boolean mouseClicked2(int mouseX, int mouseY, int mouseButton) {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         if (binding) {
             if (RenderUtils.isHovering(mouseX, mouseY, x + 7, y + height / 2F + 5, FontManager.NotoSans.of(15).getWidth("Clear key bindings"), FontManager.NotoSans.of(15).getHeight())) {
                 module.setKey(0);
                 binding = false;
+                return true;
             }
-            return;
+            return false;
         }
         
         if (hovering) {
@@ -103,7 +104,10 @@ public class ModuleButton extends Component {
                     binding = true;
                     break;
             }
+            return true;
         }
+        
+        return false;
     }
     
     @Override

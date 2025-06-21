@@ -20,6 +20,7 @@ import loftily.utils.render.RenderUtils;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 import java.io.IOException;
@@ -68,7 +69,6 @@ public class ClickGui extends GuiScreen implements IDraggable {
         this.searchBox = new CustomTextField(0, Minecraft.getMinecraft().fontRendererObj, 0, 0, 140, 25);
         this.searchBox.setMaxStringLength(128);
         this.searchBox.setText("");
-        this.searchBox.setFocused(false);
         this.searchButtonAnimation = new Animation(Easing.EaseOutCirc, 250);
         this.searchBoxInOutAnimation = new Animation(Easing.EaseOutCirc, 250);
         this.hoveringSearchButton = false;
@@ -136,7 +136,6 @@ public class ClickGui extends GuiScreen implements IDraggable {
         searchBox.yPosition = (int) (y - (searchBoxInOutAnimation.getValuef() * 32F));
         searchBox.setBackGroundColor(Colors.BackGround.color.brighter());
         searchBox.setDrawRipple(true);
-        searchBox.setFocused(isSearching);
         
         if (searchBox.yPosition + 12 <= y) {
             RenderUtils.startGlStencil(() -> RenderUtils.drawRoundedRect(x, y, width, height, CORNER_RADIUS, new Color(255, 255, 255)), false);
@@ -246,6 +245,8 @@ public class ClickGui extends GuiScreen implements IDraggable {
         //是否点击了搜索按钮
         boolean clickedSearchButton = hoveringSearchButton && mouseButton == 0;
         
+        if (clickedSearchBox) searchBox.setFocused(true);
+        
         //判断是否点击了某个CategoryButton
         for (CategoryButton categoryButton : categoryButtons) {
             if (RenderUtils.isHovering(mouseX, mouseY, categoryButton.getX(), categoryButton.getY(), categoryButton.getWidth(), categoryButton.getHeight())) {
@@ -272,7 +273,7 @@ public class ClickGui extends GuiScreen implements IDraggable {
                 }
             } else if (RenderUtils.isHovering(mouseX, mouseY, x, y, width, height)) {
                 //如果点击了ClickGui内部但是不是搜索框，则关闭搜索状态（除了搜索框已聚焦）
-                if (!searchBox.isFocused()) {
+                if (!searchBox.isFocused() && currentValuePanel == null) {
                     isSearching = false;
                 }
             } else {
@@ -314,7 +315,12 @@ public class ClickGui extends GuiScreen implements IDraggable {
         
         super.mouseClicked(mouseX, mouseY, mouseButton);
         categoryButtons.forEach(categoryButton -> categoryButton.mouseClicked(mouseX, mouseY, mouseButton));
-        currentModuleButtons.forEach(moduleButton -> moduleButton.mouseClicked(mouseX, mouseY, mouseButton));
+        currentModuleButtons.forEach(moduleButton -> {
+            if (moduleButton.mouseClicked2(mouseX, mouseY, mouseButton)) {
+                searchBox.setFocused(false);
+            }
+        });
+        
     }
     
     
@@ -331,6 +337,10 @@ public class ClickGui extends GuiScreen implements IDraggable {
         super.keyTyped(typedChar, keyCode);
         searchBox.textboxKeyTyped(typedChar, keyCode);
         currentModuleButtons.forEach(moduleButton -> moduleButton.keyTyped(typedChar, keyCode));
+        
+        if (keyCode == Keyboard.KEY_TAB) {
+            searchBox.setFocused(!searchBox.isFocused());
+        }
     }
     
     @Override
