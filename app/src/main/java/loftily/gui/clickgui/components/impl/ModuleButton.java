@@ -84,7 +84,6 @@ public class ModuleButton extends Component {
             if (RenderUtils.isHovering(mouseX, mouseY, x + 7, y + height / 2F + 5, FontManager.NotoSans.of(15).getWidth("Clear key bindings"), FontManager.NotoSans.of(15).getHeight())) {
                 module.setKey(0);
                 binding = false;
-                return true;
             }
             return false;
         }
@@ -98,13 +97,12 @@ public class ModuleButton extends Component {
                 
                 case 1:
                     CGui.setValuePanel(valuePanel);
-                    break;
+                    return true;
                 
                 case 2:
                     binding = true;
-                    break;
+                    return true;
             }
-            return true;
         }
         
         return false;

@@ -271,12 +271,7 @@ public class ClickGui extends GuiScreen implements IDraggable {
                     prevCategoryButton = currentCategoryButton;
                     currentCategoryButton = null;
                 }
-            } else if (RenderUtils.isHovering(mouseX, mouseY, x, y, width, height)) {
-                //如果点击了ClickGui内部但是不是搜索框，则关闭搜索状态（除了搜索框已聚焦）
-                if (!searchBox.isFocused() && currentValuePanel == null) {
-                    isSearching = false;
-                }
-            } else {
+            } else if (!RenderUtils.isHovering(mouseX, mouseY, x, y, width, height)) {
                 //点击ClickGui外部时关闭搜索状态，并恢复之前的Category
                 isSearching = false;
                 if (currentCategoryButton == null && prevCategoryButton != null) {
