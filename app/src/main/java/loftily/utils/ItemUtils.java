@@ -11,6 +11,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -37,14 +38,32 @@ public class ItemUtils implements ClientUtils {
         if (item instanceof ItemFood && item != Items.SPIDER_EYE) return true;
         if (item instanceof ItemPotion && !isPotionNegative(itemStack)) return true;
         if (item instanceof ItemBow || item == Items.ARROW) return true;
-        if (item instanceof ItemSword && isBestSwordInChest(containerChest, itemStack)) return true;
-        if (item instanceof ItemArmor /* TODO:Best armor check */) return true;
+        if (item instanceof ItemSword && isBestSword(containerChest, itemStack)) return true;
+        if (item instanceof ItemArmor && isBestArmor(containerChest, itemStack)) return true;
         if (item instanceof ItemBlock && !BLOCK_BLACKLIST.contains(((ItemBlock) item).getBlock())) return true;
         return item instanceof ItemEnderPearl;
     }
     
-    private static boolean isBestSwordInChest(ContainerChest containerChest, ItemStack itemStack) {
+    private static boolean isBestArmor(ContainerChest containerChest, ItemStack itemStack) {
         return true;
+    }
+    
+    private static boolean isBestSword(ContainerChest containerChest, ItemStack itemStack) {
+        double thisSwordDamage = getAttackDamage(itemStack);
+        double maxSwordDamage = 0D;
+        
+        for (Slot slot : containerChest.inventorySlots) {
+            ItemStack slotStack = slot.getStack();
+            if (!slotStack.isEmptyStack() && slotStack.getItem() instanceof ItemSword) {
+                double tempDamage = getAttackDamage(slotStack);
+                
+                if (tempDamage >= maxSwordDamage) {
+                    maxSwordDamage = tempDamage;
+                }
+            }
+        }
+        
+        return thisSwordDamage >= maxSwordDamage;
     }
     
     public static double getAttackDamage(ItemStack stack) {

@@ -79,7 +79,7 @@ public class Sprint extends Module {
             }
         }
         
-        if (!MoveUtils.isMoving()) {
+        if (!MoveUtils.isMoving() || mc.player.isCollidedHorizontally) {
             stopSprinting();
             return;
         }

@@ -1,5 +1,7 @@
 package net.minecraft.client.entity;
 
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
+import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.Client;
 import loftily.event.impl.client.ChatEvent;
 import loftily.event.impl.player.RotationEvent;
@@ -261,25 +263,43 @@ public class EntityPlayerSP extends AbstractClientPlayer {
 
             double diffYaw = yaw - this.lastReportedYaw;
             double diffPitch = pitch - this.lastReportedPitch;
-
-            ++this.positionUpdateTicks;
-
+            boolean olderThanOrEqualTo1_8 = ViaLoadingBase.getInstance().getTargetVersion().olderThanOrEqualTo(ProtocolVersion.v1_8);
+            
+            if (!olderThanOrEqualTo1_8)
+                ++this.positionUpdateTicks;
+            
             boolean isMovingSignificantly = diffX * diffX + diffY * diffY + diffZ * diffZ > 9.0E-4D || this.positionUpdateTicks >= 20;
             boolean isRotating = diffYaw != 0.0D || diffPitch != 0.0D;
-
-
-            if (this.isRiding()) {
-                this.connection.sendPacket(new CPacketPlayer.PositionRotation(this.motionX, -999.0D, this.motionZ, yaw, pitch, ground));
-                isMovingSignificantly = false;
-            } else if (isMovingSignificantly && isRotating) {
-                this.connection.sendPacket(new CPacketPlayer.PositionRotation(x, y, z, yaw, pitch, ground));
-            } else if (isMovingSignificantly) {
-                this.connection.sendPacket(new CPacketPlayer.Position(x, y, z, ground));
-            } else if (isRotating) {
-                this.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, ground));
-            } else if (this.prevOnGround != ground) {
-                this.connection.sendPacket(new CPacketPlayer(ground));
+            
+            if (olderThanOrEqualTo1_8) {
+                if (!this.isRiding()) {
+                    if (isMovingSignificantly && isRotating) {
+                        this.connection.sendPacket(new CPacketPlayer.PositionRotation(x, y, z, yaw, pitch, ground));
+                    } else if (isMovingSignificantly) {
+                        this.connection.sendPacket(new CPacketPlayer.Position(x, y, z, ground));
+                    } else if (isRotating) {
+                        this.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, ground));
+                    } else {
+                        this.connection.sendPacket(new CPacketPlayer(ground));
+                    }
+                }
+            } else {
+                if (this.isRiding()) {
+                    this.connection.sendPacket(new CPacketPlayer.PositionRotation(this.motionX, -999.0D, this.motionZ, yaw, pitch, ground));
+                    isMovingSignificantly = false;
+                } else if (isMovingSignificantly && isRotating) {
+                    this.connection.sendPacket(new CPacketPlayer.PositionRotation(x, y, z, yaw, pitch, ground));
+                } else if (isMovingSignificantly) {
+                    this.connection.sendPacket(new CPacketPlayer.Position(x, y, z, ground));
+                } else if (isRotating) {
+                    this.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, ground));
+                } else if (this.prevOnGround != ground) {
+                    this.connection.sendPacket(new CPacketPlayer(ground));
+                }
             }
+            
+            if (olderThanOrEqualTo1_8)
+                ++this.positionUpdateTicks;
 
             if (isMovingSignificantly) {
                 this.lastReportedPosX = x;

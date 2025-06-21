@@ -3,6 +3,8 @@ package net.minecraft.client.renderer;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.gson.JsonSyntaxException;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
+import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.Client;
 import loftily.event.impl.render.FovModifierEvent;
 import loftily.event.impl.render.HurtCameraEvent;
@@ -525,9 +527,11 @@ public class EntityRenderer implements IResourceManagerReloadListener
                     }
                 }
             }
-
-            if (this.pointedEntity != null && flag && vec3d.distanceTo(vec3d3) > 3.0D)
-            {
+            
+            if (this.pointedEntity != null && flag && vec3d.distanceTo(vec3d3) >
+                    (ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8)
+                            ? 2.9D
+                            : 3.0D)) {
                 this.pointedEntity = null;
                 this.mc.objectMouseOver = new RayTraceResult(RayTraceResult.Type.MISS, vec3d3, (EnumFacing)null, new BlockPos(vec3d3));
             }

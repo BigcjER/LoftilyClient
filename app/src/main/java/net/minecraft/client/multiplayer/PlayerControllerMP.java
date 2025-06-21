@@ -487,6 +487,7 @@ public class PlayerControllerMP
         else
         {
             this.syncCurrentPlayItem();
+            //TODO:Fix BadPacketsU flag on air click
             this.connection.sendPacket(new CPacketPlayerTryUseItem(stack));
             ItemStack itemstack = player.getHeldItem(stack);
 

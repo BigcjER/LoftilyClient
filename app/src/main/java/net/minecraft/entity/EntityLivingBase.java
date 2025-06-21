@@ -2,6 +2,8 @@ package net.minecraft.entity;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
+import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.Client;
 import loftily.event.impl.player.motion.JumpEvent;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -2542,19 +2544,18 @@ public abstract class EntityLivingBase extends Entity
             this.motionY *= 0.98D;
             this.motionZ *= 0.98D;
         }
-
-        if (Math.abs(this.motionX) < 0.003D)
-        {
+        
+        double threshold = ViaLoadingBase.getInstance().getTargetVersion().newerThan(ProtocolVersion.v1_8) ? 0.003D : 0.005D;
+        
+        if (Math.abs(this.motionX) < threshold) {
             this.motionX = 0.0D;
         }
-
-        if (Math.abs(this.motionY) < 0.003D)
-        {
+        
+        if (Math.abs(this.motionY) < threshold) {
             this.motionY = 0.0D;
         }
-
-        if (Math.abs(this.motionZ) < 0.003D)
-        {
+        
+        if (Math.abs(this.motionZ) < threshold) {
             this.motionZ = 0.0D;
         }
 
