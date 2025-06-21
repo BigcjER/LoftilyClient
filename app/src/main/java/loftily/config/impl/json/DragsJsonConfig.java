@@ -12,7 +12,7 @@ import java.io.FileReader;
 
 public class DragsJsonConfig extends JsonConfig {
     public DragsJsonConfig() {
-        super(new File(FileManager.ROOT_DIR, "Drags.json"));
+        super(new File(FileManager.ROOT_DIR, "drags.json"));
     }
     
     @Override

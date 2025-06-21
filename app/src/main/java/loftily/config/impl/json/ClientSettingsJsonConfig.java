@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
 
 public class ClientSettingsJsonConfig extends JsonConfig {
     public ClientSettingsJsonConfig() {
-        super(new File(FileManager.ROOT_DIR, "ClientSettings.json"));
+        super(new File(FileManager.ROOT_DIR, "client-settings.json"));
     }
     
     //确保比ModuleConfig先加载

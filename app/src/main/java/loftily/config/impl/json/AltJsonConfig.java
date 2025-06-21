@@ -17,7 +17,7 @@ import java.util.List;
 
 public class AltJsonConfig extends JsonConfig {
     public AltJsonConfig() {
-        super(new File(FileManager.ROOT_DIR, "Alts.json"));
+        super(new File(FileManager.ROOT_DIR, "alts.json"));
     }
     
     @Override
