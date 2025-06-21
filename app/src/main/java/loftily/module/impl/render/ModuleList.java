@@ -149,7 +149,7 @@ public class ModuleList extends Module implements IDraggable {
                 int nameWidth = font.getStringWidth(name);
                 int tagWidth = font.getStringWidth(tag);
                 int spaceWidth = font.getStringWidth(" ");
-                int fullWidth = drawTag.getValue() ? nameWidth + spaceWidth + tagWidth : nameWidth;
+                int fullWidth = drawTag.getValue() ? nameWidth + (tag.isEmpty() ? 0 : spaceWidth) + tagWidth : nameWidth;
                 
                 //计算位置
                 boolean isLeft = event.getScaledResolution().getScaledWidth() / 2 > (x + finalLongestStringWidth / 2);
