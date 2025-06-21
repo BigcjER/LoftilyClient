@@ -95,13 +95,7 @@ public class TimerGlideFly extends Mode<Fly> {
             if (customMotionY.getValue()) {
                 mc.player.motionY = motionSpeed.getValue().floatValue();
             } else {
-                if (ticks <= 40) {
-                    mc.player.motionY *= 0.045;
-                } else if (ticks <= duduTicks) {
-                    mc.player.motionY *= 0.039;
-                } else {
-                    mc.player.motionY *= 0.07;
-                }
+                mc.player.motionY *= 0.039;
             }
             if (duduTicks > 0) {
                 duduTicks--;
