@@ -1,7 +1,7 @@
 package loftily.module.impl.render;
 
 import loftily.Client;
-import loftily.config.impl.DragsConfig;
+import loftily.config.impl.json.DragsJsonConfig;
 import loftily.event.impl.render.Render2DEvent;
 import loftily.event.impl.world.WorldLoadEvent;
 import loftily.gui.animation.Animation;
@@ -86,7 +86,7 @@ public class ModuleList extends Module implements IDraggable {
         
         if (draggable == null) {
             draggable = new Draggable(event.getScaledResolution().getScaledWidth() - 3, 0, 1);
-            Client.INSTANCE.getFileManager().get(DragsConfig.class).read();
+            Client.INSTANCE.getFileManager().get(DragsJsonConfig.class).read();
         }
         
         if (moduleEntries.isEmpty()) {

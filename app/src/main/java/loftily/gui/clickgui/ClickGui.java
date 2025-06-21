@@ -1,7 +1,7 @@
 package loftily.gui.clickgui;
 
 import loftily.Client;
-import loftily.config.impl.ModuleConfig;
+import loftily.config.impl.json.ModuleJsonConfig;
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
 import loftily.gui.clickgui.components.impl.CategoryButton;
@@ -323,7 +323,7 @@ public class ClickGui extends GuiScreen implements IDraggable {
         super.mouseReleased(mouseX, mouseY, state);
         if (currentValuePanel != null) currentValuePanel.mouseReleased(mouseX, mouseY, state);
         
-        Client.INSTANCE.getFileManager().get(ModuleConfig.class).write();
+        Client.INSTANCE.getFileManager().get(ModuleJsonConfig.class).write();
     }
     
     @Override

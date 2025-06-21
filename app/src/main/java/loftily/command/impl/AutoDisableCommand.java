@@ -2,7 +2,7 @@ package loftily.command.impl;
 
 import loftily.Client;
 import loftily.command.Command;
-import loftily.config.impl.ModuleConfig;
+import loftily.config.impl.json.ModuleJsonConfig;
 import loftily.module.AutoDisableType;
 import loftily.module.Module;
 import loftily.utils.client.MessageUtils;
@@ -39,7 +39,7 @@ public class AutoDisableCommand extends Command {
                 if (module != null) {
                     AutoDisableType autoDisableType = AutoDisableType.fromName(args[2]);
                     module.setAutoDisableType(autoDisableType);
-                    Client.INSTANCE.getFileManager().get(ModuleConfig.class).write();
+                    Client.INSTANCE.getFileManager().get(ModuleJsonConfig.class).write();
                     
                     MessageUtils.clientMessageWithWaterMark(String.format("Module %s's auto disable has been set to %s.", module.getName(), autoDisableType.name));
                     return;

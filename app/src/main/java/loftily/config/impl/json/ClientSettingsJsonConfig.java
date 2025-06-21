@@ -1,25 +1,21 @@
-package loftily.config.impl;
+package loftily.config.impl.json;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import loftily.Client;
-import loftily.config.Config;
 import loftily.config.FileManager;
+import loftily.config.api.JsonConfig;
 import loftily.settings.ClientSettings;
 import loftily.settings.FieldProxy;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 
-public class ClientSettingsConfig extends Config {
-    public ClientSettingsConfig() {
+public class ClientSettingsJsonConfig extends JsonConfig {
+    public ClientSettingsJsonConfig() {
         super(new File(FileManager.ROOT_DIR, "ClientSettings.json"));
     }
     
@@ -32,20 +28,15 @@ public class ClientSettingsConfig extends Config {
     @Override
     public void init() {
         super.init();
-        ModuleConfig moduleConfig = Client.INSTANCE.getFileManager().get(ModuleConfig.class);
+        ModuleJsonConfig moduleJsonConfig = Client.INSTANCE.getFileManager().get(ModuleJsonConfig.class);
         
         File lastConfigFile = new File(FileManager.CONFIG_DIR, ClientSettings.lastModuleConfig.get());
-        moduleConfig.setConfigFile(lastConfigFile);
+        moduleJsonConfig.setFile(lastConfigFile);
     }
     
     @Override
-    public void read() {
-        try (FileReader reader = new FileReader(configFile)) {
-            JsonElement jsonElement = JsonParser.parseReader(reader);
-            checkJsonElement(jsonElement);
-            
-            JsonObject json = jsonElement.getAsJsonObject();
-            
+    protected void read(JsonObject json) {
+        try {
             for (Field field : ClientSettings.class.getDeclaredFields()) {
                 if (!Modifier.isStatic(field.getModifiers())) continue;
                 field.setAccessible(true);
@@ -66,16 +57,14 @@ public class ClientSettingsConfig extends Config {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
     
     @Override
-    public void write() {
-        try (FileWriter writer = new FileWriter(configFile)) {
-            JsonObject json = new JsonObject();
-            
+    protected void write(JsonObject json) {
+        try {
             for (Field field : ClientSettings.class.getDeclaredFields()) {
                 if (!Modifier.isStatic(field.getModifiers())) continue;
                 field.setAccessible(true);
@@ -87,9 +76,7 @@ public class ClientSettingsConfig extends Config {
                     json.add(field.getName(), GSON.toJsonTree(field.get(null)));
                 }
             }
-            
-            GSON.toJson(json, writer);
-        } catch (Exception e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

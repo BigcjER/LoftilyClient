@@ -1,7 +1,7 @@
 package loftily.module.impl.render;
 
 import loftily.Client;
-import loftily.config.impl.DragsConfig;
+import loftily.config.impl.json.DragsJsonConfig;
 import loftily.event.impl.player.AttackEvent;
 import loftily.event.impl.render.Render2DEvent;
 import loftily.gui.animation.Animation;
@@ -63,7 +63,7 @@ public class TargetHUD extends Module implements IDraggable {
         //更新draggable
         if (draggable == null) {
             draggable = new Draggable(event.getScaledResolution().getScaledWidth() / 2 + 10, event.getScaledResolution().getScaledHeight() / 2 + 10, 1);
-            Client.INSTANCE.getFileManager().get(DragsConfig.class).read();
+            Client.INSTANCE.getFileManager().get(DragsJsonConfig.class).read();
         }
         Point mouse = RenderUtils.getMouse(event.getScaledResolution());
         getDraggable().updateDrag(

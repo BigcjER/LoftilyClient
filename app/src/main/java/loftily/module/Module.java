@@ -1,7 +1,7 @@
 package loftily.module;
 
 import loftily.Client;
-import loftily.config.impl.ModuleConfig;
+import loftily.config.impl.json.ModuleJsonConfig;
 import loftily.core.AbstractModule;
 import loftily.gui.notification.NotificationType;
 import loftily.value.impl.BooleanValue;
@@ -87,7 +87,7 @@ public abstract class Module extends AbstractModule {
             }
         }
         
-        if (save) Client.INSTANCE.getFileManager().get(ModuleConfig.class).write();
+        if (save) Client.INSTANCE.getFileManager().get(ModuleJsonConfig.class).write();
         
     }
     

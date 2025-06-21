@@ -2,7 +2,7 @@ package loftily.alt;
 
 import loftily.Client;
 import loftily.alt.microsoft.MicrosoftLoginThread;
-import loftily.config.impl.AltConfig;
+import loftily.config.impl.json.AltJsonConfig;
 import loftily.utils.client.ClientUtils;
 import lombok.Getter;
 import net.minecraft.util.Session;
@@ -68,13 +68,13 @@ public class AltManager implements ClientUtils {
         
         if (!exists) {
             alts.add(alt);
-            Client.INSTANCE.getFileManager().get(AltConfig.class).write();
+            Client.INSTANCE.getFileManager().get(AltJsonConfig.class).write();
         }
     }
     
     
     public void remove(Alt alt) {
         alts.remove(alt);
-        Client.INSTANCE.getFileManager().get(AltConfig.class).write();
+        Client.INSTANCE.getFileManager().get(AltJsonConfig.class).write();
     }
 }

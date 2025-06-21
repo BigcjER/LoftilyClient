@@ -1,4 +1,4 @@
-package loftily.config.impl;
+package loftily.config.impl.json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -6,8 +6,8 @@ import com.google.gson.reflect.TypeToken;
 import loftily.Client;
 import loftily.alt.Alt;
 import loftily.alt.AltType;
-import loftily.config.Config;
 import loftily.config.FileManager;
+import loftily.config.api.JsonConfig;
 
 import java.io.File;
 import java.io.FileReader;
@@ -16,14 +16,14 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class AltConfig extends Config {
-    public AltConfig() {
+public class AltJsonConfig extends JsonConfig {
+    public AltJsonConfig() {
         super(new File(FileManager.ROOT_DIR, "Alts.json"));
     }
     
     @Override
-    public void read() {
-        try (FileReader reader = new FileReader(configFile)) {
+    protected void read(JsonObject jsonObject) {
+        try (FileReader reader = new FileReader(file)) {
             Type listType = new TypeToken<List<Alt>>() {
             }.getType();
             List<Alt> altList = GSON.fromJson(reader, listType);
@@ -40,7 +40,7 @@ public class AltConfig extends Config {
     }
     
     @Override
-    public void write() {
+    protected void write(JsonObject jsonObject) {
         JsonArray jsonArray = new JsonArray();
         Client.INSTANCE.getAltManager().getAlts().forEach(alt -> {
             JsonObject modJson = new JsonObject();
@@ -54,7 +54,7 @@ public class AltConfig extends Config {
             jsonArray.add(modJson);
         });
         
-        try (FileWriter writer = new FileWriter(configFile)) {
+        try (FileWriter writer = new FileWriter(file)) {
             writer.write(GSON.toJson(jsonArray));
         } catch (IOException e) {
             throw new RuntimeException(e);

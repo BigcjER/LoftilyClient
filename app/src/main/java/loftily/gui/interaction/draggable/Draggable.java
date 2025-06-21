@@ -1,7 +1,7 @@
 package loftily.gui.interaction.draggable;
 
 import loftily.Client;
-import loftily.config.impl.DragsConfig;
+import loftily.config.impl.json.DragsJsonConfig;
 import loftily.gui.animation.Animation;
 import loftily.gui.animation.Easing;
 import loftily.utils.client.ClientUtils;
@@ -34,7 +34,7 @@ public class Draggable implements ClientUtils {
     }
     
     public Draggable(int startX, int startY, int margin) {
-        this(startX, startY, margin, () -> Client.INSTANCE.getFileManager().get(DragsConfig.class).write());
+        this(startX, startY, margin, () -> Client.INSTANCE.getFileManager().get(DragsJsonConfig.class).write());
     }
     
     public void updateDrag(int mouseX, int mouseY, int dragWidth, int dragHeight, int width, int height, int screenWidth, int screenHeight, int clampStartX, int clampStartY) {

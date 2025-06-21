@@ -3,7 +3,7 @@ package loftily.command.impl;
 import loftily.Client;
 import loftily.command.Command;
 import loftily.config.FileManager;
-import loftily.config.impl.ModuleConfig;
+import loftily.config.impl.json.ModuleJsonConfig;
 import loftily.settings.ClientSettings;
 import loftily.utils.client.MessageUtils;
 import net.minecraft.util.text.Style;
@@ -27,7 +27,7 @@ public class ConfigCommand extends Command {
     
     @Override
     public void execCommand(String[] args) {
-        ModuleConfig moduleConfig = Client.INSTANCE.getFileManager().get(ModuleConfig.class);
+        ModuleJsonConfig moduleJsonConfig = Client.INSTANCE.getFileManager().get(ModuleJsonConfig.class);
         /* .config <folder/list>  */
         if (args.length == 2) {
             String command = args[1].toLowerCase();
@@ -52,7 +52,7 @@ public class ConfigCommand extends Command {
                     }
                     
                     MessageUtils.clientMessageWithWaterMark("Available configurations:");
-                    String currentConfig = moduleConfig.getConfigFile().getName().replace(".json", "");
+                    String currentConfig = moduleJsonConfig.getFile().getName().replace(".json", "");
                     
                     for (File configFile : configFiles) {
                         String configFileName = configFile.getName().replace(".json", "");
@@ -72,8 +72,8 @@ public class ConfigCommand extends Command {
                     break;
                 
                 case "reload":
-                    if (moduleConfig.getConfigFile().exists()) moduleConfig.read();
-                    else moduleConfig.write();
+                    if (moduleJsonConfig.getFile().exists()) moduleJsonConfig.read();
+                    else moduleJsonConfig.write();
                     MessageUtils.clientMessageWithWaterMark("Configuration reloaded.");
                     break;
                 
@@ -93,7 +93,7 @@ public class ConfigCommand extends Command {
             switch (command) {
                 case "load":
                     if (configFile.exists()) {
-                        moduleConfig.load(configFile);
+                        moduleJsonConfig.load(configFile);
                         MessageUtils.clientMessageWithWaterMark(TextFormatting.GREEN + String.format("Configuration %s loaded.", configName));
                         break;
                     }
@@ -101,11 +101,11 @@ public class ConfigCommand extends Command {
                     break;
                 
                 case "save":
-                    File originFile = moduleConfig.getConfigFile();
-                    moduleConfig.write();
-                    moduleConfig.setConfigFile(new File(FileManager.CONFIG_DIR, configName + ".json"));
-                    moduleConfig.write();
-                    moduleConfig.setConfigFile(originFile);
+                    File originFile = moduleJsonConfig.getFile();
+                    moduleJsonConfig.write();
+                    moduleJsonConfig.setFile(new File(FileManager.CONFIG_DIR, configName + ".json"));
+                    moduleJsonConfig.write();
+                    moduleJsonConfig.setFile(originFile);
                     MessageUtils.clientMessageWithWaterMark(TextFormatting.GREEN + String.format("Configuration %s saved.", configName));
                     break;
                 
@@ -114,7 +114,7 @@ public class ConfigCommand extends Command {
                         MessageUtils.clientMessageWithWaterMark(TextFormatting.YELLOW + String.format("Configuration %s already exists.", configName));
                         break;
                     }
-                    moduleConfig.write();
+                    moduleJsonConfig.write();
                     
                     Client.INSTANCE.getModuleManager().getAll().forEach(module -> module.getValues().forEach(value -> value.setValue(value.getDefaultValue())));
                     Client.INSTANCE.getModuleManager().getAll().forEach(module -> {
@@ -123,9 +123,9 @@ public class ConfigCommand extends Command {
                         }
                     });
                     
-                    moduleConfig.setConfigFile(new File(FileManager.CONFIG_DIR, configName + ".json"));
-                    moduleConfig.write();
-                    ClientSettings.lastModuleConfig.set(moduleConfig.getConfigFile().getName());
+                    moduleJsonConfig.setFile(new File(FileManager.CONFIG_DIR, configName + ".json"));
+                    moduleJsonConfig.write();
+                    ClientSettings.lastModuleConfig.set(moduleJsonConfig.getFile().getName());
                     
                     MessageUtils.clientMessageWithWaterMark(TextFormatting.GREEN + String.format("Configuration %s created.", configName));
                     break;
