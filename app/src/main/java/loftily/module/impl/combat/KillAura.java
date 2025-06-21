@@ -273,7 +273,7 @@ public class KillAura extends Module {
                 break;
             case "Lower":
                 for (double x = 0.4; x <= 0.6; x += 0.1) {
-                    for (double y = 0.1; y <= 0.7; y += 0.1) {
+                    for (double y = 0.1; y <= 0.5; y += 0.1) {
                         for (double z = 0.4; z <= 0.6; z += 0.1) {
                             Vec3d preCenter = targetBox.lerpWith(x, y, z);
                             
