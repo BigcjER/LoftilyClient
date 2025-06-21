@@ -17,6 +17,7 @@ import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.Client;
 import loftily.event.impl.client.ClientTickEvent;
+import loftily.event.impl.client.DisplayScreenEvent;
 import loftily.event.impl.client.KeyboardEvent;
 import loftily.event.impl.player.BlockDigEvent;
 import loftily.event.impl.world.WorldLoadEvent;
@@ -852,6 +853,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
      * Sets the argument GuiScreen as the main (topmost visible) screen.
      */
     public void displayGuiScreen(@Nullable GuiScreen guiScreenIn) {
+        Client.INSTANCE.getEventManager().call(new DisplayScreenEvent(currentScreen, guiScreenIn));
         if (this.currentScreen != null) {
             this.currentScreen.onGuiClosed();
         }
