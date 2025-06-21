@@ -1,5 +1,6 @@
 package loftily.module.impl.movement.flys;
 
+import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.module.impl.movement.Fly;
 import loftily.utils.player.MoveUtils;
@@ -17,9 +18,30 @@ public class VanillaFly extends Mode<Fly> {
     
     private final NumberValue horizontalSpeed = new NumberValue("HorizontalSpeed", 1, 0, 5, 0.01);
     private final NumberValue verticalSpeed = new NumberValue("VerticalSpeed", 1, 0, 5, 0.01);
-    private final NumberValue keepY = new NumberValue("KeepYSpeed", 0.0, 0.0, 0.2, 0.001);
+    private final NumberValue keepY = new NumberValue("KeepYSpeed", 0.0, -0.2, 0.2, 0.01);
     private final BooleanValue resetMotion = new BooleanValue("ResetMotion", false);
-    
+    public final BooleanValue spoofGround = new BooleanValue("SpoofGround", false);
+    public final BooleanValue noClip = new BooleanValue("NoClip", false);
+
+    @Override
+    public void onEnable(){
+        if(noClip.getValue()){
+            mc.player.noClip = true;
+        }
+    }
+
+    @Override
+    public void onDisable(){
+        mc.player.noClip = false;
+    }
+
+    @EventHandler
+    public void onMotion(MotionEvent event){
+        if(spoofGround.getValue()){
+            event.setOnGround(true);
+        }
+    }
+
     @EventHandler
     public void onUpdate(UpdateEvent event) {
         if (!MoveUtils.isMoving() && resetMotion.getValue()) {

@@ -10,7 +10,7 @@ import net.lenni0451.lambdaevents.EventHandler;
 
 @ModuleInfo(name = "Timer", category = ModuleCategory.WORLD)
 public class TimerModule extends Module {
-    private final NumberValue timerSpeed = new NumberValue("TimerSpeed", 1, 0.01, 10, 0.01);
+    private final NumberValue timerSpeed = new NumberValue("TimerSpeed", 1, 0.01, 50, 0.01);
     
     @Override
     public void onDisable() {
