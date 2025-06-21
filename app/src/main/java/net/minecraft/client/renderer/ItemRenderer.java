@@ -5,6 +5,7 @@ import loftily.Client;
 import loftily.event.impl.render.RenderFireEvent;
 import loftily.module.impl.combat.KillAura;
 import loftily.module.impl.render.AnimationModule;
+import loftily.utils.player.PlayerUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -385,10 +386,7 @@ public class ItemRenderer
     }
     
     public void renderItemInFirstPerson(AbstractClientPlayer abstractClientPlayer, float partialTicks, float pitch, EnumHand hand, float swingProgress, ItemStack stack, float equippedProgress) {
-        boolean isSwordBlocking =
-                abstractClientPlayer.isHandActive() &&
-                        abstractClientPlayer.getActiveHand() == EnumHand.OFF_HAND &&
-                        abstractClientPlayer.getHeldItemMainhand().getItem() instanceof ItemSword;
+        boolean isSwordBlocking = PlayerUtils.isBlocking(abstractClientPlayer);
         
         boolean hasShield = abstractClientPlayer.getHeldItemOffhand().getItem() instanceof ItemShield;
         boolean hasSword = abstractClientPlayer.getHeldItemMainhand().getItem() instanceof ItemSword;

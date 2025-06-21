@@ -1,7 +1,12 @@
 package loftily.utils.player;
 
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
+import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.utils.client.ClientUtils;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemShield;
+import net.minecraft.item.ItemSword;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 
@@ -39,7 +44,25 @@ public class PlayerUtils implements ClientUtils {
         return false;
     }
     
+    public static boolean isUsingItem(EntityLivingBase entity) {
+        return entity.isHandActive();
+    }
+    
     public static boolean isUsingItem() {
-        return mc.player.isHandActive();
+        return isUsingItem(mc.player);
+    }
+    
+    public static boolean isBlocking(EntityLivingBase entity) {
+        if (!isUsingItem(entity)) return false;
+        
+        if (ViaLoadingBase.getInstance().getTargetVersion().olderThanOrEqualTo(ProtocolVersion.v1_8)) {
+            return entity.getHeldItemMainhand().getItem() instanceof ItemSword;
+        } else {
+            return entity.getHeldItem(entity.getActiveHand()).getItem() instanceof ItemShield;
+        }
+    }
+    
+    public static boolean isBlocking() {
+        return isBlocking(mc.player);
     }
 }
