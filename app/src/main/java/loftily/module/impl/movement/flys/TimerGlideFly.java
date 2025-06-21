@@ -104,7 +104,7 @@ public class TimerGlideFly extends Mode<Fly> {
 
         }
 
-        if (smartHurt.getValue()) {
+        if (smartHurt.getValue() && boost) {
             if(!smartTicks.getValue()) {
                 if(ticks >= flyTicks.getValue()) {
                     getParent().toggle();
