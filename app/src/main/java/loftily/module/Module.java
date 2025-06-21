@@ -19,7 +19,6 @@ public abstract class Module extends AbstractModule {
     private AutoDisableType autoDisableType;
     private ModuleCategory moduleCategory;
     private boolean toggled;
-    @Setter
     private int key;
     
     public Module() {

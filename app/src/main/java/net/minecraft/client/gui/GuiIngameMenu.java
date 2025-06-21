@@ -1,6 +1,7 @@
 package net.minecraft.client.gui;
 
 import loftily.gui.menu.mainmenu.MainMenu;
+import loftily.utils.ServerUtils;
 import net.minecraft.client.gui.achievement.GuiStats;
 import net.minecraft.client.gui.advancements.GuiScreenAdvancements;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -28,6 +29,7 @@ public class GuiIngameMenu extends GuiScreen
         if (!this.mc.isIntegratedServerRunning())
         {
             (this.buttonList.get(0)).displayString = I18n.format("menu.disconnect");
+            this.buttonList.add(new GuiButton(100, this.width / 2 - 100, this.height / 4 + 145 + i, "Reconnect"));
         }
 
         this.buttonList.add(new GuiButton(4, this.width / 2 - 100, this.height / 4 + 24 + -16, I18n.format("menu.returnToGame")));
@@ -84,6 +86,12 @@ public class GuiIngameMenu extends GuiScreen
 
             case 7:
                 this.mc.displayGuiScreen(new GuiShareToLan(this));
+                break;
+            
+            case 100:
+                mc.world.sendQuittingDisconnectingPacket();
+                ServerUtils.connectToLastServer();
+                break;
         }
     }
 
