@@ -1,5 +1,7 @@
 package loftily.module.impl.movement;
 
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
+import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.player.slowdown.ItemSlowDownEvent;
 import loftily.module.Module;
@@ -152,9 +154,8 @@ public class NoSlow extends Module {
     
     @EventHandler
     public void onSlowDown(ItemSlowDownEvent event) {
-        if (getUseItem() == null) return;
-        
-        if (getUseItem() instanceof ItemShield) {
+//        println(getUseItem());
+        if (getUseItem() instanceof ItemShield || (ViaLoadingBase.getInstance().getTargetVersion().olderThanOrEqualTo(ProtocolVersion.v1_8) && getUseItem() instanceof ItemSword)) {
             event.setForwardMultiplier(blockingForward.getValue().floatValue());
             event.setStrafeMultiplier(blockingStrafe.getValue().floatValue());
         }

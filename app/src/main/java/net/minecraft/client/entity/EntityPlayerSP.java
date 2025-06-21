@@ -810,7 +810,8 @@ public class EntityPlayerSP extends AbstractClientPlayer {
         if (this.isHandActive() && !this.isRiding() && !event.isCancelled()) {
             this.movementInput.moveStrafe *= event.getStrafeMultiplier();
             this.movementInput.moveForward *= event.getForwardMultiplier();
-            this.sprintToggleTimer = 0;
+            if (event.getForwardMultiplier() < 1 && event.getStrafeMultiplier() < 1)
+                this.sprintToggleTimer = 0;
         }
 
         boolean flag3 = false;

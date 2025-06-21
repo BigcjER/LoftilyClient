@@ -3,6 +3,7 @@ package loftily.module.impl.movement.speeds;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.module.impl.movement.Speed;
 import loftily.utils.player.MoveUtils;
+import loftily.utils.player.PlayerUtils;
 import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.potion.Potion;
@@ -17,7 +18,8 @@ public class BlocksMCSpeed extends Mode<Speed> {
     
     @EventHandler
     public void onUpdate(UpdateEvent event) {
-        if (mc.player.isInWater() || mc.player.isInWeb || mc.player.isCollidedHorizontally) return;
+        if (mc.player.isInWater() || mc.player.isInWeb || mc.player.isCollidedHorizontally || PlayerUtils.isUsingItem())
+            return;
         
         if (!MoveUtils.isMoving()) {
             MoveUtils.stop();
