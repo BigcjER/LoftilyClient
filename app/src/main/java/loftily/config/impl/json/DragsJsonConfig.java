@@ -8,6 +8,7 @@ import loftily.gui.interaction.draggable.IDraggable;
 import loftily.handlers.impl.render.DraggableHandler;
 
 import java.io.File;
+import java.io.FileReader;
 
 public class DragsJsonConfig extends JsonConfig {
     public DragsJsonConfig() {
@@ -15,7 +16,7 @@ public class DragsJsonConfig extends JsonConfig {
     }
     
     @Override
-    protected void read(JsonObject json) {
+    protected void read(JsonObject json, FileReader reader) {
         
         json.entrySet().forEach(entry -> {
             IDraggable draggable = DraggableHandler.get(entry.getKey());

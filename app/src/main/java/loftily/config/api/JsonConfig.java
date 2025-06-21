@@ -24,7 +24,7 @@ public abstract class JsonConfig extends ManagedFile implements Comparable<JsonC
                 throw new JsonParseException(String.format("File '%s' is not a valid JsonObject.", file.getPath()));
             }
             
-            read(jsonElement.getAsJsonObject());
+            read(jsonElement.getAsJsonObject(), reader);
             
         } catch (Exception e) {
             ClientUtils.LOGGER.error("Failed to read config : {}, Creating a new one.", file.getPath());
@@ -45,7 +45,7 @@ public abstract class JsonConfig extends ManagedFile implements Comparable<JsonC
         }
     }
     
-    protected abstract void read(JsonObject json);
+    protected abstract void read(JsonObject json, FileReader reader);
     
     protected abstract void write(JsonObject json);
     

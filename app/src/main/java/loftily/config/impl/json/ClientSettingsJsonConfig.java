@@ -8,6 +8,7 @@ import loftily.settings.ClientSettings;
 import loftily.settings.FieldProxy;
 
 import java.io.File;
+import java.io.FileReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -35,7 +36,7 @@ public class ClientSettingsJsonConfig extends JsonConfig {
     }
     
     @Override
-    protected void read(JsonObject json) {
+    protected void read(JsonObject json, FileReader reader) {
         try {
             for (Field field : ClientSettings.class.getDeclaredFields()) {
                 if (!Modifier.isStatic(field.getModifiers())) continue;

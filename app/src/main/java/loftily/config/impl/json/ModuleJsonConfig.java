@@ -12,6 +12,7 @@ import loftily.value.impl.mode.Mode;
 import org.lwjgl.input.Keyboard;
 
 import java.io.File;
+import java.io.FileReader;
 
 public class ModuleJsonConfig extends JsonConfig {
     
@@ -20,7 +21,7 @@ public class ModuleJsonConfig extends JsonConfig {
     }
     
     @Override
-    protected void read(JsonObject json) {
+    protected void read(JsonObject json, FileReader reader) {
         json.entrySet().forEach(entry -> {
             Module module = Client.INSTANCE.getModuleManager().get(entry.getKey());
             if (module == null) return;

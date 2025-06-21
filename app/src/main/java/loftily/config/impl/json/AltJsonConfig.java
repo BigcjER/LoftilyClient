@@ -1,6 +1,7 @@
 package loftily.config.impl.json;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import loftily.Client;
@@ -11,8 +12,6 @@ import loftily.config.api.JsonConfig;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -22,20 +21,22 @@ public class AltJsonConfig extends JsonConfig {
     }
     
     @Override
-    protected void read(JsonObject jsonObject) {
-        try (FileReader reader = new FileReader(file)) {
+    protected void read(JsonObject jsonObject, FileReader reader) {
+        JsonElement alts = jsonObject.get("alts");
+        
+        
+        if (alts != null && alts.isJsonArray()) {
+            JsonArray altsArray = alts.getAsJsonArray();
             Type listType = new TypeToken<List<Alt>>() {
             }.getType();
-            List<Alt> altList = GSON.fromJson(reader, listType);
+            
+            List<Alt> altList = GSON.fromJson(altsArray, listType);
             
             if (altList != null) {
                 altList.forEach(alt -> Client.INSTANCE.getAltManager().getAlts().add(alt));
             } else {
                 write();
             }
-            
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
     
@@ -54,10 +55,6 @@ public class AltJsonConfig extends JsonConfig {
             jsonArray.add(modJson);
         });
         
-        try (FileWriter writer = new FileWriter(file)) {
-            writer.write(GSON.toJson(jsonArray));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        jsonObject.add("alts", jsonArray);
     }
 }
