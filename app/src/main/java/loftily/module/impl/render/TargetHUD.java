@@ -60,9 +60,12 @@ public class TargetHUD extends Module implements IDraggable {
     
     @EventHandler
     public void onRender2D(Render2DEvent event) {
+        final int screenWidth = event.getScaledResolution().getScaledWidth();
+        final int screenHeight = event.getScaledResolution().getScaledHeight();
+        
         //更新draggable
         if (draggable == null) {
-            draggable = new Draggable(event.getScaledResolution().getScaledWidth() / 2 + 10, event.getScaledResolution().getScaledHeight() / 2 + 10, 1);
+            draggable = new Draggable(screenWidth / 2 + 10, screenHeight / 2 + 10, event.getScaledResolution(), 1);
             Client.INSTANCE.getFileManager().get(DragsJsonConfig.class).read();
         }
         Point mouse = RenderUtils.getMouse(event.getScaledResolution());
@@ -97,9 +100,9 @@ public class TargetHUD extends Module implements IDraggable {
         inOutAnimation.setDuration(animationDuring.getValue().longValue());
         if (inOutAnimation.getValue() <= 0) return;
         
+        final int x = getDraggable().getPosX(screenWidth);
+        final int y = getDraggable().getPosY(screenHeight);
         
-        final int x = getDraggable().getPosX();
-        final int y = getDraggable().getPosY();
         double health = target.getHealth() + target.getAbsorptionAmount();
         double maxHealth = target.getMaxHealth() + target.getAbsorptionAmount();
         double roundedHealth = MathUtils.round(health, 1);
@@ -188,13 +191,13 @@ public class TargetHUD extends Module implements IDraggable {
             float endAngle = (float) (startAngle + 360F * (health / maxHealth));
             healthArcAnimation.run(endAngle);
             RenderUtils.drawArc(
-                    getDraggable().getPosX() + width - 20,
-                    getDraggable().getPosY() + HEIGHT / 2f,
+                    getDraggable().getPosX(event.getScaledResolution().getScaledWidth()) + width - 20,
+                    getDraggable().getPosY(event.getScaledResolution().getScaledHeight()) + HEIGHT / 2f,
                     headSize / 2F - 3,
                     startAngle,
                     healthArcAnimation.getValuef(),
                     3.0f, Colors.Active.color);
-        }, 3);
+        }, 3, screenWidth, screenHeight);
         if (clip.getValue()) RenderUtils.stopGlStencil();
     }
     

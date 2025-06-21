@@ -24,11 +24,11 @@ public class DragsJsonConfig extends JsonConfig {
             
             JsonArray jsonArray = entry.getValue().getAsJsonArray();
             
-            int x = jsonArray.get(0).getAsInt();
-            int y = jsonArray.get(1).getAsInt();
+            float x = jsonArray.get(0).getAsFloat();
+            float y = jsonArray.get(1).getAsFloat();
             
-            draggable.getDraggable().setPosX(x);
-            draggable.getDraggable().setPosY(y);
+            draggable.getDraggable().setRelativeX(x);
+            draggable.getDraggable().setRelativeY(y);
         });
     }
     
@@ -36,7 +36,7 @@ public class DragsJsonConfig extends JsonConfig {
     protected void write(JsonObject json) {
         DraggableHandler.getDraggableList().forEach(draggable -> {
             if (draggable == null || draggable.getDraggable() == null) return;
-            json.add(draggable.getName(), GSON.toJsonTree(new int[]{draggable.getDraggable().getPosX(), draggable.getDraggable().getPosY()}));
+            json.add(draggable.getName(), GSON.toJsonTree(new float[]{draggable.getDraggable().getRelativeX(), draggable.getDraggable().getRelativeY()}));
         });
     }
 }

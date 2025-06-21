@@ -86,8 +86,8 @@ public class ClickGui extends GuiScreen implements IDraggable {
         super.drawScreen(mouseX, mouseY, partialTicks);
         
         getDraggable().updateDrag(mouseX, mouseY, width, height / 10, width, height, super.width, super.height);
-        x = getDraggable().getPosX();
-        y = getDraggable().getPosY();
+        x = getDraggable().getPosX(super.width);
+        y = getDraggable().getPosY(super.height);
         
         /* Background */
         RenderUtils.drawRoundedRect(x, y, width, height, CORNER_RADIUS, Colors.BackGround.color);
@@ -368,7 +368,7 @@ public class ClickGui extends GuiScreen implements IDraggable {
     @Override
     public Draggable getDraggable() {
         if (draggable == null) {
-            draggable = new Draggable(100, 100, 1, null);
+            draggable = new Draggable(100, 100, 1, 1200, 600, null);
         }
         return draggable;
     }

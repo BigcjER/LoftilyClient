@@ -8,6 +8,7 @@ import loftily.utils.client.ClientUtils;
 import loftily.utils.render.RenderUtils;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
@@ -19,28 +20,51 @@ public class Draggable implements ClientUtils {
     @Getter
     private boolean isDragging = false;
     private int prevX = 0, prevY = 0;
+    private int width, height;
+    
+    /**
+     * Between 0 - 1
+     */
     @Getter
     @Setter
-    private int posX, posY;
-    private int width, height;
+    private float relativeX, relativeY;
     
     private final Animation dragEffectAnimation = new Animation(Easing.EaseOutExpo, 250);
     
-    public Draggable(int startX, int startY, int margin, Runnable afterDrag) {
-        this.posX = startX;
-        this.posY = startY;
+    public Draggable(int startX, int startY, int margin, int screenWidth, int screenHeight, Runnable afterDrag) {
+        this.relativeX = (float) startX / screenWidth;
+        this.relativeY = (float) startY / screenHeight;
         this.margin = margin;
         this.afterDrag = afterDrag;
     }
     
-    public Draggable(int startX, int startY, int margin) {
-        this(startX, startY, margin, () -> Client.INSTANCE.getFileManager().get(DragsJsonConfig.class).write());
+    public Draggable(int startX, int startY, int margin, ScaledResolution sr, Runnable afterDrag) {
+        this(startX, startY, margin, sr.getScaledWidth(), sr.getScaledHeight(), afterDrag);
     }
     
-    public void updateDrag(int mouseX, int mouseY, int dragWidth, int dragHeight, int width, int height, int screenWidth, int screenHeight, int clampStartX, int clampStartY) {
+    public Draggable(int startX, int startY, ScaledResolution sr, int margin) {
+        this(startX, startY, margin, sr, () -> Client.INSTANCE.getFileManager().get(DragsJsonConfig.class).write());
+    }
+    
+    public int getPosX(int screenWidth) {
+        return (int) (relativeX * screenWidth);
+    }
+    
+    public int getPosY(int screenHeight) {
+        return (int) (relativeY * screenHeight);
+    }
+    
+    public void updateDrag(int mouseX, int mouseY,
+                           int dragWidth, int dragHeight,
+                           int width, int height,
+                           int screenWidth, int screenHeight,
+                           int clampStartX, int clampStartY) {
         this.width = width;
         this.height = height;
         boolean prevDragging = this.isDragging;
+        
+        int posX = getPosX(screenWidth);
+        int posY = getPosY(screenHeight);
         
         if (Mouse.isButtonDown(0)) {
             if (!isDragging && RenderUtils.isHovering(mouseX, mouseY, posX, posY, dragWidth, dragHeight)) {
@@ -61,11 +85,8 @@ public class Draggable implements ClientUtils {
             afterDrag.run();
         }
         
-        final int finalClampX = Math.max(margin, clampStartX);
-        final int finalClampY = Math.max(margin, clampStartY);
-        
-        posX = Math.max(finalClampX, Math.min(posX, screenWidth - width - margin));
-        posY = Math.max(finalClampY, Math.min(posY, screenHeight - height - margin));
+        this.relativeX = (float) Math.max(Math.max(margin, clampStartX), Math.min(posX, screenWidth - width - margin)) / screenWidth;
+        this.relativeY = (float) Math.max(Math.max(margin, clampStartY), Math.min(posY, screenHeight - height - margin)) / screenHeight;
     }
     
     public void updateDrag(int mouseX, int mouseY, int dragWidth, int dragHeight, int width, int height, int screenWidth, int screenHeight) {
@@ -76,8 +97,11 @@ public class Draggable implements ClientUtils {
         this.updateDrag(mouseX, mouseY, width, height, width, height, screenWidth, screenHeight);
     }
     
-    public void applyDragEffect(Runnable runnable, int offset) {
+    public void applyDragEffect(Runnable runnable, int offset, int screenWidth, int screenHeight) {
         dragEffectAnimation.run(isDragging ? 1 : 0);
+        
+        final int posX = getPosX(screenWidth);
+        final int posY = getPosY(screenHeight);
         
         float scale = 1.0f - 0.08f * dragEffectAnimation.getValuef();
         float centerX = posX + width / 2.0f;
@@ -105,7 +129,7 @@ public class Draggable implements ClientUtils {
         GL11.glPopMatrix();
     }
     
-    public void applyDragEffect(Runnable runnable) {
-        this.applyDragEffect(runnable, 0);
+    public void applyDragEffect(Runnable runnable, ScaledResolution sr) {
+        this.applyDragEffect(runnable, 0, sr.getScaledWidth(), sr.getScaledHeight());
     }
 }

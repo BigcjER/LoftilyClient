@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class ModuleList extends Module implements IDraggable {
     //不是value
     private final List<ModuleEntry> moduleEntries = new ArrayList<>();
-    private final Animation startXAnimation = new Animation(Easing.EaseOutExpo,500);
+    private final Animation startXAnimation = new Animation(Easing.EaseOutExpo, 500);
     private Draggable draggable;
     
     
@@ -85,7 +85,7 @@ public class ModuleList extends Module implements IDraggable {
         if (mc.gameSettings.showDebugInfo) return;
         
         if (draggable == null) {
-            draggable = new Draggable(event.getScaledResolution().getScaledWidth() - 3, 0, 1);
+            draggable = new Draggable(event.getScaledResolution().getScaledWidth() - 3, 0, event.getScaledResolution(), 1);
             Client.INSTANCE.getFileManager().get(DragsJsonConfig.class).read();
         }
         
@@ -131,18 +131,21 @@ public class ModuleList extends Module implements IDraggable {
         
         int finalLongestStringWidth = longestStringWidth;
         
+        int width = event.getScaledResolution().getScaledWidth();
+        int height = event.getScaledResolution().getScaledHeight();
+        
         AtomicInteger indexAll = new AtomicInteger();
         AtomicInteger indexTag = new AtomicInteger();
         getDraggable().applyDragEffect(() -> {
             startXAnimation.run(1);
-            int y = getDraggable().getPosY();
-            int x = getDraggable().getPosX();
+            int x = getDraggable().getPosX(width);
+            int y = getDraggable().getPosY(height);
             
             for (ModuleEntry entry : sortedEntries) {
                 Module module = entry.module;
                 Animation animation = entry.animation;
                 
-                if (!module.isToggled() && animation.isFinished() || animation.getValuef()<= 0) continue;
+                if (!module.isToggled() && animation.isFinished() || animation.getValuef() <= 0) continue;
                 String name = module.getName();
                 String tag = module.getTag();
                 
@@ -153,7 +156,7 @@ public class ModuleList extends Module implements IDraggable {
                 
                 //计算位置
                 boolean isLeft = event.getScaledResolution().getScaledWidth() / 2 > (x + finalLongestStringWidth / 2);
-                float baseX = getDraggable().getPosX();
+                float baseX = getDraggable().getPosX(width);
                 float drawX;
                 
                 if (isLeft) {
@@ -181,7 +184,7 @@ public class ModuleList extends Module implements IDraggable {
                 indexAll.getAndIncrement();
                 if (!module.getTag().isEmpty()) indexTag.getAndIncrement();
             }
-        });
+        }, event.getScaledResolution());
     }
     
     @EventHandler
