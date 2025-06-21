@@ -74,6 +74,8 @@ public class Scaffold extends Module {
     );
     private final RangeSelectionNumberValue placeDelay = new RangeSelectionNumberValue("PlaceDelay", 40, 100, 0, 1000)
             .setVisible(() -> placeDelayMode.is("Normal"));
+    private final BooleanValue placeDelayNoTower = new BooleanValue("PlaceDelay-NotTowering",false)
+            .setVisible(() -> placeDelayMode.is("Normal"));;
     //Rotation
     private final ModeValue rotationMode = new ModeValue("RotationMode", "None", this,
             new StringMode("Normal"),
@@ -542,7 +544,7 @@ public class Scaffold extends Module {
         }
         
         if (placeDelayMode.is("Normal")) {
-            if (!placeTimer.hasTimeElapsed(currentPlaceDelay)) {
+            if (!placeTimer.hasTimeElapsed(currentPlaceDelay) && (!placeDelayNoTower.getValue() || !towerStatus)) {
                 return;
             }
         }
