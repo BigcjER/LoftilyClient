@@ -28,7 +28,7 @@ public class Spammer extends Module {
             if (isToggled())
                 setToggled(false, true, false);
             
-            Client.INSTANCE.getNotificationManager().add(NotificationType.WARING, "Spammer", "Auto disabled Spammer on loyisa.cn", 0);
+            Client.INSTANCE.getNotificationManager().add(NotificationType.WARNING, "Spammer", "Auto disabled Spammer on loyisa.cn", 0);
             
             return;
         }

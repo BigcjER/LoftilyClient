@@ -40,6 +40,9 @@ public class NotificationManager implements ClientUtils {
         }
     }
     
+    /**
+     * @param duration 0 equals adjust time by text width
+     */
     public void add(NotificationType type, String title, String message, long duration) {
         if (!Client.INSTANCE.getModuleManager().get(NotificationModule.class).isToggled()) return;
         Notification notification = new Notification(type, title, message, duration);

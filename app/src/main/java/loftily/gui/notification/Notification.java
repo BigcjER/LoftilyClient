@@ -21,7 +21,7 @@ public class Notification {
     
     public Notification(NotificationType type, String title, String message, long duration) {
         switch (type) {
-            case WARING:
+            case WARNING:
                 icon = MaterialIcons.get("warning");
                 break;
             case SUCCESS:

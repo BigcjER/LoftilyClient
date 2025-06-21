@@ -231,7 +231,7 @@ public class AltManagerMenu extends GuiScreen {
                 Client.INSTANCE.getAltManager().login(account,
                         text -> {
                             if (text.contains("failed")) {
-                                Client.INSTANCE.getNotificationManager().add(NotificationType.WARING, "AltManager", text, 5000);
+                                Client.INSTANCE.getNotificationManager().add(NotificationType.WARNING, "AltManager", text, 5000);
                             } else {
                                 Client.INSTANCE.getNotificationManager().add(NotificationType.SUCCESS, "AltManager", text, 5000);
                             }
@@ -251,7 +251,7 @@ public class AltManagerMenu extends GuiScreen {
                     Client.INSTANCE.getAltManager().login(accountToLogin,
                             text -> {
                                 if (text.contains("failed")) {
-                                    Client.INSTANCE.getNotificationManager().add(NotificationType.WARING, "AltManager", text, 5000);
+                                    Client.INSTANCE.getNotificationManager().add(NotificationType.WARNING, "AltManager", text, 5000);
                                 } else {
                                     Client.INSTANCE.getNotificationManager().add(NotificationType.SUCCESS, "AltManager", text, 5000);
                                 }

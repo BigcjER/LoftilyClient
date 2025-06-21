@@ -61,7 +61,7 @@ public class AutoDisableHandler extends Handler {
                 module.setToggled(false, true, false);
                 
                 if (!text.isEmpty())
-                    Client.INSTANCE.getNotificationManager().add(NotificationType.WARING, "ModuleManager", String.format(text, module.getName()), 0);
+                    Client.INSTANCE.getNotificationManager().add(NotificationType.WARNING, "ModuleManager", String.format(text, module.getName()), 0);
             }
         }
     }
