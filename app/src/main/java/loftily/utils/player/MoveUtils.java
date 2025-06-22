@@ -2,6 +2,8 @@ package loftily.utils.player;
 
 import loftily.utils.client.ClientUtils;
 import net.minecraft.entity.Entity;
+import net.minecraft.init.MobEffects;
+import net.minecraft.potion.Potion;
 
 public class MoveUtils implements ClientUtils {
     
@@ -46,6 +48,10 @@ public class MoveUtils implements ClientUtils {
         final double yaw = getDirection();
         mc.player.motionX = -Math.sin(yaw) * speed;
         mc.player.motionZ = Math.cos(yaw) * speed;
+    }
+
+    public static int getSpeedAmplifier() {
+        return mc.player.isPotionActive(MobEffects.SPEED) ? 1 + mc.player.getActivePotionEffect(MobEffects.SPEED).getAmplifier() : 0;
     }
     
     public static void strafe() {
