@@ -1,5 +1,6 @@
 package loftily.module.impl.movement.flys;
 
+import loftily.event.impl.client.MoveInputEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.module.impl.movement.Fly;
@@ -11,7 +12,7 @@ import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
 
 public class TimerGlideFly extends Mode<Fly> {
-
+    
     private final NumberValue timerSpeed = new NumberValue("TimerSpeed", 20, 10, 100, 0.1);
     private final NumberValue speed = new NumberValue("Speed", 0.02, 0.0, 1.0, 0.01);
     private final BooleanValue customMotionY = new BooleanValue("CustomMotionY", false);
@@ -24,93 +25,106 @@ public class TimerGlideFly extends Mode<Fly> {
     private final NumberValue boostSpeed = new NumberValue("BoostSpeed", 0.6, 0.2, 1.0, 0.01).setVisible(startBoost::getValue);
     private final BooleanValue jumpDamage = new BooleanValue("JumpDamage", false);
     private Rotation lastRotation = new Rotation(0, 0);
-    private int ticks = 0, jumpCounter = 0, duduTicks = 0;
-    private boolean boost = false;
+    private int elapsedTicks, jumpCounter, boostDurationTicks;
+    private boolean boosting;
+    
     public TimerGlideFly() {
         super("TimerGlide");
     }
-
+    
     @Override
     public void onEnable() {
-        ticks = 0;
-        boost = false;
+        elapsedTicks = 0;
+        boosting = false;
         lastRotation = new Rotation(mc.player.rotationYaw, mc.player.rotationPitch);
     }
-
+    
     @Override
     public void onDisable() {
-        ticks = 0;
-        boost = false;
+        elapsedTicks = jumpCounter = boostDurationTicks = 0;
+        boosting = false;
         mc.timer.timerSpeed = 1;
-        jumpCounter = 0;
-        duduTicks = 0;
     }
-
+    
     @EventHandler
     public void onMotionEvent(MotionEvent event) {
         if (!jumpDamage.getValue()) return;
-        if (mc.player.hurtTime <= 0) {
-            if (jumpCounter < 4) {
-                if (event.isPre()) {
-                    event.setOnGround(false);
-                }
-                mc.player.rotationYaw = lastRotation.yaw;
-                mc.player.rotationPitch = lastRotation.pitch;
-                mc.player.motionX = mc.player.motionZ = 0.0;
+        
+        if (mc.player.hurtTime > 0) return;
+        
+        if (jumpCounter < 4) {
+            if (event.isPre()) {
+                event.setOnGround(false);
             }
+            mc.player.rotationYaw = lastRotation.yaw;
+            mc.player.rotationPitch = lastRotation.pitch;
         }
     }
-
+    
+    @EventHandler
+    public void onMoveInput(MoveInputEvent event) {
+        if (jumpDamage.getValue()) {
+            event.setSneak(false);
+            event.setJump(false);
+            event.setStrafe(0);
+            event.setForward(0);
+        }
+    }
+    
     @EventHandler
     public void onLivingUpdate(LivingUpdateEvent event) {
-        if (mc.player.hurtTime > 0 && !boost) {
+        if (mc.player.hurtTime > 0 && !boosting) {
             if (mc.player.hurtTime <= 8) {
                 mc.player.jump();
             }
+            
             if (mc.player.offGroundTicks >= 3) {
-                duduTicks = 20 * timerSpeed.getValue().intValue();
-                boost = true;
+                boostDurationTicks = 20 * timerSpeed.getValue().intValue();
+                boosting = true;
             }
         }
+        
         if (jumpDamage.getValue()) {
-            if (mc.player.hurtTime <= 0) {
-                if (jumpCounter < 4) {
-                    if (mc.player.onGround) {
-                        mc.player.tryJump();
-                        jumpCounter++;
-                    }
+            if (mc.player.hurtTime <= 0 && jumpCounter < 4) {
+                if (mc.player.onGround) {
+                    mc.player.tryJump();
+                    jumpCounter++;
                 }
             }
         }
-
-        if (!smartHurt.getValue() || (ticks <= flyTicks.getValue() && boost)) {
-            double speedF = duduTicks > 0 ? speed.getValue() : 0.03;
+        
+        if (!smartHurt.getValue() || (elapsedTicks <= flyTicks.getValue() && boosting)) {
+            double speedF = boostDurationTicks > 0 ? speed.getValue() : 0.03;
             MoveUtils.setSpeed(speedF, false);
+            
             if (startBoost.getValue()) {
-                if (ticks <= boostTicks.getValue()) {
+                if (elapsedTicks <= boostTicks.getValue()) {
                     MoveUtils.setSpeed(boostSpeed.getValue(), true);
                 }
             }
+            
             mc.timer.timerSpeed = timerSpeed.getValue().floatValue();
+            
             if (customMotionY.getValue()) {
                 mc.player.motionY = motionSpeed.getValue().floatValue();
             } else {
                 mc.player.motionY *= 0.039;
             }
-            if (duduTicks > 0) {
-                duduTicks--;
+            
+            if (boostDurationTicks > 0) {
+                boostDurationTicks--;
             }
-            ticks++;
-
+            
+            elapsedTicks++;
         }
-
-        if (smartHurt.getValue() && boost) {
-            if(!smartTicks.getValue()) {
-                if(ticks >= flyTicks.getValue()) {
+        
+        if (smartHurt.getValue() && boosting) {
+            if (!smartTicks.getValue()) {
+                if (elapsedTicks >= flyTicks.getValue()) {
                     getParent().toggle();
                 }
-            }else {
-                if(ticks >= duduTicks){
+            } else {
+                if (elapsedTicks >= boostDurationTicks) {
                     getParent().toggle();
                 }
             }
