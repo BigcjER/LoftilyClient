@@ -343,7 +343,7 @@ public class BlockStateContainer
 
         public Material getMaterial()
         {
-            return this.block.getMaterial(this);
+            return this.block.getMaterial();
         }
 
         public boolean isFullBlock()

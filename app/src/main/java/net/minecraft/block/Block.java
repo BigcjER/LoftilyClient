@@ -225,7 +225,7 @@ public class Block
     /**
      * Get a material of block
      */
-    public Material getMaterial(IBlockState state)
+    public Material getMaterial()
     {
         return this.blockMaterial;
     }

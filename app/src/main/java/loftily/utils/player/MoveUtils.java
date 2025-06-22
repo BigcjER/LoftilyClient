@@ -1,6 +1,7 @@
 package loftily.utils.player;
 
 import loftily.utils.client.ClientUtils;
+import net.minecraft.entity.Entity;
 
 public class MoveUtils implements ClientUtils {
     
@@ -11,7 +12,15 @@ public class MoveUtils implements ClientUtils {
     public static double getSpeed() {
         return getSpeed(mc.player.motionX, mc.player.motionZ);
     }
-    
+
+    public static double getHorizontalSpeed() {
+        return getHorizontalSpeed(mc.player);
+    }
+
+    public static double getHorizontalSpeed(Entity entity) {
+        return Math.sqrt(entity.motionX * entity.motionX + entity.motionZ * entity.motionZ);
+    }
+
     public static double getDirection(float rotationYaw, double moveForward, double moveStrafe) {
         if (moveForward == 0.0F && moveStrafe == 0.0F) {
             return Math.toRadians(rotationYaw);
@@ -46,5 +55,14 @@ public class MoveUtils implements ClientUtils {
     public static void stop() {
         mc.player.motionX = 0;
         mc.player.motionZ = 0;
+    }
+
+    public static double getMovementAngle() {
+        double angle = Math.toDegrees(Math.atan2(-mc.player.moveStrafing, mc.player.moveForward));
+        return angle == 0.0 ? 0.0 : angle;
+    }
+
+    public static float getMotionYaw() {
+        return (float)Math.toDegrees(Math.atan2(mc.player.motionZ, mc.player.motionX)) - 90.0F;
     }
 }
