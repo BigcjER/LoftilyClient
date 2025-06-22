@@ -2,7 +2,7 @@
 
 A free Minecraft 1.12.2 hacked client
 
-**Discord**: https://discord.gg/79xk47EpBn
+**Discord**: https://discord.gg/Qd85EEn8FC
 
 ## Download
 
