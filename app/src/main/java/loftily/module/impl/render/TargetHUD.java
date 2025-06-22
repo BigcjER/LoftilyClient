@@ -63,19 +63,10 @@ public class TargetHUD extends Module implements IDraggable {
         final int screenWidth = event.getScaledResolution().getScaledWidth();
         final int screenHeight = event.getScaledResolution().getScaledHeight();
         
-        //更新draggable
         if (draggable == null) {
             draggable = new Draggable(screenWidth / 2 + 10, screenHeight / 2 + 10, event.getScaledResolution(), 1);
             Client.INSTANCE.getFileManager().get(DragsJsonConfig.class).read();
         }
-        Point mouse = RenderUtils.getMouse(event.getScaledResolution());
-        getDraggable().updateDrag(
-                mouse.x,
-                mouse.y,
-                WIDTH,
-                HEIGHT,
-                event.getScaledResolution().getScaledWidth(),
-                event.getScaledResolution().getScaledHeight());
         
         
         //更低优先级的target
@@ -115,6 +106,16 @@ public class TargetHUD extends Module implements IDraggable {
                         + 80);
         
         Runnable backGround = () -> RenderUtils.drawRoundedRect(x, y, width, HEIGHT, 3, Colors.BackGround.color);
+        
+        //更新Draggable
+        Point mouse = RenderUtils.getMouse(event.getScaledResolution());
+        getDraggable().updateDrag(
+                mouse.x,
+                mouse.y,
+                width,
+                HEIGHT,
+                event.getScaledResolution().getScaledWidth(),
+                event.getScaledResolution().getScaledHeight());
         
         getDraggable().applyDragEffect(() -> {
             //计算Animation
