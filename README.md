@@ -5,13 +5,11 @@ A free Minecraft 1.12.2 hacked client
 **Discord**: https://discord.gg/79xk47EpBn
 
 ## Download
-___
 
 * Stable Version: Download the latest stable release from [Release Page](https://github.com/liuedg1/LoftilyClient/releases/latest).  
 * Development Version: Get the latest builds with new features ~~and bugs~~ from [GitHub Actions](https://github.com/liuedg1/LoftilyClient/actions) or [Loftily Artifacts Download Page](https://liuedg1.github.io/).
 
 ## Setting up a Workspace
-___
 
 ### This project uses the Gradle wrapper, so you set it up easily.
 ### 1.Open terminal and clone the repository
@@ -25,7 +23,6 @@ cd LoftilyClient
 ```
 Then
 
-#### Windows
 ```
 ./gradlew build
 ```
@@ -41,7 +38,6 @@ Then
 ```
 
 ## License
-___
 
 This project is subject to the [GNU General Public License v3.0](https://github.com/liuedg1/LoftilyClient/blob/main/LICENSE).
 
