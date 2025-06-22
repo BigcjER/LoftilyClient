@@ -7,6 +7,7 @@ import loftily.handlers.Handler;
 import loftily.utils.math.CalculateUtils;
 import loftily.utils.timer.DelayTimer;
 import net.lenni0451.lambdaevents.EventHandler;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketUseEntity;
@@ -49,10 +50,15 @@ public class CombatHandler extends Handler {
     @EventHandler
     public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
-        if (packet instanceof CPacketUseEntity && ((CPacketUseEntity) packet).getAction() == CPacketUseEntity.Action.ATTACK) {
-            lastTarget = (EntityLivingBase) ((CPacketUseEntity) packet).getEntityFromWorld(mc.world);
-            inCombat = true;
-            delayTimer.reset();
+        if (packet instanceof CPacketUseEntity) {
+            CPacketUseEntity useEntity = (CPacketUseEntity) packet;
+            
+            Entity entityFromPacket = useEntity.getEntityFromWorld(mc.world);
+            if (entityFromPacket instanceof EntityLivingBase) {
+                lastTarget = (EntityLivingBase) entityFromPacket;
+                inCombat = true;
+                delayTimer.reset();
+            }
         }
     }
 }
