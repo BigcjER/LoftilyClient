@@ -95,7 +95,7 @@ public class GuiIngame extends Gui
     private int titlesTimer;
 
     /** The current title displayed */
-    private String displayedTitle = "";
+    public String displayedTitle = "";
 
     /** The current sub-title displayed */
     private String displayedSubTitle = "";

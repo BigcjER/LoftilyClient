@@ -5,6 +5,7 @@ import loftily.event.impl.packet.PacketReceiveEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.module.impl.combat.KillAura;
+import loftily.module.impl.exploit.Disabler;
 import loftily.module.impl.movement.NoSlow;
 import loftily.module.impl.movement.Speed;
 import loftily.utils.block.BlockUtils;
@@ -37,6 +38,7 @@ public class Tick7Speed extends Mode<Speed> {
     public BooleanValue sneakDisable = new BooleanValue("Sneak Disable", true);
     public BooleanValue strafe = new BooleanValue("Enable Direction strafe", false);
     public NumberValue strafeDegrees = new NumberValue("Strafe Degrees", 80.0, 50.0, 90.0, 5.0);
+    public BooleanValue disablerOnly = new BooleanValue("Require disabler", false);
 
     public boolean hopping;
     public boolean lowhop;
@@ -136,7 +138,7 @@ public class Tick7Speed extends Mode<Speed> {
         Block block = BlockUtils.getBlock(new BlockPos(this.mc.player.posX, this.mc.player.posY, this.mc.player.posZ));
         int simpleY = (int)Math.round(this.mc.player.posY % 1.0 * 10000.0);
         if ((didMove/* || scaffold.lowhop*/)
-               /* && (!disablerOnly.isToggled() || disablerOnly.isToggled() && disabler.disablerLoaded)*/) { // TODO Hypixel Disabler
+                && (!disablerOnly.getValue() || disablerOnly.getValue() && ((Disabler) Client.INSTANCE.getModuleManager().get("Disabler")).disablerLoaded)) { // TODO Hypixel Disabler
             /*if (scaffold.lowhop) {
                 switch (simpleY) {
                     case 1138:
