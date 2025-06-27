@@ -244,9 +244,11 @@ public class KillAura extends Module {
         int reverseTicks = RandomUtils.randomInt((int) Math.round(this.backTicks.getFirst()), (int) Math.round(this.backTicks.getSecond()));
         
         if (!rotationMode.is("None")) {
+            Rotation rotation = calculateRotation(target);
+            Rotation clientPlayerRotation = new Rotation(mc.player.rotationYaw, mc.player.rotationPitch);
             Rotation calculateRot = RotationUtils.smoothRotation(
-                    RotationHandler.getRotation(),
-                    calculateRotation(target),
+                    RotationHandler.getRotation() != null ? RotationHandler.getRotation() : clientPlayerRotation,
+                    rotation != null ? rotation : clientPlayerRotation,
                     horizonSpeed,
                     pitchSpeed
             ).fixedSensitivity(0);
@@ -481,6 +483,11 @@ public class KillAura extends Module {
             if (entity == mc.player || entity == null || !TargetsHandler.canAdd(entity)) continue;
             targetTimer.reset();
             return entity;
+        }
+
+        if (blockingStatus) {
+            PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+            blockingStatus = false;
         }
         
         return null;
