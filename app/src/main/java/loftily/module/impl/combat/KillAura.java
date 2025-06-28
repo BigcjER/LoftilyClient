@@ -532,8 +532,8 @@ public class KillAura extends Module {
                             blockingTick = false;
                         }
                     } else {
+                        blockingPacket(target);
                         if (!blockingTick) {
-                            blockingPacket(target);
                             blockingTick = true;
                         }
                         mc.gameSettings.keyBindUseItem.setPressed(true);

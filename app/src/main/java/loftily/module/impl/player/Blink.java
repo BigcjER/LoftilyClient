@@ -1,5 +1,6 @@
 package loftily.module.impl.player;
 
+import loftily.event.impl.packet.PacketReceiveEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.handlers.impl.client.BlinkHandler;
 import loftily.module.Module;
@@ -17,11 +18,17 @@ import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 @ModuleInfo(name = "Blink", category = ModuleCategory.PLAYER)
 public class Blink extends Module {
     private final BooleanValue noC0F = new BooleanValue("NoCOF", false);
     private final BooleanValue noC00 = new BooleanValue("NoCO0", false);
-    
+    private final BooleanValue serverPackets = new BooleanValue("SPackets", false);
+
+    public final Queue<Packet<?>> packetBus = new LinkedList<>();
+
     private final ModeValue pulseMode = new ModeValue("PulseMode", "None", this,
             new StringMode("None"),
             new StringMode("CustomSize"),
@@ -42,7 +49,17 @@ public class Blink extends Module {
     
     private final DelayTimer pulseTimer = new DelayTimer();
     private int delay;
-    
+
+    public void releasePackets(){
+        if(packetBus.isEmpty() || !serverPackets.getValue()){
+            return;
+        }
+        for (Packet<?> packet : packetBus) {
+            PacketUtils.receivePacket(packet,false);
+        }
+        packetBus.clear();
+    }
+
     @Override
     public void onEnable() {
         BlinkHandler.setBlinkState(true, noC0F.getValue(), noC00.getValue(), false);
@@ -55,7 +72,16 @@ public class Blink extends Module {
         pulseTimer.reset();
         delay = RandomUtils.randomInt((int) pulseDelay.getFirst(), (int) pulseDelay.getSecond());
     }
-    
+
+    @EventHandler
+    public void onReceivePacket(PacketReceiveEvent event){
+        Packet<?> packet = event.getPacket();
+        if(serverPackets.getValue()){
+            event.setCancelled(true);
+            packetBus.add(packet);
+        }
+    }
+
     @EventHandler
     public void onUpdate(UpdateEvent event) {
         if (pulseMode.is("None")) return;
@@ -66,6 +92,7 @@ public class Blink extends Module {
             switch (pulseMode.getValue().getName()) {
                 case "Normal":
                     BlinkHandler.setBlinkState(BlinkHandler.BLINK, BlinkHandler.BLINK_NOC0F, BlinkHandler.BLINK_NOC00, true);
+                    releasePackets();
                     if (fakePlayer.getValue()) {
                         if (fakePlayerEntity != null) {
                             fakePlayerEntity.copyLocationAndAnglesFrom(mc.player);
@@ -76,7 +103,7 @@ public class Blink extends Module {
                 case "CustomSize":
                     int i = 0;
                     int size = RandomUtils.randomInt((int) pulseSize.getFirst(), (int) pulseSize.getSecond());
-                    
+
                     while (!BlinkHandler.packets.isEmpty()) {
                         if (i >= size) return;
                         
@@ -92,6 +119,14 @@ public class Blink extends Module {
                             fakePlayerEntity.setPosition(((CPacketPlayer) packet).getX(0), ((CPacketPlayer) packet).getY(0), ((CPacketPlayer) packet).getZ(0));
                         }
                     }
+
+                    while (!packetBus.isEmpty()) {
+                        if (i >= size) return;
+
+                        Packet<?> packet = packetBus.poll();
+                        PacketUtils.receivePacket(packet,false);
+                        i++;
+                    }
                     break;
             }
         }
@@ -104,5 +139,6 @@ public class Blink extends Module {
             mc.world.removeEntityFromWorld(fakePlayerEntity.getEntityId());
             fakePlayerEntity = null;
         }
+        releasePackets();
     }
 }

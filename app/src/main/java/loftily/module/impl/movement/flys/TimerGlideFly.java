@@ -13,7 +13,7 @@ import net.lenni0451.lambdaevents.EventHandler;
 
 public class TimerGlideFly extends Mode<Fly> {
     
-    private final NumberValue timerSpeed = new NumberValue("TimerSpeed", 20, 10, 100, 0.1);
+    private final NumberValue timerSpeed = new NumberValue("TimerSpeed", 20, 1, 100, 0.1);
     private final NumberValue speed = new NumberValue("Speed", 0.02, 0.0, 1.0, 0.01);
     private final BooleanValue customMotionY = new BooleanValue("CustomMotionY", false);
     private final NumberValue motionSpeed = new NumberValue("MotionSpeed", -0.01, -0.2, 0.2, 0.01).setVisible(customMotionY::getValue);

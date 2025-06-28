@@ -8,9 +8,9 @@ import loftily.event.impl.world.WorldLoadEvent;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
-import loftily.utils.math.Rotation;
 import loftily.value.impl.BooleanValue;
 import net.lenni0451.lambdaevents.EventHandler;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
@@ -18,8 +18,12 @@ import net.minecraft.network.play.server.SPacketPlayerPosLook;
 @ModuleInfo(name = "Stuck", category = ModuleCategory.PLAYER)
 public class Stuck extends Module {
     private final BooleanValue autoDisable = new BooleanValue("AutoDisable", false);
+    private final BooleanValue resetPosition = new BooleanValue("ResetPositionOnFlag", false);
+    private final BooleanValue lastMotion = new BooleanValue("LastMotion", false);
+
     
     private double x, y, z;
+    private double motionX, motionY, motionZ;
     
     @EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
@@ -33,8 +37,21 @@ public class Stuck extends Module {
         this.x = mc.player.posX;
         this.y = mc.player.posY;
         this.z = mc.player.posZ;
+
+        this.motionX = mc.player.motionX;
+        this.motionY = mc.player.motionY;
+        this.motionZ = mc.player.motionZ;
     }
-    
+
+    @Override
+    public void onDisable() {
+        if(lastMotion.getValue()) {
+            mc.player.motionX = motionX;
+            mc.player.motionY = motionY;
+            mc.player.motionZ = motionZ;
+        }
+    }
+
     @EventHandler
     public void onPacket(PacketSendEvent event) {
         if (event.getPacket() instanceof CPacketPlayer) {
@@ -44,7 +61,13 @@ public class Stuck extends Module {
     
     @EventHandler
     public void onPacketReceive(PacketReceiveEvent event) {
-        if (event.getPacket() instanceof SPacketPlayerPosLook && autoDisable.getValue()) {
+        Packet<?> packet = event.getPacket();
+        if (packet instanceof SPacketPlayerPosLook && autoDisable.getValue()) {
+            if (resetPosition.getValue()) {
+                x = ((SPacketPlayerPosLook) packet).getX();
+                y = ((SPacketPlayerPosLook) packet).getY();
+                z = ((SPacketPlayerPosLook) packet).getZ();
+            }
             toggle();
         }
     }

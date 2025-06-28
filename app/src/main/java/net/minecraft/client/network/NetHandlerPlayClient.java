@@ -7,6 +7,8 @@ import com.mojang.authlib.GameProfile;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import io.netty.buffer.Unpooled;
+import loftily.Client;
+import loftily.module.impl.player.NoRotationSet;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.block.Block;
 import net.minecraft.client.ClientBrandRetriever;
@@ -569,6 +571,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
 
     public void handlePlayerPosLook(SPacketPlayerPosLook packetIn)
     {
+        NoRotationSet noRotationSet = Client.INSTANCE.getModuleManager().get(NoRotationSet.class);
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.gameController);
         EntityPlayer entityplayer = this.gameController.player;
         double d0 = packetIn.getX();
@@ -614,9 +617,13 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
             f += entityplayer.rotationYaw;
         }
 
-        entityplayer.setPositionAndRotation(d0, d1, d2, f, f1);
+        if(!noRotationSet.isToggled()) {
+            entityplayer.setPositionAndRotation(d0, d1, d2, f, f1);
+        }else{
+            entityplayer.setPositionAndRotation(d0, d1, d2, entityplayer.rotationYaw, entityplayer.rotationPitch);
+        }
         this.netManager.sendPacket(new CPacketConfirmTeleport(packetIn.getTeleportId()));
-        this.netManager.sendPacket(new CPacketPlayer.PositionRotation(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, entityplayer.rotationYaw, entityplayer.rotationPitch, false));
+        this.netManager.sendPacket(new CPacketPlayer.PositionRotation(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, f, f1, false));
 
         if (!this.doneLoadingTerrain)
         {
