@@ -1,7 +1,7 @@
 package loftily.module.impl.movement.flys;
 
 import loftily.event.impl.player.motion.MotionEvent;
-import loftily.event.impl.world.UpdateEvent;
+import loftily.event.impl.world.PreUpdateEvent;
 import loftily.module.impl.movement.Fly;
 import loftily.utils.player.MoveUtils;
 import loftily.value.impl.BooleanValue;
@@ -24,13 +24,6 @@ public class VanillaFly extends Mode<Fly> {
     public final BooleanValue noClip = new BooleanValue("NoClip", false);
 
     @Override
-    public void onEnable(){
-        if(noClip.getValue()){
-            mc.player.noClip = true;
-        }
-    }
-
-    @Override
     public void onDisable(){
         mc.player.noClip = false;
     }
@@ -43,7 +36,11 @@ public class VanillaFly extends Mode<Fly> {
     }
 
     @EventHandler
-    public void onUpdate(UpdateEvent event) {
+    public void onPreUpdate(PreUpdateEvent event) {
+        if(noClip.getValue()){
+            mc.player.noClip = true;
+        }
+
         if (!MoveUtils.isMoving() && resetMotion.getValue()) {
             mc.player.motionX *= 0.0;
             mc.player.motionZ *= 0.0;

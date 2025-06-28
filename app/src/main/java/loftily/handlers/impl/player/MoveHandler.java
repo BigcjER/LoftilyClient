@@ -14,10 +14,12 @@ public class MoveHandler extends Handler {
     private static boolean startSneak = false;
     
     public static void setSneak(boolean canSneak, int time) {
-        sneak = canSneak;
-        sneakTime = time;
-        startSneak = true;
-        sneakTimer.reset();
+        if(!sneak) {
+            sneak = canSneak;
+            sneakTime = time;
+            startSneak = true;
+            sneakTimer.reset();
+        }
     }
     
     @EventHandler(priority = -999999)

@@ -20,7 +20,7 @@ public class VanillaSpeed extends Mode<Speed> {
     @EventHandler
     public void onUpdate(UpdateEvent event) {
         if (!MoveUtils.isMoving() && vanillaFastStop.getValue()) {
-            MoveUtils.stop();
+            MoveUtils.stop(false);
             return;
         }
         

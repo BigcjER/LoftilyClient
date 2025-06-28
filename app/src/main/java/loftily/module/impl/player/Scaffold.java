@@ -57,7 +57,8 @@ public class Scaffold extends Module {
             new StringMode("Normal"),
             new StringMode("Telly"),
             new StringMode("Snap"),
-            new StringMode("AutoJump"));
+            new StringMode("AutoJump"),
+            new StringMode("SlowJump"));
     //Place
     private final ModeValue placeTiming = new ModeValue("PlaceTiming", "Tick", this,
             new StringMode("Pre"),
@@ -97,10 +98,10 @@ public class Scaffold extends Module {
     //Movement
     private final ModeValue eagleMode = new ModeValue("EagleMode", "None", this,
             new StringMode("None"),
-            new StringMode("Prediction")
+            new StringMode("Prediction"),
+            new StringMode("Simple")
     );
-    
-    private final NumberValue sneakTime = new NumberValue("SneakTime", 50, 0, 500, 1).setVisible(() -> eagleMode.is("Prediction"));
+    private final NumberValue sneakTime = new NumberValue("SneakTime", 50, 0, 500, 1).setVisible(() -> !eagleMode.is("None"));
     private final NumberValue predictMotion = new NumberValue("Predict", 0, -1.0, 1.0, 0.01).setVisible(() -> eagleMode.is("Prediction"));
     
     private final ModeValue moveFixMode = new ModeValue("MoveFixMode", "None", this,
@@ -122,7 +123,9 @@ public class Scaffold extends Module {
     
     private final BooleanValue onGround = new BooleanValue("OnGroundSafeWalk", false);
     private final BooleanValue inAir = new BooleanValue("InAirSafeWalk", false);
-    
+
+    private final BooleanValue motionModifier = new BooleanValue("MotionModifier", false);
+    private final NumberValue motionSpeedSet = new NumberValue("MotionSpeed", 0.1, 0.0, 1.0, 0.01).setVisible(motionModifier::getValue);
     //SameY
     private final BooleanValue sameY = new BooleanValue("SameY", false);
     private final BooleanValue allowJump = new BooleanValue("AllowJump", false);
@@ -217,7 +220,11 @@ public class Scaffold extends Module {
         if (keepRotation.getValue() && RotationHandler.clientRotation != null) {
             setRotation(RotationHandler.clientRotation);
         }
-        
+
+        if(motionModifier.getValue()){
+            MoveUtils.setSpeed(motionSpeedSet.getValue(),true);
+        }
+
         switch (scaffoldMode.getValueByName()) {
             case "Telly":
                 if (MoveUtils.isMoving() && mc.player.onGround) {
@@ -230,15 +237,25 @@ public class Scaffold extends Module {
                 }
                 break;
         }
-        
-        if (eagleMode.is("Prediction")) {
-            IBlockState iBlockState = mc.world.getBlockState(new BlockPos(mc.player.posX + mc.player.motionX * predictMotion.getValue(),
-                    mc.player.posY - 1.0,
-                    mc.player.posZ + mc.player.motionZ * predictMotion.getValue()));
-            
-            if (iBlockState.getBlock() instanceof BlockAir && mc.player.onGround) {
-                MoveHandler.setSneak(true, sneakTime.getValue().intValue());
-            }
+
+        switch (eagleMode.getValueByName()){
+            case "Prediction":
+                IBlockState iBlockState = mc.world.getBlockState(new BlockPos(mc.player.posX + mc.player.motionX * predictMotion.getValue(),
+                        mc.player.posY - 1.0,
+                        mc.player.posZ + mc.player.motionZ * predictMotion.getValue()));
+
+                if (iBlockState.getBlock() instanceof BlockAir && mc.player.onGround) {
+                    MoveHandler.setSneak(true, sneakTime.getValue().intValue());
+                }
+                break;
+            case "Simple":
+                IBlockState blockState = mc.world.getBlockState(new BlockPos(mc.player.posX,
+                        mc.player.posY - 1.0,
+                        mc.player.posZ));
+                if(blockState.getBlock() instanceof BlockAir && mc.player.onGround) {
+                    MoveHandler.setSneak(true, sneakTime.getValue().intValue());
+                }
+                break;
         }
         
         click(placeInfo.blockPos, placeInfo.facing, placeInfo.hitVec);
@@ -265,6 +282,11 @@ public class Scaffold extends Module {
             case "AutoJump":
                 if (mc.player.onGround && MoveUtils.isMoving()) {
                     mc.player.tryJump();
+                }
+                break;
+            case "SlowJump":
+                if (mc.player.onGround && MoveUtils.isMoving()) {
+                    mc.player.motionY = 0.42;
                 }
                 break;
             case "Normal":

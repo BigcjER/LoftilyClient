@@ -58,9 +58,12 @@ public class MoveUtils implements ClientUtils {
         setSpeed(getSpeed(), true);
     }
     
-    public static void stop() {
+    public static void stop(boolean y) {
         mc.player.motionX = 0;
         mc.player.motionZ = 0;
+        if(y){
+            mc.player.motionY = 0;
+        }
     }
 
     public static double getMovementAngle() {

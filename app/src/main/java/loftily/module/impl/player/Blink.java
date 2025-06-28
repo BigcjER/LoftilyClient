@@ -25,6 +25,7 @@ import java.util.Queue;
 public class Blink extends Module {
     private final BooleanValue noC0F = new BooleanValue("NoCOF", false);
     private final BooleanValue noC00 = new BooleanValue("NoCO0", false);
+    private final BooleanValue clientPackets = new BooleanValue("CPackets", false);
     private final BooleanValue serverPackets = new BooleanValue("SPackets", false);
 
     public final Queue<Packet<?>> packetBus = new LinkedList<>();
@@ -62,15 +63,18 @@ public class Blink extends Module {
 
     @Override
     public void onEnable() {
-        BlinkHandler.setBlinkState(true, noC0F.getValue(), noC00.getValue(), false);
-        if (fakePlayer.getValue()) {
-            fakePlayerEntity = new EntityOtherPlayerMP(mc.world, mc.player.getGameProfile());
-            fakePlayerEntity.rotationYawHead = mc.player.rotationYawHead;
-            fakePlayerEntity.copyLocationAndAnglesFrom(mc.player);
-            mc.world.addEntityToWorld(FAKE_ENTITY_ID, fakePlayerEntity);
+        if(clientPackets.getValue()) {
+            BlinkHandler.setBlinkState(true, noC0F.getValue(), noC00.getValue(), false);
+            if (fakePlayer.getValue()) {
+                fakePlayerEntity = new EntityOtherPlayerMP(mc.world, mc.player.getGameProfile());
+                fakePlayerEntity.rotationYawHead = mc.player.rotationYawHead;
+                fakePlayerEntity.copyLocationAndAnglesFrom(mc.player);
+                mc.world.addEntityToWorld(FAKE_ENTITY_ID, fakePlayerEntity);
+            }
         }
         pulseTimer.reset();
         delay = RandomUtils.randomInt((int) pulseDelay.getFirst(), (int) pulseDelay.getSecond());
+
     }
 
     @EventHandler
@@ -91,12 +95,14 @@ public class Blink extends Module {
             delay = RandomUtils.randomInt((int) pulseDelay.getFirst(), (int) pulseDelay.getSecond());
             switch (pulseMode.getValue().getName()) {
                 case "Normal":
-                    BlinkHandler.setBlinkState(BlinkHandler.BLINK, BlinkHandler.BLINK_NOC0F, BlinkHandler.BLINK_NOC00, true);
                     releasePackets();
-                    if (fakePlayer.getValue()) {
-                        if (fakePlayerEntity != null) {
-                            fakePlayerEntity.copyLocationAndAnglesFrom(mc.player);
-                            fakePlayerEntity.rotationYawHead = mc.player.rotationYawHead;
+                    if(clientPackets.getValue()) {
+                        BlinkHandler.setBlinkState(BlinkHandler.BLINK, BlinkHandler.BLINK_NOC0F, BlinkHandler.BLINK_NOC00, true);
+                        if (fakePlayer.getValue()) {
+                            if (fakePlayerEntity != null) {
+                                fakePlayerEntity.copyLocationAndAnglesFrom(mc.player);
+                                fakePlayerEntity.rotationYawHead = mc.player.rotationYawHead;
+                            }
                         }
                     }
                     break;
@@ -104,7 +110,7 @@ public class Blink extends Module {
                     int i = 0;
                     int size = RandomUtils.randomInt((int) pulseSize.getFirst(), (int) pulseSize.getSecond());
 
-                    while (!BlinkHandler.packets.isEmpty()) {
+                    while (!BlinkHandler.packets.isEmpty() && clientPackets.getValue()) {
                         if (i >= size) return;
                         
                         Packet<?> packet = BlinkHandler.packets.poll();

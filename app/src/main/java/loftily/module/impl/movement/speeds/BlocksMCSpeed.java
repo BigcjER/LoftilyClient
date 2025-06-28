@@ -22,7 +22,7 @@ public class BlocksMCSpeed extends Mode<Speed> {
             return;
         
         if (!MoveUtils.isMoving()) {
-            MoveUtils.stop();
+            MoveUtils.stop(false);
             return;
         } else if (mc.player.onGround) {
             mc.player.tryJump();

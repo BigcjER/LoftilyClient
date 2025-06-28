@@ -1,5 +1,6 @@
 package loftily.module.impl.world;
 
+import loftily.event.impl.world.PreUpdateEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
@@ -19,7 +20,7 @@ public class TimerModule extends Module {
     }
     
     @EventHandler
-    public void onUpdate(UpdateEvent event) {
+    public void onPreUpdate(PreUpdateEvent event) {
         mc.timer.timerSpeed = timerSpeed.getValue().floatValue();
     }
     

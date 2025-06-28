@@ -8,6 +8,7 @@ import loftily.event.impl.player.RotationEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.player.slowdown.ItemSlowDownEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
+import loftily.event.impl.world.PreUpdateEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.utils.math.Rotation;
 import net.minecraft.block.state.IBlockState;
@@ -770,6 +771,8 @@ public class EntityPlayerSP extends AbstractClientPlayer {
      * use this to react to sunlight and start to burn.
      */
     public void onLivingUpdate() {
+        Client.INSTANCE.getEventManager().call(new PreUpdateEvent());
+
         ++this.sprintingTicksLeft;
 
         if (this.sprintToggleTimer > 0) {
