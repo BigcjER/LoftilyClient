@@ -29,7 +29,7 @@ import java.util.Objects;
 
 public class Tick7Speed extends Mode<Speed> {
     public Tick7Speed() {
-        super("7 Tick");
+        super("7 Tick Lowhop");
     }
 
     public NumberValue speedSetting = new NumberValue("Speed", 2.0, 0.8, 1.2, 0.01);
@@ -40,17 +40,7 @@ public class Tick7Speed extends Mode<Speed> {
     public NumberValue strafeDegrees = new NumberValue("Strafe Degrees", 80.0, 50.0, 90.0, 5.0);
     public BooleanValue disablerOnly = new BooleanValue("Require disabler", false);
 
-    public boolean hopping;
-    public boolean lowhop;
-    public boolean didMove;
-    public boolean setRotation;
-    public boolean isNormalPos;
-    public boolean running;
-
-
-    private boolean lowhopAir;
     private boolean ldmg;
-    private int edgeTick;
 
     @EventHandler
     public void onMotion(MotionEvent event) {
@@ -61,21 +51,7 @@ public class Tick7Speed extends Mode<Speed> {
                     if (!(Client.INSTANCE.getModuleManager().get("InvMove").isToggled() && mc.currentScreen instanceof GuiContainer)) {
                         this.handleLowhop();
                         if (mc.player.onGround && MoveUtils.isMoving()) {
-                            if (mc.player.moveForward <= -0.5
-                                    && ((KillAura) Client.INSTANCE.getModuleManager().get("KillAura")).target == null
-                                    && !noSlowingBackWithBow()
-                                    && !Client.INSTANCE.getModuleManager().get("Scaffold").isToggled()) {
-                                this.setRotation = true;
-                            }
-
                             mc.player.jump();
-
-                            this.running = true;
-                            if (mc.player.posY % 1.0 == 0.0) {
-                                this.isNormalPos = true;
-                            } else {
-                                this.isNormalPos = false;
-                            }
 
                             double speed = speedSetting.getValue() - 0.52;
                             double speedModifier = speed;
@@ -98,21 +74,8 @@ public class Tick7Speed extends Mode<Speed> {
                                     MoveUtils.setSpeed(speedModifier - 0.3, false);
                                 }
 
-                                this.didMove = true;
                             }
-
-                            this.hopping = true;
                         }
-
-/*                        if (mc.player.moveForward <= 0.5 && this.hopping) {
-                            ModuleUtils.handleSlow();
-                        }*/
-
-                        if (!mc.player.onGround) {
-                            this.hopping = false;
-                        }
-
-
 
                         if (this.strafe.getValue()) {
                             this.airStrafe();
@@ -137,60 +100,25 @@ public class Tick7Speed extends Mode<Speed> {
     private void handleLowhop() {
         Block block = BlockUtils.getBlock(new BlockPos(this.mc.player.posX, this.mc.player.posY, this.mc.player.posZ));
         int simpleY = (int)Math.round(this.mc.player.posY % 1.0 * 10000.0);
-        if ((didMove/* || scaffold.lowhop*/)
-                && (!disablerOnly.getValue() || disablerOnly.getValue() && ((Disabler) Client.INSTANCE.getModuleManager().get("Disabler")).disablerLoaded)) { // TODO Hypixel Disabler
-            /*if (scaffold.lowhop) {
-                switch (simpleY) {
-                    case 1138:
-                        this.mc.player.motionY -= 0.13;
-                        break;
-                    case 2031:
-                        this.mc.player.motionY -= 0.2;
-                        this.resetLowhop();
-                        break;
-                    case 4200:
-                        this.mc.player.motionY = 0.39;
-                }
-            } else */if (didMove) {
-                if (this.mc.player.isCollidedVertically || this.ldmg || block instanceof BlockSlab) {
-                    this.resetLowhop();
-                    return;
-                }
-
-
-                switch (simpleY) {
-                    case 1138:
-                        this.mc.player.motionY -= 0.13;
-                        break;
-                    case 2031:
-                        this.mc.player.motionY -= 0.2;
-                        this.resetLowhop();
-                        break;
-                    case 4200:
-                        this.mc.player.motionY = 0.39;
-                        lowhop = true;
-                }
+        if (!disablerOnly.getValue() || ((Disabler) Client.INSTANCE.getModuleManager().get("Disabler")).disablerLoaded) {
+            if (this.mc.player.isCollidedVertically || this.ldmg || block instanceof BlockSlab) {
+                return;
             }
-        }
 
-        if (!this.mc.player.onGround) {
-            this.lowhopAir = true;
-        } else if (this.lowhopAir) {
-            this.resetLowhop();
-            if (!getParent().isToggled()) {
-                isNormalPos = false;
+            switch (simpleY) {
+                case 1138:
+                    this.mc.player.motionY -= 0.13;
+                    break;
+                case 2031:
+                    this.mc.player.motionY -= 0.2;
+                    break;
+                case 4200:
+                    this.mc.player.motionY = 0.39;
             }
         }
 
 
         this.ldmg = false;
-    }
-
-    private void resetLowhop() {
-        lowhop /*= ModuleManager.scaffold.lowhop */= false;
-        didMove = false;
-        this.lowhopAir = false;
-        this.edgeTick = 0;
     }
 
     private void airStrafe() {
