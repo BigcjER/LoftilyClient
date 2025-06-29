@@ -4,6 +4,8 @@ import loftily.handlers.impl.player.RotationHandler;
 import lombok.AllArgsConstructor;
 import net.minecraft.client.Minecraft;
 
+import static java.lang.Math.round;
+
 @AllArgsConstructor
 public class Rotation {
     public float yaw, pitch;
@@ -18,26 +20,24 @@ public class Rotation {
         this.pitch += pitch;
         return this;
     }
+
+    public static float getFixedAngleDelta(float sensitivity) {
+        return (sensitivity * 0.6f + 0.2f) * (sensitivity * 0.6f + 0.2f) * (sensitivity * 0.6f + 0.2f) * 1.2f;
+    }
+
+    public static float getFixedSensitivityAngle(float targetAngle, float startAngle, float gcd) {
+        return startAngle + (round((targetAngle - startAngle) / gcd) * gcd);
+    }
     
     public Rotation fixedSensitivity(float sensitivity) {
         if (sensitivity == 0) {
             sensitivity = Minecraft.getMinecraft().gameSettings.mouseSensitivity;
         }
-        float f = sensitivity * 0.6F + 0.2F;
-        float gcd = f * f * f * 1.2F;
-        
-        // get previous rotation
-        Rotation rotation = RotationHandler.serverRotation;
-        
-        // fix yaw
-        float deltaYaw = yaw - rotation.yaw;
-        deltaYaw -= deltaYaw % gcd;
-        yaw = rotation.yaw + deltaYaw;
-        
-        // fix pitch
-        float deltaPitch = pitch - rotation.pitch;
-        deltaPitch -= deltaPitch % gcd;
-        pitch = rotation.pitch + deltaPitch;
+        float gcd = getFixedAngleDelta(sensitivity);
+
+        yaw = getFixedSensitivityAngle(yaw, RotationHandler.getRotation().yaw, gcd);
+        pitch = Math.max(-90f, Math.min(90f, getFixedSensitivityAngle(pitch, RotationHandler.getRotation().pitch, gcd)));
+
         return this;
     }
 }

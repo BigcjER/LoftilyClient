@@ -10,7 +10,6 @@ import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
 import loftily.value.impl.BooleanValue;
 import net.lenni0451.lambdaevents.EventHandler;
-import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -144,7 +143,7 @@ public class AntiBot extends Module {
         } else if (packet instanceof SPacketDestroyEntities) {
             for (int id : ((SPacketDestroyEntities) packet).getEntityIDs()) {
                 Entity entity = mc.world.getEntityByID(id);
-                if (entity instanceof EntityLivingBase) {
+                if(entity != null) {
                     UUID uuid = entity.getUniqueID();
                     botList.remove(uuid);
                     suspectList.remove(uuid);

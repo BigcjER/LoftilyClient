@@ -45,7 +45,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-import static java.lang.Math.abs;
+import static java.lang.Math.*;
 import static loftily.utils.math.CalculateUtils.getMoveFixForward;
 import static loftily.utils.math.CalculateUtils.getVectorForRotation;
 
@@ -126,6 +126,15 @@ public class Scaffold extends Module {
 
     private final BooleanValue motionModifier = new BooleanValue("MotionModifier", false);
     private final NumberValue motionSpeedSet = new NumberValue("MotionSpeed", 0.1, 0.0, 1.0, 0.01).setVisible(motionModifier::getValue);
+    private final BooleanValue motionSpeedSetOnlyGround = new BooleanValue("MotionSpeedOnlyGround",false).setVisible(motionModifier::getValue);
+
+    private final ModeValue adStrafeMode = new ModeValue("ADStrafe","None",this,new StringMode("Teleport"),
+            new StringMode("Legit"),new StringMode("None"));
+    private final NumberValue adStrafeDelay = new NumberValue("ADStrafeDelay",1,1,20).setVisible(()->!adStrafeMode.is("None"));
+    private final BooleanValue teleportMotion = new BooleanValue("TeleportMotion", false);
+    private final BooleanValue teleportMotionOnlyGround = new BooleanValue("TeleportMotionOnlyGround",false).setVisible(()->adStrafeMode.is("Teleport") && teleportMotion.getValue());
+    private final NumberValue teleportSpeed = new NumberValue("TeleportSpeed",0.1,0.0,0.4,0.01).setVisible(()->adStrafeMode.is("Teleport") && teleportMotion.getValue());
+    private final NumberValue teleportStrength = new NumberValue("TeleportStrength",0.1,0.0,0.4,0.01).setVisible(()->adStrafeMode.is("Teleport"));
     //SameY
     private final BooleanValue sameY = new BooleanValue("SameY", false);
     private final BooleanValue allowJump = new BooleanValue("AllowJump", false);
@@ -156,6 +165,7 @@ public class Scaffold extends Module {
     private int switchvl;
 
 
+    private boolean zitterDirection = false;
     private final DelayTimer placeTimer = new DelayTimer();
     private PlaceInfo placeInfo = null;
     private int onGroundTimes = 0;
@@ -221,10 +231,6 @@ public class Scaffold extends Module {
             setRotation(RotationHandler.clientRotation);
         }
 
-        if(motionModifier.getValue()){
-            MoveUtils.setSpeed(motionSpeedSet.getValue(),true);
-        }
-
         switch (scaffoldMode.getValueByName()) {
             case "Telly":
                 if (MoveUtils.isMoving() && mc.player.onGround) {
@@ -236,6 +242,46 @@ public class Scaffold extends Module {
                     setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
                 }
                 break;
+        }
+
+        if(motionModifier.getValue()){
+            if(!motionSpeedSetOnlyGround.getValue() || mc.player.onGround) {
+                MoveUtils.setSpeed(motionSpeedSet.getValue(), true);
+            }
+        }
+
+        if(mc.player.ticksExisted % adStrafeDelay.getValue() == 0) {
+            switch (adStrafeMode.getValueByName()) {
+                case "None":
+                    break;
+                case "Teleport":
+                    if (MoveUtils.isMoving()) {
+                        if (teleportMotion.getValue()) {
+                            if (!teleportMotionOnlyGround.getValue() || mc.player.onGround) {
+                                MoveUtils.setSpeed(teleportSpeed.getValue(), true);
+                            }
+                        }
+                        double yaw = Math.toRadians(mc.player.rotationYaw + (zitterDirection ? 90.0 : -90.0));
+
+                        mc.player.motionX -= sin(yaw) * teleportStrength.getValue();
+                        mc.player.motionZ += cos(yaw) * teleportStrength.getValue();
+                        zitterDirection = !zitterDirection;
+                    }
+                    break;
+                case "Legit":
+                    if (MoveUtils.isMoving()) {
+                        float forward = mc.player.movementInput.moveForward;
+                        float strafe;
+                        if (zitterDirection) {
+                            strafe = forward > 0.0f ? 0.98f : -0.98f;
+                        } else {
+                            strafe = forward > 0.0f ? -0.98f : 0.98f;
+                        }
+                        MoveHandler.setMovement(forward, strafe);
+                        zitterDirection = !zitterDirection;
+                    }
+                    break;
+            }
         }
 
         switch (eagleMode.getValueByName()){
@@ -257,7 +303,7 @@ public class Scaffold extends Module {
                 }
                 break;
         }
-        
+
         click(placeInfo.blockPos, placeInfo.facing, placeInfo.hitVec);
     }
     
@@ -397,10 +443,7 @@ public class Scaffold extends Module {
         BlockPos playerPos = getOptimalPos();
         
         IBlockState iBlockState = mc.world.getBlockState(playerPos);
-        
-        if (!iBlockState.getMaterial().isReplaceable()) {
-            return;
-        }
+
         if (!iBlockState.getMaterial().isReplaceable() ||
                 calculateCenter(playerPos, true)) {
             return;
@@ -445,7 +488,7 @@ public class Scaffold extends Module {
         );
         double reach = mc.playerController.getBlockReachDistance();
         double distance = eyes.distanceTo(center);
-        if (distance > reach || mc.world.rayTraceBlocks(eyes, center, false, true, false) != null) {
+        if (raycast && (distance > reach || mc.world.rayTraceBlocks(eyes, center, false, true, false) != null)) {
             return null;
         }
         Vec3d vec = center.subtract(eyes);
@@ -455,7 +498,6 @@ public class Scaffold extends Module {
                 return null;
             }
         }
-        Rotation basicRotation = RotationUtils.toRotation(center, mc.player);
         rotation = RotationUtils.toRotation(center, mc.player);
         
         switch (rotationMode.getValueByName()) {
@@ -467,26 +509,29 @@ public class Scaffold extends Module {
                 break;
             case "Round45":
                 rotation = new Rotation(
-                        Math.round(rotation.yaw / 45f) * 45f,
+                        Math.round(rotation.yaw / 45) * 45,
                         rotation.pitch
                 );
                 break;
         }
         
         if (!rayCastSearch.getValue()) {
-            dPlaceInfo = new PlaceInfo(placePos, enumFacing, center, rotation);
+            dPlaceInfo = new PlaceInfo(placePos, enumFacing.getOpposite(), center, rotation);
+            return dPlaceInfo;
         } else {
-            RayTraceResult serverRayTrace = performBlockRaytrace(RotationHandler.getCurrentRotation());
-            if (serverRayTrace.getBlockPos().equals(placePos) && (!raycast || serverRayTrace.sideHit == enumFacing)) {
-                dPlaceInfo = new PlaceInfo(placePos, enumFacing, center, rotation);
+            RayTraceResult serverRayTrace = performBlockRaytrace(RotationHandler.getRotation());
+            if (serverRayTrace.getBlockPos().equals(placePos) && (!raycast || serverRayTrace.sideHit.equals(enumFacing.getOpposite()))) {
+                dPlaceInfo = new PlaceInfo(placePos, serverRayTrace.sideHit, center, rotation);
+                return dPlaceInfo;
             }
-            RayTraceResult rotationRayTrace = performBlockRaytrace(basicRotation);
-            if (rotationRayTrace.getBlockPos().equals(placePos) || (!raycast || rotationRayTrace.sideHit == enumFacing)) {
-                dPlaceInfo = new PlaceInfo(placePos, enumFacing, center, rotation);
+            RayTraceResult rotationRayTrace = performBlockRaytrace(rotation);
+            println("New: " + rotationRayTrace.sideHit + " R: " + enumFacing);
+            if (rotationRayTrace.getBlockPos().equals(placePos) && (!raycast || rotationRayTrace.sideHit.equals(enumFacing.getOpposite()))) {
+                dPlaceInfo = new PlaceInfo(placePos, rotationRayTrace.sideHit, center, rotation);
+                return dPlaceInfo;
             }
         }
-        
-        return dPlaceInfo;
+        return null;
     }
     
     private PlaceInfo compareDifferences(
@@ -509,12 +554,12 @@ public class Scaffold extends Module {
         PlaceInfo dPlaceInfo = null;
         PlaceInfo ePlaceInfo;
         
-        for (EnumFacing enumFacing : EnumFacing.values()) {
+        for (EnumFacing enumFacing : EnumFacing.VALUES) {
             BlockPos placePos = blockPos.offset(enumFacing);
             if (!BlockUtils.canBeClick(placePos)) continue;
-            for (double x = 0.3; x <= 0.7; x += 0.1) {
-                for (double y = 0.3; y <= 0.7; y += 0.1) {
-                    for (double z = 0.3; z <= 0.7; z += 0.1) {
+            for (double x = 0.2; x <= 0.8; x += 0.1) {
+                for (double y = 0.2; y <= 0.8; y += 0.1) {
+                    for (double z = 0.2; z <= 0.8; z += 0.1) {
                         ePlaceInfo = getPlaceInfo(blockPos, placePos, new Vec3d(x, y, z), enumFacing, raycast);
                         if (ePlaceInfo == null) {
                             continue;
@@ -569,7 +614,7 @@ public class Scaffold extends Module {
         if (!((ItemBlock) heldItem.getItem()).canPlaceBlockOnSide(
                 mc.world,
                 placePos,
-                facing.getOpposite(),
+                facing,
                 mc.player,
                 heldItem
         )
@@ -581,11 +626,10 @@ public class Scaffold extends Module {
             placeTimer.reset();
             return;
         }
-        
-        
+
         if (!clickCheck.is("None")) {
             RayTraceResult rayTraceResult = performBlockRaytrace(RotationHandler.getCurrentRotation());
-            if (rayTraceResult == null || !rayTraceResult.getBlockPos().equals(placePos) || (rayTraceResult.sideHit != facing.getOpposite() && clickCheck.is("Strict"))) {
+            if (rayTraceResult == null || !rayTraceResult.getBlockPos().equals(placePos) || (rayTraceResult.sideHit.equals(facing.getOpposite()) && clickCheck.is("Strict"))) {
                 return;
             }
         }
@@ -596,7 +640,7 @@ public class Scaffold extends Module {
             }
         }
         
-        if (mc.playerController.processRightClickBlock(mc.player, mc.world, placePos, facing.getOpposite(), hitVec, hand) == EnumActionResult.SUCCESS) {
+        if (mc.playerController.processRightClickBlock(mc.player, mc.world, placePos, facing, hitVec, hand) == EnumActionResult.SUCCESS) {
             mc.player.swingArm(hand);
             placeTimer.reset();
             currentPlaceDelay = RandomUtils.randomInt((int) placeDelay.getFirst(), (int) placeDelay.getSecond());
