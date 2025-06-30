@@ -453,7 +453,7 @@ public class KillAura extends Module {
             }
         }
         
-        if (target != null) {
+        if (TargetsHandler.canAdd(target)) {
             if (CalculateUtils.getClosetDistance(mc.player, target) <= attackRange.getValue()) {
                 if (mode.is("Single")) return target;
                 
@@ -610,7 +610,6 @@ public class KillAura extends Module {
         
         if (!TargetsHandler.canAdd(bestTarget)) {
             this.target = null;
-            canAttackTimes = 1;
             return;
         }
         

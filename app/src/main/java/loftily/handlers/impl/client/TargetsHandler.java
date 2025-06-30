@@ -38,23 +38,13 @@ public class TargetsHandler extends Handler {
             if (((EntityPlayer) target).isSpectator()) {
                 return false;
             }
-            if (!mc.player.canAttackPlayer((EntityPlayer) target)) {
-                return false;
-            }
         }
         
-        if (target instanceof EntityPlayerMP) {
-            if (((EntityPlayerMP) target).isSpectator() || target.isSpectatedByPlayer((EntityPlayerMP) target) || ((EntityPlayerMP) target).isCreative()) {
-                return false;
-            }
-        }
-        
-        if (target.isDead) {
+        if (!target.isEntityAlive()) {
             return false;
         }
         
-        return ((EntityLivingBase) target).getHealth() > 0
-                && target != mc.player && ((EntityLivingBase) target).deathTime <= 0 &&
+        return target != mc.player && ((EntityLivingBase) target).deathTime <= 0 &&
                 (!teams.isToggled() || !teams.isInTeam((EntityLivingBase) target)) &&
                 (!antiBot.isToggled() || !antiBot.isBot((EntityLivingBase) target))
                 && !(target instanceof EntityArmorStand) && !((EntityLivingBase) target).isPlayerSleeping();
