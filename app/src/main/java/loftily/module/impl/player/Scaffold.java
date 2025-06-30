@@ -6,6 +6,7 @@ import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.player.motion.MoveEvent;
 import loftily.event.impl.player.motion.StrafeEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
+import loftily.event.impl.world.PreUpdateEvent;
 import loftily.handlers.impl.player.MoveHandler;
 import loftily.handlers.impl.player.RotationHandler;
 import loftily.module.Module;
@@ -58,7 +59,8 @@ public class Scaffold extends Module {
             new StringMode("Telly"),
             new StringMode("Snap"),
             new StringMode("AutoJump"),
-            new StringMode("SlowJump"));
+            new StringMode("SlowJump"),
+            new StringMode("TickJump"));
     //Place
     private final ModeValue placeTiming = new ModeValue("PlaceTiming", "Tick", this,
             new StringMode("Pre"),
@@ -198,50 +200,13 @@ public class Scaffold extends Module {
             event.setSafeWalk(true);
         }
     }
-    
-    @EventHandler
-    public void onLivingUpdate(LivingUpdateEvent event) {
-        if (mc.player == null) return;
-        
-        searchBlock();
-        
-        if (placeInfo == null)
-            return;
-        
-        if (rotationTiming.getValueByName().equals("Always")) {
-            setRotation(placeInfo.getRotation());
-        }
-        if (rotationMode.is("Sexy")) {
-            setRotation(RotationUtils.toRotation(placeInfo.getHitVec(), mc.player));
-        }
-        
-        
-        if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && !(mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock)) {
-            if (autoSwitchToBlock.getValue()) {
-                int slot = InventoryUtils.findBlockInSlot();
-                
-                if (slot != -1)
-                    mc.player.inventory.currentItem = slot;
-            }
-            
-            return;
-        }
-        
-        if (keepRotation.getValue() && RotationHandler.clientRotation != null) {
-            setRotation(RotationHandler.clientRotation);
-        }
 
-        switch (scaffoldMode.getValueByName()) {
-            case "Telly":
-                if (MoveUtils.isMoving() && mc.player.onGround) {
-                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
-                }
-                break;
-            case "Snap":
-                if (!(mc.world.getBlockState(new BlockPos(mc.player.posX, mc.player.posY - 1, mc.player.posZ)).getBlock() instanceof BlockAir)) {
-                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
-                }
-                break;
+    @EventHandler
+    public void onPreUpdate(PreUpdateEvent event){
+        if (mc.player == null) return;
+
+        if(mc.player.onGround && MoveUtils.isMoving() && scaffoldMode.is("TickJump")){
+            mc.player.tryJump();
         }
 
         if(motionModifier.getValue()){
@@ -282,6 +247,52 @@ public class Scaffold extends Module {
                     }
                     break;
             }
+        }
+    }
+    
+    @EventHandler
+    public void onLivingUpdate(LivingUpdateEvent event) {
+        if (mc.player == null) return;
+
+        searchBlock();
+        
+        if (placeInfo == null)
+            return;
+        
+        if (rotationTiming.getValueByName().equals("Always")) {
+            setRotation(placeInfo.getRotation());
+        }
+        if (rotationMode.is("Sexy")) {
+            setRotation(RotationUtils.toRotation(placeInfo.getHitVec(), mc.player));
+        }
+        
+        
+        if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && !(mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock)) {
+            if (autoSwitchToBlock.getValue()) {
+                int slot = InventoryUtils.findBlockInSlot();
+                
+                if (slot != -1)
+                    mc.player.inventory.currentItem = slot;
+            }
+            
+            return;
+        }
+        
+        if (keepRotation.getValue() && RotationHandler.clientRotation != null) {
+            setRotation(RotationHandler.clientRotation);
+        }
+
+        switch (scaffoldMode.getValueByName()) {
+            case "Telly":
+                if (MoveUtils.isMoving() && mc.player.onGround) {
+                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
+                }
+                break;
+            case "Snap":
+                if (!(mc.world.getBlockState(new BlockPos(mc.player.posX, mc.player.posY - 1, mc.player.posZ)).getBlock() instanceof BlockAir)) {
+                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
+                }
+                break;
         }
 
         switch (eagleMode.getValueByName()){
