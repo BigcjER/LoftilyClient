@@ -7,6 +7,7 @@ import loftily.event.impl.player.AttackEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.render.Render3DEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
+import loftily.event.impl.world.PreUpdateEvent;
 import loftily.handlers.impl.client.TargetsHandler;
 import loftily.handlers.impl.player.RotationHandler;
 import loftily.module.Module;
@@ -158,7 +159,7 @@ public class KillAura extends Module {
             new StringMode("Post"),
             new StringMode("AfterAttack")
     );
-    private final BooleanValue afterTickWhenShielded = new BooleanValue("AfterTickWhenShielded", false).setVisible(() -> autoBlockMode.is("AfterTick"));
+    private final BooleanValue noPacketShielded = new BooleanValue("NoPacketWhileShielding", false).setVisible(() -> autoBlockMode.is("AfterTick"));
     private final BooleanValue onlyWhileKeyBinding = new BooleanValue("OnlyWhileKeyBinding", false);
     private final BooleanValue sendInteractPacket = new BooleanValue("InteractPacket", false);
     
@@ -357,7 +358,7 @@ public class KillAura extends Module {
     }
     
     @EventHandler
-    public void onLivingUpdate(LivingUpdateEvent event) {
+    public void onPreUpdate(PreUpdateEvent event) {
         if (mc.player == null) return;
         
         target = getTarget();
@@ -544,18 +545,17 @@ public class KillAura extends Module {
                 case "AfterTick":
                     if (canAttackTimes > 0) {
                         if (blockingTick) {
-                            if (afterTickWhenShielded.getValue()) {
-                                Item handItem = mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
-                                if (!(handItem instanceof ItemShield) && !(handItem instanceof ItemSword)) {
-                                    break;
-                                }
-                            }
                             PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
                             blockingTick = false;
                         }
                     } else {
-                        blockingPacket(target);
+                        if(!noPacketShielded.getValue()) {
+                            blockingPacket(target);
+                        }
                         if (!blockingTick) {
+                            if(noPacketShielded.getValue()){
+                                blockingPacket(target);
+                            }
                             blockingTick = true;
                         }
                         mc.gameSettings.keyBindUseItem.setPressed(true);

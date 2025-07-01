@@ -868,6 +868,8 @@ public class EntityPlayerSP extends AbstractClientPlayer {
             this.setSprinting(false);
         }
 
+        Client.INSTANCE.getEventManager().call(new LivingUpdateEvent());
+
         if (this.capabilities.allowFlying) {
             if (this.mc.playerController.isSpectatorMode()) {
                 if (!this.capabilities.isFlying) {
@@ -937,8 +939,6 @@ public class EntityPlayerSP extends AbstractClientPlayer {
         } else {
             this.horseJumpPower = 0.0F;
         }
-
-        Client.INSTANCE.getEventManager().call(new LivingUpdateEvent());
 
         super.onLivingUpdate();
 

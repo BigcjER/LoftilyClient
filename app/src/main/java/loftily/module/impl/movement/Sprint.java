@@ -48,7 +48,13 @@ public class Sprint extends Module {
             }
         }
     }
-    
+
+    public void sprint(){
+        if(!mc.player.isSprinting()) {
+            mc.player.setSprinting(true);
+        }
+    }
+
     @EventHandler(priority = -100)
     public void onJump(JumpEvent event) {
         if (!allDirectionsJump.getValue()) return;
@@ -57,7 +63,7 @@ public class Sprint extends Module {
         
     }
     
-    @EventHandler(priority = -10)
+    @EventHandler(priority = -100)
     public void onLivingUpdate(LivingUpdateEvent event) {
         Rotation rotation = RotationHandler.clientRotation;
         
@@ -66,39 +72,39 @@ public class Sprint extends Module {
                 if (mc.player.movementInput.moveForward < 0.8) {
                     stopSprinting();
                 } else {
-                    mc.player.setSprinting(true);
+                    sprint();
                 }
             }
         } else {
-            mc.player.setSprinting(true);
+            sprint();
         }
         
         if (getSpeed() != null) {
             if (getSpeed().isToggled() && getSpeed().alwaysSprint.getValue()) {
-                mc.player.setSprinting(true);
+                sprint();
             }
         }
-        
-        if (!MoveUtils.isMoving() || mc.player.isCollidedHorizontally) {
-            stopSprinting();
-            return;
-        }
-        
+
         if (legitSprint.getValue()) {
             if (rotation != null) {
                 float calcForward = CalculateUtils.getMoveFixForward(rotation);
                 if (calcForward < 0.8) {
                     stopSprinting();
                 } else {
-                    mc.player.setSprinting(true);
+                    sprint();
                 }
             } else {
                 if (mc.player.movementInput.moveForward < 0.8) {
                     stopSprinting();
                 } else {
-                    mc.player.setSprinting(true);
+                    sprint();
                 }
             }
+        }
+        
+        if (!MoveUtils.isMoving() || mc.player.isCollidedHorizontally) {
+            stopSprinting();
+            return;
         }
         
         if (noShield.getValue()) {
