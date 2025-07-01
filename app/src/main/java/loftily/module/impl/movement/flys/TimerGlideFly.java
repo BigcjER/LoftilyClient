@@ -15,6 +15,7 @@ public class TimerGlideFly extends Mode<Fly> {
     
     private final NumberValue timerSpeed = new NumberValue("TimerSpeed", 20, 1, 100, 0.1);
     private final NumberValue speed = new NumberValue("Speed", 0.02, 0.0, 1.0, 0.01);
+    private final BooleanValue noSpeed = new BooleanValue("NoSpeed", false);
     private final BooleanValue customMotionY = new BooleanValue("CustomMotionY", false);
     private final NumberValue motionSpeed = new NumberValue("MotionSpeed", -0.01, -0.2, 0.2, 0.01).setVisible(customMotionY::getValue);
     private final BooleanValue smartHurt = new BooleanValue("SmartHurt", false);
@@ -63,7 +64,7 @@ public class TimerGlideFly extends Mode<Fly> {
     
     @EventHandler
     public void onMoveInput(MoveInputEvent event) {
-        if (jumpDamage.getValue()) {
+        if (jumpDamage.getValue() && !boosting) {
             event.setSneak(false);
             event.setJump(false);
             event.setStrafe(0);
@@ -95,7 +96,9 @@ public class TimerGlideFly extends Mode<Fly> {
         
         if (!smartHurt.getValue() || (elapsedTicks <= flyTicks.getValue() && boosting)) {
             double speedF = boostDurationTicks > 0 ? speed.getValue() : 0.03;
-            MoveUtils.setSpeed(speedF, false);
+            if(!noSpeed.getValue()) {
+                MoveUtils.setSpeed(speedF, false);
+            }
             
             if (startBoost.getValue()) {
                 if (elapsedTicks <= boostTicks.getValue()) {

@@ -65,4 +65,8 @@ public class CPacketConfirmTransaction implements Packet<INetHandlerPlayServer>
     {
         return this.uid;
     }
+
+    public void setUid(short uidIn){
+        this.uid = uidIn;
+    }
 }
