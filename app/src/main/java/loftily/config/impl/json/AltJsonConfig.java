@@ -22,39 +22,49 @@ public class AltJsonConfig extends JsonConfig {
     
     @Override
     protected void read(JsonObject jsonObject, FileReader reader) {
-        JsonElement alts = jsonObject.get("alts");
+        JsonElement microsoft = jsonObject.get("microsoft");
+        JsonElement offline = jsonObject.get("offline");
         
+        for (JsonElement microsoftElement : microsoft.getAsJsonArray()) {
+            JsonObject altObject = microsoftElement.getAsJsonObject();
+            
+            String name = altObject.get("name").getAsString();
+            String uuid = altObject.get("uuid").getAsString();
+            String refreshToken = altObject.get("refreshToken").getAsString();
+            
+            Client.INSTANCE.getAltManager().add(new Alt(name,uuid,refreshToken));
+        }
         
-        if (alts != null && alts.isJsonArray()) {
-            JsonArray altsArray = alts.getAsJsonArray();
-            Type listType = new TypeToken<List<Alt>>() {
-            }.getType();
+        for (JsonElement offlineElement : offline.getAsJsonArray()) {
+            JsonObject altObject = offlineElement.getAsJsonObject();
             
-            List<Alt> altList = GSON.fromJson(altsArray, listType);
+            String name = altObject.get("name").getAsString();
             
-            if (altList != null) {
-                altList.forEach(alt -> Client.INSTANCE.getAltManager().getAlts().add(alt));
-            } else {
-                write();
-            }
+            Client.INSTANCE.getAltManager().add(new Alt(name));
         }
     }
     
     @Override
     protected void write(JsonObject jsonObject) {
-        JsonArray jsonArray = new JsonArray();
+        JsonArray jsonArrayMicrosoft = new JsonArray();
+        JsonArray jsonArrayOffline = new JsonArray();
+        
         Client.INSTANCE.getAltManager().getAlts().forEach(alt -> {
             JsonObject modJson = new JsonObject();
             modJson.addProperty("name", alt.getName());
             if (alt.getType() == AltType.Microsoft) {
                 modJson.addProperty("uuid", alt.getUuid());
                 modJson.addProperty("refreshToken", alt.getRefreshToken());
+                modJson.addProperty("type", alt.getType().toString());
+                jsonArrayMicrosoft.add(modJson);
             }
-            modJson.addProperty("type", alt.getType().toString());
             
-            jsonArray.add(modJson);
+            if (alt.getType() == AltType.Offline) {
+                jsonArrayOffline.add(modJson);
+            }
         });
         
-        jsonObject.add("alts", jsonArray);
+        jsonObject.add("microsoft", jsonArrayMicrosoft);
+        jsonObject.add("offline", jsonArrayOffline);
     }
 }
