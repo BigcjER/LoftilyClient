@@ -14,6 +14,7 @@ import loftily.value.impl.BooleanValue;
 import loftily.value.impl.RangeSelectionNumberValue;
 import loftily.value.impl.TextValue;
 import net.lenni0451.lambdaevents.EventHandler;
+import net.minecraft.util.text.TextFormatting;
 
 @ModuleInfo(name = "Spammer", category = ModuleCategory.OTHER)
 public class Spammer extends Module {
@@ -30,6 +31,13 @@ public class Spammer extends Module {
             
             Client.INSTANCE.getNotificationManager().add(NotificationType.WARNING, "Spammer", "Auto disabled Spammer on loyisa.cn", 0);
             
+            return;
+        }
+        
+        if(text.getValue().isEmpty()) {
+            MessageUtils.clientMessageWithWaterMark(TextFormatting.RED + "Text couldn't be empty!");
+            if (isToggled())
+                setToggled(false,true,true);
             return;
         }
         
