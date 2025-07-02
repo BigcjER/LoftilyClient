@@ -50,9 +50,7 @@ public class Sprint extends Module {
     }
 
     public void sprint(){
-        if(!mc.player.isSprinting()) {
-            mc.player.setSprinting(true);
-        }
+        mc.player.setSprinting(true);
     }
 
     @EventHandler(priority = -100)
