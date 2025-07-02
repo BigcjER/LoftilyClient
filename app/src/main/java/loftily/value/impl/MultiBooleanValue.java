@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import loftily.utils.client.ClientUtils;
 import loftily.value.Value;
+import net.minecraft.util.StringUtils;
 import net.minecraft.util.text.TextFormatting;
 
 import java.util.LinkedHashMap;
@@ -40,6 +41,9 @@ public class MultiBooleanValue extends Value<Map<String, Boolean>, MultiBooleanV
     public MultiBooleanValue add(String name, boolean value) {
         if (getValue().containsKey(name)) {
             throw new IllegalArgumentException(String.format("Key '%s' already exists!", name));
+        }
+        if(StringUtils.PATTERN_WHITESPACE.matcher(name).find()) {
+            throw new IllegalArgumentException(String.format("Value name '%s' cannot contain spaces.", name));
         }
         getValue().put(name, value);
         return this;

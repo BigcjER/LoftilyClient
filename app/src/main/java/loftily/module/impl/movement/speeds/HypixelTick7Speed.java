@@ -3,10 +3,7 @@ package loftily.module.impl.movement.speeds;
 import loftily.Client;
 import loftily.event.impl.packet.PacketReceiveEvent;
 import loftily.event.impl.player.motion.MotionEvent;
-import loftily.event.impl.world.UpdateEvent;
-import loftily.module.impl.combat.KillAura;
 import loftily.module.impl.exploit.Disabler;
-import loftily.module.impl.movement.NoSlow;
 import loftily.module.impl.movement.Speed;
 import loftily.utils.block.BlockUtils;
 import loftily.utils.player.MoveUtils;
@@ -17,28 +14,23 @@ import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
-import net.minecraft.block.BlockStairs;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.item.ItemBow;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.Objects;
-
-public class Tick7Speed extends Mode<Speed> {
-    public Tick7Speed() {
-        super("7 Tick Lowhop");
-    }
+public class HypixelTick7Speed extends Mode<Speed> {
+    public NumberValue friction = new NumberValue("FrictionMultiplier", 1.0, 1.0, 1.3, 0.01);
 
     public NumberValue speedSetting = new NumberValue("Speed", 2.0, 0.8, 1.2, 0.01);
-    public NumberValue friction = new NumberValue("Friction multiplier", 1.0, 1.0, 1.3, 0.01);
-    public BooleanValue liquidDisable = new BooleanValue("Liquid Disable", true);
-    public BooleanValue sneakDisable = new BooleanValue("Sneak Disable", true);
-    public BooleanValue strafe = new BooleanValue("Enable Direction strafe", false);
-    public NumberValue strafeDegrees = new NumberValue("Strafe Degrees", 80.0, 50.0, 90.0, 5.0);
-    public BooleanValue disablerOnly = new BooleanValue("Require disabler", false);
+    public BooleanValue liquidDisable = new BooleanValue("LiquidDisable", true);
+    public BooleanValue sneakDisable = new BooleanValue("SneakDisable", true);
+    public BooleanValue strafe = new BooleanValue("EnableDirectionStrafe", false);
+    public NumberValue strafeDegrees = new NumberValue("StrafeDegrees", 80.0, 50.0, 90.0, 5.0);
+    public BooleanValue disablerOnly = new BooleanValue("RequireDisabler", false);
+    public HypixelTick7Speed() {
+        super("Hypixel7TickLowHop");
+    }
 
     private boolean ldmg;
 
@@ -49,7 +41,7 @@ public class Tick7Speed extends Mode<Speed> {
             if (true/*!Client.INSTANCE.getModuleManager().get("Scaffold").isToggled() && !scaffold.lowhop*/) { // TODO scaffold lowhop
                 if (!Client.INSTANCE.getModuleManager().get("LongJump").isToggled()) {
                     if (!(Client.INSTANCE.getModuleManager().get("InvMove").isToggled() && mc.currentScreen instanceof GuiContainer)) {
-                        this.handleLowhop();
+                        handleLowHop();
                         if (mc.player.onGround && MoveUtils.isMoving()) {
                             mc.player.jump();
 
@@ -77,8 +69,8 @@ public class Tick7Speed extends Mode<Speed> {
                             }
                         }
 
-                        if (this.strafe.getValue()) {
-                            this.airStrafe();
+                        if (strafe.getValue()) {
+                            airStrafe();
                         }
                     }
                 }
@@ -90,43 +82,43 @@ public class Tick7Speed extends Mode<Speed> {
     public void onReceivePacketsAll(PacketReceiveEvent e) {
         if (PlayerUtils.nullCheck()) {
             if (!e.isCancelled()) {
-                if (e.getPacket() instanceof SPacketEntityVelocity && ((SPacketEntityVelocity)e.getPacket()).getEntityID() == this.mc.player.getEntityId()) {
-                    this.ldmg = true;
+                if (e.getPacket() instanceof SPacketEntityVelocity && ((SPacketEntityVelocity)e.getPacket()).getEntityID() == mc.player.getEntityId()) {
+                    ldmg = true;
                 }
             }
         }
     }
 
-    private void handleLowhop() {
-        Block block = BlockUtils.getBlock(new BlockPos(this.mc.player.posX, this.mc.player.posY, this.mc.player.posZ));
-        int simpleY = (int)Math.round(this.mc.player.posY % 1.0 * 10000.0);
+    private void handleLowHop() {
+        Block block = BlockUtils.getBlock(new BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ));
+        int simpleY = (int)Math.round(mc.player.posY % 1.0 * 10000.0);
         if (!disablerOnly.getValue() || ((Disabler) Client.INSTANCE.getModuleManager().get("Disabler")).disablerLoaded) {
-            if (this.mc.player.isCollidedVertically || this.ldmg || block instanceof BlockSlab) {
+            if (mc.player.isCollidedVertically || ldmg || block instanceof BlockSlab) {
                 return;
             }
 
             switch (simpleY) {
                 case 1138:
-                    this.mc.player.motionY -= 0.13;
+                    mc.player.motionY -= 0.13;
                     break;
                 case 2031:
-                    this.mc.player.motionY -= 0.2;
+                    mc.player.motionY -= 0.2;
                     break;
                 case 4200:
-                    this.mc.player.motionY = 0.39;
+                    mc.player.motionY = 0.39;
             }
         }
 
 
-        this.ldmg = false;
+        ldmg = false;
     }
 
     private void airStrafe() {
         if (!mc.player.onGround && mc.player.hurtTime < 3 && (mc.player.motionX != 0.0 || mc.player.motionZ != 0.0)) {
-            float moveDir = this.moveDirection(mc.player.rotationYaw);
-            float currentMotionDir = this.strafeDirection();
+            float moveDir = moveDirection(mc.player.rotationYaw);
+            float currentMotionDir = strafeDirection();
             float diff = Math.abs(moveDir - currentMotionDir);
-            int range = this.strafeDegrees.getValue().intValue();
+            int range = strafeDegrees.getValue().intValue();
             if (diff > 180 - range && diff < 180 + range) {
                 mc.player.motionX = -(mc.player.motionX * 0.85);
                 mc.player.motionZ = -(mc.player.motionZ * 0.85);

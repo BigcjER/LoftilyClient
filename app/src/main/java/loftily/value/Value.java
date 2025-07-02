@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import loftily.value.impl.mode.Mode;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.util.StringUtils;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -19,7 +20,14 @@ public abstract class Value<T, V> {
     private Supplier<Boolean> visible;
     private Mode<?> parentMode = null;
     
+    /**
+     * @param name The name of the value. Must not contain any whitespace characters, as it is used in command-line parsing.
+     * @throws IllegalArgumentException if the name contains whitespace.
+     */
     public Value(String name, T value) {
+        if (StringUtils.PATTERN_WHITESPACE.matcher(name).find()) {
+            throw new IllegalArgumentException(String.format("Value name '%s' cannot contain spaces.", name));
+        }
         this.name = name;
         this.value = value;
         this.defaultValue = value;

@@ -5,14 +5,19 @@ import loftily.core.AbstractModule;
 import loftily.module.Module;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.util.StringUtils;
 
 @Getter
 @Setter
 public abstract class Mode<T extends Module> extends AbstractModule {
     private T parent;
     
+    
     public Mode(String name) {
         this.name = name;
+        if(StringUtils.PATTERN_WHITESPACE.matcher(name).find()) {
+            throw new IllegalArgumentException(String.format("Value name '%s' cannot contain spaces.", name));
+        }
     }
     
     public final void register() {

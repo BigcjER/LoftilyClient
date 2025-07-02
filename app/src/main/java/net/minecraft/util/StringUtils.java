@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 public class StringUtils
 {
     private static final Pattern PATTERN_CONTROL_CODE = Pattern.compile("(?i)\\u00A7[0-9A-FK-OR]");
+    public static final Pattern PATTERN_WHITESPACE = Pattern.compile("\\s");
 
     /**
      * Returns the time elapsed for the given number of ticks, in "mm:ss" format.
