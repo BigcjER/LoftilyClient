@@ -1,5 +1,4 @@
-#version 300 es
-precision highp float;
+#version 120
 
 uniform vec2 iResolution;
 uniform float iTime;
