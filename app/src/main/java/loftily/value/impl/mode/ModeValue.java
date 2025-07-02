@@ -8,13 +8,16 @@ import loftily.utils.client.ClassUtils;
 import loftily.utils.client.ClientUtils;
 import loftily.value.Value;
 import lombok.Getter;
+import net.minecraft.util.text.TextFormatting;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Getter
 public class ModeValue extends Value<Mode, ModeValue> {
@@ -104,6 +107,28 @@ public class ModeValue extends Value<Mode, ModeValue> {
             }
         }
         return this;
+    }
+    
+    @Override
+    public String handleCommand(String valueToSetText) {
+        //Find has match mode and getter
+        Optional<Mode> matchedModeOptional = modes.stream()
+                .filter(mode -> mode.getName().equalsIgnoreCase(valueToSetText))
+                .findFirst();
+        
+        if (!matchedModeOptional.isPresent()) {
+            return TextFormatting.RED + String.format("%s doesn't have mode %s!\nModes:\n%s",
+                    getName(),
+                    valueToSetText,
+                    modes.stream()
+                            .map(Mode::getName)
+                            .collect(Collectors.joining(", ")));
+        }
+        
+        Mode mode = matchedModeOptional.get();
+        update(mode);
+        
+        return String.format("%s is set to %s.", getName(), mode.getName());
     }
     
     /**

@@ -1,7 +1,10 @@
 package loftily.command;
 
+import loftily.Client;
 import loftily.utils.client.ClientUtils;
 import lombok.Getter;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,5 +28,11 @@ public abstract class Command implements ClientUtils {
     
     public abstract void execCommand(String[] args);
     
-    public abstract String usage();
+    public ITextComponent usage(String[] args) {
+        return new TextComponentString(Client.STRING_PREFIX + " Usage: " + usage());
+    }
+    
+    public String usage() {
+        return "";
+    }
 }

@@ -45,4 +45,6 @@ public abstract class Value<T, V> {
     public abstract JsonElement write();
     
     public abstract Value<T, V> read(JsonElement element);
+    
+    public abstract String handleCommand(String valueToSetText);
 }

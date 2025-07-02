@@ -14,8 +14,10 @@ import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
+import net.minecraft.inventory.Slot;
 import org.lwjgl.input.Keyboard;
 
+//TODO:Send C0F
 @ModuleInfo(name = "ChestStealer", key = Keyboard.KEY_U, category = ModuleCategory.PLAYER)
 public class ChestStealer extends Module {
     private final RangeSelectionNumberValue openDelay = new RangeSelectionNumberValue("OpenDelay", 50, 100, 0, 1000);
@@ -38,8 +40,11 @@ public class ChestStealer extends Module {
         
         //Close screen if no useful item
         boolean hasUsefulItems = false;
-        for (int i = 0; i < containerChest.getLowerChestInventory().getSizeInventory(); i++) {
-            if (ItemUtils.isItemUsefulInChest(containerChest, i)) {
+        for (Slot slot : containerChest.inventorySlots) {
+            //Ensure item is in chest
+            if (slot.inventory != containerChest.getLowerChestInventory()) continue;
+            
+            if (ItemUtils.isItemUsefulInContainer(containerChest, slot.getStack())) {
                 hasUsefulItems = true;
                 break;
             }
@@ -59,14 +64,17 @@ public class ChestStealer extends Module {
         
         
         //Do steal
-        for (int i = 0; i < containerChest.getLowerChestInventory().getSizeInventory(); i++) {
-            if (containerChest.getLowerChestInventory().getStackInSlot(i).isEmptyStack() ||
+        for (Slot slot : containerChest.inventorySlots) {
+            //Ensure item is in chest
+            if (slot.inventory != containerChest.getLowerChestInventory()) continue;
+            
+            if (slot.getStack().isEmptyStack() ||
                     !clickTimer.hasTimeElapsed(RandomUtils.randomInt((int) clickDelay.getFirst(), (int) clickDelay.getSecond())) ||
-                    !ItemUtils.isItemUsefulInChest(containerChest, i)) {
+                    !ItemUtils.isItemUsefulInContainer(containerChest, slot.getStack())) {
                 continue;
             }
             
-            mc.playerController.windowClick(containerChest.windowId, i, 0, ClickType.QUICK_MOVE, mc.player);
+            mc.playerController.windowClick(containerChest.windowId, slot.slotNumber, 0, ClickType.QUICK_MOVE, mc.player);
             clickTimer.reset();
             autoCloseTimer.reset();
         }

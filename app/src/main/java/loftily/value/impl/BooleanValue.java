@@ -7,6 +7,7 @@ import loftily.value.Value;
 import loftily.value.impl.mode.Mode;
 import loftily.value.impl.mode.StringMode;
 import lombok.Getter;
+import net.minecraft.util.text.TextFormatting;
 
 import java.lang.reflect.Field;
 import java.util.function.Supplier;
@@ -81,5 +82,22 @@ public class BooleanValue extends Value<Boolean, BooleanValue> {
             value = element.getAsBoolean();
         }
         return this;
+    }
+    
+    @Override
+    public String handleCommand(String valueToSetText) {
+        switch (valueToSetText.toLowerCase()) {
+            case "true":
+                setValue(true);
+                break;
+            case "false":
+                setValue(false);
+                break;
+            
+            default:
+                return TextFormatting.RED + valueToSetText + " is not a valid value for boolean type.";
+        }
+        
+        return String.format("%s is set to %s.", getName(), value);
     }
 }

@@ -17,6 +17,8 @@ public class TextRenderer extends ValueRenderer<TextValue> {
         this.customTextField.setMaxStringLength(128);
         this.customTextField.setFocused(false);
         this.customTextField.setTextXOffset(-2);
+        
+        this.value.setOnValueChange(this.customTextField::setText);
     }
     
     @Override

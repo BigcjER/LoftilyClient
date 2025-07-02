@@ -70,7 +70,7 @@ public class AutoDisableCommand extends Command {
         }
         
         return String.format(
-                ".autodisable <Module> <%s>", stringBuilder) + "\n" +
-                ".autodisable <Module>";
+                ".autodisable <module> <%s>", stringBuilder) + "\n" +
+                ".autodisable <module>";
     }
 }

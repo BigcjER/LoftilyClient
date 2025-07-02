@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import loftily.utils.client.ClientUtils;
 import loftily.value.Value;
+import net.minecraft.util.text.TextFormatting;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -13,7 +14,27 @@ public class MultiBooleanValue extends Value<Map<String, Boolean>, MultiBooleanV
      * Use the {@link #add(String, boolean)} method to add multiple BooleanValues.
      */
     public MultiBooleanValue(String name) {
-        super(name, new LinkedHashMap<>());
+        super(name, new LinkedHashMap<String, Boolean>() {
+            //Override it for value command
+            @Override
+            public String toString() {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("\n");
+                for (Map.Entry<String, Boolean> entry : this.entrySet()) {
+                    stringBuilder
+                            .append(entry.getKey())
+                            .append(" ")
+                            .append(entry.getValue())
+                            .append("\n");
+                }
+                
+                if (stringBuilder.length() > 0) {
+                    stringBuilder.setLength(stringBuilder.length() - 1);
+                }
+                
+                return stringBuilder.toString();
+            }
+        });
     }
     
     public MultiBooleanValue add(String name, boolean value) {
@@ -65,5 +86,29 @@ public class MultiBooleanValue extends Value<Map<String, Boolean>, MultiBooleanV
             super.setValue(newValues);
         }
         return this;
+    }
+    
+    @Override
+    public String handleCommand(String valueToSetText) {
+        String[] parts = valueToSetText.split(",");
+        if (parts.length != 2) {
+            return "Usage: .module <a_multi_boolean_value> <name>,<true|false>";
+        }
+        
+        String key = parts[0];
+        String value = parts[1];
+        
+        //Check contains
+        if (!getValue().containsKey(key)) {
+            return TextFormatting.RED + String.format("%s doesn't have key %s!", getName(), key);
+        }
+        
+        //Check is valid boolean
+        if (!value.matches("true|false")) {
+            return TextFormatting.RED + valueToSetText + " is not a valid value for boolean type.";
+        }
+        
+        setValue(key, Boolean.parseBoolean(value));
+        return String.format("Key %s in %s is set to %s", key, getName(), value);
     }
 }

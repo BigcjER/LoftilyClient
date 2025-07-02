@@ -10,7 +10,7 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.inventory.ContainerChest;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.*;
@@ -32,21 +32,20 @@ public class ItemUtils implements ClientUtils {
             Blocks.GLASS_PANE, Blocks.STAINED_GLASS_PANE, Blocks.LEVER, Blocks.CACTUS, Blocks.LADDER, Blocks.BROWN_MUSHROOM, Blocks.RED_MUSHROOM
     );
     
-    public static boolean isItemUsefulInChest(ContainerChest containerChest, int indexInChest) {
-        ItemStack itemStack = containerChest.getLowerChestInventory().getStackInSlot(indexInChest);
+    public static boolean isItemUsefulInContainer(Container container, ItemStack itemStack) {
         Item item = itemStack.getItem();
         
         if (item instanceof ItemAxe || item instanceof ItemPickaxe) return true;
-        if (item instanceof ItemFood && item != Items.SPIDER_EYE) return true;
+        if (item instanceof ItemFood && item != Items.SPIDER_EYE && item != Items.ROTTEN_FLESH) return true;
         if (item instanceof ItemPotion && !isPotionNegative(itemStack)) return true;
         if (item instanceof ItemBow || item == Items.ARROW) return true;
-        if (item instanceof ItemSword && isBestSword(containerChest, itemStack)) return true;
-        if (item instanceof ItemArmor && isBestArmor(containerChest, itemStack)) return true;
+        if (item instanceof ItemSword && isBestSword(container, itemStack)) return true;
+        if (item instanceof ItemArmor && isBestArmor(container, itemStack)) return true;
         if (item instanceof ItemBlock && !BLOCK_BLACKLIST.contains(((ItemBlock) item).getBlock())) return true;
         return item instanceof ItemEnderPearl;
     }
     
-    private static boolean isBestArmor(ContainerChest containerChest, ItemStack itemStack) {
+    private static boolean isBestArmor(Container container, ItemStack itemStack) {
         Item item = itemStack.getItem();
         if (!(item instanceof ItemArmor)) return false;
         
@@ -62,7 +61,7 @@ public class ItemUtils implements ClientUtils {
             return false;
         }
         
-        for (Slot slot : containerChest.inventorySlots) {
+        for (Slot slot : container.inventorySlots) {
             ItemStack slotStack = slot.getStack();
             
             if (!slotStack.isEmptyStack() && slotStack.getItem() instanceof ItemArmor) {
@@ -80,9 +79,6 @@ public class ItemUtils implements ClientUtils {
         return thisArmorWeight >= maxArmorWeight;
     }
     
-    /**
-     * @return 盔甲权重
-     */
     private static double getArmorWeight(ItemStack itemStack) {
         if (itemStack.isEmptyStack() || !(itemStack.getItem() instanceof ItemArmor)) return 0.0;
         
@@ -108,11 +104,11 @@ public class ItemUtils implements ClientUtils {
         return value;
     }
     
-    private static boolean isBestSword(ContainerChest containerChest, ItemStack itemStack) {
+    private static boolean isBestSword(Container container, ItemStack itemStack) {
         double thisSwordDamage = getAttackDamage(itemStack);
         double maxSwordDamage = 0D;
         
-        for (Slot slot : containerChest.inventorySlots) {
+        for (Slot slot : container.inventorySlots) {
             ItemStack slotStack = slot.getStack();
             if (!slotStack.isEmptyStack() && slotStack.getItem() instanceof ItemSword) {
                 double tempDamage = getAttackDamage(slotStack);

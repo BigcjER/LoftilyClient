@@ -65,7 +65,7 @@ public class BindCommand extends Command {
     
     @Override
     public String usage() {
-        return ".bind <Module> <Key> or .bind list";
+        return ".bind <module> <key> or .bind list";
     }
     
     

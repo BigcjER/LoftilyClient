@@ -4,10 +4,11 @@ import loftily.utils.client.ClassUtils;
 import loftily.utils.client.ClientUtils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractManager<T> {
+public abstract class AbstractManager<T> implements ClientUtils {
     private final Map<Class<? extends T>, T> instanceMap = new HashMap<>();
     
     public AbstractManager(String childPackage, Class<T> superClass) {
@@ -17,11 +18,15 @@ public abstract class AbstractManager<T> {
         
         for (Class<?> clazz : classes) {
             try {
-                if (superClass.isAssignableFrom(clazz) && !clazz.isInterface() && !java.lang.reflect.Modifier.isAbstract(clazz.getModifiers())) {
+                if (superClass.isAssignableFrom(clazz) && !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers())) {
+                    clazz.getDeclaredConstructor();
                     T instance = (T) clazz.getDeclaredConstructor().newInstance();
                     instanceMap.put((Class<? extends T>) clazz, instance);
                 }
-            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+            } catch (NoSuchMethodException e) {
+                //跳过没有空构造函数的类
+                ClientUtils.LOGGER.info("Skipping class '{}' due to missing no-arg constructor", clazz.getSimpleName());
+            } catch (InstantiationException | IllegalAccessException |
                      InvocationTargetException e) {
                 throw new RuntimeException(e);
             }

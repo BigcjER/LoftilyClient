@@ -40,4 +40,9 @@ public abstract class AbstractModule implements ClientUtils {
                 .findFirst()
                 .orElse(null);
     }
+    
+    @Override
+    public String toString() {
+        return name;
+    }
 }

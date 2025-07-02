@@ -1,8 +1,10 @@
 package loftily.command;
 
 import loftily.Client;
+import loftily.command.impl.ModuleCommand;
 import loftily.core.AbstractManager;
 import loftily.event.impl.client.ChatEvent;
+import loftily.module.Module;
 import loftily.utils.client.MessageUtils;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.util.text.TextFormatting;
@@ -16,11 +18,17 @@ public class CommandManager extends AbstractManager<Command> {
     
     public CommandManager() {
         super("impl", Command.class);
+        
         for (Command command : getAll()) {
             for (String alias : command.getCommand()) {
                 nameToCommandMap.put(alias.toLowerCase(), command);
             }
         }
+        
+        for (Module module : Client.INSTANCE.getModuleManager().getAll()) {
+            nameToCommandMap.put(module.getName().toLowerCase(), new ModuleCommand(module));
+        }
+        
         Client.INSTANCE.getEventManager().register(this);
     }
     
@@ -45,7 +53,7 @@ public class CommandManager extends AbstractManager<Command> {
                 command.execCommand(args);
                 return;
             }
-            MessageUtils.clientMessageWithWaterMark("Usage: \n" + command.usage());
+            mc.ingameGUI.getChatGUI().printChatMessage(command.usage(parts));
             return;
         }
         MessageUtils.clientMessageWithWaterMark(TextFormatting.RED + "Unknown command! Please enter .help to view help.");

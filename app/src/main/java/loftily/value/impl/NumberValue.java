@@ -2,9 +2,12 @@ package loftily.value.impl;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import loftily.utils.client.MessageUtils;
 import loftily.value.Value;
 import lombok.Getter;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
+import org.apache.commons.lang3.math.NumberUtils;
 
 @Getter
 public class NumberValue extends Value<Double, NumberValue> {
@@ -51,5 +54,20 @@ public class NumberValue extends Value<Double, NumberValue> {
         if (maxWith != null) value = MathHelper.clamp(value, minValue, maxWith.getValue());
         
         super.setValue(value);
+    }
+    
+    @Override
+    public String handleCommand(String valueToSetText) {
+        if (!NumberUtils.isParsable(valueToSetText)) {
+            return TextFormatting.RED + valueToSetText + " is not a valid number.";
+        }
+        
+        double valueToSet = Math.round(Double.parseDouble(valueToSetText) * 100) / 100.0;
+        if (MathHelper.clamp(valueToSet, minValue, maxValue) != valueToSet) {
+            MessageUtils.clientMessageWithWaterMark(String.format("%sWarning: %s is out of range.", TextFormatting.YELLOW, valueToSet));
+        }
+        
+        setValue(valueToSet);
+        return String.format("%s is set to %s.", getName(), value);
     }
 }

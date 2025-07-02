@@ -140,7 +140,7 @@ public class ConfigCommand extends Command {
     @Override
     public String usage() {
         return
-                ".config <load/save/create> <ConfigName> \n" +
+                ".config <load/save/create> <config_name> \n" +
                         ".config <folder/list/reload>";
     }
 }

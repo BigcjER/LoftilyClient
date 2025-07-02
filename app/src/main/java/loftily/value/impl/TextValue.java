@@ -21,4 +21,10 @@ public class TextValue extends Value<String, TextValue> {
         }
         return this;
     }
+    
+    @Override
+    public String handleCommand(String valueToSetText) {
+        setValue(valueToSetText);
+        return String.format("%s is set to %s", getName(), getValue());
+    }
 }
