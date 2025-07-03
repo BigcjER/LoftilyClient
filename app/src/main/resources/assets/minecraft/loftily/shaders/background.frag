@@ -4,8 +4,6 @@ uniform vec2 iResolution;
 uniform float iTime;
 uniform vec4 iMouse;
 
-out vec4 fragColor;
-
 float hash21(vec2 x) {
     return fract(cos(mod(dot(x, vec2(13.9898, 8.141)), 3.14)) * 43758.5453);
 }
@@ -66,5 +64,5 @@ void main() {
     }
 
     col = baseColor * mix(0.0, 0.05, hash21(vec2(iTime))) / dist;
-    fragColor = vec4(col, 1.0);
+    gl_FragColor = vec4(col, 1.0);
 }
