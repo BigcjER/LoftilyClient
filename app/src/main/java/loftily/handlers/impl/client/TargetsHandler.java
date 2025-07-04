@@ -34,7 +34,7 @@ public class TargetsHandler extends Handler {
         
         if (target instanceof EntityPlayer) {
             EntityPlayer entityPlayer = (EntityPlayer) target;
-            if (entityPlayer.isSpectator() || !Client.INSTANCE.getModuleManager().get(Teams.class).isSameTeam(entityPlayer)) {
+            if (entityPlayer.isSpectator() || Client.INSTANCE.getModuleManager().get(Teams.class).isSameTeam(entityPlayer)) {
                 return false;
             }
         }
