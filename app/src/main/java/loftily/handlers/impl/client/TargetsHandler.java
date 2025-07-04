@@ -13,7 +13,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +29,12 @@ public class TargetsHandler extends Handler {
     }
     
     public static boolean canAdd(Entity target) {
-        Teams teams = Client.INSTANCE.getModuleManager().get(Teams.class);
-        AntiBot antiBot = Client.INSTANCE.getModuleManager().get(AntiBot.class);
-        if (!(target instanceof EntityLivingBase)) return false;
+        if (!(target instanceof EntityLivingBase) || target == mc.player) return false;
+        EntityLivingBase entityLivingBase = (EntityLivingBase) target;
         
         if (target instanceof EntityPlayer) {
-            if (((EntityPlayer) target).isSpectator()) {
+            EntityPlayer entityPlayer = (EntityPlayer) target;
+            if (entityPlayer.isSpectator() || !Client.INSTANCE.getModuleManager().get(Teams.class).isSameTeam(entityPlayer)) {
                 return false;
             }
         }
@@ -44,10 +43,10 @@ public class TargetsHandler extends Handler {
             return false;
         }
         
-        return target != mc.player && ((EntityLivingBase) target).deathTime <= 0 &&
-                (!teams.isToggled() || !teams.isInTeam((EntityLivingBase) target)) &&
-                (!antiBot.isToggled() || !antiBot.isBot((EntityLivingBase) target))
-                && !(target instanceof EntityArmorStand) && !((EntityLivingBase) target).isPlayerSleeping();
+        return entityLivingBase.deathTime <= 0 &&
+                !Client.INSTANCE.getModuleManager().get(AntiBot.class).isBot(entityLivingBase) &&
+                !(target instanceof EntityArmorStand) &&
+                !entityLivingBase.isPlayerSleeping();
     }
     
     @EventHandler(priority = 500)

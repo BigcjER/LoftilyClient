@@ -159,6 +159,9 @@ public class AntiBot extends Module {
     }
     
     public boolean isBot(EntityLivingBase entity) {
+        if(!isToggled()) {
+            return false;
+        }
         
         if (matrixValue.getValue() && botList.contains(entity.getUniqueID())) {
             return true;
