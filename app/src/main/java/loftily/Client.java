@@ -4,6 +4,7 @@ import de.florianmichael.viamcp.ViaMCP;
 import loftily.alt.AltManager;
 import loftily.command.CommandManager;
 import loftily.config.FileManager;
+import loftily.event.impl.client.ShutDownEvent;
 import loftily.gui.clickgui.ClickGui;
 import loftily.gui.notification.NotificationManager;
 import loftily.handlers.HandlerManager;
@@ -57,6 +58,7 @@ public enum Client {
     }
     
     public void shutdown() {
+        Client.INSTANCE.getEventManager().call(new ShutDownEvent());
         ClientUtils.LOGGER.info("Saving all configs");
         fileManager.saveAll();
     }
