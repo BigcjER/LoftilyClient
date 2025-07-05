@@ -29,37 +29,51 @@ public class ItemUtils implements ClientUtils {
             Blocks.ANVIL, Blocks.SAND, Blocks.WEB, Blocks.TORCH, Blocks.CRAFTING_TABLE, Blocks.FURNACE, Blocks.WATERLILY,
             Blocks.DISPENSER, Blocks.STONE_PRESSURE_PLATE, Blocks.WOODEN_PRESSURE_PLATE, Blocks.RED_FLOWER, Blocks.FLOWER_POT, Blocks.YELLOW_FLOWER,
             Blocks.NOTEBLOCK, Blocks.DROPPER, Blocks.STANDING_BANNER, Blocks.WALL_BANNER, Blocks.REDSTONE_TORCH,
-            Blocks.GLASS_PANE, Blocks.STAINED_GLASS_PANE, Blocks.LEVER, Blocks.CACTUS, Blocks.LADDER, Blocks.BROWN_MUSHROOM, Blocks.RED_MUSHROOM
+            Blocks.GLASS_PANE, Blocks.STAINED_GLASS_PANE, Blocks.LEVER, Blocks.CACTUS, Blocks.LADDER, Blocks.BROWN_MUSHROOM, Blocks.RED_MUSHROOM,
+            Blocks.OAK_FENCE_GATE, Blocks.ACACIA_FENCE_GATE, Blocks.BIRCH_FENCE_GATE, Blocks.JUNGLE_FENCE_GATE, Blocks.SPRUCE_FENCE_GATE, Blocks.DARK_OAK_FENCE_GATE,
+            Blocks.END_GATEWAY, Blocks.GLASS
     );
     
     public static boolean isItemUsefulInContainer(Container container, ItemStack itemStack) {
         Item item = itemStack.getItem();
         
-        if (item instanceof ItemAxe || item instanceof ItemPickaxe) return true;
+        if ((item instanceof ItemAxe || item instanceof ItemPickaxe) && isItemUnique(container, itemStack)) return true;
         if (item instanceof ItemFood && item != Items.SPIDER_EYE && item != Items.ROTTEN_FLESH) return true;
         if (item instanceof ItemPotion && !isPotionNegative(itemStack)) return true;
         if (item instanceof ItemBow || item == Items.ARROW) return true;
-        if (item instanceof ItemSword && isBestSword(container, itemStack)) return true;
-        if (item instanceof ItemArmor && isBestArmor(container, itemStack)) return true;
+        if (item instanceof ItemSword && isBestSword(container, itemStack) && isItemUnique(container, itemStack))
+            return true;
+        if (item instanceof ItemArmor && isBestArmor(container, itemStack) && isItemUnique(container, itemStack))
+            return true;
         if (item instanceof ItemBlock && !BLOCK_BLACKLIST.contains(((ItemBlock) item).getBlock())) return true;
         return item instanceof ItemEnderPearl;
     }
     
-    public static boolean isBestArmor(Container container, ItemStack itemStack) {
+    public static boolean isItemUnique(Container container, ItemStack itemStack) {
+        if (itemStack.isEmptyStack()) {
+            return true;
+        }
+        
+        for (Slot slot : container.inventorySlots) {
+            ItemStack slotStack = slot.getStack();
+            
+            if (!slotStack.isEmptyStack() && slotStack != itemStack && slotStack.getItem() == itemStack.getItem()) {
+                return itemStack.getItemDamage() < slotStack.getItemDamage();
+            }
+        }
+        
+        return true;
+    }
+    
+    private static boolean isBestArmor(Container container, ItemStack itemStack) {
         Item item = itemStack.getItem();
-        if (!(item instanceof ItemArmor)) return false;
+        if (itemStack.isEmptyStack() || !(item instanceof ItemArmor)) return false;
         
         ItemArmor itemArmor = (ItemArmor) item;
         EntityEquipmentSlot armorType = itemArmor.armorType;
         
         double thisArmorWeight = getArmorWeight(itemStack);
         double maxArmorWeight = 0D;
-        
-        //与当前穿的盔甲对比
-        ItemStack playerArmor = mc.player.inventory.armorInventory.get(armorType.getIndex());
-        if (!playerArmor.isEmptyStack() && getArmorWeight(playerArmor) >= thisArmorWeight) {
-            return false;
-        }
         
         for (Slot slot : container.inventorySlots) {
             ItemStack slotStack = slot.getStack();
