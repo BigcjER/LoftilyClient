@@ -17,6 +17,9 @@ import loftily.handlers.impl.render.AnimationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
+import loftily.module.impl.player.scaffold.towers.MatrixTowerMove;
+import loftily.module.impl.player.scaffold.towers.NCPTowerMove;
+import loftily.module.impl.player.scaffold.towers.VanillaTowerMove;
 import loftily.utils.block.BlockUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
@@ -42,6 +45,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.StatList;
@@ -92,7 +96,6 @@ public class Scaffold extends Module {
     //Rotation
     private final ModeValue rotationMode = new ModeValue("RotationMode", "None", this,
             new StringMode("Normal"),
-            new StringMode("Offset"),
             new StringMode("Round45"),
             new StringMode("Sexy"),
             new StringMode("None")
@@ -126,9 +129,11 @@ public class Scaffold extends Module {
             new StringMode("Legit"),
             new StringMode("OFF")
     );
+    @SuppressWarnings("unused")
     private final ModeValue towerMode = new ModeValue("TowerMode", "Jump", this,
-            new StringMode("Matrix"),
-            new StringMode("Vanilla"),
+            new MatrixTowerMove("Matrix"),
+            new VanillaTowerMove("Vanilla"),
+            new NCPTowerMove("NCP"),
             new StringMode("Jump")
     );
     private final BooleanValue towerFakeJump = new BooleanValue("TowerFakeJump", false);
@@ -160,9 +165,8 @@ public class Scaffold extends Module {
     private boolean zitterDirection = false;
     private final DelayTimer placeTimer = new DelayTimer();
     private PlaceInfo placeInfo = null;
-    private int onGroundTimes = 0;
     private double lastY = 0.0;
-    private boolean towerStatus = false;
+    public boolean towerStatus = false;
     private int currentPlaceDelay = 0;
     private int prevSlot;
     
@@ -175,7 +179,6 @@ public class Scaffold extends Module {
         placeTimer.reset();
         currentPlaceDelay = RandomUtils.randomInt((int) placeDelay.getFirst(), (int) placeDelay.getSecond());
         placeInfo = null;
-        onGroundTimes = 0;
         if (switchBackOnDisable.getValue()) {
             mc.player.inventory.currentItem = prevSlot;
         }
@@ -211,7 +214,13 @@ public class Scaffold extends Module {
                     ColorUtils.colorWithAlpha(Colors.Text.color, (int) (blockCountAnimation.getValuef() * 255)));
             
             //Draw stack
-            ItemStack stack = mc.player.inventory.getStackInSlot(mc.player.inventory.currentItem);
+            ItemStack stack;
+            if (InventoryUtils.findBlockInHotBar() != -1) {
+                stack = mc.player.inventory.getStackInSlot(InventoryUtils.findBlockInHotBar());
+            } else {
+                stack = new ItemStack(Blocks.BARRIER);
+            }
+            
             RenderHelper.enableGUIStandardItemLighting();
             GlStateManager.disableAlpha();
             GlStateManager.clear(256);
@@ -397,8 +406,8 @@ public class Scaffold extends Module {
     
     @EventHandler
     public void onMotion(MotionEvent event) {
-        towerStatus = false;
-        towerStatus = mc.gameSettings.keyBindJump.isKeyDown();
+        towerStatus = mc.gameSettings.keyBindJump.isKeyDown() &&
+                (!towerNoMove.getValue() || !MoveUtils.isMoving());
         
         if (placeInfo != null) {
             if ((event.isPre() && placeTiming.is("Pre")) || (event.isPost() && placeTiming.is("Post"))) {
@@ -406,42 +415,12 @@ public class Scaffold extends Module {
             }
         }
         
-        if (towerStatus) {
-            if (allowJump.getValue()) {
-                lastY = mc.player.posY;
-            }
-            if (towerNoMove.getValue() && MoveUtils.isMoving()) return;
-            switch (towerMode.getValueByName()) {
-                case "Jump":
-                    break;
-                case "Vanilla":
-                    fakeJump();
-                    mc.player.motionY = 0.42;
-                    break;
-                case "Matrix":
-                    if (!mc.player.onGround && onGroundTimes == 0) {
-                        onGroundTimes = 1;
-                    }
-                    if (mc.player.onGround && onGroundTimes == 1) {
-                        onGroundTimes = 2;
-                    }
-                    if (onGroundTimes == 2) {
-                        if (mc.player.onGround) {
-                            fakeJump();
-                            mc.player.motionY = 0.42;
-                        } else if (mc.player.motionY < 0.19) {
-                            event.setOnGround(true);
-                            mc.player.motionY = 0.42;
-                        }
-                    }
-                    break;
-            }
-        } else {
-            onGroundTimes = 0;
+        if (towerStatus && allowJump.getValue()) {
+            lastY = mc.player.posY;
         }
     }
     
-    private void fakeJump() {
+    public void fakeJump() {
         if (!towerFakeJump.getValue()) {
             return;
         }
