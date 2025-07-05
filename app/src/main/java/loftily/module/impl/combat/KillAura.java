@@ -34,7 +34,6 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketAnimation;
@@ -362,25 +361,33 @@ public class KillAura extends Module {
         if (mc.player == null) return;
         
         target = getTarget();
-        
+
+        if (!TargetsHandler.canAdd(target)) {
+            target = null;
+            target = getTarget();
+        }
+
         rotation(target);
-        
+
         if (mc.player == null) return;
-        
+
         if (autoBlockMode.is("MatrixDamage") && canBlock() && target != null) {
             if (canAttackTimes > 0) {
                 mc.gameSettings.keyBindUseItem.setPressed(false);
             }
         }
-        
+
         if (blockTiming.is("Tick")) {
             runAutoBlock(target);
         }
-        
+
         if (attackTimeMode.is("Tick")) {
             attackTarget(target);
         }
-        
+    }
+
+    @EventHandler
+    public void onLivingUpdate(LivingUpdateEvent event) {
     }
     
     @EventHandler
@@ -448,12 +455,6 @@ public class KillAura extends Module {
     private EntityLivingBase getTarget() {
         if (mc.player == null) return null;
         
-        if (target != null) {
-            if (!TargetsHandler.canAdd(target)) {
-                target = null;
-            }
-        }
-        
         if (TargetsHandler.canAdd(target)) {
             if (CalculateUtils.getClosetDistance(mc.player, target) <= attackRange.getValue()) {
                 if (mode.is("Single")) return target;
@@ -505,7 +506,7 @@ public class KillAura extends Module {
             PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
             blockingStatus = false;
         }
-        
+
         return null;
     }
     
@@ -523,6 +524,7 @@ public class KillAura extends Module {
     
     private void blockingPacket(Entity target) {
         sendInteractPacket(target);
+        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
     }
@@ -542,6 +544,11 @@ public class KillAura extends Module {
                 case "HoldKey":
                     mc.gameSettings.keyBindUseItem.setPressed(true);
                     break;
+                case "Packet":
+                    if (!blockingStatus) {
+                        blockingPacket(target);
+                    }
+                    break;
                 case "AfterTick":
                     if (canAttackTimes > 0) {
                         if (blockingTick) {
@@ -560,9 +567,6 @@ public class KillAura extends Module {
                         }
                         mc.gameSettings.keyBindUseItem.setPressed(true);
                     }
-                    break;
-                case "Packet":
-                    blockingPacket(target);
                     break;
             }
             
@@ -607,11 +611,6 @@ public class KillAura extends Module {
         }
         
         if (((EntityLivingBase) bestTarget).hurtTime > hurtTime.getValue()) return;
-        
-        if (!TargetsHandler.canAdd(bestTarget)) {
-            this.target = null;
-            return;
-        }
         
         while (canAttackTimes > 0) {
             canAttackTimes--;

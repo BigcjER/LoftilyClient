@@ -25,6 +25,7 @@ public class NoSlow extends Module {
     private final MultiBooleanValue blockingMode = new MultiBooleanValue("BlockingPacketMode")
             .add("Switch", false)
             .add("Extra", false)
+            .add("AAC5", false)
             .add("NoGround", false)
             .add("Jump", false)
             .add("HandPacket", false)
@@ -66,15 +67,24 @@ public class NoSlow extends Module {
                         if (value) {
                             switch (mode) {
                                 case "Switch":
-                                    PacketUtils.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem % 8 + 1));
-                                    PacketUtils.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
+                                    if (event.isPre()) {
+                                        PacketUtils.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem % 8 + 1));
+                                        PacketUtils.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
+                                    }
                                     break;
                                 case "NoGround":
                                     event.setOnGround(false);
                                     break;
                                 case "Jump":
-                                    if (mc.player.onGround) {
+                                    if (mc.player.onGround && event.isPost()) {
                                         mc.player.tryJump();
+                                    }
+                                    break;
+                                case "AAC5":
+                                    if (event.isPost()) {
+                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(
+                                                new BlockPos(-1, -1, -1),
+                                                EnumFacing.DOWN, EnumHand.MAIN_HAND, 0.0F, 0.0F, 0.0F));
                                     }
                                     break;
                                 case "Extra":
@@ -82,8 +92,8 @@ public class NoSlow extends Module {
                                         PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(
                                                 new BlockPos(-1, -1, -1),
                                                 EnumFacing.DOWN, EnumHand.MAIN_HAND, 0.0F, 0.0F, 0.0F));
-                                        break;
                                     }
+                                    break;
                                 case "HandPacket":
                                     if (event.isPre()) {
                                         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
@@ -110,14 +120,16 @@ public class NoSlow extends Module {
                         if (value) {
                             switch (mode) {
                                 case "Switch":
-                                    PacketUtils.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem % 8 + 1));
-                                    PacketUtils.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
+                                    if (event.isPre()) {
+                                        PacketUtils.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem % 8 + 1));
+                                        PacketUtils.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
+                                    }
                                     break;
                                 case "NoGround":
                                     event.setOnGround(false);
                                     break;
                                 case "Jump":
-                                    if (mc.player.onGround) {
+                                    if (mc.player.onGround && event.isPost()) {
                                         mc.player.tryJump();
                                     }
                                     break;

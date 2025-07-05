@@ -18,9 +18,8 @@ import static net.minecraft.util.math.MathHelper.abs;
 import static net.minecraft.util.math.MathHelper.ceil;
 
 public class CalculateUtils {
-    
     public static float getMoveFixForward(Rotation rotation) {
-        float playerDirection = moveFix == RotationHandler.MoveFix.SILENT ? mc.player.rotationYaw : Math.round(mc.player.rotationYaw / 45f) * 45f;
+        float playerDirection = moveFix == RotationHandler.MoveFix.SILENT ? mc.player.rotationYaw : round(mc.player.rotationYaw / 45f) * 45f;
         float diff = (playerDirection - rotation.yaw) * (float) (Math.PI / 180);
         
         float calcForward;
@@ -61,8 +60,8 @@ public class CalculateUtils {
         for (int x = (int) xR; x >= -xR + 1; x -= 1) {
             for (int y = (int) yR; y >= -yR + 1; y -= 1) {
                 for (int z = (int) zR; z >= -zR + 1; z -= 1) {
-                    BlockPos blockPos = new BlockPos((int) Math.round(mc.player.posX + x), (int) Math.round(mc.player.posY - 1.0 + y),
-                            (int) Math.round(mc.player.posZ + z));
+                    BlockPos blockPos = new BlockPos((int) round(mc.player.posX + x), (int) round(mc.player.posY - 1.0 + y),
+                            (int) round(mc.player.posZ + z));
                     
                     blocks.add(blockPos);
                 }

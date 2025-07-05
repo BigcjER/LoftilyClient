@@ -3,7 +3,6 @@ package loftily.utils.player;
 import loftily.utils.client.ClientUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.MobEffects;
-import net.minecraft.potion.Potion;
 
 public class MoveUtils implements ClientUtils {
     
@@ -21,6 +20,10 @@ public class MoveUtils implements ClientUtils {
 
     public static double getHorizontalSpeed(Entity entity) {
         return Math.sqrt(entity.motionX * entity.motionX + entity.motionZ * entity.motionZ);
+    }
+
+    public static float getMovingYaw(){
+        return (float) (MoveUtils.getDirection() * 180 / Math.PI);
     }
 
     public static double getDirection(float rotationYaw, double moveForward, double moveStrafe) {

@@ -53,15 +53,15 @@ public class Sprint extends Module {
         mc.player.setSprinting(true);
     }
 
-    @EventHandler(priority = -100)
+    @EventHandler(priority = -1000)
     public void onJump(JumpEvent event) {
         if (!allDirectionsJump.getValue()) return;
         
         event.setMovementYaw((float) Math.toDegrees(MoveUtils.getDirection()));
         
     }
-    
-    @EventHandler(priority = -100)
+
+    @EventHandler(priority = -1000)
     public void onLivingUpdate(LivingUpdateEvent event) {
         Rotation rotation = RotationHandler.clientRotation;
         

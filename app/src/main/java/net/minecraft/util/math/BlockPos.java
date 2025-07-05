@@ -208,6 +208,11 @@ public class BlockPos extends Vec3i
         return n == 0 ? this : new BlockPos(this.getX() + facing.getFrontOffsetX() * n, this.getY() + facing.getFrontOffsetY() * n, this.getZ() + facing.getFrontOffsetZ() * n);
     }
 
+    public BlockPos offset(EnumFacing facing, double n)
+    {
+        return n == 0 ? this : new BlockPos(this.getX() + facing.getFrontOffsetX() * n, this.getY() + facing.getFrontOffsetY() * n, this.getZ() + facing.getFrontOffsetZ() * n);
+    }
+
     public BlockPos func_190942_a(Rotation p_190942_1_)
     {
         switch (p_190942_1_)

@@ -6,6 +6,7 @@ import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.player.motion.MoveEvent;
 import loftily.event.impl.player.motion.StrafeEvent;
 import loftily.event.impl.render.Render2DEvent;
+import loftily.event.impl.render.Render3DEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.event.impl.world.PreUpdateEvent;
 import loftily.gui.animation.Animation;
@@ -13,18 +14,20 @@ import loftily.gui.animation.Easing;
 import loftily.gui.font.FontManager;
 import loftily.handlers.impl.player.MoveHandler;
 import loftily.handlers.impl.player.RotationHandler;
-import loftily.handlers.impl.render.AnimationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
 import loftily.module.impl.player.scaffold.towers.MatrixTower;
+import loftily.module.impl.player.scaffold.towers.NCPTestTower;
 import loftily.module.impl.player.scaffold.towers.NCPTower;
 import loftily.module.impl.player.scaffold.towers.VanillaTower;
 import loftily.utils.block.BlockUtils;
+import loftily.utils.client.PacketUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
 import loftily.utils.player.InventoryUtils;
 import loftily.utils.player.MoveUtils;
+import loftily.utils.player.PlayerUtils;
 import loftily.utils.player.RotationUtils;
 import loftily.utils.render.ColorUtils;
 import loftily.utils.render.Colors;
@@ -48,6 +51,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.CPacketAnimation;
+import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
+import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -64,10 +70,13 @@ import java.util.Objects;
 import static java.lang.Math.*;
 import static loftily.utils.math.CalculateUtils.getMoveFixForward;
 import static loftily.utils.math.CalculateUtils.getVectorForRotation;
+import static loftily.utils.player.PlayerUtils.nearAir;
 
 @ModuleInfo(name = "Scaffold", category = ModuleCategory.PLAYER)
 public class Scaffold extends Module {
     
+    @Getter
+    public static Scaffold scaffold;
     //Mode
     private final ModeValue scaffoldMode = new ModeValue("Mode", "Normal", this,
             new StringMode("Normal"),
@@ -75,7 +84,8 @@ public class Scaffold extends Module {
             new StringMode("Snap"),
             new StringMode("AutoJump"),
             new StringMode("SlowJump"),
-            new StringMode("TickJump"));
+            new StringMode("TickJump"),
+            new StringMode("GodBridge"));
     //Place
     private final ModeValue placeTiming = new ModeValue("PlaceTiming", "Tick", this,
             new StringMode("Pre"),
@@ -93,13 +103,41 @@ public class Scaffold extends Module {
             .setVisible(() -> placeDelayMode.is("Normal"));
     private final BooleanValue placeDelayNoTower = new BooleanValue("PlaceDelay-NotTowering", false)
             .setVisible(() -> placeDelayMode.is("Normal"));
+    private final BooleanValue moveHelperGod = new BooleanValue("MoveHelper-GodBridge", false);
+    private final BooleanValue extraClick = new BooleanValue("ExtraClick", false);
+    private final RangeSelectionNumberValue extraClickDelay = new RangeSelectionNumberValue("ExtraClickDelay", 40, 100, 0, 200).setVisible(extraClick::getValue);
+    private final BooleanValue extraClickNoTower = new BooleanValue("ExtraClick-NotTowering", false).setVisible(extraClick::getValue);
+    private final BooleanValue extraClickOnlyFaceBlock = new BooleanValue("ExtraClick-OnlyFaceBlock", false).setVisible(extraClick::getValue);
+    private final BooleanValue extraClickOnlyMove = new BooleanValue("ExtraClick-OnlyMove", false).setVisible(extraClick::getValue);
+    private final BooleanValue extraClickDoubleClickAble = new BooleanValue("ExtraClick-DoubleClickAble", false).setVisible(extraClick::getValue);
+    private final ModeValue extraClickTime = new ModeValue("ExtraClickTime", "BeforePlace", this,
+            new StringMode("BeforePlace"),
+            new StringMode("Legit")).setVisible(extraClick::getValue);
+    private final BooleanValue extraClickSmart = new BooleanValue("ExtraClick-Smart", false);
     //Rotation
     private final ModeValue rotationMode = new ModeValue("RotationMode", "None", this,
             new StringMode("Normal"),
+            new StringMode("Offset"),
             new StringMode("Round45"),
             new StringMode("Sexy"),
+            new StringMode("StaticGodBridge"),
+            new StringMode("StaticBack"),
+            new StringMode("Advance"),
             new StringMode("None")
     );
+    private final ModeValue advanceRotationYaw = new ModeValue("AdvanceRotationYaw", "Normal", this,
+            new StringMode("Normal"),
+            new StringMode("Static"))
+            .setVisible(() -> rotationMode.is("Advance"));
+    private final NumberValue staticYawValue = new NumberValue("StaticYaw", 180, -180, 180, 0.01)
+            .setVisible(() -> rotationMode.is("Advance") && advanceRotationYaw.is("Static"));
+    private final BooleanValue smartDirection = new BooleanValue("SmartDirection", false).setVisible(() -> staticYawValue.getVisible().get());
+    private final ModeValue advanceRotationPitch = new ModeValue("AdvanceRotationPitch", "Normal", this,
+            new StringMode("Normal"),
+            new StringMode("Static"))
+            .setVisible(() -> rotationMode.is("Advance"));
+    private final NumberValue staticPitchValue = new NumberValue("StaticPitch", 80.34, -90, 90, 0.01)
+            .setVisible(() -> rotationMode.is("Advance") && advanceRotationPitch.is("Static"));
     private final ModeValue rotationTiming = new ModeValue("RotationTiming", "Normal", this,
             new StringMode("Normal"), new StringMode("Always")
     );
@@ -124,28 +162,25 @@ public class Scaffold extends Module {
             new StringMode("None"),
             new StringMode("Silent"),
             new StringMode("45Angle"));
+    private final BooleanValue stableRotation = new BooleanValue("StableRotation", false);
     private final ModeValue sprintMode = new ModeValue("SprintMode", "Default", this,
             new StringMode("Default"),
             new StringMode("Legit"),
+            new StringMode("Ground"),
+            new StringMode("Air"),
             new StringMode("OFF")
     );
-    @SuppressWarnings("unused")
-    private final ModeValue towerMode = new ModeValue("TowerMode", "Jump", this,
-            new MatrixTower("Matrix"),
-            new VanillaTower("Vanilla"),
-            new NCPTower("NCP"),
-            new StringMode("Jump")
-    );
+    private final BooleanValue sprintNotTowering = new BooleanValue("Sprint-NoTower", false);
     private final BooleanValue towerFakeJump = new BooleanValue("TowerFakeJump", false);
     private final BooleanValue towerNoMove = new BooleanValue("TowerNoMove", false);
     
     private final BooleanValue onGround = new BooleanValue("OnGroundSafeWalk", false);
     private final BooleanValue inAir = new BooleanValue("InAirSafeWalk", false);
-    
+
     private final BooleanValue motionModifier = new BooleanValue("MotionModifier", false);
     private final NumberValue motionSpeedSet = new NumberValue("MotionSpeed", 0.1, 0.0, 1.0, 0.01).setVisible(motionModifier::getValue);
     private final BooleanValue motionSpeedSetOnlyGround = new BooleanValue("MotionSpeedOnlyGround", false).setVisible(motionModifier::getValue);
-    
+
     private final ModeValue adStrafeMode = new ModeValue("ADStrafe", "None", this, new StringMode("Teleport"),
             new StringMode("Legit"), new StringMode("None"));
     private final NumberValue adStrafeDelay = new NumberValue("ADStrafeDelay", 1, 1, 20).setVisible(() -> !adStrafeMode.is("None"));
@@ -156,16 +191,23 @@ public class Scaffold extends Module {
     //SameY
     private final BooleanValue sameY = new BooleanValue("SameY", false);
     private final BooleanValue allowJump = new BooleanValue("AllowJump", false);
-    
-    //Other
+    @SuppressWarnings("unused")
+    private final ModeValue towerMode = new ModeValue("TowerMode", "Jump", this,
+            new MatrixTower("Matrix"),
+            new VanillaTower("Vanilla"),
+            new NCPTower("NCP"),
+            new NCPTestTower("NCPLow"),
+            new StringMode("Jump")
+    );
     private final BooleanValue autoSwitchToBlock = new BooleanValue("AutoSwitchToBlock", true);
     private final BooleanValue switchBackOnDisable = new BooleanValue("SwitchBackOnDisable", true);
+
     private final BooleanValue blockCounter = new BooleanValue("BlockCounter", false);
     private final BooleanValue blockCounterCustomOpacity = new BooleanValue("CustomBackgroundOpacity", false)
             .setVisible(blockCounter::getValue);
     private final NumberValue blockCounterCustomOpacityValue = new NumberValue("CustomBackgroundOpacityValue", 255, 1, 255)
             .setVisible(() -> blockCounter.getValue() && blockCounterCustomOpacity.getValue());
-    
+
     private boolean zitterDirection = false;
     private final DelayTimer placeTimer = new DelayTimer();
     private PlaceInfo placeInfo = null;
@@ -173,87 +215,47 @@ public class Scaffold extends Module {
     public boolean towerStatus = false;
     private int currentPlaceDelay = 0;
     private int prevSlot;
-    
-    
+    //Other
+    private final ModeValue swingMode = new ModeValue("Swing", "Vanilla", this,
+            new StringMode("Vanilla"),
+            new StringMode("Packet"),
+            new StringMode("NoPacket"));
+    private final DelayTimer extraClickTimer = new DelayTimer();
+    private int curExtraClickDelay = 0;
+    private int clickTimes = 0;
+    private boolean tickPlacement = false;
+
+
     private final Animation blockCountAnimation = new Animation(Easing.EaseOutExpo, 300);
     private Runnable blockCounterRunnable;
+    private boolean ableSneak = false;
+
+    public boolean canExtraClick() {
+        return (!extraClickNoTower.getValue() || !towerStatus) &&
+                (!extraClickOnlyMove.getValue() || MoveUtils.isMoving()) &&
+                (!extraClickOnlyFaceBlock.getValue() || performBlockRaytrace(RotationHandler.getCurrentRotation()).typeOfHit == RayTraceResult.Type.BLOCK);
+    }
     
     @Override
     public void onDisable() {
+        ableSneak = false;
         placeTimer.reset();
         currentPlaceDelay = RandomUtils.randomInt((int) placeDelay.getFirst(), (int) placeDelay.getSecond());
         placeInfo = null;
         if (switchBackOnDisable.getValue()) {
             mc.player.inventory.currentItem = prevSlot;
         }
-        
-        if (blockCounter.getValue()) {
-            if (blockCounterRunnable != null)
-                AnimationHandler.add(blockCountAnimation, blockCounterRunnable);
-        }
+        clickTimes = 0;
     }
-    
+
     @Override
     public void onEnable() {
+        curExtraClickDelay = RandomUtils.randomInt((int) extraClickDelay.getFirst(), (int) extraClickDelay.getSecond());
+        clickTimes = 0;
         lastY = mc.player.posY;
         prevSlot = mc.player.inventory.currentItem;
     }
-    
-    @EventHandler
-    public void onRender2D(Render2DEvent event) {
-        if (!blockCounter.getValue()) return;
-        
-        int size = 50;
-        
-        int startX = event.getScaledResolution().getScaledWidth() / 2 - size / 2;
-        
-        
-        blockCounterRunnable = () -> {
-            blockCountAnimation.run(this.isToggled() ? 1 : 0);
-            int opacity = blockCounterCustomOpacity.getValue() ? blockCounterCustomOpacityValue.getValue().intValue() : (int) (blockCountAnimation.getValuef() * 255);
-            
-            if(opacity <= 0) return;
-            
-            GlStateManager.pushMatrix();
-            GlStateManager.translate(startX, event.getScaledResolution().getScaledHeight() - (100 * blockCountAnimation.getValuef()), 0);
-            
-            RenderUtils.drawRoundedRect(0, 0, size, size, 3,
-                    ColorUtils.colorWithAlpha(Colors.BackGround.color, opacity));
-            FontManager.NotoSans.of(16).drawCenteredString(String.valueOf(InventoryUtils.getBlocksInHotBar()), size / 2F, size - size / 3.5F + 1,
-                    ColorUtils.colorWithAlpha(Colors.Text.color, 255));
-            
-            //Draw stack
-            ItemStack stack;
-            if (InventoryUtils.findBlockInHotBar() != -1) {
-                stack = mc.player.inventory.getStackInSlot(InventoryUtils.findBlockInHotBar());
-            } else {
-                stack = new ItemStack(Blocks.BARRIER);
-            }
-            
-            RenderHelper.enableGUIStandardItemLighting();
-            GlStateManager.disableAlpha();
-            GlStateManager.clear(256);
-            GlStateManager.enableBlend();
-            GlStateManager.color(1F, 1F, 1F, opacity / 255F);
-            
-            mc.getRenderItem().zLevel = -150.0f;
-            GlStateManager.scale(1.4F, 1.4F, 1.4F);
-            mc.getRenderItem().renderItemAndEffectIntoGUI(stack, 10, 5);
-            mc.getRenderItem().zLevel = 0.0f;
-            
-            GlStateManager.enableBlend();
-            GlStateManager.disableDepth();
-            GlStateManager.disableLighting();
-            GlStateManager.enableDepth();
-            GlStateManager.enableAlpha();
-            
-            GlStateManager.popMatrix();
-            
-        };
-        
-        blockCounterRunnable.run();
-    }
-    
+
     @EventHandler
     public void onMove(MoveEvent event) {
         if (event.getEntity() != mc.player) return;
@@ -261,21 +263,103 @@ public class Scaffold extends Module {
             event.setSafeWalk(true);
         }
     }
-    
+
+    @EventHandler
+    public void onRender2D(Render2DEvent event) {
+        if (!blockCounter.getValue()) return;
+
+        int size = 50;
+
+        int startX = event.getScaledResolution().getScaledWidth() / 2 - size / 2;
+
+        blockCounterRunnable = () -> {
+            blockCountAnimation.run(this.isToggled() ? 1 : 0);
+            int opacity = blockCounterCustomOpacity.getValue() ? blockCounterCustomOpacityValue.getValue().intValue() : (int) (blockCountAnimation.getValuef() * 255);
+
+            if(opacity <= 0) return;
+
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(startX, event.getScaledResolution().getScaledHeight() - (100 * blockCountAnimation.getValuef()), 0);
+
+            RenderUtils.drawRoundedRect(0, 0, size, size, 3,
+                    ColorUtils.colorWithAlpha(Colors.BackGround.color, (int) (blockCountAnimation.getValuef() * 255)));
+            FontManager.NotoSans.of(16).drawCenteredString(String.valueOf(InventoryUtils.getBlocksInHotBar()), size / 2F, size - size / 3.5F,
+                    ColorUtils.colorWithAlpha(Colors.Text.color, (int) (blockCountAnimation.getValuef() * 255)));
+
+            //Draw stack
+            ItemStack stack;
+            if (InventoryUtils.findBlockInHotBar() != -1) {
+                stack = mc.player.inventory.getStackInSlot(InventoryUtils.findBlockInHotBar());
+            } else {
+                stack = new ItemStack(Blocks.BARRIER);
+            }
+
+            RenderHelper.enableGUIStandardItemLighting();
+            GlStateManager.disableAlpha();
+            GlStateManager.clear(256);
+            GlStateManager.enableBlend();
+            GlStateManager.color(1, 1, 1, blockCountAnimation.getValuef());
+
+            mc.getRenderItem().zLevel = -150.0f;
+            GlStateManager.scale(1.4F, 1.4F, 1.4F);
+            mc.getRenderItem().renderItemAndEffectIntoGUI(stack, 10, 5);
+            mc.getRenderItem().zLevel = 0.0f;
+
+            GlStateManager.enableBlend();
+            GlStateManager.disableDepth();
+            GlStateManager.disableLighting();
+            GlStateManager.enableDepth();
+            GlStateManager.enableAlpha();
+
+            GlStateManager.popMatrix();
+
+        };
+
+        blockCounterRunnable.run();
+    }
+
+    public void doExtraClick(EnumHand hand) {
+        while (clickTimes > 0 && (!tickPlacement || !extraClickSmart.getValue())) {
+            RayTraceResult rayTraceResult = performBlockRaytrace(RotationHandler.getCurrentRotation());
+            BlockPos posIn = rayTraceResult.getBlockPos();
+            if (rayTraceResult.typeOfHit == RayTraceResult.Type.MISS) {
+                PacketUtils.sendPacket(new CPacketPlayerTryUseItem(hand));
+            } else if (rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK && !(mc.world.getBlockState(posIn).getBlock() instanceof BlockAir)) {
+                ItemBlock itemBlock = (ItemBlock) mc.player.getHeldItem(hand).getItem();
+                float f = (float) (rayTraceResult.hitVec.xCoord - (double) rayTraceResult.getBlockPos().getX());
+                float f1 = (float) (rayTraceResult.hitVec.yCoord - (double) rayTraceResult.getBlockPos().getY());
+                float f2 = (float) (rayTraceResult.hitVec.zCoord - (double) rayTraceResult.getBlockPos().getZ());
+                if (!itemBlock.canPlaceBlockOnSide(mc.world, posIn, rayTraceResult.sideHit, mc.player, mc.player.getHeldItem(hand))) {
+                    PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(
+                            posIn,
+                            rayTraceResult.sideHit,
+                            hand,
+                            f, f1, f2
+                    ));
+                }
+            }
+            clickTimes--;
+            if (!extraClickDoubleClickAble.getValue()) {
+                clickTimes = 0;
+                break;
+            }
+        }
+    }
+
     @EventHandler
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.player == null) return;
-        
+
         if (mc.player.onGround && MoveUtils.isMoving() && scaffoldMode.is("TickJump")) {
             mc.player.tryJump();
         }
-        
+
         if (motionModifier.getValue()) {
             if (!motionSpeedSetOnlyGround.getValue() || mc.player.onGround) {
                 MoveUtils.setSpeed(motionSpeedSet.getValue(), true);
             }
         }
-        
+
         if (mc.player.ticksExisted % adStrafeDelay.getValue() == 0) {
             switch (adStrafeMode.getValueByName()) {
                 case "None":
@@ -287,8 +371,8 @@ public class Scaffold extends Module {
                                 MoveUtils.setSpeed(teleportSpeed.getValue(), true);
                             }
                         }
-                        double yaw = Math.toRadians(mc.player.rotationYaw + (zitterDirection ? 90.0 : -90.0));
-                        
+                        double yaw = toRadians(mc.player.rotationYaw + (zitterDirection ? 90.0 : -90.0));
+
                         mc.player.motionX -= sin(yaw) * teleportStrength.getValue();
                         mc.player.motionZ += cos(yaw) * teleportStrength.getValue();
                         zitterDirection = !zitterDirection;
@@ -309,59 +393,73 @@ public class Scaffold extends Module {
                     break;
             }
         }
-    }
-    
-    @EventHandler
-    public void onLivingUpdate(LivingUpdateEvent event) {
-        if (mc.player == null) return;
-        
+
+        if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && !(mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock)) {
+            if (autoSwitchToBlock.getValue()) {
+                int slot = InventoryUtils.findBlockInHotBar();
+
+                if (slot != -1)
+                    mc.player.inventory.currentItem = slot;
+            }
+
+            return;
+        }
+
+        if (extraClick.getValue() && extraClickTime.is("BeforePlace")) {
+            if (canExtraClick() && clickTimes > 0) {
+                EnumHand hand = mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
+                if (mc.player.getHeldItem(hand).getItem() instanceof ItemBlock) {
+                    doExtraClick(hand);
+                }
+            }
+            tickPlacement = false;
+        }
+
+        if (staticRotation() != null) {
+            Rotation staRot = staticRotation();
+            setRotation(staRot);
+        }
+
         searchBlock();
-        
+
         if (placeInfo == null)
             return;
-        
+
         if (rotationTiming.getValueByName().equals("Always")) {
             setRotation(placeInfo.getRotation());
         }
         if (rotationMode.is("Sexy")) {
             setRotation(RotationUtils.toRotation(placeInfo.getHitVec(), mc.player));
         }
-        
-        
-        if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && !(mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock)) {
-            if (autoSwitchToBlock.getValue()) {
-                int slot = InventoryUtils.findBlockInHotBar();
-                
-                if (slot != -1)
-                    mc.player.inventory.currentItem = slot;
-            }
-            
-            return;
+
+        if (staticRotation() != null) {
+            Rotation staRot = staticRotation();
+            setRotation(staRot);
         }
-        
+
         if (keepRotation.getValue() && RotationHandler.clientRotation != null) {
             setRotation(RotationHandler.clientRotation);
         }
-        
+
         switch (scaffoldMode.getValueByName()) {
             case "Telly":
                 if (MoveUtils.isMoving() && mc.player.onGround) {
-                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
+                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / PI), RotationHandler.getCurrentRotation().pitch));
                 }
                 break;
             case "Snap":
                 if (!(mc.world.getBlockState(new BlockPos(mc.player.posX, mc.player.posY - 1, mc.player.posZ)).getBlock() instanceof BlockAir)) {
-                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / Math.PI), RotationHandler.getCurrentRotation().pitch));
+                    setRotation(new Rotation((float) (MoveUtils.getDirection() * 180 / PI), RotationHandler.getCurrentRotation().pitch));
                 }
                 break;
         }
-        
+
         switch (eagleMode.getValueByName()) {
             case "Prediction":
                 IBlockState iBlockState = mc.world.getBlockState(new BlockPos(mc.player.posX + mc.player.motionX * predictMotion.getValue(),
                         mc.player.posY - 1.0,
                         mc.player.posZ + mc.player.motionZ * predictMotion.getValue()));
-                
+
                 if (iBlockState.getBlock() instanceof BlockAir && mc.player.onGround) {
                     MoveHandler.setSneak(true, sneakTime.getValue().intValue());
                 }
@@ -375,8 +473,89 @@ public class Scaffold extends Module {
                 }
                 break;
         }
-        
-        click(placeInfo.blockPos, placeInfo.facing, placeInfo.hitVec);
+
+        PlaceInfo targetInfo = null;
+        RayTraceResult rayTraceResult = performBlockRaytrace(RotationHandler.getCurrentRotation());
+        if (clickCheck.is("None")) {
+            targetInfo = placeInfo;
+        } else {
+            if (rayTraceResult != null) {
+                switch (clickCheck.getValueByName()) {
+                    case "None":
+                        break;
+                    case "Simple":
+                        if (rayTraceResult.getBlockPos().equals(placeInfo.blockPos)) {
+                            targetInfo = new PlaceInfo(rayTraceResult.getBlockPos(), placeInfo.facing, placeInfo.hitVec, placeInfo.rotation);
+                        }
+                        break;
+                    case "Strict":
+                        if (rayTraceResult.getBlockPos().equals(placeInfo.blockPos) && rayTraceResult.sideHit == placeInfo.facing) {
+                            targetInfo = new PlaceInfo(rayTraceResult.getBlockPos(), rayTraceResult.sideHit, rayTraceResult.hitVec, placeInfo.rotation);
+                        }
+                        break;
+                }
+            }
+        }
+
+        if (targetInfo != null) {
+            if (click(targetInfo.blockPos, targetInfo.facing, targetInfo.hitVec)) {
+            } else {
+                if (extraClick.getValue() && extraClickTime.is("Legit")) {
+                    if (canExtraClick() && clickTimes > 0) {
+                        EnumHand hand = mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
+                        if (mc.player.getHeldItem(hand).getItem() instanceof ItemBlock) {
+                            doExtraClick(hand);
+                        }
+                    }
+                    tickPlacement = false;
+                }
+            }
+        }
+    }
+    
+    public Rotation staticRotation() {
+        Rotation rotation = null;
+        switch (rotationMode.getValueByName()) {
+            case "StaticGodBridge":
+                rotation = new Rotation(
+                        PlayerUtils.isDiagonally() ? MoveUtils.getMovingYaw() - 180 : MoveUtils.getMovingYaw() + (
+                                PlayerUtils.onRightSide(mc.player) ? 135F : -135F),
+                        towerStatus && !MoveUtils.isMoving() ? 89.6F : PlayerUtils.isDiagonally() ? 75.6F : 73.5F);
+                break;
+            case "StaticBack":
+                rotation = new Rotation(
+                        MoveUtils.getMovingYaw() + 180,
+                        placeInfo == null ? 80.34F : placeInfo.rotation.pitch
+                );
+                break;
+            case "Advance":
+                float yaw = 0;
+                float pitch = 0;
+                switch (advanceRotationYaw.getValueByName()) {
+                    case "Normal":
+                        yaw = placeInfo == null ? MoveUtils.getMovingYaw() + 180F : placeInfo.rotation.yaw;
+                        break;
+                    case "Static":
+                        yaw = (float) (MoveUtils.getMovingYaw() + (smartDirection.getValue() ? PlayerUtils.onRightSide(mc.player) ? staticYawValue.getValue() : -staticYawValue.getValue() : staticYawValue.getValue()));
+                        break;
+                }
+                switch (advanceRotationPitch.getValueByName()) {
+                    case "Normal":
+                        pitch = placeInfo == null ? 80.34F : placeInfo.rotation.pitch;
+                        break;
+                    case "Static":
+                        pitch = staticPitchValue.getValue().floatValue();
+                        break;
+                }
+                rotation = new Rotation(yaw, pitch);
+                break;
+        }
+        if (stableRotation.getValue()) {
+            if (rotation != null) {
+                rotation.yaw = round(rotation.yaw / 45) * 45;
+            }
+        }
+        return rotation;
     }
     
     @EventHandler
@@ -407,25 +586,56 @@ public class Scaffold extends Module {
                     mc.player.motionY = 0.42;
                 }
                 break;
+            case "GodBridge":
+                if (MoveUtils.isMoving() && mc.player.onGround && !mc.player.isSneaking() && !mc.gameSettings.keyBindSneak.isKeyDown() &&
+                        mc.world.getCollisionBoxes(mc.player, mc.player.getBox()
+                                .offset(0.0, -0.5, 0.0).expand(-0.001, 0.0, -0.001)).isEmpty()
+                        && (scaffoldMode.is("GodBridge"))) {
+                    mc.player.tryJump();
+                }
+                if (moveHelperGod.getValue()) {
+                    BlockPos blockPos = new BlockPos(mc.player).down();
+                    boolean isDiagonally = PlayerUtils.isDiagonally();
+                    double xMin = blockPos.getX() + 0.35;
+                    double xMax = blockPos.getX() + 0.65;
+                    double zMin = blockPos.getZ() + 0.35;
+                    double zMax = blockPos.getZ() + 0.65;
+                    double x = blockPos.getX();
+                    double z = blockPos.getZ();
+                    double playerX = mc.player.posX;
+                    double playerZ = mc.player.posZ;
+
+                    if (isDiagonally) {
+                        xMin = blockPos.getX() + 0.9;
+                        xMax = blockPos.getX() + 1.0;
+                        zMin = blockPos.getZ() + 0.9;
+                        zMax = blockPos.getZ() + 1.0;
+                    }
+
+                    if ((!isDiagonally && playerX >= xMin && playerX <= xMax && playerZ >= zMin && playerZ <= zMax) ||
+                            (isDiagonally && ((playerX >= xMin && playerX <= xMax && playerZ >= zMin && playerZ <= zMax) ||
+                                    (playerX >= x && playerX <= x + 0.1 && playerZ >= z && playerZ <= z + 0.1) ||
+                                    (playerX >= x && playerX <= x + 0.1 && playerZ >= zMin && playerZ <= zMax) ||
+                                    (playerX >= xMin && playerX <= xMax && playerZ >= z && playerZ <= z + 0.1)))) {
+                        ableSneak = true;
+                    }
+
+                    if ((ableSneak || (!MoveUtils.isMoving()) || (InventoryUtils.findBlockInHotBar() == -1)) && nearAir()) {
+                        MoveHandler.setSneak(true, 20);
+                    }
+
+                    if ((!isDiagonally && (playerX < xMin || playerX > xMax) && (playerZ < zMin || playerZ > zMax)) ||
+                            (isDiagonally && !((playerX >= xMin || playerZ >= zMin) ||
+                                    (playerX >= x && playerX <= x + 0.2 || playerZ >= z && playerZ <= z + 0.2) ||
+                                    (playerX >= x && playerX <= x + 0.2 || playerZ >= zMin && playerZ <= zMax) ||
+                                    (playerX >= xMin && playerX <= xMax || playerZ >= z && playerZ <= z + 0.2)))) {
+                        ableSneak = false;
+                    }
+                }
+                break;
             case "Normal":
             case "Snap":
                 break;
-        }
-    }
-    
-    @EventHandler
-    public void onMotion(MotionEvent event) {
-        towerStatus = mc.gameSettings.keyBindJump.isKeyDown() &&
-                (!towerNoMove.getValue() || !MoveUtils.isMoving());
-        
-        if (placeInfo != null) {
-            if ((event.isPre() && placeTiming.is("Pre")) || (event.isPost() && placeTiming.is("Post"))) {
-                click(placeInfo.blockPos, placeInfo.facing, placeInfo.hitVec);
-            }
-        }
-        
-        if (towerStatus && allowJump.getValue()) {
-            lastY = mc.player.posY;
         }
     }
     
@@ -444,9 +654,65 @@ public class Scaffold extends Module {
             event.setCancelled(true);
         }
     }
-    
-    @EventHandler(priority = -99999)
-    public void onSprint(LivingUpdateEvent event) {
+
+    @EventHandler
+    public void onMotion(MotionEvent event) {
+        towerStatus = mc.gameSettings.keyBindJump.isKeyDown() &&
+                (!towerNoMove.getValue() || !MoveUtils.isMoving());
+
+        if (placeInfo != null) {
+            if ((event.isPre() && placeTiming.is("Pre")) || (event.isPost() && placeTiming.is("Post"))) {
+                PlaceInfo targetInfo = null;
+                RayTraceResult rayTraceResult = performBlockRaytrace(RotationHandler.getCurrentRotation());
+                if (clickCheck.is("None")) {
+                    targetInfo = placeInfo;
+                } else {
+                    if (rayTraceResult != null) {
+                        switch (clickCheck.getValueByName()) {
+                            case "None":
+                                break;
+                            case "Simple":
+                                if (rayTraceResult.getBlockPos().equals(placeInfo.blockPos)) {
+                                    targetInfo = new PlaceInfo(rayTraceResult.getBlockPos(), placeInfo.facing, placeInfo.hitVec, placeInfo.rotation);
+                                }
+                                break;
+                            case "Strict":
+                                if (rayTraceResult.getBlockPos().equals(placeInfo.blockPos) && rayTraceResult.sideHit == placeInfo.facing) {
+                                    targetInfo = new PlaceInfo(rayTraceResult.getBlockPos(), rayTraceResult.sideHit, rayTraceResult.hitVec, placeInfo.rotation);
+                                }
+                                break;
+                        }
+                    }
+                }
+
+                if (targetInfo != null) {
+                    if (click(targetInfo.blockPos, targetInfo.facing, targetInfo.hitVec)) {
+                    } else {
+                        if (extraClick.getValue() && extraClickTime.is("Legit")) {
+                            if (canExtraClick() && clickTimes > 0) {
+                                EnumHand hand = mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
+                                if (mc.player.getHeldItem(hand).getItem() instanceof ItemBlock) {
+                                    doExtraClick(hand);
+                                }
+                            }
+                            tickPlacement = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (towerStatus && allowJump.getValue()) {
+            lastY = mc.player.posY;
+        }
+    }
+
+    @EventHandler(priority = -1001)
+    public void onCancelSprint(LivingUpdateEvent event) {
+        if (sprintNotTowering.getValue() && towerStatus) {
+            mc.player.setSprinting(false);
+            mc.gameSettings.keyBindSprint.setPressed(false);
+        }
         switch (sprintMode.getValueByName()) {
             case "Default":
                 break;
@@ -461,19 +727,31 @@ public class Scaffold extends Module {
                     }
                 }
                 break;
+            case "Ground":
+                if (!mc.player.onGround) {
+                    mc.player.setSprinting(false);
+                    mc.gameSettings.keyBindSprint.setPressed(false);
+                }
+                break;
+            case "Air":
+                if (mc.player.onGround) {
+                    mc.player.setSprinting(false);
+                    mc.gameSettings.keyBindSprint.setPressed(false);
+                }
+                break;
         }
     }
     
     private BlockPos getOptimalPos() {
         BlockPos playerPos;
-        if (mc.player.posY == Math.round(mc.player.posY) + 0.5) {
+        if (mc.player.posY == round(mc.player.posY) + 0.5) {
             playerPos = new BlockPos((mc.player.posX), (mc.player.posY), (mc.player.posZ));
         } else {
             playerPos = new BlockPos((mc.player.posX), (mc.player.posY), (mc.player.posZ)).down();
         }
         if (sameY.getValue()) {
-            if ((int) mc.player.posY - 1.2 > (int) lastY) {
-                lastY = (int) mc.player.posY;
+            if (((int) mc.player.posY - 1 > (int) lastY) || (allowJump.getValue() && GameSettings.isKeyDown(mc.gameSettings.keyBindJump))) {
+                lastY = mc.player.posY;
             }
             playerPos = new BlockPos((mc.player.posX), lastY, (mc.player.posZ)).down();
         }
@@ -485,7 +763,7 @@ public class Scaffold extends Module {
         BlockPos playerPos = getOptimalPos();
         
         IBlockState iBlockState = mc.world.getBlockState(playerPos);
-        
+
         if (!iBlockState.getMaterial().isReplaceable() ||
                 calculateCenter(playerPos, true)) {
             return;
@@ -522,7 +800,7 @@ public class Scaffold extends Module {
         Vec3d blockVec = new Vec3d(blockPos);
         
         Rotation rotation;
-        PlaceInfo dPlaceInfo;
+        PlaceInfo dPlaceInfo = null;
         Vec3d directionVec = new Vec3d(enumFacing.getDirectionVec());
         
         center = (blockVec.addVector(vec3.xCoord, vec3.yCoord, vec3.zCoord)).addVector(
@@ -545,28 +823,28 @@ public class Scaffold extends Module {
         switch (rotationMode.getValueByName()) {
             case "None":
             case "Normal":
-                break;
-            case "Round45":
-                rotation = new Rotation(
-                        Math.round(rotation.yaw / 45) * 45,
-                        rotation.pitch
-                );
+            case "Advance":
+            case "StaticGodBridge":
+            case "StaticBack":
                 break;
         }
-        
+
+        if (stableRotation.getValue()) {
+            rotation.yaw = round(rotation.yaw / 45) * 45;
+        }
+
         if (!rayCastSearch.getValue()) {
             dPlaceInfo = new PlaceInfo(placePos, enumFacing.getOpposite(), center, rotation);
             return dPlaceInfo;
         } else {
             RayTraceResult serverRayTrace = performBlockRaytrace(RotationHandler.getRotation());
             if (serverRayTrace.getBlockPos().equals(placePos) && (!raycast || serverRayTrace.sideHit.equals(enumFacing.getOpposite()))) {
-                dPlaceInfo = new PlaceInfo(placePos, serverRayTrace.sideHit, center, rotation);
+                dPlaceInfo = new PlaceInfo(serverRayTrace.getBlockPos(), enumFacing.getOpposite(), center, rotation);
                 return dPlaceInfo;
             }
             RayTraceResult rotationRayTrace = performBlockRaytrace(rotation);
-            println("New: " + rotationRayTrace.sideHit + " R: " + enumFacing);
             if (rotationRayTrace.getBlockPos().equals(placePos) && (!raycast || rotationRayTrace.sideHit.equals(enumFacing.getOpposite()))) {
-                dPlaceInfo = new PlaceInfo(placePos, rotationRayTrace.sideHit, center, rotation);
+                dPlaceInfo = new PlaceInfo(rotationRayTrace.getBlockPos(), enumFacing.getOpposite(), center, rotation);
                 return dPlaceInfo;
             }
         }
@@ -612,6 +890,17 @@ public class Scaffold extends Module {
         if (dPlaceInfo == null) return false;
         
         this.placeInfo = dPlaceInfo;
+        switch (rotationMode.getValueByName()) {
+            case "None":
+            case "Normal":
+            case "Offset":
+                break;
+            case "Advance":
+            case "StaticGodBridge":
+            case "StaticBack":
+                placeInfo.rotation = staticRotation();
+                break;
+        }
         if (rotationTiming.is("Normal")) {
             setRotation(placeInfo.rotation);
         }
@@ -623,9 +912,9 @@ public class Scaffold extends Module {
         
         float horizonSpeed = (float) RandomUtils.randomDouble(yawTurnSpeed.getFirst(), yawTurnSpeed.getSecond());
         float pitchSpeed = (float) RandomUtils.randomDouble(pitchTurnSpeed.getFirst(), pitchTurnSpeed.getSecond());
-        
-        int keepTicks = RandomUtils.randomInt((int) Math.round(this.keepTicks.getFirst()), (int) Math.round(this.keepTicks.getSecond()));
-        int reverseTicks = RandomUtils.randomInt((int) Math.round(this.backTicks.getFirst()), (int) Math.round(this.backTicks.getSecond()));
+
+        int keepTicks = RandomUtils.randomInt((int) round(this.keepTicks.getFirst()), (int) round(this.keepTicks.getSecond()));
+        int reverseTicks = RandomUtils.randomInt((int) round(this.backTicks.getFirst()), (int) round(this.backTicks.getSecond()));
         
         Rotation calculateRot = RotationUtils.smoothRotation(
                 RotationHandler.getRotation(),
@@ -633,6 +922,7 @@ public class Scaffold extends Module {
                 horizonSpeed,
                 pitchSpeed
         ).fixedSensitivity(0);
+        println(calculateRot.yaw + "  " + calculateRot.pitch);
         if (silentRotation.getValue()) {
             RotationHandler.setClientRotation(calculateRot, keepTicks, reverseTicks, moveFixMode.getValue().getName());
         } else {
@@ -640,14 +930,14 @@ public class Scaffold extends Module {
             mc.player.rotationPitch = calculateRot.pitch;
         }
     }
-    
-    private void click(BlockPos placePos, EnumFacing facing, Vec3d hitVec) {
+
+    private boolean click(BlockPos placePos, EnumFacing facing, Vec3d hitVec) {
         EnumHand hand = mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
         
         ItemStack heldItem = mc.player.getHeldItem(hand);
         
         if (!(heldItem.getItem() instanceof ItemBlock)) {
-            return;
+            return false;
         }
         
         if (!((ItemBlock) heldItem.getItem()).canPlaceBlockOnSide(
@@ -659,30 +949,39 @@ public class Scaffold extends Module {
         )
         ) {
             placeTimer.reset();
-            return;
+            return false;
         }
         if (!Objects.requireNonNull(placePos.getState()).getBlock().canCollideCheck(placePos.getState(), false)) {
             placeTimer.reset();
-            return;
-        }
-        
-        if (!clickCheck.is("None")) {
-            RayTraceResult rayTraceResult = performBlockRaytrace(RotationHandler.getCurrentRotation());
-            if (rayTraceResult == null || !rayTraceResult.getBlockPos().equals(placePos) || (rayTraceResult.sideHit.equals(facing.getOpposite()) && clickCheck.is("Strict"))) {
-                return;
-            }
+            return false;
         }
         
         if (placeDelayMode.is("Normal")) {
             if (!placeTimer.hasTimeElapsed(currentPlaceDelay) && (!placeDelayNoTower.getValue() || !towerStatus)) {
-                return;
+                return false;
             }
         }
-        
         if (mc.playerController.processRightClickBlock(mc.player, mc.world, placePos, facing, hitVec, hand) == EnumActionResult.SUCCESS) {
-            mc.player.swingArm(hand);
+            if (swingMode.is("Vanilla")) {
+                mc.player.swingArm(hand);
+            } else if (swingMode.is("Packet")) {
+                PacketUtils.sendPacket(new CPacketAnimation(hand));
+            }
+            tickPlacement = true;
             placeTimer.reset();
             currentPlaceDelay = RandomUtils.randomInt((int) placeDelay.getFirst(), (int) placeDelay.getSecond());
+            return true;
+        }
+        return false;
+    }
+
+
+    @EventHandler
+    public void onRender3D(Render3DEvent event) {
+        if (extraClickTimer.hasTimeElapsed(curExtraClickDelay) && canExtraClick()) {
+            extraClickTimer.reset();
+            curExtraClickDelay = RandomUtils.randomInt((int) extraClickDelay.getFirst(), (int) extraClickDelay.getSecond());
+            clickTimes++;
         }
     }
     

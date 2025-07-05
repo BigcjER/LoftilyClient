@@ -455,7 +455,6 @@ public class PlayerControllerMP
                             return EnumActionResult.FAIL;
                         }
                     }
-
                     if (this.currentGameType.isCreative())
                     {
                         int i = itemstack.getMetadata();

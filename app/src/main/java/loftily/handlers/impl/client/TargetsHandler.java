@@ -27,22 +27,22 @@ public class TargetsHandler extends Handler {
                 .filter(entity -> CalculateUtils.getDistanceToEntity(entity, mc.player) < range && entity.getEntityId() != Blink.FAKE_ENTITY_ID)
                 .collect(Collectors.toList());
     }
-    
+
     public static boolean canAdd(Entity target) {
         if (!(target instanceof EntityLivingBase) || target == mc.player) return false;
         EntityLivingBase entityLivingBase = (EntityLivingBase) target;
-        
+
         if (target instanceof EntityPlayer) {
             EntityPlayer entityPlayer = (EntityPlayer) target;
             if (entityPlayer.isSpectator() || Client.INSTANCE.getModuleManager().get(Teams.class).isSameTeam(entityPlayer)) {
                 return false;
             }
         }
-        
+
         if (!target.isEntityAlive()) {
             return false;
         }
-        
+
         return entityLivingBase.deathTime <= 0 &&
                 !Client.INSTANCE.getModuleManager().get(AntiBot.class).isBot(entityLivingBase) &&
                 !(target instanceof EntityArmorStand) &&
