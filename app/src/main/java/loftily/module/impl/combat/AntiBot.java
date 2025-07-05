@@ -24,11 +24,11 @@ import net.minecraft.network.play.server.SPacketDestroyEntities;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
 import net.minecraft.network.play.server.SPacketSpawnPlayer;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static com.viaversion.viaversion.util.ChatColorUtil.stripColor;
 
@@ -44,34 +44,20 @@ public class AntiBot extends Module {
     private final BooleanValue playerValue = new BooleanValue("Player", false);
     private final BooleanValue villagerValue = new BooleanValue("Villager", false);
     private final BooleanValue matrixValue = new BooleanValue("Matrix", false);
+    private final BooleanValue shopValue = new BooleanValue("Shop", false);
+    private final BooleanValue shopNameDetect = new BooleanValue("Shop-NameDetect", true)
+            .setVisible(shopValue::getValue);
+    private final BooleanValue shopArmorDetect = new BooleanValue("Shop-NoArmorDetect", false)
+            .setVisible(shopValue::getValue);
+    
+    private final List<String> SHOP_NAMES = Stream.of("NPC | SHOP||NPC | UPGRADES".split("\\|\\|"))
+            .filter(name -> !name.isEmpty())
+            .collect(Collectors.toList());
     
     private final List<Integer> spawnInCombat = new ArrayList<>();
     private final List<Integer> hasRemovedEntities = new ArrayList<>();
     private final HashSet<UUID> suspectList = new HashSet<>();
     private final HashSet<UUID> botList = new HashSet<>();
-    
-    public boolean isADuplicate(GameProfile profile) {
-        return (int) mc.player.connection.getPlayerInfoMap().stream()
-                .filter(it -> it.getGameProfile().getName().equals(profile.getName()) && !it.getGameProfile().getId().equals(profile.getId()))
-                .count() == 1;
-    }
-    
-    public boolean isGameProfileUnique(GameProfile profile) {
-        return (int) mc.player.connection.getPlayerInfoMap().stream()
-                .filter(it -> it.getGameProfile().getName().equals(profile.getName()) && it.getGameProfile().getId().equals(profile.getId()))
-                .count() == 1;
-    }
-    
-    private boolean isFullyArmored(EntityPlayer entity) {
-        return IntStream.rangeClosed(0, 3).allMatch(i -> {
-            ItemStack stack = entity.inventory.armorInventory.get(i);
-            return stack.getItem() instanceof ItemArmor && stack.isItemEnchanted();
-        });
-    }
-    
-    private boolean updatesArmor(EntityPlayer entity, Iterable<ItemStack> prevArmor) {
-        return prevArmor != entity.getArmorInventoryList();
-    }
     
     @EventHandler
     public void onWorld(WorldLoadEvent event) {
@@ -84,8 +70,6 @@ public class AntiBot extends Module {
     }
     
     public void clear() {
-        spawnInCombat.clear();
-        hasRemovedEntities.clear();
         botList.clear();
         suspectList.clear();
     }
@@ -143,7 +127,7 @@ public class AntiBot extends Module {
         } else if (packet instanceof SPacketDestroyEntities) {
             for (int id : ((SPacketDestroyEntities) packet).getEntityIDs()) {
                 Entity entity = mc.world.getEntityByID(id);
-                if(entity != null) {
+                if (entity != null) {
                     UUID uuid = entity.getUniqueID();
                     botList.remove(uuid);
                     suspectList.remove(uuid);
@@ -159,7 +143,7 @@ public class AntiBot extends Module {
     }
     
     public boolean isBot(EntityLivingBase entity) {
-        if(!isToggled()) {
+        if (!isToggled()) {
             return false;
         }
         
@@ -208,6 +192,52 @@ public class AntiBot extends Module {
             return true;
         }
         
+        if (shopValue.getValue()) {
+            if (shopNameDetect.getValue()) {
+                String name = entity.getDisplayName().getFormattedText();
+                Set<String> set = new HashSet<>();
+                for (int i = 0; i < name.length() - 1; i++) {
+                    if (name.charAt(i) == '§') {
+                        set.add(name.substring(i, i + 2));
+                    }
+                }
+                for (String s : set) {
+                    name = name.replace(s, "");
+                }
+                if (SHOP_NAMES.contains(name)) {
+                    return true;
+                }
+            }
+            if (shopArmorDetect.getValue()) {
+                return StreamSupport.stream(entity.getArmorInventoryList().spliterator(), false)
+                        .allMatch(ItemStack::isEmptyStack);
+                
+            }
+        }
+        
         return false;
+    }
+    
+    public boolean isADuplicate(GameProfile profile) {
+        return (int) mc.player.connection.getPlayerInfoMap().stream()
+                .filter(it -> it.getGameProfile().getName().equals(profile.getName()) && !it.getGameProfile().getId().equals(profile.getId()))
+                .count() == 1;
+    }
+    
+    public boolean isGameProfileUnique(GameProfile profile) {
+        return (int) mc.player.connection.getPlayerInfoMap().stream()
+                .filter(it -> it.getGameProfile().getName().equals(profile.getName()) && it.getGameProfile().getId().equals(profile.getId()))
+                .count() == 1;
+    }
+    
+    private boolean isFullyArmored(EntityPlayer entity) {
+        return IntStream.rangeClosed(0, 3).allMatch(i -> {
+            ItemStack stack = entity.inventory.armorInventory.get(i);
+            return stack.getItem() instanceof ItemArmor && stack.isItemEnchanted();
+        });
+    }
+    
+    private boolean updatesArmor(EntityPlayer entity, Iterable<ItemStack> prevArmor) {
+        return prevArmor != entity.getArmorInventoryList();
     }
 }
