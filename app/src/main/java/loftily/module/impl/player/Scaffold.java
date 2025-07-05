@@ -17,9 +17,9 @@ import loftily.handlers.impl.render.AnimationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
-import loftily.module.impl.player.scaffold.towers.MatrixTowerMove;
-import loftily.module.impl.player.scaffold.towers.NCPTowerMove;
-import loftily.module.impl.player.scaffold.towers.VanillaTowerMove;
+import loftily.module.impl.player.scaffold.towers.MatrixTower;
+import loftily.module.impl.player.scaffold.towers.NCPTower;
+import loftily.module.impl.player.scaffold.towers.VanillaTower;
 import loftily.utils.block.BlockUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
@@ -131,9 +131,9 @@ public class Scaffold extends Module {
     );
     @SuppressWarnings("unused")
     private final ModeValue towerMode = new ModeValue("TowerMode", "Jump", this,
-            new MatrixTowerMove("Matrix"),
-            new VanillaTowerMove("Vanilla"),
-            new NCPTowerMove("NCP"),
+            new MatrixTower("Matrix"),
+            new VanillaTower("Vanilla"),
+            new NCPTower("NCP"),
             new StringMode("Jump")
     );
     private final BooleanValue towerFakeJump = new BooleanValue("TowerFakeJump", false);

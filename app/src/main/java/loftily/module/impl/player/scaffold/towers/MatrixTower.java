@@ -5,10 +5,10 @@ import loftily.module.impl.player.Scaffold;
 import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
 
-public class MatrixTowerMove extends Mode<Scaffold> {
+public class MatrixTower extends Mode<Scaffold> {
     private int state;
     
-    public MatrixTowerMove(String name) {
+    public MatrixTower(String name) {
         super(name);
     }
     

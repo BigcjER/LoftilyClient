@@ -6,8 +6,8 @@ import loftily.utils.player.MoveUtils;
 import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
 
-public class NCPTowerMove extends Mode<Scaffold> {
-    public NCPTowerMove(String name) {
+public class NCPTower extends Mode<Scaffold> {
+    public NCPTower(String name) {
         super(name);
     }
     
@@ -22,14 +22,11 @@ public class NCPTowerMove extends Mode<Scaffold> {
             if (MoveUtils.isMoving()) {
                 mc.player.setPosition(mc.player.posX, Math.floor(mc.player.posY), mc.player.posZ);
                 
-                double speedLimit = 0.008;
-                if (MoveUtils.getSpeed() <= speedLimit) {
-                    mc.player.motionY = 0.38F;
-                } else {
-                    MoveUtils.setSpeed(speedLimit, false);
+                if (mc.player.offGroundTicks < 6) {
+                    mc.player.motionY = 0.42F;
+                } else if (!mc.player.onGround) {
+                    MoveUtils.setSpeed(0.06, false);
                 }
-                
-                mc.player.setSprinting(false);
             } else {
                 mc.player.setPosition(mc.player.posX, Math.floor(mc.player.posY), mc.player.posZ);
                 mc.player.motionY = 0.42F;

@@ -5,8 +5,8 @@ import loftily.module.impl.player.Scaffold;
 import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
 
-public class VanillaTowerMove extends Mode<Scaffold> {
-    public VanillaTowerMove(String name) {
+public class VanillaTower extends Mode<Scaffold> {
+    public VanillaTower(String name) {
         super(name);
     }
     
