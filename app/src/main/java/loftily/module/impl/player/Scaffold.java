@@ -161,6 +161,10 @@ public class Scaffold extends Module {
     private final BooleanValue autoSwitchToBlock = new BooleanValue("AutoSwitchToBlock", true);
     private final BooleanValue switchBackOnDisable = new BooleanValue("SwitchBackOnDisable", true);
     private final BooleanValue blockCounter = new BooleanValue("BlockCounter", false);
+    private final BooleanValue blockCounterCustomOpacity = new BooleanValue("CustomBackgroundOpacity", false)
+            .setVisible(blockCounter::getValue);
+    private final NumberValue blockCounterCustomOpacityValue = new NumberValue("CustomBackgroundOpacityValue", 255, 1, 255)
+            .setVisible(() -> blockCounter.getValue() && blockCounterCustomOpacity.getValue());
     
     private boolean zitterDirection = false;
     private final DelayTimer placeTimer = new DelayTimer();
@@ -203,15 +207,20 @@ public class Scaffold extends Module {
         
         int startX = event.getScaledResolution().getScaledWidth() / 2 - size / 2;
         
+        
         blockCounterRunnable = () -> {
             blockCountAnimation.run(this.isToggled() ? 1 : 0);
+            int opacity = blockCounterCustomOpacity.getValue() ? blockCounterCustomOpacityValue.getValue().intValue() : (int) (blockCountAnimation.getValuef() * 255);
+            
+            if(opacity <= 0) return;
+            
             GlStateManager.pushMatrix();
-            GlStateManager.translate(startX,event.getScaledResolution().getScaledHeight() - (100 * blockCountAnimation.getValuef()),0);
+            GlStateManager.translate(startX, event.getScaledResolution().getScaledHeight() - (100 * blockCountAnimation.getValuef()), 0);
             
             RenderUtils.drawRoundedRect(0, 0, size, size, 3,
-                    ColorUtils.colorWithAlpha(Colors.BackGround.color, (int) (blockCountAnimation.getValuef() * 255)));
-            FontManager.NotoSans.of(16).drawCenteredString(String.valueOf(InventoryUtils.getBlocksInHotBar()), size / 2F, size - size / 3.5F,
-                    ColorUtils.colorWithAlpha(Colors.Text.color, (int) (blockCountAnimation.getValuef() * 255)));
+                    ColorUtils.colorWithAlpha(Colors.BackGround.color, opacity));
+            FontManager.NotoSans.of(16).drawCenteredString(String.valueOf(InventoryUtils.getBlocksInHotBar()), size / 2F, size - size / 3.5F + 1,
+                    ColorUtils.colorWithAlpha(Colors.Text.color, 255));
             
             //Draw stack
             ItemStack stack;
@@ -225,7 +234,7 @@ public class Scaffold extends Module {
             GlStateManager.disableAlpha();
             GlStateManager.clear(256);
             GlStateManager.enableBlend();
-            GlStateManager.color(1,1,1,blockCountAnimation.getValuef());
+            GlStateManager.color(1F, 1F, 1F, opacity / 255F);
             
             mc.getRenderItem().zLevel = -150.0f;
             GlStateManager.scale(1.4F, 1.4F, 1.4F);
