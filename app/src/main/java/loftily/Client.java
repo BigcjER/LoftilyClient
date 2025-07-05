@@ -20,13 +20,13 @@ public enum Client {
     INSTANCE;
     
     public static final String NAME = "Loftily";
-    public static final String VERSION = "v0.1";
+    public static final String VERSION = "v1.0.0";
     public static final String STRING_PREFIX = String.format("%s%s%s",
             TextFormatting.YELLOW + "[",
             TextFormatting.DARK_AQUA + NAME,
             TextFormatting.YELLOW + "]");
     
-    public static final boolean DEVELOPMENT_BUILD = true;
+    public static final boolean DEVELOPMENT_BUILD = false;
     
     private ModuleManager moduleManager;
     private LambdaManager eventManager;
@@ -64,9 +64,9 @@ public enum Client {
     }
     
     public String getTitle() {
-        return String.format("%s %s%s",
+        return String.format("%s %s | %s",
                 NAME,
                 VERSION,
-                DEVELOPMENT_BUILD ? " | Development Build" : "");
+                DEVELOPMENT_BUILD ? "Development Build" : "Release");
     }
 }
