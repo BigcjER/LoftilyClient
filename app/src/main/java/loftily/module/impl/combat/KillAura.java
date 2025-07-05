@@ -523,17 +523,20 @@ public class KillAura extends Module {
     }
     
     private void blockingPacket(Entity target) {
+        if (onlyWhileKeyBinding.getValue() && !GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
+            return;
+        }
         sendInteractPacket(target);
         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
-        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
+
+        if(autoBlockMode.is("AfterTick")){
+            mc.gameSettings.keyBindUseItem.setPressed(true);
+        }
     }
     
     private void runAutoBlock(Entity target) {
         if (target == null) return;
-        if (onlyWhileKeyBinding.getValue() && !GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
-            return;
-        }
         if (autoBlockMode.is("None")) return;
         
         if (canBlock()) {
@@ -565,7 +568,6 @@ public class KillAura extends Module {
                             }
                             blockingTick = true;
                         }
-                        mc.gameSettings.keyBindUseItem.setPressed(true);
                     }
                     break;
             }
