@@ -2,11 +2,11 @@ package loftily.utils.player;
 
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
-import loftily.utils.block.BlockUtils;
 import loftily.utils.client.ClientUtils;
-import net.minecraft.block.BlockAir;
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -72,45 +72,26 @@ public class PlayerUtils implements ClientUtils {
     public static boolean isBlocking() {
         return isBlocking(mc.player);
     }
-
-    public static double fallDist() {
-        if (overVoid()) {
-            return 9999.0;
-        } else {
-            double fallDistance = -1.0;
-            double y = mc.player.posY;
-            if (mc.player.posY % 1.0 == 0.0) {
-                y--;
-            }
-
-            for (int i = (int)Math.floor(y); i > -1; i--) {
-                if (!BlockUtils.isPlaceable(new BlockPos(mc.player.posX, i, mc.player.posZ))) {
-                    fallDistance = y - i;
-                    break;
-                }
-            }
-
-            return fallDistance - 1.0;
-        }
-    }
-
-    public static boolean overVoid() {
-        for (int i = (int)mc.player.posY; i > -1; i--) {
-            if (!(mc.world.getBlockState(new BlockPos(mc.player.posX, i, mc.player.posZ)).getBlock() instanceof BlockAir)) {
+    
+    public static boolean isInVoid() {
+        if (mc.player.posY <= 0) return true;
+        
+        if (mc.player.isOnLadder() ||
+                mc.player.capabilities.allowFlying ||
+                mc.player.capabilities.disableDamage ||
+                mc.player.isSpectator() ||
+                mc.player.isInWater() ||
+                mc.player.isInLava() ||
+                mc.player.isInWeb ||
+                mc.player.onGround) return false;
+        
+        for (int i = (int) mc.player.posY; i > -1; i--) {
+            Block block = (new BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ).down(i)).getBlock();
+            
+            if (block != Blocks.AIR) {
                 return false;
             }
         }
-
-        return true;
-    }
-
-    public static boolean overVoid(double posX, double posY, double posZ) {
-        for (int i = (int)posY; i > -1; i--) {
-            if (!(mc.world.getBlockState(new BlockPos(posX, i, posZ)).getBlock() instanceof BlockAir)) {
-                return false;
-            }
-        }
-
         return true;
     }
 }

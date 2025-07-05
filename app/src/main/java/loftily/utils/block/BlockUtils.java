@@ -1,12 +1,10 @@
 package loftily.utils.block;
 
 import loftily.utils.client.ClientUtils;
-import loftily.utils.player.PlayerUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockWorkbench;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -78,18 +76,6 @@ public class BlockUtils implements ClientUtils {
         
         // The slab will only return true if it's placed at a level that can be placed like any normal full block
         return box.maxX - box.minX == 1.0 && (box.maxY - box.minY == 1.0 || (supportSlabs && box.maxY % 1.0 == 0.0)) && box.maxZ - box.minZ == 1.0;
-    }
-
-    public static boolean isPlaceable(BlockPos blockPos) {
-        return replaceable(blockPos) || isFluid(getBlock(blockPos));
-    }
-
-    public static boolean replaceable(BlockPos blockPos) {
-        return !PlayerUtils.nullCheck() ? true : getBlock(blockPos).isReplaceable(mc.world, blockPos);
-    }
-
-    public static boolean isFluid(Block block) {
-        return block.getMaterial() == Material.LAVA || block.getMaterial() == Material.WATER;
     }
 
     public static Block getBlock(BlockPos blockPos) {
