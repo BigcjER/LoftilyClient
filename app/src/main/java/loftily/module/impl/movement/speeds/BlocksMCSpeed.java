@@ -46,7 +46,7 @@ public class BlocksMCSpeed extends Mode<Speed> {
         }
         
         if (mc.player.hurtTime == 9) {
-            MoveUtils.setSpeed(Math.max(MoveUtils.getSpeed(), 0.5f), true);
+            MoveUtils.setSpeed(Math.max(MoveUtils.getSpeed(), 0.475f), true);
         }
     }
 }
