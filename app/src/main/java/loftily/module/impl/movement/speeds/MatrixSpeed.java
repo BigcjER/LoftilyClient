@@ -23,7 +23,6 @@ public class MatrixSpeed extends Mode<Speed> {
         if (!mc.player.isSprinting()) return;
         
         event.setMovementYaw((float) Math.toDegrees(MoveUtils.getDirection()));
-        
     }
     
     @EventHandler

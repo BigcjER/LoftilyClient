@@ -6,6 +6,7 @@ import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.Client;
 import loftily.event.impl.player.motion.JumpEvent;
+import loftily.event.impl.player.motion.PostJumpEvent;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLadder;
@@ -2014,6 +2015,7 @@ public abstract class EntityLivingBase extends Entity
             this.motionX -= (MathHelper.sin(f) * 0.2F);
             this.motionZ += (MathHelper.cos(f) * 0.2F);
         }
+        Client.INSTANCE.getEventManager().call(new PostJumpEvent());
 
         this.isAirBorne = true;
     }
