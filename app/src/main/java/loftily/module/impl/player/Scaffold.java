@@ -18,7 +18,6 @@ import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
 import loftily.module.impl.player.scaffold.towers.MatrixTower;
-import loftily.module.impl.player.scaffold.towers.NCPTestTower;
 import loftily.module.impl.player.scaffold.towers.NCPTower;
 import loftily.module.impl.player.scaffold.towers.VanillaTower;
 import loftily.utils.block.BlockUtils;
@@ -196,7 +195,6 @@ public class Scaffold extends Module {
             new MatrixTower("Matrix"),
             new VanillaTower("Vanilla"),
             new NCPTower("NCP"),
-            new NCPTestTower("NCPLow"),
             new StringMode("Jump")
     );
     private final BooleanValue autoSwitchToBlock = new BooleanValue("AutoSwitchToBlock", true);
