@@ -1,7 +1,5 @@
 package net.minecraft.item;
 
-import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
@@ -21,6 +19,9 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
+import java.util.List;
+
 public class ItemPotion extends Item
 {
     public ItemPotion()
@@ -28,10 +29,10 @@ public class ItemPotion extends Item
         this.setMaxStackSize(1);
         this.setCreativeTab(CreativeTabs.BREWING);
     }
-
-    public ItemStack func_190903_i()
+    
+    public ItemStack getItemStack()
     {
-        return PotionUtils.addPotionToItemStack(super.func_190903_i(), PotionTypes.WATER);
+        return PotionUtils.addPotionToItemStack(super.getItemStack(), PotionTypes.WATER);
     }
 
     /**

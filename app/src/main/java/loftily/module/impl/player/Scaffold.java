@@ -5,17 +5,27 @@ import loftily.event.impl.player.motion.JumpEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.player.motion.MoveEvent;
 import loftily.event.impl.player.motion.StrafeEvent;
+import loftily.event.impl.render.Render2DEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.event.impl.world.PreUpdateEvent;
+import loftily.gui.animation.Animation;
+import loftily.gui.animation.Easing;
+import loftily.gui.font.FontManager;
 import loftily.handlers.impl.player.MoveHandler;
 import loftily.handlers.impl.player.RotationHandler;
+import loftily.handlers.impl.render.AnimationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
 import loftily.utils.block.BlockUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
-import loftily.utils.player.*;
+import loftily.utils.player.InventoryUtils;
+import loftily.utils.player.MoveUtils;
+import loftily.utils.player.RotationUtils;
+import loftily.utils.render.ColorUtils;
+import loftily.utils.render.Colors;
+import loftily.utils.render.RenderUtils;
 import loftily.utils.timer.DelayTimer;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
@@ -28,6 +38,8 @@ import lombok.Setter;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
@@ -37,7 +49,6 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -76,7 +87,7 @@ public class Scaffold extends Module {
     );
     private final RangeSelectionNumberValue placeDelay = new RangeSelectionNumberValue("PlaceDelay", 40, 100, 0, 1000)
             .setVisible(() -> placeDelayMode.is("Normal"));
-    private final BooleanValue placeDelayNoTower = new BooleanValue("PlaceDelay-NotTowering",false)
+    private final BooleanValue placeDelayNoTower = new BooleanValue("PlaceDelay-NotTowering", false)
             .setVisible(() -> placeDelayMode.is("Normal"));
     //Rotation
     private final ModeValue rotationMode = new ModeValue("RotationMode", "None", this,
@@ -125,18 +136,18 @@ public class Scaffold extends Module {
     
     private final BooleanValue onGround = new BooleanValue("OnGroundSafeWalk", false);
     private final BooleanValue inAir = new BooleanValue("InAirSafeWalk", false);
-
+    
     private final BooleanValue motionModifier = new BooleanValue("MotionModifier", false);
     private final NumberValue motionSpeedSet = new NumberValue("MotionSpeed", 0.1, 0.0, 1.0, 0.01).setVisible(motionModifier::getValue);
-    private final BooleanValue motionSpeedSetOnlyGround = new BooleanValue("MotionSpeedOnlyGround",false).setVisible(motionModifier::getValue);
-
-    private final ModeValue adStrafeMode = new ModeValue("ADStrafe","None",this,new StringMode("Teleport"),
-            new StringMode("Legit"),new StringMode("None"));
-    private final NumberValue adStrafeDelay = new NumberValue("ADStrafeDelay",1,1,20).setVisible(()->!adStrafeMode.is("None"));
+    private final BooleanValue motionSpeedSetOnlyGround = new BooleanValue("MotionSpeedOnlyGround", false).setVisible(motionModifier::getValue);
+    
+    private final ModeValue adStrafeMode = new ModeValue("ADStrafe", "None", this, new StringMode("Teleport"),
+            new StringMode("Legit"), new StringMode("None"));
+    private final NumberValue adStrafeDelay = new NumberValue("ADStrafeDelay", 1, 1, 20).setVisible(() -> !adStrafeMode.is("None"));
     private final BooleanValue teleportMotion = new BooleanValue("TeleportMotion", false);
-    private final BooleanValue teleportMotionOnlyGround = new BooleanValue("TeleportMotionOnlyGround",false).setVisible(()->adStrafeMode.is("Teleport") && teleportMotion.getValue());
-    private final NumberValue teleportSpeed = new NumberValue("TeleportSpeed",0.1,0.0,0.4,0.01).setVisible(()->adStrafeMode.is("Teleport") && teleportMotion.getValue());
-    private final NumberValue teleportStrength = new NumberValue("TeleportStrength",0.1,0.0,0.4,0.01).setVisible(()->adStrafeMode.is("Teleport"));
+    private final BooleanValue teleportMotionOnlyGround = new BooleanValue("TeleportMotionOnlyGround", false).setVisible(() -> adStrafeMode.is("Teleport") && teleportMotion.getValue());
+    private final NumberValue teleportSpeed = new NumberValue("TeleportSpeed", 0.1, 0.0, 0.4, 0.01).setVisible(() -> adStrafeMode.is("Teleport") && teleportMotion.getValue());
+    private final NumberValue teleportStrength = new NumberValue("TeleportStrength", 0.1, 0.0, 0.4, 0.01).setVisible(() -> adStrafeMode.is("Teleport"));
     //SameY
     private final BooleanValue sameY = new BooleanValue("SameY", false);
     private final BooleanValue allowJump = new BooleanValue("AllowJump", false);
@@ -144,29 +155,8 @@ public class Scaffold extends Module {
     //Other
     private final BooleanValue autoSwitchToBlock = new BooleanValue("AutoSwitchToBlock", true);
     private final BooleanValue switchBackOnDisable = new BooleanValue("SwitchBackOnDisable", true);
-
-    // Hypixel Offset Rotation
-    private boolean was451;
-    private boolean was452;
-    private float minPitch;
-    private float minOffset;
-    private float edge;
-    private long firstStroke;
-    private long vlS;
-    private float yawAngle;
-    private float theYaw;
-    private boolean enabledOffGround = false;
-    private float[] blockRotations;
-    public float yaw;
-    public float pitch;
-    public float blockYaw;
-    public float yawOffset;
-    private boolean set2;
-    private int dynamic;
-    private boolean resetm;
-    private int switchvl;
-
-
+    private final BooleanValue blockCounter = new BooleanValue("BlockCounter", false);
+    
     private boolean zitterDirection = false;
     private final DelayTimer placeTimer = new DelayTimer();
     private PlaceInfo placeInfo = null;
@@ -175,7 +165,11 @@ public class Scaffold extends Module {
     private boolean towerStatus = false;
     private int currentPlaceDelay = 0;
     private int prevSlot;
-
+    
+    
+    private final Animation blockCountAnimation = new Animation(Easing.EaseOutExpo, 300);
+    private Runnable blockCounterRunnable;
+    
     @Override
     public void onDisable() {
         placeTimer.reset();
@@ -184,6 +178,11 @@ public class Scaffold extends Module {
         onGroundTimes = 0;
         if (switchBackOnDisable.getValue()) {
             mc.player.inventory.currentItem = prevSlot;
+        }
+        
+        if (blockCounter.getValue()) {
+            if (blockCounterRunnable != null)
+                AnimationHandler.add(blockCountAnimation, blockCounterRunnable);
         }
     }
     
@@ -194,28 +193,72 @@ public class Scaffold extends Module {
     }
     
     @EventHandler
+    public void onRender2D(Render2DEvent event) {
+        if (!blockCounter.getValue()) return;
+        
+        int size = 50;
+        
+        int startX = event.getScaledResolution().getScaledWidth() / 2 - size / 2;
+        
+        blockCounterRunnable = () -> {
+            blockCountAnimation.run(this.isToggled() ? 1 : 0);
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(startX,event.getScaledResolution().getScaledHeight() - (100 * blockCountAnimation.getValuef()),0);
+            
+            RenderUtils.drawRoundedRect(0, 0, size, size, 3,
+                    ColorUtils.colorWithAlpha(Colors.BackGround.color, (int) (blockCountAnimation.getValuef() * 255)));
+            FontManager.NotoSans.of(16).drawCenteredString(String.valueOf(InventoryUtils.getBlocksInHotBar()), size / 2F, size - size / 3.5F,
+                    ColorUtils.colorWithAlpha(Colors.Text.color, (int) (blockCountAnimation.getValuef() * 255)));
+            
+            //Draw stack
+            ItemStack stack = mc.player.inventory.getStackInSlot(mc.player.inventory.currentItem);
+            RenderHelper.enableGUIStandardItemLighting();
+            GlStateManager.disableAlpha();
+            GlStateManager.clear(256);
+            GlStateManager.enableBlend();
+            GlStateManager.color(1,1,1,blockCountAnimation.getValuef());
+            
+            mc.getRenderItem().zLevel = -150.0f;
+            GlStateManager.scale(1.4F, 1.4F, 1.4F);
+            mc.getRenderItem().renderItemAndEffectIntoGUI(stack, 10, 5);
+            mc.getRenderItem().zLevel = 0.0f;
+            
+            GlStateManager.enableBlend();
+            GlStateManager.disableDepth();
+            GlStateManager.disableLighting();
+            GlStateManager.enableDepth();
+            GlStateManager.enableAlpha();
+            
+            GlStateManager.popMatrix();
+            
+        };
+        
+        blockCounterRunnable.run();
+    }
+    
+    @EventHandler
     public void onMove(MoveEvent event) {
         if (event.getEntity() != mc.player) return;
         if ((onGround.getValue() && mc.player.onGround) || (inAir.getValue() && !mc.player.onGround)) {
             event.setSafeWalk(true);
         }
     }
-
+    
     @EventHandler
-    public void onPreUpdate(PreUpdateEvent event){
+    public void onPreUpdate(PreUpdateEvent event) {
         if (mc.player == null) return;
-
-        if(mc.player.onGround && MoveUtils.isMoving() && scaffoldMode.is("TickJump")){
+        
+        if (mc.player.onGround && MoveUtils.isMoving() && scaffoldMode.is("TickJump")) {
             mc.player.tryJump();
         }
-
-        if(motionModifier.getValue()){
-            if(!motionSpeedSetOnlyGround.getValue() || mc.player.onGround) {
+        
+        if (motionModifier.getValue()) {
+            if (!motionSpeedSetOnlyGround.getValue() || mc.player.onGround) {
                 MoveUtils.setSpeed(motionSpeedSet.getValue(), true);
             }
         }
-
-        if(mc.player.ticksExisted % adStrafeDelay.getValue() == 0) {
+        
+        if (mc.player.ticksExisted % adStrafeDelay.getValue() == 0) {
             switch (adStrafeMode.getValueByName()) {
                 case "None":
                     break;
@@ -227,7 +270,7 @@ public class Scaffold extends Module {
                             }
                         }
                         double yaw = Math.toRadians(mc.player.rotationYaw + (zitterDirection ? 90.0 : -90.0));
-
+                        
                         mc.player.motionX -= sin(yaw) * teleportStrength.getValue();
                         mc.player.motionZ += cos(yaw) * teleportStrength.getValue();
                         zitterDirection = !zitterDirection;
@@ -253,7 +296,7 @@ public class Scaffold extends Module {
     @EventHandler
     public void onLivingUpdate(LivingUpdateEvent event) {
         if (mc.player == null) return;
-
+        
         searchBlock();
         
         if (placeInfo == null)
@@ -269,7 +312,7 @@ public class Scaffold extends Module {
         
         if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && !(mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock)) {
             if (autoSwitchToBlock.getValue()) {
-                int slot = InventoryUtils.findBlockInSlot();
+                int slot = InventoryUtils.findBlockInHotBar();
                 
                 if (slot != -1)
                     mc.player.inventory.currentItem = slot;
@@ -281,7 +324,7 @@ public class Scaffold extends Module {
         if (keepRotation.getValue() && RotationHandler.clientRotation != null) {
             setRotation(RotationHandler.clientRotation);
         }
-
+        
         switch (scaffoldMode.getValueByName()) {
             case "Telly":
                 if (MoveUtils.isMoving() && mc.player.onGround) {
@@ -294,13 +337,13 @@ public class Scaffold extends Module {
                 }
                 break;
         }
-
-        switch (eagleMode.getValueByName()){
+        
+        switch (eagleMode.getValueByName()) {
             case "Prediction":
                 IBlockState iBlockState = mc.world.getBlockState(new BlockPos(mc.player.posX + mc.player.motionX * predictMotion.getValue(),
                         mc.player.posY - 1.0,
                         mc.player.posZ + mc.player.motionZ * predictMotion.getValue()));
-
+                
                 if (iBlockState.getBlock() instanceof BlockAir && mc.player.onGround) {
                     MoveHandler.setSneak(true, sneakTime.getValue().intValue());
                 }
@@ -309,12 +352,12 @@ public class Scaffold extends Module {
                 IBlockState blockState = mc.world.getBlockState(new BlockPos(mc.player.posX,
                         mc.player.posY - 1.0,
                         mc.player.posZ));
-                if(blockState.getBlock() instanceof BlockAir && mc.player.onGround) {
+                if (blockState.getBlock() instanceof BlockAir && mc.player.onGround) {
                     MoveHandler.setSneak(true, sneakTime.getValue().intValue());
                 }
                 break;
         }
-
+        
         click(placeInfo.blockPos, placeInfo.facing, placeInfo.hitVec);
     }
     
@@ -454,7 +497,7 @@ public class Scaffold extends Module {
         BlockPos playerPos = getOptimalPos();
         
         IBlockState iBlockState = mc.world.getBlockState(playerPos);
-
+        
         if (!iBlockState.getMaterial().isReplaceable() ||
                 calculateCenter(playerPos, true)) {
             return;
@@ -491,7 +534,7 @@ public class Scaffold extends Module {
         Vec3d blockVec = new Vec3d(blockPos);
         
         Rotation rotation;
-        PlaceInfo dPlaceInfo = null;
+        PlaceInfo dPlaceInfo;
         Vec3d directionVec = new Vec3d(enumFacing.getDirectionVec());
         
         center = (blockVec.addVector(vec3.xCoord, vec3.yCoord, vec3.zCoord)).addVector(
@@ -514,9 +557,6 @@ public class Scaffold extends Module {
         switch (rotationMode.getValueByName()) {
             case "None":
             case "Normal":
-                break;
-            case "Offset":
-                rotation = offsetRots();
                 break;
             case "Round45":
                 rotation = new Rotation(
@@ -637,7 +677,7 @@ public class Scaffold extends Module {
             placeTimer.reset();
             return;
         }
-
+        
         if (!clickCheck.is("None")) {
             RayTraceResult rayTraceResult = performBlockRaytrace(RotationHandler.getCurrentRotation());
             if (rayTraceResult == null || !rayTraceResult.getBlockPos().equals(placePos) || (rayTraceResult.sideHit.equals(facing.getOpposite()) && clickCheck.is("Strict"))) {
@@ -656,250 +696,6 @@ public class Scaffold extends Module {
             placeTimer.reset();
             currentPlaceDelay = RandomUtils.randomInt((int) placeDelay.getFirst(), (int) placeDelay.getSecond());
         }
-    }
-
-    private Rotation offsetRots() {
-        Rotation e;
-
-        float moveAngle = (float)MoveUtils.getMovementAngle();
-        float relativeYaw = mc.player.rotationYaw + moveAngle;
-        float normalizedYaw = (relativeYaw % 360.0F + 360.0F) % 360.0F;
-        float quad = normalizedYaw % 90.0F;
-        float side = MathHelper.wrapAngleTo180_float(MoveUtils.getMotionYaw() - this.yaw);
-        float yawBackwards = MathHelper.wrapAngleTo180_float(mc.player.rotationYaw) - ScaffoldUtils.hardcodedYaw();
-        float blockYawOffset = MathHelper.wrapAngleTo180_float(yawBackwards - this.blockYaw);
-        long strokeDelay = 250L;
-        float first = 76.0F;
-        float sec = 78.0F;
-        if (quad <= 5.0F || quad >= 85.0F) {
-            this.yawAngle = 126.425F;
-            this.minOffset = 11.0F;
-            this.minPitch = first;
-        }
-
-        if (quad > 5.0F && quad <= 15.0F || quad >= 75.0F && quad < 85.0F) {
-            this.yawAngle = 127.825F;
-            this.minOffset = 9.0F;
-            this.minPitch = first;
-        }
-
-        if (quad > 15.0F && quad <= 25.0F || quad >= 65.0F && quad < 75.0F) {
-            this.yawAngle = 129.625F;
-            this.minOffset = 8.0F;
-            this.minPitch = first;
-        }
-
-        if (quad > 25.0F && quad <= 32.0F || quad >= 58.0F && quad < 65.0F) {
-            this.yawAngle = 130.485F;
-            this.minOffset = 7.0F;
-            this.minPitch = sec;
-        }
-
-        if (quad > 32.0F && quad <= 38.0F || quad >= 52.0F && quad < 58.0F) {
-            this.yawAngle = 133.485F;
-            this.minOffset = 6.0F;
-            this.minPitch = sec;
-        }
-
-        if (quad > 38.0F && quad <= 42.0F || quad >= 48.0F && quad < 52.0F) {
-            this.yawAngle = 135.625F;
-            this.minOffset = 4.0F;
-            this.minPitch = sec;
-        }
-
-        if (quad > 42.0F && quad <= 45.0F || quad >= 45.0F && quad < 48.0F) {
-            this.yawAngle = 137.625F;
-            this.minOffset = 3.0F;
-            this.minPitch = sec;
-        }
-
-        float offset = this.yawAngle;
-        float nigger = 0.0F;
-        if (quad > 45.0F) {
-            nigger = 10.0F;
-        } else {
-            nigger = -10.0F;
-        }
-
-        if (this.switchvl > 0) {
-            this.firstStroke = System.currentTimeMillis();
-            this.switchvl = 0;
-            this.vlS = 0L;
-            this.resetm = true;
-        } else {
-            this.vlS = System.currentTimeMillis();
-        }
-
-        if (this.firstStroke > 0L && System.currentTimeMillis() - this.firstStroke > strokeDelay) {
-            this.firstStroke = 0L;
-        }
-
-        if (PlayerUtils.fallDist() <= 2.0 && MoveUtils.getHorizontalSpeed() > 0.1) {
-            this.enabledOffGround = false;
-        }
-
-        if (this.enabledOffGround) {
-            if (this.blockRotations != null) {
-                this.yaw = this.blockRotations[0];
-                this.pitch = this.blockRotations[1];
-            } else {
-                this.yaw = mc.player.rotationYaw - ScaffoldUtils.hardcodedYaw() - nigger;
-                this.pitch = this.minPitch;
-            }
-
-            e = new Rotation(this.yaw, this.pitch);
-        } else {
-            if (this.blockRotations != null) {
-                this.blockYaw = this.blockRotations[0];
-                this.pitch = this.blockRotations[1];
-                this.yawOffset = blockYawOffset;
-                if (this.pitch < this.minPitch) {
-                    this.pitch = this.minPitch;
-                }
-            } else {
-                this.pitch = this.minPitch;
-                if (this.edge == 1.0F && (quad <= 3.0F || quad >= 87.0F) && !ScaffoldUtils.scaffoldDiagonal(false)) {
-                    this.firstStroke = System.currentTimeMillis();
-                }
-
-                this.yawOffset = 5.0F;
-                this.dynamic = 2;
-            }
-
-            if (MoveUtils.isMoving() && MoveUtils.getHorizontalSpeed() != 0.0) {
-                float motionYaw = MoveUtils.getMotionYaw();
-                float newYaw = motionYaw - offset * Math.signum(MathHelper.wrapAngleTo180_float(motionYaw - this.yaw));
-                this.yaw = MathHelper.wrapAngleTo180_float(newYaw);
-                if (quad > 3.0F && quad < 87.0F && this.dynamic > 0) {
-                    if (quad < 45.0F) {
-                        if (this.firstStroke == 0L) {
-                            if (side >= 0.0F) {
-                                this.set2 = false;
-                            } else {
-                                this.set2 = true;
-                            }
-                        }
-
-                        if (this.was452) {
-                            this.switchvl++;
-                        }
-
-                        this.was451 = true;
-                        this.was452 = false;
-                    } else {
-                        if (this.firstStroke == 0L) {
-                            if (side >= 0.0F) {
-                                this.set2 = true;
-                            } else {
-                                this.set2 = false;
-                            }
-                        }
-
-                        if (this.was451) {
-                            this.switchvl++;
-                        }
-
-                        this.was452 = true;
-                        this.was451 = false;
-                    }
-                }
-
-                double minSwitch = !ScaffoldUtils.scaffoldDiagonal(false) ? 9.0 : 15.0;
-                if (side >= 0.0F) {
-                    if (this.yawOffset <= -minSwitch && this.firstStroke == 0L && this.dynamic > 0) {
-                        if (quad <= 3.0F || quad >= 87.0F) {
-                            if (this.set2) {
-                                this.switchvl++;
-                            }
-
-                            this.set2 = false;
-                        }
-                    } else if (this.yawOffset >= 0.0F
-                            && this.firstStroke == 0L
-                            && this.dynamic > 0
-                            && (quad <= 3.0F || quad >= 87.0F)
-                            && this.yawOffset >= minSwitch) {
-                        if (!this.set2) {
-                            this.switchvl++;
-                        }
-
-                        this.set2 = true;
-                    }
-
-                    if (this.set2) {
-                        if (this.yawOffset <= 0.0F) {
-                            this.yawOffset = 0.0F;
-                        }
-
-                        if (this.yawOffset >= this.minOffset) {
-                            this.yawOffset = this.minOffset;
-                        }
-
-                        this.theYaw = this.yaw + offset * 2.0F - this.yawOffset;
-                        e = new Rotation(this.theYaw, this.pitch);
-                        return e;
-                    }
-                } else if (side <= 0.0F) {
-                    if (this.yawOffset >= minSwitch && this.firstStroke == 0L && this.dynamic > 0) {
-                        if (quad <= 3.0F || quad >= 87.0F) {
-                            if (this.set2) {
-                                this.switchvl++;
-                            }
-
-                            this.set2 = false;
-                        }
-                    } else if (this.yawOffset <= 0.0F
-                            && this.firstStroke == 0L
-                            && this.dynamic > 0
-                            && (quad <= 3.0F || quad >= 87.0F)
-                            && this.yawOffset <= -minSwitch) {
-                        if (!this.set2) {
-                            this.switchvl++;
-                        }
-
-                        this.set2 = true;
-                    }
-
-                    if (this.set2) {
-                        if (this.yawOffset >= 0.0F) {
-                            this.yawOffset = 0.0F;
-                        }
-
-                        if (this.yawOffset <= -this.minOffset) {
-                            this.yawOffset = -this.minOffset;
-                        }
-
-                        this.theYaw = this.yaw - offset * 2.0F - this.yawOffset;
-                        e = new Rotation(this.theYaw, this.pitch);
-                        return e;
-                    }
-                }
-
-                if (side >= 0.0F) {
-                    if (this.yawOffset >= 0.0F) {
-                        this.yawOffset = 0.0F;
-                    }
-
-                    if (this.yawOffset <= -this.minOffset) {
-                        this.yawOffset = -this.minOffset;
-                    }
-                } else if (side <= 0.0F) {
-                    if (this.yawOffset <= 0.0F) {
-                        this.yawOffset = 0.0F;
-                    }
-
-                    if (this.yawOffset >= this.minOffset) {
-                        this.yawOffset = this.minOffset;
-                    }
-                }
-
-                this.theYaw = this.yaw - this.yawOffset;
-                e = new Rotation(this.theYaw, this.pitch);
-            } else {
-                e = new Rotation(this.theYaw, this.pitch);
-            }
-        }
-        return e;
     }
     
     @Getter

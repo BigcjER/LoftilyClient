@@ -3,6 +3,7 @@ package loftily.utils.player;
 import loftily.utils.ItemUtils;
 import loftily.utils.client.ClientUtils;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -10,7 +11,24 @@ import net.minecraft.util.math.BlockPos;
 public class InventoryUtils implements ClientUtils {
     public static final int[] HOTBAR_SLOT_IDS = new int[]{36, 37, 38, 39, 40, 41, 42, 43, 44, 45};
     
-    public static int findBlockInSlot() {
+    public static int getBlocksInHotBar() {
+        int blocks = 0;
+        
+        for (int i : HOTBAR_SLOT_IDS) {
+            ItemStack stack = mc.player.inventoryContainer.getSlot(i).getStack();
+            if (stack.isEmptyStack()) continue;
+            
+            Item item = stack.getItem();
+            
+            if (item instanceof ItemBlock) {
+                blocks += stack.getStackSize();
+            }
+        }
+        
+        return blocks;
+    }
+    
+    public static int findBlockInHotBar() {
         for (int i = 0; i < 9; ++i) {
             if (mc.player.inventory.getStackInSlot(i).getItem() instanceof ItemBlock) {
                 ItemBlock itemBlock = (ItemBlock) mc.player.inventory.getStackInSlot(i).getItem();
@@ -22,7 +40,7 @@ public class InventoryUtils implements ClientUtils {
         return -1;
     }
     
-    public static int findBestToolInSlot(BlockPos blockPos) {
+    public static int findBestToolInHotBar(BlockPos blockPos) {
         float bestSpeed = 1;
         int bestSlot = -1;
         

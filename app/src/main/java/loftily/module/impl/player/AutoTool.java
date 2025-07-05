@@ -40,7 +40,7 @@ public class AutoTool extends Module {
         int slot = -1;
         if (mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
             if (blockPos != null && blockBreak > 0) {
-                slot = InventoryUtils.findBestToolInSlot(blockPos);
+                slot = InventoryUtils.findBestToolInHotBar(blockPos);
             }
         }
         

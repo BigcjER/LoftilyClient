@@ -1,10 +1,6 @@
 package net.minecraft.client.gui.achievement;
 
 import com.google.common.collect.Lists;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -28,6 +24,11 @@ import net.minecraft.stats.StatCrafting;
 import net.minecraft.stats.StatList;
 import net.minecraft.stats.StatisticsManager;
 import org.lwjgl.input.Mouse;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class GuiStats extends GuiScreen implements IProgressMeter
 {
@@ -186,7 +187,7 @@ public class GuiStats extends GuiScreen implements IProgressMeter
         this.drawButtonBackground(p_146521_1_ + 1, p_146521_2_ + 1);
         GlStateManager.enableRescaleNormal();
         RenderHelper.enableGUIStandardItemLighting();
-        this.itemRender.renderItemIntoGUI(p_146521_3_.func_190903_i(), p_146521_1_ + 2, p_146521_2_ + 2);
+        this.itemRender.renderItemIntoGUI(p_146521_3_.getItemStack(), p_146521_1_ + 2, p_146521_2_ + 2);
         RenderHelper.disableStandardItemLighting();
         GlStateManager.disableRescaleNormal();
     }
