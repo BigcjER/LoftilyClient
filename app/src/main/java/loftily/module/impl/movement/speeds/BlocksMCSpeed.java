@@ -18,7 +18,7 @@ public class BlocksMCSpeed extends Mode<Speed> {
     
     @EventHandler
     public void onUpdate(UpdateEvent event) {
-        if (mc.player.isInWater() || mc.player.isInWeb || mc.player.isCollidedHorizontally || PlayerUtils.isUsingItem())
+        if (mc.player.isInWater() || mc.player.isInWeb || mc.player.isCollidedHorizontally || (PlayerUtils.isUsingItem() && !PlayerUtils.isBlocking()))
             return;
         
         if (!MoveUtils.isMoving()) {
