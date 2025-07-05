@@ -1,7 +1,6 @@
 package net.minecraft.client.gui;
 
 import loftily.gui.menu.mainmenu.MainMenu;
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
@@ -15,7 +14,6 @@ public class GuiGameOver extends GuiScreen
     /**
      * The integer value containing the number of ticks that have passed since the player's death
      */
-    private int enableButtonsTimer;
     private final ITextComponent causeOfDeath;
 
     public GuiGameOver(@Nullable ITextComponent p_i46598_1_)
@@ -30,7 +28,6 @@ public class GuiGameOver extends GuiScreen
     public void initGui()
     {
         this.buttonList.clear();
-        this.enableButtonsTimer = 0;
 
         if (this.mc.world.getWorldInfo().isHardcoreModeEnabled())
         {
@@ -41,17 +38,8 @@ public class GuiGameOver extends GuiScreen
         {
             this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 72, I18n.format("deathScreen.respawn")));
             this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 96, I18n.format("deathScreen.titleScreen")));
-
-            if (this.mc.getSession() == null)
-            {
-                (this.buttonList.get(1)).enabled = false;
-            }
         }
-
-        for (GuiButton guibutton : this.buttonList)
-        {
-            guibutton.enabled = false;
-        }
+        
     }
 
     /**
@@ -71,7 +59,7 @@ public class GuiGameOver extends GuiScreen
         {
             case 0:
                 this.mc.player.respawnPlayer();
-                this.mc.displayGuiScreen((GuiScreen)null);
+                this.mc.displayGuiScreen(null);
                 break;
 
             case 1:
@@ -97,13 +85,13 @@ public class GuiGameOver extends GuiScreen
                 this.mc.world.sendQuittingDisconnectingPacket();
             }
 
-            this.mc.loadWorld((WorldClient)null);
+            this.mc.loadWorld(null);
             this.mc.displayGuiScreen(new MainMenu());
         }
         else
         {
             this.mc.player.respawnPlayer();
-            this.mc.displayGuiScreen((GuiScreen)null);
+            this.mc.displayGuiScreen(null);
         }
     }
 
@@ -164,13 +152,9 @@ public class GuiGameOver extends GuiScreen
                         return itextcomponent;
                     }
                 }
-
-                return null;
+                
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
     }
 
@@ -188,14 +172,5 @@ public class GuiGameOver extends GuiScreen
     public void updateScreen()
     {
         super.updateScreen();
-        ++this.enableButtonsTimer;
-
-        if (this.enableButtonsTimer == 20)
-        {
-            for (GuiButton guibutton : this.buttonList)
-            {
-                guibutton.enabled = true;
-            }
-        }
     }
 }
