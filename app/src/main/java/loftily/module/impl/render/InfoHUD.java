@@ -46,19 +46,19 @@ public class InfoHUD extends Module implements IDraggable {
             Client.INSTANCE.getFileManager().get(DragsJsonConfig.class).read();
         }
         
-        final int TITLE_FONT_SIZE = 15;
-        final FontRenderer TITLE_FONT = FontManager.NotoSans.of(TITLE_FONT_SIZE);
+        final FontRenderer TITLE_FONT = FontManager.NotoSans.of(18);
+        final FontRenderer TEXT_FONT = FontManager.NotoSans.of(14);
         
         updateDisplayItems();
         
-        final int TITLE_HEIGHT = PADDING * 5;
+        final int TITLE_HEIGHT = PADDING * 6;
         final int HEAD_SIZE = 40;
         
         int width = 0;
         for (Map.Entry<String, String> entry : displayItems.entrySet()) {
             String text = entry.getKey() + ": " + entry.getValue();
             
-            int thisWidth = TITLE_FONT.getStringWidth(text) + HEAD_SIZE;
+            int thisWidth = TEXT_FONT.getStringWidth(text) + HEAD_SIZE + PADDING * 4;
             width = Math.max(width, thisWidth);
         }
         
@@ -72,32 +72,26 @@ public class InfoHUD extends Module implements IDraggable {
             
             //BackGround
             RenderUtils.drawRoundedRect(startX, startY, backGroundWidth, backGroundHeight, RADIUS, Colors.BackGround.color);
-            RenderUtils.drawRoundedRect(startX, startY, backGroundWidth, TITLE_HEIGHT, RADIUS, Colors.OnBackGround.color);
+            RenderUtils.drawRoundedRect(startX + 0.3F, startY, backGroundWidth - 0.6F, TITLE_HEIGHT, RADIUS, Colors.OnBackGround.color);
             
             //TitleText
-            TITLE_FONT.drawString("Info HUD", startX + PADDING, startY + 2, Colors.Text.color);
+            TITLE_FONT.drawString("Info HUD", startX + PADDING + 1, startY + 2f, Colors.Text.color);
+            
             //Head
             RenderUtils.drawPlayerHead(startX - 2, (startY + TITLE_HEIGHT) - PADDING / 2 - 1, HEAD_SIZE, mc.player);
-            RenderUtils.drawRoundedRectOutline(
-                    startX + PADDING,
-                    (startY + TITLE_HEIGHT) + PADDING,
-                    HEAD_SIZE + PADDING, HEAD_SIZE + PADDING,
-                    RADIUS, 1,
-                    new Color(0, 0, 0, 0), Colors.BackGround.color);
             
             for (Map.Entry<String, String> entry : displayItems.entrySet()) {
                 int textStartX = startX + HEAD_SIZE + PADDING * 4;
                 
-                FontRenderer textFont = FontManager.NotoSans.of(TITLE_FONT_SIZE - 2);
-                textFont.drawString(
+                TEXT_FONT.drawString(
                         entry.getKey(),
                         textStartX,
                         startY + yOffset.get() + PADDING * 2 + TITLE_HEIGHT,
                         Colors.Text.color.darker());
                 
-                textFont.drawString(
+                TEXT_FONT.drawString(
                         entry.getValue(),
-                        textStartX + textFont.getStringWidth(entry.getKey() + " "),
+                        textStartX + TEXT_FONT.getStringWidth(entry.getKey() + " "),
                         startY + yOffset.get() + PADDING * 2 + TITLE_HEIGHT,
                         Colors.Text.color);
                 
