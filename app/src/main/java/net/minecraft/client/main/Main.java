@@ -96,7 +96,7 @@ public class Main {
         String assetsIndexString = optionset.has(assetIndex) ? assetIndex.value(optionset) : null;
         String serverString = optionset.valueOf(server);
         
-        Session session = new Session(username.value(optionset), uuidString, accessToken.value(optionset), userType.value(optionset));
+        Session session = new Session(username.value(optionset), uuidString, accessToken.value(optionset));
         GameConfiguration gameConfiguration =
                 new GameConfiguration(
                         new GameConfiguration.UserInformation(session, userPropertiesMap, profilePropertiesMap, proxy),

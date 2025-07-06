@@ -3,7 +3,8 @@ package net.minecraft.client.gui;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import de.florianmichael.viamcp.ViaMCP;
-import loftily.utils.ServerUtils;
+import loftily.Client;
+import loftily.event.impl.client.ConnectServerEvent;
 import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
@@ -404,7 +405,7 @@ public class GuiMultiplayer extends GuiScreen
     private void connectToServer(ServerData server)
     {
         this.mc.displayGuiScreen(new GuiConnecting(this, this.mc, server));
-        ServerUtils.lastServerData = server;
+        Client.INSTANCE.getEventManager().call(new ConnectServerEvent(server));
     }
 
     public void selectServer(int index)

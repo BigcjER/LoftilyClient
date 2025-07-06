@@ -170,6 +170,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
      */
     private final PropertyMap profileProperties;
     private ServerData currentServerData;
+    public ServerData prevServerData;
     
     /**
      * The RenderEngine instance used by Minecraft

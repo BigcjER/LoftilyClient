@@ -1,8 +1,10 @@
 package loftily.utils.player;
 
 import loftily.utils.client.ClientUtils;
+import loftily.utils.math.MathUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.MobEffects;
+import net.minecraft.util.math.Vec3d;
 
 public class MoveUtils implements ClientUtils {
     
@@ -13,19 +15,19 @@ public class MoveUtils implements ClientUtils {
     public static double getSpeed() {
         return getSpeed(mc.player.motionX, mc.player.motionZ);
     }
-
+    
     public static double getHorizontalSpeed() {
         return getHorizontalSpeed(mc.player);
     }
-
+    
     public static double getHorizontalSpeed(Entity entity) {
         return Math.sqrt(entity.motionX * entity.motionX + entity.motionZ * entity.motionZ);
     }
-
-    public static float getMovingYaw(){
+    
+    public static float getMovingYaw() {
         return (float) (MoveUtils.getDirection() * 180 / Math.PI);
     }
-
+    
     public static double getDirection(float rotationYaw, double moveForward, double moveStrafe) {
         if (moveForward == 0.0F && moveStrafe == 0.0F) {
             return Math.toRadians(rotationYaw);
@@ -52,7 +54,7 @@ public class MoveUtils implements ClientUtils {
         mc.player.motionX = -Math.sin(yaw) * speed;
         mc.player.motionZ = Math.cos(yaw) * speed;
     }
-
+    
     public static int getSpeedAmplifier() {
         return mc.player.isPotionActive(MobEffects.SPEED) ? 1 + mc.player.getActivePotionEffect(MobEffects.SPEED).getAmplifier() : 0;
     }
@@ -64,17 +66,24 @@ public class MoveUtils implements ClientUtils {
     public static void stop(boolean y) {
         mc.player.motionX = 0;
         mc.player.motionZ = 0;
-        if(y){
+        if (y) {
             mc.player.motionY = 0;
         }
     }
-
+    
+    public static double getBPS() {
+        return MathUtils.round(
+                new Vec3d(mc.player.posX, 0, mc.player.posZ)
+                        .distanceTo(new Vec3d(mc.player.lastTickPosX, 0, mc.player.lastTickPosZ)) * 20 * mc.timer.timerSpeed,
+                2);
+    }
+    
     public static double getMovementAngle() {
         double angle = Math.toDegrees(Math.atan2(-mc.player.moveStrafing, mc.player.moveForward));
         return angle == 0.0 ? 0.0 : angle;
     }
-
+    
     public static float getMotionYaw() {
-        return (float)Math.toDegrees(Math.atan2(mc.player.motionZ, mc.player.motionX)) - 90.0F;
+        return (float) Math.toDegrees(Math.atan2(mc.player.motionZ, mc.player.motionX)) - 90.0F;
     }
 }

@@ -3,9 +3,9 @@ package loftily.value.impl.mode;
 import loftily.Client;
 import loftily.core.AbstractModule;
 import loftily.module.Module;
+import loftily.utils.other.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.util.StringUtils;
 
 @Getter
 @Setter

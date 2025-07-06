@@ -139,7 +139,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
     public float prevRenderPitchHead;
     
     public int onGroundTicks, offGroundTicks;
-    
+    public int kills;
     
     public EntityPlayerSP(Minecraft p_i47378_1_, World p_i47378_2_, NetHandlerPlayClient p_i47378_3_, StatisticsManager p_i47378_4_, RecipeBook p_i47378_5_) {
         super(p_i47378_2_, p_i47378_3_.getGameProfile());

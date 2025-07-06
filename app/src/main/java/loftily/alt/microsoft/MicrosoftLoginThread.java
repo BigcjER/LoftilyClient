@@ -130,7 +130,7 @@ public class MicrosoftLoginThread extends Thread implements ClientUtils {
         String name = profile[0];
         String uuid = profile[1];
         
-        mc.addScheduledTask(() -> mc.setSession(new Session(name, uuid, minecraftAccessToken, "mojang")));
+        mc.addScheduledTask(() -> mc.setSession(new Session(name, uuid, minecraftAccessToken)));
         
         if (add) {
             byte[] cpuid = SystemUtils.getCpuIdSha256();

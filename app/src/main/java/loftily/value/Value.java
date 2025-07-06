@@ -1,10 +1,10 @@
 package loftily.value;
 
 import com.google.gson.JsonElement;
+import loftily.utils.other.StringUtils;
 import loftily.value.impl.mode.Mode;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.util.StringUtils;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;

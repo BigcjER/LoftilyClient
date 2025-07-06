@@ -21,12 +21,9 @@ import loftily.value.impl.NumberValue;
 import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
 import net.lenni0451.lambdaevents.EventHandler;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
-import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
@@ -161,16 +158,7 @@ public class TargetHUD extends Module implements IDraggable {
             
             //Head
             int headSize = 30;
-            NetworkPlayerInfo playerInfo = mc.getConnection().getPlayerInfo(target.getUniqueID());
-            if (playerInfo != null) {
-                mc.getTextureManager().bindTexture(playerInfo.getLocationSkin());
-                GL11.glColor4f(1F, 1F, 1F, 1F);
-                Gui.drawScaledCustomSizeModalRect(x + 5, y + 5, 8F, 8F, 8, 8, headSize, headSize, 64F, 64F);
-                GlStateManager.resetColor();
-            } else {
-                RenderUtils.drawRoundedRect(x + 5, y + 5, headSize, headSize, 3, Colors.OnBackGround.color);
-            }
-            
+            RenderUtils.drawPlayerHead(x, y, headSize, target);
             
             //Text
             FontManager.NotoSans.of(18).drawString(name, x + headSize + 11, y + 5, Colors.Text.color);

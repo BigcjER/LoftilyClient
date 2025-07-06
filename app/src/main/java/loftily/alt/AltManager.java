@@ -42,7 +42,7 @@ public class AltManager implements ClientUtils {
             }
             
         } else {
-            mc.setSession(new Session(alt.getName(), "", "", Session.Type.LEGACY.sessionType));
+            mc.setSession(new Session(alt.getName(), "", ""));
             callback.accept("Logged in as " + alt.getName());
         }
     }

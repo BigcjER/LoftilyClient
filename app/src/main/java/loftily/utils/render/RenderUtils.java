@@ -4,11 +4,13 @@ import loftily.utils.client.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -220,4 +222,17 @@ public class RenderUtils implements ClientUtils {
         
         return new Point(mouseX, mouseY);
     }
+    
+    public static void drawPlayerHead(int x, int y, int headSize, Entity entity) {
+        NetworkPlayerInfo playerInfo = mc.getConnection().getPlayerInfo(entity.getUniqueID());
+        if (playerInfo != null) {
+            mc.getTextureManager().bindTexture(playerInfo.getLocationSkin());
+            GL11.glColor4f(1F, 1F, 1F, 1F);
+            Gui.drawScaledCustomSizeModalRect(x + 5, y + 5, 8F, 8F, 8, 8, headSize, headSize, 64F, 64F);
+            GlStateManager.resetColor();
+        } else {
+            RenderUtils.drawRoundedRect(x + 5, y + 5, headSize, headSize, 3, Colors.OnBackGround.color);
+        }
+    }
+    
 }

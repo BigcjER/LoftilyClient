@@ -20,11 +20,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class ServerUtils implements ClientUtils {
-    public static ServerData lastServerData;
-    
     public static void connectToLastServer() {
-        if (lastServerData != null) {
-            mc.displayGuiScreen(new GuiConnecting(new GuiMultiplayer(new MainMenu()), mc, lastServerData));
+        if (mc.prevServerData != null) {
+            mc.displayGuiScreen(new GuiConnecting(new GuiMultiplayer(new MainMenu()), mc, mc.prevServerData));
         }
     }
     
