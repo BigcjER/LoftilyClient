@@ -1,8 +1,12 @@
 package net.minecraft.client.entity;
 
 import com.mojang.authlib.GameProfile;
-import java.io.File;
-import javax.annotation.Nullable;
+import loftily.Client;
+import loftily.event.impl.player.LookEvent;
+import loftily.utils.math.CalculateUtils;
+import loftily.utils.math.Rotation;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.ImageBufferDownload;
@@ -16,6 +20,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 import optifine.CapeUtils;
@@ -23,15 +28,20 @@ import optifine.Config;
 import optifine.PlayerConfigurations;
 import optifine.Reflector;
 
+import javax.annotation.Nullable;
+import java.io.File;
+
 public abstract class AbstractClientPlayer extends EntityPlayer
 {
     private NetworkPlayerInfo playerInfo;
     public float rotateElytraX;
     public float rotateElytraY;
     public float rotateElytraZ;
+    @Setter
+    @Getter
     private ResourceLocation locationOfCape = null;
-    private String nameClear = null;
-    private static final ResourceLocation TEXTURE_ELYTRA = new ResourceLocation("textures/entity/elytra.png");
+    @Getter
+    private String nameClear;
 
     public AbstractClientPlayer(World worldIn, GameProfile playerProfile)
     {
@@ -89,10 +99,7 @@ public abstract class AbstractClientPlayer extends EntityPlayer
         NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
         return networkplayerinfo != null && networkplayerinfo.hasLocationSkin();
     }
-
-    /**
-     * Returns true if the player instance has an associated skin.
-     */
+    
     public ResourceLocation getLocationSkin()
     {
         NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
@@ -121,12 +128,11 @@ public abstract class AbstractClientPlayer extends EntityPlayer
     {
         return this.getPlayerInfo() != null;
     }
-
-    @Nullable
-
+    
     /**
      * Gets the special Elytra texture for the player.
      */
+    @Nullable
     public ResourceLocation getLocationElytra()
     {
         NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
@@ -140,16 +146,13 @@ public abstract class AbstractClientPlayer extends EntityPlayer
 
         if (itextureobject == null)
         {
-            itextureobject = new ThreadDownloadImageData((File)null, String.format("http://skins.minecraft.net/MinecraftSkins/%s.png", StringUtils.stripControlCodes(username)), DefaultPlayerSkin.getDefaultSkin(getOfflineUUID(username)), new ImageBufferDownload());
+            itextureobject = new ThreadDownloadImageData(null, String.format("http://skins.minecraft.net/MinecraftSkins/%s.png", StringUtils.stripControlCodes(username)), DefaultPlayerSkin.getDefaultSkin(getOfflineUUID(username)), new ImageBufferDownload());
             texturemanager.loadTexture(resourceLocationIn, itextureobject);
         }
 
         return (ThreadDownloadImageData)itextureobject;
     }
-
-    /**
-     * Returns true if the username has an associated skin.
-     */
+    
     public static ResourceLocation getLocationSkin(String username)
     {
         return new ResourceLocation("skins/" + StringUtils.stripControlCodes(username));
@@ -197,22 +200,7 @@ public abstract class AbstractClientPlayer extends EntityPlayer
 
         return Reflector.ForgeHooksClient_getOffsetFOV.exists() ? Reflector.callFloat(Reflector.ForgeHooksClient_getOffsetFOV, this, f) : f;
     }
-
-    public String getNameClear()
-    {
-        return this.nameClear;
-    }
-
-    public ResourceLocation getLocationOfCape()
-    {
-        return this.locationOfCape;
-    }
-
-    public void setLocationOfCape(ResourceLocation p_setLocationOfCape_1_)
-    {
-        this.locationOfCape = p_setLocationOfCape_1_;
-    }
-
+    
     public boolean hasElytraCape()
     {
         ResourceLocation resourcelocation = this.getLocationCape();
@@ -225,5 +213,16 @@ public abstract class AbstractClientPlayer extends EntityPlayer
         {
             return resourcelocation != this.locationOfCape;
         }
+    }
+    
+    @Override
+    public Vec3d getLook(float partialTicks) {
+        Rotation rotation = new Rotation(this.rotationYaw, this.rotationPitch);
+        
+        LookEvent event = new LookEvent(rotation);
+        Client.INSTANCE.getEventManager().call(event);
+        rotation = event.getRotation();
+        
+        return CalculateUtils.getVectorForRotation(rotation);
     }
 }

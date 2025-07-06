@@ -1,6 +1,7 @@
 package loftily.handlers.impl.player;
 
 import loftily.event.impl.packet.PacketSendEvent;
+import loftily.event.impl.player.LookEvent;
 import loftily.event.impl.player.RotationEvent;
 import loftily.event.impl.player.motion.JumpEvent;
 import loftily.event.impl.player.motion.StrafeEvent;
@@ -45,21 +46,22 @@ public class RotationHandler extends Handler {
     }
     
     public static void setClientRotation(Rotation setRotation, Integer keepTicks, Integer backTicks, MoveFix moveFix) {
+        //legit pitch
         if (setRotation.pitch > 90 || setRotation.pitch < -90) {
             return;
-        }//legit pitch
+        }
         
         clientRotation = setRotation;
         keepRotationTicks = keepTicks;
         backRotationTicks = backTicks;
         
         RotationHandler.moveFix = moveFix;
-        
     }
     
-    @EventHandler
+    @EventHandler(priority = -100)
     public void onStrafe(StrafeEvent event) {
         if (clientRotation == null) return;
+        
         if (moveFix != MoveFix.NONE) {
             event.setYaw(clientRotation.yaw);
             if (moveFix.ordinal() >= MoveFix.SILENT.ordinal()) {
@@ -91,16 +93,17 @@ public class RotationHandler extends Handler {
         }
     }
     
-    @EventHandler
+    @EventHandler(priority = -100)
     public void onJump(JumpEvent event) {
         if (mc.player == null || mc.world == null) return;
         if (clientRotation == null) return;
+        
         if (moveFix != MoveFix.NONE) {
             event.setMovementYaw(clientRotation.yaw);
         }
     }
     
-    @EventHandler
+    @EventHandler(priority = -100)
     public void onUpdate(LivingUpdateEvent event) {
         if (clientRotation == null) {
             moveFix = MoveFix.NONE;
@@ -126,14 +129,21 @@ public class RotationHandler extends Handler {
     }
     
     
-    @EventHandler(priority = -50)
+    @EventHandler(priority = -100)
     public void onRotation(RotationEvent event) {
         if (clientRotation == null) return;
         
         event.setRotation(clientRotation);
     }
     
-    @EventHandler
+    @EventHandler(priority = -100)
+    public void onLook(LookEvent event) {
+        if (clientRotation == null) return;
+        
+        event.setRotation(clientRotation);
+    }
+    
+    @EventHandler(priority = -100)
     public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
         

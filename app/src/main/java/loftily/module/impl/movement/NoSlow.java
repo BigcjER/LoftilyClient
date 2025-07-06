@@ -1,5 +1,6 @@
 package loftily.module.impl.movement;
 
+import loftily.event.impl.packet.PacketReceiveEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.player.slowdown.ItemSlowDownEvent;
 import loftily.module.Module;
@@ -7,14 +8,17 @@ import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
 import loftily.utils.client.PacketUtils;
 import loftily.utils.player.PlayerUtils;
+import loftily.value.impl.BooleanValue;
 import loftily.value.impl.MultiBooleanValue;
 import loftily.value.impl.NumberValue;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.item.*;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
+import net.minecraft.network.play.server.SPacketHeldItemChange;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -50,6 +54,18 @@ public class NoSlow extends Module {
     
     private final NumberValue bowForward = new NumberValue("BowForward", 0.2f, 0.0f, 1.0f, 0.01f);
     private final NumberValue bowStrafe = new NumberValue("BowStrafe", 0.2f, 0.0f, 1.0f, 0.01f);
+    
+    private final BooleanValue ignoreServerItemChange = new BooleanValue("IgnoreServerItemChange", false);
+    
+    @EventHandler
+    public void onPacketReceive(PacketReceiveEvent event) {
+        if (!ignoreServerItemChange.getValue()) return;
+        
+        Packet<?> packet = event.getPacket();
+        if (packet instanceof SPacketHeldItemChange) {
+            event.setCancelled(true);
+        }
+    }
     
     public Item getUseItem() {
         if (mc.player.isHandActive()) {
