@@ -9,13 +9,14 @@ public class EditNoFall extends Mode<NoFall> {
     public EditNoFall() {
         super("Edit");
     }
+    
     @EventHandler
     public void onMotion(MotionEvent event) {
-        if(event.isPost()) {
+        if (event.isPost()) {
             return;
         }
-
-        if(getParent().fallDamage() && getParent().inVoidCheck()){
+        
+        if (getParent().fallDamage() && getParent().inVoidCheck()) {
             event.setOnGround(true);
             mc.player.fallDistance = 0;
         }

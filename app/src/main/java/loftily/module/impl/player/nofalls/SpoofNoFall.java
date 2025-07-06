@@ -9,12 +9,13 @@ public class SpoofNoFall extends Mode<NoFall> {
     public SpoofNoFall() {
         super("Spoof");
     }
+    
     @EventHandler
     public void onMotion(MotionEvent event) {
-        if(event.isPost()) {
+        if (event.isPost()) {
             return;
         }
-
+        
         event.setOnGround(true);
     }
 }

@@ -9,10 +9,10 @@ public class NoGroundNoFall extends Mode<NoFall> {
     public NoGroundNoFall() {
         super("NoGround");
     }
-
+    
     @EventHandler
     public void onMotion(MotionEvent event) {
-        if(mc.player.onGround){
+        if (mc.player.onGround) {
             event.setOnGround(false);
         }
     }

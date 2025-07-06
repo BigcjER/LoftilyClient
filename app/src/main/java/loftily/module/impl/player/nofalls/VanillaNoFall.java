@@ -11,9 +11,10 @@ public class VanillaNoFall extends Mode<NoFall> {
     public VanillaNoFall() {
         super("Vanilla");
     }
+    
     @EventHandler
     public void onUpdate(UpdateEvent event) {
-        if(getParent().fallDamage() && getParent().inVoidCheck()){
+        if (getParent().fallDamage() && getParent().inVoidCheck()) {
             PacketUtils.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY, mc.player.posZ, true));
             mc.player.fallDistance = 0;
         }

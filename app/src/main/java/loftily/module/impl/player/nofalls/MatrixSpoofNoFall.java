@@ -13,37 +13,37 @@ public class MatrixSpoofNoFall extends Mode<NoFall> {
     public MatrixSpoofNoFall() {
         super("MatrixSpoof");
     }
-
-    private final BooleanValue legitTimer = new BooleanValue("LegitTimer",false);
+    
+    private final BooleanValue legitTimer = new BooleanValue("LegitTimer", false);
     private boolean timered = false;
-
+    
     @Override
-    public void onDisable(){
+    public void onDisable() {
         mc.timer.timerSpeed = 1F;
         timered = false;
     }
-
+    
     @EventHandler
     public void onPacket(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
-        if(getParent().fallDamage() && getParent().inVoidCheck()){
-            if(packet instanceof CPacketPlayer){
-                if(((CPacketPlayer) packet).getMoving()) {
+        if (getParent().fallDamage() && getParent().inVoidCheck()) {
+            if (packet instanceof CPacketPlayer) {
+                if (((CPacketPlayer) packet).getMoving()) {
                     event.setCancelled(true);
                     PacketUtils.sendPacket(new CPacketPlayer.Position(
-                            ((CPacketPlayer) packet).x,((CPacketPlayer) packet).y,((CPacketPlayer) packet).z,true
-                    ),false);
+                            ((CPacketPlayer) packet).x, ((CPacketPlayer) packet).y, ((CPacketPlayer) packet).z, true
+                    ), false);
                     PacketUtils.sendPacket(new CPacketPlayer.Position(
-                            ((CPacketPlayer) packet).x,((CPacketPlayer) packet).y,((CPacketPlayer) packet).z,false
-                    ),false);
+                            ((CPacketPlayer) packet).x, ((CPacketPlayer) packet).y, ((CPacketPlayer) packet).z, false
+                    ), false);
                     mc.player.fallDistance = 0;
-                    if(legitTimer.getValue()) {
+                    if (legitTimer.getValue()) {
                         timered = true;
                         mc.timer.timerSpeed = 0.2F;
                     }
                 }
             }
-        }else if(timered){
+        } else if (timered) {
             mc.timer.timerSpeed = 1F;
             timered = false;
         }
