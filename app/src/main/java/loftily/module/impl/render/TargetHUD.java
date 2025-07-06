@@ -75,10 +75,6 @@ public class TargetHUD extends Module implements IDraggable {
                 target = mc.player;
                 delayTimer.reset();
             }
-            if (mc.pointedEntity instanceof EntityLivingBase) {
-                target = (EntityLivingBase) mc.pointedEntity;
-                delayTimer.reset();
-            }
         }
         
         if (target == null) return;
