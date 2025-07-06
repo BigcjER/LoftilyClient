@@ -1,14 +1,16 @@
 package loftily.value.impl;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import loftily.utils.client.ClientUtils;
+import com.google.gson.JsonPrimitive;
+import loftily.utils.other.StringUtils;
 import loftily.value.Value;
-import net.minecraft.util.StringUtils;
 import net.minecraft.util.text.TextFormatting;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class MultiBooleanValue extends Value<Map<String, Boolean>, MultiBooleanValue> {
     /**
@@ -67,26 +69,38 @@ public class MultiBooleanValue extends Value<Map<String, Boolean>, MultiBooleanV
     
     @Override
     public JsonElement write() {
-        JsonObject jsonObject = new JsonObject();
+        //使用JsonArray避免与Mode冲突
+        JsonArray jsonArray = new JsonArray();
         for (Map.Entry<String, Boolean> entry : getValue().entrySet()) {
-            jsonObject.addProperty(entry.getKey(), entry.getValue());
+            if (entry.getValue()) {
+                jsonArray.add(entry.getKey());
+            }
         }
-        return jsonObject;
+        
+        return jsonArray;
     }
     
     @Override
     public Value<Map<String, Boolean>, MultiBooleanValue> read(JsonElement element) {
-        if (element.isJsonObject()) {
-            JsonObject jsonObject = element.getAsJsonObject();
-            Map<String, Boolean> newValues = new LinkedHashMap<>(getValue());
-            
-            for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-                if (newValues.containsKey(entry.getKey())) {
-                    newValues.put(entry.getKey(), entry.getValue().getAsBoolean());
-                } else {
-                    ClientUtils.LOGGER.warn("Found unknown key '{}' in value '{}'. It will be ignored.", entry.getKey(), this.getName());
+        if (element.isJsonArray()) {
+            JsonArray jsonArray = element.getAsJsonArray();
+            //查找在Json里启用的value
+            Set<String> enabledFromJson = new HashSet<>();
+            for (JsonElement jsonElement : jsonArray) {
+                if (jsonElement.isJsonPrimitive() && ((JsonPrimitive) jsonElement).isString()) {
+                    enabledFromJson.add(jsonElement.getAsString());
                 }
             }
+            
+            
+            Map<String, Boolean> newValues = new LinkedHashMap<>();
+            
+            for (String key : getValue().keySet()) {
+                //避免添加没有的key
+                if (getValue().containsKey(key))
+                    newValues.put(key, enabledFromJson.contains(key));
+            }
+            
             super.setValue(newValues);
         }
         return this;
