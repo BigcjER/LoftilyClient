@@ -4,6 +4,7 @@ import loftily.Client;
 import loftily.command.Command;
 import loftily.config.FileManager;
 import loftily.config.impl.json.ModuleJsonConfig;
+import loftily.module.Module;
 import loftily.settings.ClientSettings;
 import loftily.utils.client.MessageUtils;
 import net.minecraft.util.text.Style;
@@ -116,12 +117,14 @@ public class ConfigCommand extends Command {
                     }
                     moduleJsonConfig.write();
                     
-                    Client.INSTANCE.getModuleManager().getAll().forEach(module -> module.getValues().forEach(value -> value.setValue(value.getDefaultValue())));
-                    Client.INSTANCE.getModuleManager().getAll().forEach(module -> {
+                    for (Module module : Client.INSTANCE.getModuleManager().getAll()) {
+                        println(module.getDefaultKey());
+                        module.setKey(module.getDefaultKey());
+                        module.getValues().forEach(value -> value.setValue(value.getDefaultValue()));
                         if (module.isToggled() != module.isDefaultToggled()) {
                             module.setToggled(module.isDefaultToggled(), false, false);
                         }
-                    });
+                    }
                     
                     moduleJsonConfig.setFile(new File(FileManager.CONFIG_DIR, configName + ".json"));
                     moduleJsonConfig.write();

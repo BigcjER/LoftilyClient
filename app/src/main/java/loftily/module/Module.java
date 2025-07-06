@@ -14,11 +14,13 @@ import lombok.Setter;
 
 @Getter
 public abstract class Module extends AbstractModule {
-    private boolean defaultToggled, canBeToggled;
+    private final boolean defaultToggled, canBeToggled;
     @Setter
     private AutoDisableType autoDisableType;
-    private ModuleCategory moduleCategory;
+    private final ModuleCategory moduleCategory;
     private boolean toggled;
+    
+    private final int defaultKey;
     private int key;
     
     public Module() {
@@ -26,14 +28,13 @@ public abstract class Module extends AbstractModule {
             throw new RuntimeException(String.format("ModuleInfo not found in %s!", this.getClass().getSimpleName()));
         }
         ModuleInfo moduleInfo = this.getClass().getAnnotation(ModuleInfo.class);
-        if (moduleInfo != null) {
-            this.name = moduleInfo.name();
-            this.key = moduleInfo.key();
-            this.moduleCategory = moduleInfo.category();
-            this.defaultToggled = moduleInfo.defaultToggled();
-            this.canBeToggled = moduleInfo.canBeToggled();
-            this.autoDisableType = moduleInfo.autoDisable();
-        }
+        this.name = moduleInfo.name();
+        this.key = moduleInfo.key();
+        this.defaultKey = key;
+        this.moduleCategory = moduleInfo.category();
+        this.defaultToggled = moduleInfo.defaultToggled();
+        this.canBeToggled = moduleInfo.canBeToggled();
+        this.autoDisableType = moduleInfo.autoDisable();
     }
     
     public void setToggled(boolean toggled, boolean save, boolean notification) {
