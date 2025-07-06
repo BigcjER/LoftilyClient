@@ -9,7 +9,7 @@ import java.util.*;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractManager<T> implements ClientUtils {
-    private final Map<Class<? extends T>, T> instanceMap = new HashMap<>();
+    protected final Map<Class<? extends T>, T> instanceMap = new HashMap<>();
     
     public AbstractManager(String childPackage, Class<T> superClass) {
         if (childPackage == null) return;

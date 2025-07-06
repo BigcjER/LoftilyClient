@@ -31,8 +31,8 @@ public class ModuleManager extends AbstractManager<Module> {
             //填充Category快速查找Map
             categoryToModuleMap.computeIfAbsent(module.getModuleCategory(), k -> new ArrayList<>()).add(module);
             
+            //添加IDraggable
             if (module instanceof IDraggable) DraggableHandler.getDraggableList().add((IDraggable) module);
-            
             
             //添加Value
             Field[] fields = module.getClass().getDeclaredFields();
@@ -40,7 +40,7 @@ public class ModuleManager extends AbstractManager<Module> {
                 if (Value.class.isAssignableFrom(field.getType())) {
                     try {
                         field.setAccessible(true);
-                        
+                        //跳过带有Mode的Value,用自带的初始化方法
                         if (field.getType().isAssignableFrom(ModeValue.class)) {
                             module.getValues().add((Value<?, ?>) field.get(module));
                             ((ModeValue) field.get(module)).initModes();
@@ -111,5 +111,16 @@ public class ModuleManager extends AbstractManager<Module> {
         if (newKey != 0 && newKey != -1) {
             keyToModuleMap.computeIfAbsent(newKey, k -> new ArrayList<>()).add(module);
         }
+    }
+    
+    /**
+     * @return 根据首字母排序后的不可修改List
+     */
+    @Override
+    public List<Module> getAll() {
+        List<Module> list = new ArrayList<>(instanceMap.values());
+        list.sort(Comparator.comparing(Module::getName));
+        
+        return Collections.unmodifiableList(list);
     }
 }
