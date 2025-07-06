@@ -11,7 +11,7 @@ import loftily.event.impl.render.HurtCameraEvent;
 import loftily.event.impl.render.Render3DEvent;
 import loftily.handlers.impl.player.RotationHandler;
 import loftily.module.impl.other.RayTraceFixer;
-import loftily.module.impl.render.DrawScreenEvent;
+import loftily.event.impl.render.DrawScreenEvent;
 import loftily.utils.math.CalculateUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;

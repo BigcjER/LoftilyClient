@@ -1,6 +1,7 @@
 package loftily.module.impl.render;
 
 import loftily.Client;
+import loftily.event.impl.render.DrawScreenEvent;
 import loftily.event.impl.render.Render2DEvent;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;

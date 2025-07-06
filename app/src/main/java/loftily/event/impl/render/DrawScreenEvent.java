@@ -1,4 +1,4 @@
-package loftily.module.impl.render;
+package loftily.event.impl.render;
 
 import lombok.AllArgsConstructor;
 
