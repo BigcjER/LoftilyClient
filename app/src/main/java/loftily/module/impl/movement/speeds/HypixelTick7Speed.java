@@ -3,7 +3,7 @@ package loftily.module.impl.movement.speeds;
 import loftily.Client;
 import loftily.event.impl.packet.PacketReceiveEvent;
 import loftily.event.impl.player.motion.MotionEvent;
-import loftily.module.impl.exploit.Disabler;
+import loftily.module.impl.exploit.disablers.WatchDogMovementDisabler;
 import loftily.module.impl.movement.Speed;
 import loftily.utils.block.BlockUtils;
 import loftily.utils.player.MoveUtils;
@@ -92,7 +92,7 @@ public class HypixelTick7Speed extends Mode<Speed> {
     private void handleLowHop() {
         Block block = BlockUtils.getBlock(new BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ));
         int simpleY = (int)Math.round(mc.player.posY % 1.0 * 10000.0);
-        if (!disablerOnly.getValue() || ((Disabler) Client.INSTANCE.getModuleManager().get("Disabler")).disablerLoaded) {
+        if (!disablerOnly.getValue() || WatchDogMovementDisabler.disablerLoaded) {
             if (mc.player.isCollidedVertically || ldmg || block instanceof BlockSlab) {
                 return;
             }

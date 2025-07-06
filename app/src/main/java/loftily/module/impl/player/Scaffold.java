@@ -920,7 +920,6 @@ public class Scaffold extends Module {
                 horizonSpeed,
                 pitchSpeed
         ).fixedSensitivity(0);
-        println(calculateRot.yaw + "  " + calculateRot.pitch);
         if (silentRotation.getValue()) {
             RotationHandler.setClientRotation(calculateRot, keepTicks, reverseTicks, moveFixMode.getValue().getName());
         } else {

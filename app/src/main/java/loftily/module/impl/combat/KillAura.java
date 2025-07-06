@@ -320,8 +320,8 @@ public class KillAura extends Module {
                     for (double y = 0.2; y <= 0.8; y += 0.1) {
                         for (double z = 0.2; z <= 0.8; z += 0.1) {
                             Vec3d preCenter = targetBox.lerpWith(x, y, z);
-                            
-                            if (rayCast.getValue() && !rayCastThroughWalls.getValue()) {
+
+                            if (rayCast.getValue()) {
                                 Rotation rotation = RotationUtils.toRotation(preCenter, mc.player);
                                 Entity entity = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (e -> e instanceof EntityLivingBase));
                                 if (entity == null || (entity != target && rayCastOnlyTarget.getValue())) continue;

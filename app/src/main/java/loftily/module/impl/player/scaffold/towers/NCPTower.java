@@ -26,7 +26,7 @@ public class NCPTower extends Mode<Scaffold> {
         if (!getParent().towerStatus) {
             return;
         }
-        
+
         if (mc.player.posY % 1 <= 0.0014) {
             if (MoveUtils.isMoving()) {
                 mc.player.setPosition(mc.player.posX, Math.floor(mc.player.posY), mc.player.posZ);
