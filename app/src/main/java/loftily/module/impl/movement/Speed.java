@@ -26,35 +26,17 @@ public class Speed extends Module {
     public final BooleanValue alwaysSprint = new BooleanValue("AlwaysSprint", false);
     public final BooleanValue jumpFix = new BooleanValue("DoubleJumpFix", false);
     private boolean jumped;
+    private int jumpTimes;
     
-    @EventHandler(priority = -999)
+    @EventHandler
     public void onJump(JumpEvent event) {
         if (!jumpFix.getValue()) return;
-        event.setCancelled(true);
-        jumped = true;
-    }
-
-    @EventHandler(priority = -999)
-    public void onStrafe(StrafeEvent event){
-        if(jumped){
-            mc.player.motionY = mc.player.getJumpUpwardsMotion();
-
-            if (mc.player.isPotionActive(MobEffects.JUMP_BOOST))
-            {
-                mc.player.motionY += ((float) (Objects.requireNonNull(mc.player.getActivePotionEffect(MobEffects.JUMP_BOOST)).getAmplifier() + 1) * 0.1F);
-            }
-
-            if (mc.player.isSprinting())
-            {
-                float f = event.getYaw() * 0.017453292F;
-                mc.player.motionX -= (MathHelper.sin(f) * 0.2F);
-                mc.player.motionZ += (MathHelper.cos(f) * 0.2F);
-            }
-            Client.INSTANCE.getEventManager().call(new PostJumpEvent());
-
-            mc.player.isAirBorne = true;
-            jumped = false;
+        jumpTimes++;
+        while (jumpTimes > 1 && jumped){
+            event.setCancelled(true);
+            jumpTimes = 0;
         }
+        jumped = true;
     }
     
     @Override
