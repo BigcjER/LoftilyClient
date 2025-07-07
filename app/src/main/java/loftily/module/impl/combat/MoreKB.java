@@ -23,8 +23,7 @@ import net.minecraft.network.play.client.CPacketEntityAction;
 
 @ModuleInfo(name = "MoreKB",category = ModuleCategory.COMBAT)
 public class MoreKB extends Module {
-    private final ModeValue modeValue = new ModeValue("Mode","Legit",this,
-            new StringMode("Legit"),
+    private final ModeValue modeValue = new ModeValue("Mode","WTap",this,
             new StringMode("Packet"),
             new StringMode("DoublePacket"),
             new StringMode("WTap"),
@@ -98,9 +97,6 @@ public class MoreKB extends Module {
                 attackTimer.reset();
                 curDelay = RandomUtils.randomInt((int) delay.getFirst(), (int) delay.getSecond());
                 switch(modeValue.getValueByName()){
-                    case "Legit":
-                        MoveHandler.setMovement(mc.player.movementInput.moveForward - 0.98f,mc.player.movementInput.moveStrafe,0);
-                        break;
                     case "Packet":
                         PacketUtils.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                         PacketUtils.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SPRINTING));
