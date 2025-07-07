@@ -2,13 +2,16 @@ package loftily.module.impl.movement.flys;
 
 import loftily.event.impl.packet.PacketReceiveEvent;
 import loftily.event.impl.packet.PacketSendEvent;
+import loftily.event.impl.world.GameLoopEvent;
 import loftily.event.impl.world.PreUpdateEvent;
 import loftily.module.impl.movement.Fly;
 import loftily.utils.client.PacketUtils;
+import loftily.utils.player.MoveUtils;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
 import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
@@ -23,7 +26,8 @@ public class HighViaFly extends Mode<Fly> {
     /*Only works in high version server!!!
      *Bypass grim,matrix and most other AC!!!
      */
-    private final NumberValue xzSpeed = new NumberValue("XZSpeed",2,0,10,0.01);
+    private final NumberValue horizontalSpeed = new NumberValue("HorizontalSpeed", 1, 0, 5, 0.01);
+    private final NumberValue verticalSpeed = new NumberValue("VerticalSpeed", 1, 0, 5, 0.01);
     private final BooleanValue noClip = new BooleanValue("NoClip",false);
     //private final NumberValue ySpeed = new NumberValue("YSpeed",2,0,10,0.01);
 
@@ -56,29 +60,35 @@ public class HighViaFly extends Mode<Fly> {
 
     @EventHandler
     public void onPreUpdate(PreUpdateEvent event) {
-        mc.player.capabilities.isFlying = true;
-        mc.player.capabilities.setFlySpeed(xzSpeed.getValue().floatValue());
+        MoveUtils.stop(true);
+        MoveUtils.setSpeed(horizontalSpeed.getValue(), true);
+
+        if (GameSettings.isKeyDown(mc.gameSettings.keyBindJump)) {
+            mc.player.motionY = verticalSpeed.getValue();
+        }
+        if (GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) {
+            mc.player.motionY = -verticalSpeed.getValue();
+        }
 
         if(noClip.getValue()){
             mc.player.noClip = true;
         }
-
-        for (int i = 0; i < yPackets.getValue(); i++) {
-            PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(
-                    mc.player.posX + 999,
-                    mc.player.posY - 6969,
-                    mc.player.posZ + 999,
-                    mc.player.rotationYaw,
-                    mc.player.rotationPitch,true
-            ));
-        }
         for (int i = 0; i < packets.getValue(); i++) {
             PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(
                     mc.player.posX + 999,
-                    mc.player.posY + (mc.gameSettings.keyBindJump.isKeyDown() ? 1.5624 : 0.00000001) - (mc.gameSettings.keyBindSneak.isKeyDown() ? 0.0624 : 0.00000002),
+                    mc.player.posY,
                     mc.player.posZ + 999,
                     mc.player.rotationYaw,
-                    mc.player.rotationPitch,true
+                    mc.player.rotationPitch,false
+            ));
+        }
+        for (int i = 0; i < yPackets.getValue(); i++) {
+            PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(
+                    mc.player.posX + 999,
+                    mc.player.posY - 50,
+                    mc.player.posZ + 999,
+                    mc.player.rotationYaw,
+                    mc.player.rotationPitch,false
             ));
         }
 
@@ -89,7 +99,6 @@ public class HighViaFly extends Mode<Fly> {
                     mc.player.posZ + mc.player.motionZ * teleportSpeed.getValue()
             );
         }
-        mc.player.motionY = 0.0;
     }
 
     @Override

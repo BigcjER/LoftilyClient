@@ -7,6 +7,8 @@ import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.Client;
 import loftily.event.impl.player.motion.JumpEvent;
 import loftily.event.impl.player.motion.PostJumpEvent;
+import loftily.handlers.impl.player.RotationHandler;
+import loftily.module.impl.render.Rotations;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLadder;
@@ -2396,6 +2398,8 @@ public abstract class EntityLivingBase extends Entity
         float f3 = (float)(d0 * d0 + d1 * d1);
         float f4 = this.renderYawOffset;
         float f5 = 0.0F;
+        Rotations rotations = Client.INSTANCE.getModuleManager().get(Rotations.class);
+        float playerYaw = rotations.isToggled() && Rotations.vanillaRotation.getValue() && this instanceof EntityPlayerSP ? RotationHandler.getRotation().yaw : this.rotationYaw;
         this.prevOnGroundSpeedFactor = this.onGroundSpeedFactor;
         float f = 0.0F;
 
@@ -2404,7 +2408,7 @@ public abstract class EntityLivingBase extends Entity
             f = 1.0F;
             f5 = (float)Math.sqrt((double)f3) * 3.0F;
             float f1 = (float)MathHelper.atan2(d1, d0) * (180F / (float)Math.PI) - 90.0F;
-            float f2 = MathHelper.abs(MathHelper.wrapDegrees(this.rotationYaw) - f1);
+            float f2 = MathHelper.abs(MathHelper.wrapDegrees(playerYaw) - f1);
 
             if (95.0F < f2 && f2 < 265.0F)
             {
@@ -2418,7 +2422,7 @@ public abstract class EntityLivingBase extends Entity
 
         if (this.swingProgress > 0.0F)
         {
-            f4 = this.rotationYaw;
+            f4 = playerYaw;
         }
 
         if (!this.onGround)
@@ -2437,7 +2441,7 @@ public abstract class EntityLivingBase extends Entity
             this.prevRotationYaw -= 360.0F;
         }
 
-        while (this.rotationYaw - this.prevRotationYaw >= 180.0F)
+        while (this.rotationYaw- this.prevRotationYaw >= 180.0F)
         {
             this.prevRotationYaw += 360.0F;
         }
@@ -2487,9 +2491,12 @@ public abstract class EntityLivingBase extends Entity
 
     protected float updateDistance(float p_110146_1_, float p_110146_2_)
     {
+        Rotations rotations = Client.INSTANCE.getModuleManager().get(Rotations.class);
+        float playerYaw = rotations.isToggled() && Rotations.vanillaRotation.getValue() && this instanceof EntityPlayerSP ? RotationHandler.getRotation().yaw : this.rotationYaw;
+
         float f = MathHelper.wrapDegrees(p_110146_1_ - this.renderYawOffset);
         this.renderYawOffset += f * 0.3F;
-        float f1 = MathHelper.wrapDegrees(this.rotationYaw - this.renderYawOffset);
+        float f1 = MathHelper.wrapDegrees(playerYaw - this.renderYawOffset);
         boolean flag = f1 < -90.0F || f1 >= 90.0F;
 
         if (f1 < -75.0F)
@@ -2502,7 +2509,7 @@ public abstract class EntityLivingBase extends Entity
             f1 = 75.0F;
         }
 
-        this.renderYawOffset = this.rotationYaw - f1;
+        this.renderYawOffset = playerYaw - f1;
 
         if (f1 * f1 > 2500.0F)
         {

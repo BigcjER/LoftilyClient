@@ -20,6 +20,7 @@ import loftily.event.impl.client.ClientTickEvent;
 import loftily.event.impl.client.DisplayScreenEvent;
 import loftily.event.impl.client.KeyboardEvent;
 import loftily.event.impl.player.BlockDigEvent;
+import loftily.event.impl.world.GameLoopEvent;
 import loftily.event.impl.world.WorldLoadEvent;
 import loftily.gui.font.FontManager;
 import loftily.gui.menu.mainmenu.MainMenu;
@@ -937,6 +938,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
      * Called repeatedly from run()
      */
     private void runGameLoop() throws IOException {
+        Client.INSTANCE.getEventManager().call(new GameLoopEvent());
         long i = System.nanoTime();
         this.mcProfiler.startSection("root");
         

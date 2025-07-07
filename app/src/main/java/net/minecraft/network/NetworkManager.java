@@ -138,7 +138,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
     public void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet<?> packet) {
         if (this.channel.isOpen()) {
             try {
-                PacketReceiveEvent event = new PacketReceiveEvent(packet);
+                PacketReceiveEvent event = new PacketReceiveEvent(packet,false);
                 Client.INSTANCE.getEventManager().call(event);
                 if (event.isCancelled()) return;
                 
@@ -153,7 +153,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
     public void receivePacket(Packet<?> packet) {
         if (this.channel.isOpen()) {
             try {
-                PacketReceiveEvent event = new PacketReceiveEvent(packet);
+                PacketReceiveEvent event = new PacketReceiveEvent(packet,false);
                 Client.INSTANCE.getEventManager().call(event);
                 if (event.isCancelled()) return;
                 

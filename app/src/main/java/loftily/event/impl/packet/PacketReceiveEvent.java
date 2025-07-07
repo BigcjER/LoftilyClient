@@ -11,4 +11,5 @@ import net.minecraft.network.Packet;
 @AllArgsConstructor
 public class PacketReceiveEvent extends CancellableEvent {
     private final Packet<?> packet;
+    private boolean GAY;
 }

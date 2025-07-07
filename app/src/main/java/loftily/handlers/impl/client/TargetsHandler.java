@@ -39,10 +39,6 @@ public class TargetsHandler extends Handler {
             }
         }
 
-        if (!target.isEntityAlive()) {
-            return false;
-        }
-
         return entityLivingBase.deathTime <= 0 &&
                 !Client.INSTANCE.getModuleManager().get(AntiBot.class).isBot(entityLivingBase) &&
                 !(target instanceof EntityArmorStand) &&

@@ -6,7 +6,6 @@ import loftily.Client;
 import loftily.event.impl.player.AttackEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.render.Render3DEvent;
-import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.event.impl.world.PreUpdateEvent;
 import loftily.handlers.impl.client.TargetsHandler;
 import loftily.handlers.impl.player.RotationHandler;
@@ -269,7 +268,6 @@ public class KillAura extends Module {
         
         switch (rotationMode.getValue().getName()) {
             case "Advance":
-            case "Advance2":
                 break;
             case "LockCenter":
                 center = targetBox.lerpWith(0.5, 0.5, 0.5);
@@ -355,11 +353,11 @@ public class KillAura extends Module {
         
         return currentRotation;
     }
-    
+
     @EventHandler
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.player == null) return;
-        
+
         target = getTarget();
 
         if (!TargetsHandler.canAdd(target)) {
@@ -368,8 +366,6 @@ public class KillAura extends Module {
         }
 
         rotation(target);
-
-        if (mc.player == null) return;
 
         if (autoBlockMode.is("MatrixDamage") && canBlock() && target != null) {
             if (canAttackTimes > 0) {
@@ -387,13 +383,9 @@ public class KillAura extends Module {
     }
 
     @EventHandler
-    public void onLivingUpdate(LivingUpdateEvent event) {
-    }
-    
-    @EventHandler
     public void onMotion(MotionEvent event) {
         if (mc.player == null) return;
-        
+
         if ((blockTiming.is("Pre") && event.isPre())
                 || (blockTiming.is("Post") && event.isPost())) {
             runAutoBlock(target);
@@ -468,11 +460,9 @@ public class KillAura extends Module {
         }
         
         List<EntityLivingBase> filteredTargets = TargetsHandler.getTargets(rotationRange.getValue());
-        
-        if (targets.size() != filteredTargets.size()) {
-            targets.clear();
-            targets.addAll(filteredTargets);
-        }
+
+        targets.clear();
+        targets.addAll(filteredTargets);
         
         switch (targetSortingMode.getValue().getName()) {
             case "Distance":
@@ -497,7 +487,7 @@ public class KillAura extends Module {
         targets.sort((Comparator.comparingDouble(entityLivingBase -> Math.max(0, CalculateUtils.getClosetDistance(mc.player, entityLivingBase) - attackRange.getValue()))));
         
         for (EntityLivingBase entity : targets) {
-            if (entity == mc.player || entity == null || !TargetsHandler.canAdd(entity)) continue;
+            if (entity == mc.player || !TargetsHandler.canAdd(entity)) continue;
             targetTimer.reset();
             return entity;
         }
