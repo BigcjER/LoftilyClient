@@ -1,9 +1,11 @@
 package loftily.module.impl.movement.longjumps;
 
 import loftily.event.impl.packet.PacketReceiveEvent;
+import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.module.impl.movement.LongJump;
 import loftily.utils.player.MoveUtils;
+import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
 import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
@@ -11,6 +13,7 @@ import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
 public class MatrixLongJump extends Mode<LongJump> {
     private final NumberValue boostSpeed = new NumberValue("BoostSpeed", 1.97, -1.97, 1.97, 0.01);
+    private final BooleanValue noGround = new BooleanValue("NoGround", false);
     private boolean receivedFlag, canBoost, boosted;
     public MatrixLongJump() {
         super("Matrix");
@@ -28,6 +31,13 @@ public class MatrixLongJump extends Mode<LongJump> {
             canBoost = true;
 
         boosted = false;
+    }
+
+    @EventHandler
+    public void onMotion(MotionEvent event) {
+        if(noGround.getValue()) {
+            event.setOnGround(false);
+        }
     }
 
     @EventHandler

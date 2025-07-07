@@ -54,10 +54,9 @@ public class TargetsHandler extends Handler {
                 .map(entity -> (EntityLivingBase) entity)
                 .filter(TargetsHandler::canAdd)
                 .collect(Collectors.toList());
-        
-        if (targets.size() != filteredTargets.size()) {
-            targets.clear();
-            targets.addAll(filteredTargets);
-        }
+
+
+        targets.clear();
+        targets.addAll(filteredTargets);
     }
 }

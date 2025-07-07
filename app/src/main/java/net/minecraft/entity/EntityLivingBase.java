@@ -1979,7 +1979,7 @@ public abstract class EntityLivingBase extends Entity
         return this.getAlwaysRenderNameTag();
     }
 
-    protected float getJumpUpwardsMotion()
+    public float getJumpUpwardsMotion()
     {
         return 0.42F;
     }

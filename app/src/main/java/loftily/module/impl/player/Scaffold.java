@@ -58,6 +58,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -73,9 +74,7 @@ import static loftily.utils.player.PlayerUtils.nearAir;
 
 @ModuleInfo(name = "Scaffold", category = ModuleCategory.PLAYER)
 public class Scaffold extends Module {
-    
-    @Getter
-    public static Scaffold scaffold;
+
     //Mode
     private final ModeValue scaffoldMode = new ModeValue("Mode", "Normal", this,
             new StringMode("Normal"),
@@ -117,15 +116,16 @@ public class Scaffold extends Module {
     private final ModeValue rotationMode = new ModeValue("RotationMode", "None", this,
             new StringMode("Normal"),
             new StringMode("Offset"),
-            new StringMode("Round45"),
             new StringMode("Sexy"),
             new StringMode("StaticGodBridge"),
             new StringMode("StaticBack"),
             new StringMode("Advance"),
             new StringMode("None")
     );
+    private final BooleanValue stableRotation = new BooleanValue("StableRotation", false);
     private final ModeValue advanceRotationYaw = new ModeValue("AdvanceRotationYaw", "Normal", this,
             new StringMode("Normal"),
+            new StringMode("Other"),
             new StringMode("Static"))
             .setVisible(() -> rotationMode.is("Advance"));
     private final NumberValue staticYawValue = new NumberValue("StaticYaw", 180, -180, 180, 0.01)
@@ -161,7 +161,6 @@ public class Scaffold extends Module {
             new StringMode("None"),
             new StringMode("Silent"),
             new StringMode("45Angle"));
-    private final BooleanValue stableRotation = new BooleanValue("StableRotation", false);
     private final ModeValue sprintMode = new ModeValue("SprintMode", "Default", this,
             new StringMode("Default"),
             new StringMode("Legit"),
@@ -533,6 +532,13 @@ public class Scaffold extends Module {
                     case "Normal":
                         yaw = placeInfo == null ? MoveUtils.getMovingYaw() + 180F : placeInfo.rotation.yaw;
                         break;
+                    case "Other":
+                        if(placeInfo == null){
+                            yaw = MoveUtils.getMovingYaw() + 180F;
+                        }else{
+                            yaw = Math.round((placeInfo.rotation.yaw - MoveUtils.getMovingYaw() + 180F) / 45) * 45 + MoveUtils.getMovingYaw() - 180F;
+                        }
+                        break;
                     case "Static":
                         yaw = (float) (MoveUtils.getMovingYaw() + (smartDirection.getValue() ? PlayerUtils.onRightSide(mc.player) ? staticYawValue.getValue() : -staticYawValue.getValue() : staticYawValue.getValue()));
                         break;
@@ -811,7 +817,7 @@ public class Scaffold extends Module {
         }
         Vec3d vec = center.subtract(eyes);
         if (enumFacing.getAxis() != EnumFacing.Axis.Y) {
-            double dist = abs(enumFacing.getAxis() == EnumFacing.Axis.X ? vec.xCoord : vec.zCoord);
+            double dist = Math.abs(enumFacing.getAxis() == EnumFacing.Axis.X ? vec.xCoord : vec.zCoord);
             if (dist < distValue.getValue() && !mc.player.movementInput.sneak) {
                 return null;
             }

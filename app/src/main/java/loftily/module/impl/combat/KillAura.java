@@ -3,6 +3,7 @@ package loftily.module.impl.combat;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import loftily.Client;
+import loftily.event.impl.packet.PacketSendEvent;
 import loftily.event.impl.player.AttackEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.render.Render3DEvent;
@@ -16,7 +17,6 @@ import loftily.utils.client.PacketUtils;
 import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
-import loftily.utils.player.MoveUtils;
 import loftily.utils.player.PlayerUtils;
 import loftily.utils.player.RayCastUtils;
 import loftily.utils.player.RotationUtils;
@@ -35,6 +35,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemSword;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
@@ -145,10 +146,10 @@ public class KillAura extends Module {
     //AutoBlock
     private final ModeValue autoBlockMode = new ModeValue("AutoBlockMode", "None", this,
             new StringMode("HoldKey"),
-            new StringMode("MatrixDamage"),
             new StringMode("AfterTick"),
             new StringMode("Packet"),
             new StringMode("Fake"),
+            new StringMode("Matrix"),
             new StringMode("None"));
     private final ModeValue blockTiming = new ModeValue("AutoBlockTiming", "Normal", this,
             new StringMode("Normal"),
@@ -168,6 +169,7 @@ public class KillAura extends Module {
     private int attackDelay = 0;
     private int canAttackTimes = 0;
     private boolean blockingTick = false;
+    private final Queue<Packet<?>> packets = new LinkedList<>();
     @Getter
     private boolean blockingStatus = false;
     
@@ -367,18 +369,12 @@ public class KillAura extends Module {
 
         rotation(target);
 
-        if (autoBlockMode.is("MatrixDamage") && canBlock() && target != null) {
-            if (canAttackTimes > 0) {
-                mc.gameSettings.keyBindUseItem.setPressed(false);
-            }
+        if (attackTimeMode.is("Tick")) {
+            attackTarget(target);
         }
 
         if (blockTiming.is("Tick")) {
             runAutoBlock(target);
-        }
-
-        if (attackTimeMode.is("Tick")) {
-            attackTarget(target);
         }
     }
 
@@ -406,14 +402,14 @@ public class KillAura extends Module {
     
     @Override
     public void onDisable() {
-        blockingTick = false;
         target = null;
         targets.clear();
-        mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
-        if (blockingStatus) {
+        if (blockingStatus && blockingTick) {
             PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
             blockingStatus = false;
         }
+        mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
+        blockingTick = false;
     }
     
     @EventHandler
@@ -431,16 +427,6 @@ public class KillAura extends Module {
                 canAttackTimes = 0;
             }
             targetTimer.reset();
-        }
-        
-        if (autoBlockMode.is("MatrixDamage") && canBlock() && target != null) {
-            if (canAttackTimes <= 0) {
-                if ((mc.player.hurtTime >= 2 && mc.player.hurtTime <= 10) || !MoveUtils.isMoving() || GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
-                    mc.gameSettings.keyBindUseItem.setPressed(true);
-                }
-            } else {
-                mc.gameSettings.keyBindUseItem.setPressed(false);
-            }
         }
     }
     
@@ -492,9 +478,10 @@ public class KillAura extends Module {
             return entity;
         }
 
-        if (blockingStatus) {
+        if (blockingStatus && blockingTick) {
             PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
             blockingStatus = false;
+            blockingTick = false;
         }
 
         return null;
@@ -518,6 +505,7 @@ public class KillAura extends Module {
         }
         sendInteractPacket(target);
         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
 
         if(autoBlockMode.is("AfterTick")){
@@ -531,7 +519,6 @@ public class KillAura extends Module {
         
         if (canBlock()) {
             switch (autoBlockMode.getValueByName()) {
-                case "MatrixDamage":
                 case "Fake":
                     break;
                 case "HoldKey":
@@ -540,6 +527,13 @@ public class KillAura extends Module {
                 case "Packet":
                     if (!blockingStatus) {
                         blockingPacket(target);
+                        blockingTick = true;
+                    }
+                    break;
+                case "Matrix":
+                    if(!blockingTick){
+                        blockingPacket(target);
+                        blockingTick = true;
                     }
                     break;
                 case "AfterTick":
@@ -565,6 +559,20 @@ public class KillAura extends Module {
             blockingStatus = true;
         } else {
             mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
+        }
+    }
+
+    @EventHandler
+    public void onPacketSend(PacketSendEvent event){
+        Packet<?> packet = event.getPacket();
+        if(packet instanceof CPacketUseEntity && ((CPacketUseEntity) packet).getAction() == CPacketUseEntity.Action.ATTACK) {
+            if (autoBlockMode.is("Matrix") && canBlock() && blockingTick) {
+                event.setCancelled(true);
+                PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+                PacketUtils.sendPacket(packet,false);
+                blockingTick = false;
+                runAutoBlock(target);
+            }
         }
     }
     

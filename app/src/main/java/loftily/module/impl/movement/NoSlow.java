@@ -68,14 +68,14 @@ public class NoSlow extends Module {
     }
     
     public Item getUseItem() {
-        if (mc.player.isHandActive()) {
+        if (PlayerUtils.isUsingItem()) {
             return mc.player.getHeldItem(mc.player.getActiveHand()).getItem();
         } else return null;
     }
     
     @EventHandler
     public void onMotion(MotionEvent event) {
-        if (mc.player == null || !mc.player.isHandActive() || getUseItem() == null) return;
+        if (mc.player == null || !PlayerUtils.isUsingItem() || getUseItem() == null) return;
         
         if (getUseItem() instanceof ItemSword || getUseItem() instanceof ItemShield) {
             blockingMode.getValue().forEach(

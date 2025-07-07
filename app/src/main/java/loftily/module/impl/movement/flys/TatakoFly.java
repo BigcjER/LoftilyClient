@@ -12,6 +12,7 @@ import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.CPacketConfirmTeleport;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
@@ -35,10 +36,10 @@ public class TatakoFly extends Mode<Fly> {
     @Override
     public void onDisable(){
         EntityPlayer player = mc.player;
-        PacketUtils.sendPacket(new CPacketPlayer.Position(player.posX+0.05,player.posY,player.posZ,true));
-        PacketUtils.sendPacket(new CPacketPlayer.Position(player.posX,player.posY+0.42,player.posZ,true));
-        PacketUtils.sendPacket(new CPacketPlayer.Position(player.posX,player.posY+0.7532,player.posZ,true));
-        PacketUtils.sendPacket(new CPacketPlayer.Position(player.posX,player.posY+1.0,player.posZ,true));
+        PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(player.posX+0.05,player.posY,player.posZ,player.rotationYaw,player.rotationPitch,true));
+        PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(player.posX,player.posY+0.42,player.posZ,player.rotationYaw,player.rotationPitch,true));
+        PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(player.posX,player.posY+0.7532,player.posZ,player.rotationYaw,player.rotationPitch,true));
+        PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(player.posX,player.posY+1.0,player.posZ,player.rotationYaw,player.rotationPitch,true));
     }
     @EventHandler
     public void onPreUpdate(PreUpdateEvent event) {
@@ -73,6 +74,8 @@ public class TatakoFly extends Mode<Fly> {
             x = ((SPacketPlayerPosLook) packet).getX();
             y = ((SPacketPlayerPosLook) packet).getY();
             z = ((SPacketPlayerPosLook) packet).getZ();
+            PacketUtils.sendPacket(new CPacketConfirmTeleport(((SPacketPlayerPosLook) packet).getTeleportId()));
+            PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(x, y, z, ((SPacketPlayerPosLook) packet).getYaw(), ((SPacketPlayerPosLook) packet).getPitch(), false));
             event.setCancelled(true);
         }
     }
