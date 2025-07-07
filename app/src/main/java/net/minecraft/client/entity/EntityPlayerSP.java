@@ -118,7 +118,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
     /**
      * the last sprinting state sent to the server
      */
-    private boolean serverSprintState;
+    public boolean serverSprintState;
     /**
      * Reset to 0 every time position is sent to the server, used to send periodic updates every 20 ticks even when the
      * player is not moving.

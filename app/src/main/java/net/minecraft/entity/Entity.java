@@ -9,6 +9,7 @@ import loftily.Client;
 import loftily.event.impl.player.PushEvent;
 import loftily.event.impl.player.motion.MoveEvent;
 import loftily.event.impl.player.motion.StrafeEvent;
+import loftily.handlers.impl.player.RotationHandler;
 import loftily.module.impl.combat.HitBox;
 import lombok.Getter;
 import lombok.Setter;
@@ -1797,7 +1798,7 @@ public abstract class Entity implements ICommandSender
     public RayTraceResult rayTrace(double blockReachDistance, float partialTicks)
     {
         Vec3d vec3d = this.getPositionEyes(partialTicks);
-        Vec3d vec3d1 = this.getLook(partialTicks);
+        Vec3d vec3d1 = this.getVectorForRotation(RotationHandler.getCurrentRotation().pitch,RotationHandler.getCurrentRotation().yaw);
         Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * blockReachDistance, vec3d1.yCoord * blockReachDistance, vec3d1.zCoord * blockReachDistance);
         return this.world.rayTraceBlocks(vec3d, vec3d2, false, false, true);
     }

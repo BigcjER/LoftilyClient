@@ -385,7 +385,7 @@ public class Scaffold extends Module {
                         } else {
                             strafe = forward > 0.0f ? -0.98f : 0.98f;
                         }
-                        MoveHandler.setMovement(forward, strafe);
+                        MoveHandler.setMovement(forward, strafe,0);
                         zitterDirection = !zitterDirection;
                     }
                     break;

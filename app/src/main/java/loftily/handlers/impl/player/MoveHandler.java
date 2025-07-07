@@ -14,6 +14,9 @@ public class MoveHandler extends Handler {
     private static boolean startSneak = false;
 
     //Forward, Strafe
+    public static DelayTimer movementTimer = new DelayTimer();
+    private static boolean startMovement = false;
+    private static int movementTime = 0;
     private static boolean setMovement = false;
     private static  float forward = 0.0F;
     private static float strafe = 0.0F;
@@ -26,11 +29,14 @@ public class MoveHandler extends Handler {
             sneakTimer.reset();
         }
     }
-    public static void setMovement(float curForward, float curStrafe) {
+    public static void setMovement(float curForward, float curStrafe,int time) {
         if(!setMovement) {
             setMovement = true;
             forward = curForward;
             strafe = curStrafe;
+            startMovement = true;
+            movementTimer.reset();
+            movementTime = time;
         }
     }
     
@@ -45,7 +51,9 @@ public class MoveHandler extends Handler {
         if(setMovement) {
             event.setForward(forward);
             event.setStrafe(strafe);
-            setMovement = false;
+            if(!startMovement) {
+                setMovement = false;
+            }
         }
     }
     
@@ -59,6 +67,15 @@ public class MoveHandler extends Handler {
             sneak = true;
         } else {
             sneakTimer.reset();
+        }
+        if (movementTimer.hasTimeElapsed(movementTime)) {
+            startMovement = false;
+            movementTimer.reset();
+        }
+        if (startMovement) {
+            setMovement = true;
+        } else {
+            movementTimer.reset();
         }
     }
 }
