@@ -13,10 +13,10 @@ import java.util.function.Supplier;
 @Setter
 @SuppressWarnings("unchecked")
 public abstract class Value<T, V> {
-    private Consumer<? super T> onValueChange = null;
     private final String name;
     private final T defaultValue;
     protected T value;
+    private Consumer<? super T> onValueChange = null;
     private Supplier<Boolean> visible;
     private Mode<?> parentMode = null;
     

@@ -34,10 +34,10 @@ public class Spammer extends Module {
             return;
         }
         
-        if(text.getValue().isEmpty()) {
+        if (text.getValue().isEmpty()) {
             MessageUtils.clientMessageWithWaterMark(TextFormatting.RED + "Text couldn't be empty!");
             if (isToggled())
-                setToggled(false,true,true);
+                setToggled(false, true, true);
             return;
         }
         

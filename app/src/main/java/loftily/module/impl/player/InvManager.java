@@ -34,15 +34,15 @@ import java.util.function.Predicate;
 @ModuleInfo(name = "InvManager", category = ModuleCategory.PLAYER, key = Keyboard.KEY_I)
 public class InvManager extends Module {
     //Delay value
-    private final ModeValue modeValue = new ModeValue("Mode","Packet",this,
+    private final ModeValue modeValue = new ModeValue("Mode", "Packet", this,
             new StringMode("Packet"),
             new StringMode("Mouse")
     );
-    private final RangeSelectionNumberValue mouseXZMoveSpeed = new RangeSelectionNumberValue("MouseSpeedXZ",20,50,0,360)
-            .setVisible(()->modeValue.is("Mouse"));
-    private final RangeSelectionNumberValue mouseYMoveSpeed = new RangeSelectionNumberValue("MouseSpeedY",20,50,0,360)
-            .setVisible(()->modeValue.is("Mouse"));;
-
+    private final RangeSelectionNumberValue mouseXZMoveSpeed = new RangeSelectionNumberValue("MouseSpeedXZ", 20, 50, 0, 360)
+            .setVisible(() -> modeValue.is("Mouse"));
+    private final RangeSelectionNumberValue mouseYMoveSpeed = new RangeSelectionNumberValue("MouseSpeedY", 20, 50, 0, 360)
+            .setVisible(() -> modeValue.is("Mouse"));
+    
     private final RangeSelectionNumberValue openDelay = new RangeSelectionNumberValue("OpenDelay", 50, 100, 0, 1000);
     private final RangeSelectionNumberValue clickDelay = new RangeSelectionNumberValue("ClickDelay", 50, 100, 0, 1000);
     private final BooleanValue autoClose = new BooleanValue("AutoClose", true);
@@ -50,7 +50,7 @@ public class InvManager extends Module {
             .setVisible(autoClose::getValue);
     private final BooleanValue requiresInvOpened = new BooleanValue("RequiresInvOpened", true);
     private final BooleanValue throwUselessItems = new BooleanValue("ThrowUselessItems", true);
-
+    
     //Slots
     private final ModeValue slot1 = createSlotMode("Slot1", "Sword");
     private final ModeValue slot2 = createSlotMode("Slot2", "Block");
@@ -105,7 +105,7 @@ public class InvManager extends Module {
                 }
                 
                 if (!ItemUtils.isItemUsefulInContainer(mc.player.inventoryContainer, itemStack)) {
-                    if(modeValue.is("Mouse")){
+                    if (modeValue.is("Mouse")) {
                         GuiScreen gui = mc.currentScreen;
                         if (gui instanceof GuiInventory) {
                             int guiLeft = (gui.width - 176) / 2;
@@ -124,8 +124,8 @@ public class InvManager extends Module {
                             }
                         }
                     }
-                    this.throwItem(slot.slotNumber,slot);
-                    if(modeValue.is("Mouse") && !canBeClose){
+                    this.throwItem(slot.slotNumber, slot);
+                    if (modeValue.is("Mouse") && !canBeClose) {
                         return;
                     }
                 }
@@ -169,7 +169,7 @@ public class InvManager extends Module {
                 }
                 
                 if (targetSlot != -1) {
-                    if(modeValue.is("Mouse")){
+                    if (modeValue.is("Mouse")) {
                         GuiScreen gui = mc.currentScreen;
                         if (gui instanceof GuiInventory) {
                             int guiLeft = (gui.width - 176) / 2;
@@ -188,8 +188,8 @@ public class InvManager extends Module {
                             }
                         }
                     }
-                    moveItem(slotNumber, targetSlot,slot);
-                    if(modeValue.is("Mouse") && !canBeClose){
+                    moveItem(slotNumber, targetSlot, slot);
+                    if (modeValue.is("Mouse") && !canBeClose) {
                         return;
                     }
                 }
@@ -215,7 +215,7 @@ public class InvManager extends Module {
             }
             
             if (fromSlot != -1 && hotbarStack.isEmptyStack()) {
-                if(modeValue.is("Mouse")){
+                if (modeValue.is("Mouse")) {
                     GuiScreen gui = mc.currentScreen;
                     Slot slot = mc.player.inventoryContainer.getSlot(fromSlot);
                     if (gui instanceof GuiInventory) {
@@ -235,8 +235,8 @@ public class InvManager extends Module {
                         }
                     }
                 }
-                moveItem(fromSlot, hotBarSlot,mc.player.inventoryContainer.getSlot(fromSlot));
-                if(modeValue.is("Mouse") && !canBeClose){
+                moveItem(fromSlot, hotBarSlot, mc.player.inventoryContainer.getSlot(fromSlot));
+                if (modeValue.is("Mouse") && !canBeClose) {
                     return;
                 }
             }
@@ -250,7 +250,7 @@ public class InvManager extends Module {
     }
     
     
-    private void moveItem(int from, int to,Slot slot) {
+    private void moveItem(int from, int to, Slot slot) {
         canBeClose = false;
         if (clickTimer.hasTimeElapsed(currentClickDelay)) {
             mc.playerController.windowClick(mc.player.inventoryContainer.windowId, from, 0, ClickType.SWAP, mc.player);
@@ -262,7 +262,7 @@ public class InvManager extends Module {
         }
     }
     
-    private void throwItem(int slotNumber,Slot slot) {
+    private void throwItem(int slotNumber, Slot slot) {
         canBeClose = false;
         if (clickTimer.hasTimeElapsed(currentClickDelay)) {
             mc.playerController.windowClick(mc.player.inventoryContainer.windowId, slotNumber, 1, ClickType.THROW, mc.player);

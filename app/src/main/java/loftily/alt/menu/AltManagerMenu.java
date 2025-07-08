@@ -35,18 +35,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class AltManagerMenu extends GuiScreen {
+    public static final Color BUTTON_COLOR = Colors.OnBackGround.color;
     //Button
     private static final ExecutorService SkinDownloadExecutor = Executors.newCachedThreadPool();
     private static final int ButtonWidth = 180, ButtonHeight = 40, Spacing = 10;
-    public static final Color BUTTON_COLOR = Colors.OnBackGround.color;
-    private GuiButton removeButton, loginButton, randomAltButton;
-    private AltButton focusedButton;
     //Async
     private static final Set<String> downloadingSkins = Collections.synchronizedSet(new HashSet<>());
     private static final Map<String, ResourceLocation> skinCache = new HashMap<>();
     //other
     private final List<Alt> alts = Client.INSTANCE.getAltManager().getAlts();
     private final Scrollable scrollable = new Scrollable(8);
+    private GuiButton removeButton, loginButton, randomAltButton;
+    private AltButton focusedButton;
     
     @Override
     public void initGui() {
@@ -122,7 +122,7 @@ public class AltManagerMenu extends GuiScreen {
             } else if (alt.getType() == AltType.Microsoft)
                 RenderUtils.drawRectHW(x, y, size, size, Colors.BackGround.color.brighter().brighter());//fallback
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
     
@@ -284,9 +284,9 @@ public class AltManagerMenu extends GuiScreen {
     }
     
     static class AltButton extends GuiButton {
-        public boolean focused, doubleClick;
         private final Alt alt;
         private final Ripple ripple;
+        public boolean focused, doubleClick;
         
         public AltButton(int buttonId, int x, int y, int widthIn, int heightIn, Alt alt) {
             super(buttonId, x, y, widthIn, heightIn, alt.getName());

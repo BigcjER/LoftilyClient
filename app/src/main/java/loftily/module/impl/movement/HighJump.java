@@ -3,9 +3,7 @@ package loftily.module.impl.movement;
 import loftily.event.impl.packet.PacketReceiveEvent;
 import loftily.event.impl.player.motion.JumpEvent;
 import loftily.event.impl.player.motion.MotionEvent;
-import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.event.impl.world.PreUpdateEvent;
-import loftily.event.impl.world.UpdateEvent;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
@@ -25,13 +23,11 @@ public class HighJump extends Module {
             new StringMode("Matrix")
     );
     private final NumberValue motion = new NumberValue("Motion", 0.8, 0.0, 10.0, 0.01).setVisible(()->modeValue.is("Vanilla"));
-    private final BooleanValue test = new BooleanValue("Test",false);
     private final BooleanValue autoToggle = new BooleanValue("AutoToggle", false);
     private final DelayTimer delayTimer = new DelayTimer();
-
-    int index1;
-    int index2;
-    int index4;
+    
+    boolean active, falling;
+    int ticksSinceJump;
 
     public void runToggle() {
         if (autoToggle.getValue()) {
@@ -41,9 +37,8 @@ public class HighJump extends Module {
 
     @Override
     public void onEnable() {
-        index1 = 0;
-        index2 = 0;
-        index4 = 0;
+        ticksSinceJump = 0;
+        active = falling = false;
     }
 
     @Override
@@ -53,7 +48,7 @@ public class HighJump extends Module {
 
     @EventHandler
     public void onMotion(MotionEvent event) {
-        if(index2 == 1){
+        if (ticksSinceJump == 1) {
             event.setOnGround(false);
         }
     }
@@ -73,29 +68,29 @@ public class HighJump extends Module {
     public void onPreUpdate(PreUpdateEvent event) {
         if (modeValue.is("Matrix")) {
             if (mc.player.isCollidedVertically) {
-                index1 = 1;
+                active = true;
             }
-
-            if (index2 == 1) {
+            
+            if (ticksSinceJump == 1) {
                 mc.player.onGround = false;
                 mc.player.motionY = 0.998D;
             }
-
-            if (mc.player.isCollidedVertically && this.index2 > 4) {
+            
+            if (mc.player.isCollidedVertically && this.ticksSinceJump > 4) {
                 runToggle();
             }
-
-            if (!mc.player.onGround && index2 >= 2) {
+            
+            if (!mc.player.onGround && ticksSinceJump >= 2) {
                 mc.player.motionY += 0.0034999D;
-                if (index4 == 0 && mc.player.motionY < 0.0D && mc.player.motionY > -0.05D) {
+                if (!falling && mc.player.motionY < 0.0D && mc.player.motionY > -0.05D) {
                     mc.player.motionY = 0.0029999D;
-                    index4 = 1;
+                    falling = true;
                     runToggle();
                 }
             }
-
-            if (index1 == 1) {
-                ++index2;
+            
+            if (active) {
+                ++ticksSinceJump;
             }
         }
     }

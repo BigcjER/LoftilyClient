@@ -15,7 +15,7 @@ public abstract class Mode<T extends Module> extends AbstractModule {
     
     public Mode(String name) {
         this.name = name;
-        if(StringUtils.PATTERN_WHITESPACE.matcher(name).find()) {
+        if (StringUtils.PATTERN_WHITESPACE.matcher(name).find()) {
             throw new IllegalArgumentException(String.format("Value name '%s' cannot contain spaces.", name));
         }
     }

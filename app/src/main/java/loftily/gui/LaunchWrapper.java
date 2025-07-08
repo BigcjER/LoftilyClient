@@ -14,6 +14,10 @@ import java.io.InputStream;
  */
 public class LaunchWrapper {
     /**
+     * Animation Speed.
+     */
+    static final float ANIMATION_SPEED = 0.03F;
+    /**
      * dotCount is used to track the number of dots in the "Authenticating" message.
      * It cycles through values from 0 to 3, representing the number of dots displayed
      * in the authentication text (up to three dots). This creates a loading effect
@@ -29,13 +33,19 @@ public class LaunchWrapper {
      */
     static int launch = 3500;
     /**
-     * Animation Speed.
-     */
-    static final float ANIMATION_SPEED = 0.03F;
-    /**
      * Cache font.
      */
     static Font font;
+    
+    static {
+        try (InputStream is = LaunchWrapper.class.getResourceAsStream("/assets/minecraft/loftily/fonts/NotoSansSC-Regular.ttf")) {
+            Font baseFont = Font.createFont(Font.TRUETYPE_FONT, is);
+            font = baseFont.deriveFont(Font.PLAIN, 18f);
+        } catch (IOException | FontFormatException e) {
+            font = new Font("SansSerif", Font.PLAIN, 18);
+            throw new RuntimeException(e);
+        }
+    }
     
     /**
      * The entry point of the application. This method initializes the splash screen,
@@ -220,15 +230,5 @@ public class LaunchWrapper {
                 ((Timer) event.getSource()).stop();
             }
         }).start());
-    }
-    
-    static {
-        try (InputStream is = LaunchWrapper.class.getResourceAsStream("/assets/minecraft/loftily/fonts/NotoSansSC-Regular.ttf")) {
-            Font baseFont = Font.createFont(Font.TRUETYPE_FONT, is);
-            font = baseFont.deriveFont(Font.PLAIN, 18f);
-        } catch (IOException | FontFormatException e) {
-            font = new Font("SansSerif", Font.PLAIN, 18);
-            throw new RuntimeException(e);
-        }
     }
 }

@@ -20,7 +20,7 @@ public class Stuck extends Module {
     private final BooleanValue autoDisable = new BooleanValue("AutoDisable", false);
     private final BooleanValue resetPosition = new BooleanValue("ResetPositionOnFlag", false);
     private final BooleanValue lastMotion = new BooleanValue("LastMotion", false);
-
+    
     
     private double x, y, z;
     private double motionX, motionY, motionZ;
@@ -37,21 +37,21 @@ public class Stuck extends Module {
         this.x = mc.player.posX;
         this.y = mc.player.posY;
         this.z = mc.player.posZ;
-
+        
         this.motionX = mc.player.motionX;
         this.motionY = mc.player.motionY;
         this.motionZ = mc.player.motionZ;
     }
-
+    
     @Override
     public void onDisable() {
-        if(lastMotion.getValue()) {
+        if (lastMotion.getValue()) {
             mc.player.motionX = motionX;
             mc.player.motionY = motionY;
             mc.player.motionZ = motionZ;
         }
     }
-
+    
     @EventHandler
     public void onPacket(PacketSendEvent event) {
         if (event.getPacket() instanceof CPacketPlayer) {

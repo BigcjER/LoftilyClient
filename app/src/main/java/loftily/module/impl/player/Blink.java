@@ -23,47 +23,40 @@ import java.util.Queue;
 
 @ModuleInfo(name = "Blink", category = ModuleCategory.PLAYER)
 public class Blink extends Module {
+    public static final int FAKE_ENTITY_ID = -1000;
+    public final Queue<Packet<?>> packetBus = new LinkedList<>();
     private final BooleanValue noC0F = new BooleanValue("NoCOF", false);
     private final BooleanValue noC00 = new BooleanValue("NoCO0", false);
     private final BooleanValue clientPackets = new BooleanValue("CPackets", false);
     private final BooleanValue serverPackets = new BooleanValue("SPackets", false);
-
-    public final Queue<Packet<?>> packetBus = new LinkedList<>();
-
     private final ModeValue pulseMode = new ModeValue("PulseMode", "None", this,
             new StringMode("None"),
             new StringMode("CustomSize"),
             new StringMode("Normal"));
-    
     private final RangeSelectionNumberValue pulseSize =
             new RangeSelectionNumberValue("PulseSize", 200, 400, 0, 2000).
                     setVisible(() -> pulseMode.is("CustomSize"));
-    
     private final RangeSelectionNumberValue pulseDelay =
             new RangeSelectionNumberValue("PulseDelay", 200, 400, 0, 10000).
                     setVisible(() -> !pulseMode.is("None"));
-    
     private final BooleanValue fakePlayer = new BooleanValue("FakePlayer", false);
-    
-    public static final int FAKE_ENTITY_ID = -1000;
-    private EntityOtherPlayerMP fakePlayerEntity;
-    
     private final DelayTimer pulseTimer = new DelayTimer();
+    private EntityOtherPlayerMP fakePlayerEntity;
     private int delay;
-
-    public void releasePackets(){
-        if(packetBus.isEmpty() || !serverPackets.getValue()){
+    
+    public void releasePackets() {
+        if (packetBus.isEmpty() || !serverPackets.getValue()) {
             return;
         }
         for (Packet<?> packet : packetBus) {
-            PacketUtils.receivePacket(packet,false);
+            PacketUtils.receivePacket(packet, false);
         }
         packetBus.clear();
     }
-
+    
     @Override
     public void onEnable() {
-        if(clientPackets.getValue()) {
+        if (clientPackets.getValue()) {
             BlinkHandler.setBlinkState(true, noC0F.getValue(), noC00.getValue(), false);
             if (fakePlayer.getValue()) {
                 fakePlayerEntity = new EntityOtherPlayerMP(mc.world, mc.player.getGameProfile());
@@ -74,18 +67,18 @@ public class Blink extends Module {
         }
         pulseTimer.reset();
         delay = RandomUtils.randomInt((int) pulseDelay.getFirst(), (int) pulseDelay.getSecond());
-
+        
     }
-
+    
     @EventHandler
-    public void onReceivePacket(PacketReceiveEvent event){
+    public void onReceivePacket(PacketReceiveEvent event) {
         Packet<?> packet = event.getPacket();
-        if(serverPackets.getValue()){
+        if (serverPackets.getValue()) {
             event.setCancelled(true);
             packetBus.add(packet);
         }
     }
-
+    
     @EventHandler
     public void onUpdate(UpdateEvent event) {
         if (pulseMode.is("None")) return;
@@ -96,7 +89,7 @@ public class Blink extends Module {
             switch (pulseMode.getValue().getName()) {
                 case "Normal":
                     releasePackets();
-                    if(clientPackets.getValue()) {
+                    if (clientPackets.getValue()) {
                         BlinkHandler.setBlinkState(BlinkHandler.BLINK, BlinkHandler.BLINK_NOC0F, BlinkHandler.BLINK_NOC00, true);
                         if (fakePlayer.getValue()) {
                             if (fakePlayerEntity != null) {
@@ -109,7 +102,7 @@ public class Blink extends Module {
                 case "CustomSize":
                     int i = 0;
                     int size = RandomUtils.randomInt((int) pulseSize.getFirst(), (int) pulseSize.getSecond());
-
+                    
                     while (!BlinkHandler.packets.isEmpty() && clientPackets.getValue()) {
                         if (i >= size) return;
                         
@@ -125,12 +118,12 @@ public class Blink extends Module {
                             fakePlayerEntity.setPosition(((CPacketPlayer) packet).getX(0), ((CPacketPlayer) packet).getY(0), ((CPacketPlayer) packet).getZ(0));
                         }
                     }
-
+                    
                     while (!packetBus.isEmpty()) {
                         if (i >= size) return;
-
+                        
                         Packet<?> packet = packetBus.poll();
-                        PacketUtils.receivePacket(packet,false);
+                        PacketUtils.receivePacket(packet, false);
                         i++;
                     }
                     break;

@@ -17,11 +17,11 @@ import java.awt.*;
 @Setter
 public class CustomTextField extends GuiTextField {
     private final FontRenderer font;
-    private Color backGroundColor;
-    private boolean drawRipple;
     private final Ripple ripple;
     private final Animation cursorAnimation;
     private final Animation cursorXAnimation;
+    private Color backGroundColor;
+    private boolean drawRipple;
     private int prevXPosition, textXOffset;
     
     

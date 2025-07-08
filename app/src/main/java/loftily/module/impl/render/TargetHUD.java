@@ -31,11 +31,7 @@ import java.awt.*;
 public class TargetHUD extends Module implements IDraggable {
     //target
     private final DelayTimer delayTimer = new DelayTimer();
-    private EntityLivingBase target = null;
-    private boolean inWorld;
-    //pos
-    private final int WIDTH = 125, HEIGHT = 40;
-    private Draggable draggable;
+    private final int HEIGHT = 40;
     //animation
     private final Animation healthArcAnimation = new Animation(Easing.EaseOutCirc, 500);
     private final Animation inOutAnimation = new Animation(Easing.EaseOutExpo, 300);
@@ -43,17 +39,17 @@ public class TargetHUD extends Module implements IDraggable {
     private final ModeValue animationMode = new ModeValue("AnimationMode", "SlideIn", this,
             new StringMode("SlideIn"),
             new StringMode("ScaleIn"));
-    
     private final NumberValue animationDuring = new NumberValue("OpeningAnimationDuring", 300, 100, 1000);
-    
     private final ModeValue slideDirection = new ModeValue("SlideDirection", "Down", this,
             new StringMode("Up"),
             new StringMode("Down"),
             new StringMode("Left"),
             new StringMode("Right"))
             .setVisible(() -> animationMode.getValueByName().equalsIgnoreCase("SlideIn"));
-    
     private final BooleanValue clip = new BooleanValue("Clip", true);
+    private EntityLivingBase target = null;
+    private boolean inWorld;
+    private Draggable draggable;
     
     @EventHandler
     public void onRender2D(Render2DEvent event) {
@@ -94,6 +90,8 @@ public class TargetHUD extends Module implements IDraggable {
         double myHealth = mc.player.getHealth() + mc.player.getAbsorptionAmount();
         String name = target.getName();
         String healthText = String.format("%s/%s", roundedHealth, roundedMaxHealth);
+        //pos
+        int WIDTH = 125;
         int width = Math.max(WIDTH,
                 Math.max(FontManager.NotoSans.of(18).getWidth(name), FontManager.NotoSans.of(16).getWidth(healthText))
                         + 80);

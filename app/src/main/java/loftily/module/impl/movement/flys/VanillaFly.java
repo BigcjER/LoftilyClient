@@ -12,35 +12,35 @@ import net.minecraft.client.settings.GameSettings;
 
 public class VanillaFly extends Mode<Fly> {
     
-    public VanillaFly() {
-        super("Vanilla");
-    }
-    
+    public final BooleanValue spoofGround = new BooleanValue("SpoofGround", false);
+    public final BooleanValue noClip = new BooleanValue("NoClip", false);
     private final NumberValue horizontalSpeed = new NumberValue("HorizontalSpeed", 1, 0, 5, 0.01);
     private final NumberValue verticalSpeed = new NumberValue("VerticalSpeed", 1, 0, 5, 0.01);
     private final NumberValue keepY = new NumberValue("KeepYSpeed", 0.0, -0.2, 0.2, 0.01);
     private final BooleanValue resetMotion = new BooleanValue("ResetMotion", false);
-    public final BooleanValue spoofGround = new BooleanValue("SpoofGround", false);
-    public final BooleanValue noClip = new BooleanValue("NoClip", false);
-
+    
+    public VanillaFly() {
+        super("Vanilla");
+    }
+    
     @Override
-    public void onDisable(){
+    public void onDisable() {
         mc.player.noClip = false;
     }
-
+    
     @EventHandler
-    public void onMotion(MotionEvent event){
-        if(spoofGround.getValue()){
+    public void onMotion(MotionEvent event) {
+        if (spoofGround.getValue()) {
             event.setOnGround(true);
         }
     }
-
+    
     @EventHandler
     public void onPreUpdate(PreUpdateEvent event) {
-        if(noClip.getValue()){
+        if (noClip.getValue()) {
             mc.player.noClip = true;
         }
-
+        
         if (!MoveUtils.isMoving() && resetMotion.getValue()) {
             mc.player.motionX *= 0.0;
             mc.player.motionZ *= 0.0;

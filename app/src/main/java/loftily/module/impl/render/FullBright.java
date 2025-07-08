@@ -1,6 +1,5 @@
 package loftily.module.impl.render;
 
-import loftily.event.impl.client.ClientTickEvent;
 import loftily.event.impl.client.ShutDownEvent;
 import loftily.event.impl.world.UpdateEvent;
 import loftily.module.Module;
@@ -44,7 +43,7 @@ public class FullBright extends Module {
                 mc.gameSettings.gammaSetting = 100F;
                 break;
             case "nightvision":
-                mc.player.addPotionEffect(new PotionEffect(Objects.requireNonNull(Potion.getPotionFromResourceLocation("night_vision")),1000));
+                mc.player.addPotionEffect(new PotionEffect(Objects.requireNonNull(Potion.getPotionFromResourceLocation("night_vision")), 1000));
                 break;
         }
     }

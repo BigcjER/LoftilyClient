@@ -35,9 +35,6 @@ public class ModuleList extends Module implements IDraggable {
     //不是value
     private final List<ModuleEntry> moduleEntries = new ArrayList<>();
     private final Animation startXAnimation = new Animation(Easing.EaseOutExpo, 500);
-    private Draggable draggable;
-    
-    
     //Text
     private final NumberValue fontSize = new NumberValue("FontSize", 18, 10, 30);
     private final BooleanValue noRenderModule = new BooleanValue("NoRenderModule", true);
@@ -54,7 +51,6 @@ public class ModuleList extends Module implements IDraggable {
             .setVisible(() -> textColorMode.is("Normal") || textColorMode.is("Fade"));
     private final NumberValue textColorBlue = new NumberValue("TextColorBlue", 255, 0, 255)
             .setVisible(() -> textColorMode.is("Normal") || textColorMode.is("Fade"));
-    
     //Tag
     private final BooleanValue drawTag = new BooleanValue("DrawTag", true);
     private final ModeValue tagColorMode = new ModeValue("TagColorMode", "Normal", this,
@@ -69,7 +65,6 @@ public class ModuleList extends Module implements IDraggable {
             .setVisible(() -> tagColorMode.is("Normal") || tagColorMode.is("Fade") && drawTag.getValue());
     private final NumberValue tagColorBlue = new NumberValue("TagColorBlue", 130, 0, 255)
             .setVisible(() -> tagColorMode.is("Normal") || tagColorMode.is("Fade") && drawTag.getValue());
-    
     //BackGround
     private final BooleanValue drawTextBackGround = new BooleanValue("DrawTextBackGround", true);
     private final ModeValue backGroundColorMode = new ModeValue("BackGroundColor", "Normal", this,
@@ -86,11 +81,10 @@ public class ModuleList extends Module implements IDraggable {
             .setVisible(() -> backGroundColorMode.is("Normal") || backGroundColorMode.is("Fade") && drawTextBackGround.getValue());
     private final NumberValue backGroundColorAlpha = new NumberValue("BackGroundColorAlpha", 60, 0, 255)
             .setVisible(drawTextBackGround::getValue);
-    
     private final EasingModeValue moduleEasingMode = (EasingModeValue)
             new EasingModeValue("ModuleEasingMode", Easing.EaseOutQuad, this)
                     .setOnValueChange(mode -> moduleEntries.clear());
-    
+    private Draggable draggable;
     
     @Override
     public void onDisable() {
@@ -188,10 +182,10 @@ public class ModuleList extends Module implements IDraggable {
                 Color textColor = getColor(textColorMode.getValueByName(), textColorRed.getValue().intValue(), textColorGreen.getValue().intValue(), textColorBlue.getValue().intValue(), indexAll.get());
                 Color tagColor = getColor(tagColorMode.getValueByName(), tagColorRed.getValue().intValue(), tagColorGreen.getValue().intValue(), tagColorBlue.getValue().intValue(), indexTag.get());
                 Color backGroundColor = getColor(backGroundColorMode.getValueByName(), backGroundColorRed.getValue().intValue(), backGroundColorGreen.getValue().intValue(), backGroundColorBlue.getValue().intValue(), indexAll.get());
-                backGroundColor = ColorUtils.colorWithAlpha(backGroundColor,backGroundColorAlpha.getValue().intValue());
+                backGroundColor = ColorUtils.colorWithAlpha(backGroundColor, backGroundColorAlpha.getValue().intValue());
                 
-                if(drawTextBackGround.getValue())
-                    RenderUtils.drawRectHW(drawX - 1.5F,y - 1,fullWidth + 4,font.getHeight() - 2,backGroundColor);
+                if (drawTextBackGround.getValue())
+                    RenderUtils.drawRectHW(drawX - 1.5F, y - 1, fullWidth + 4, font.getHeight() - 2, backGroundColor);
                 
                 if (!fontShadow.getValue()) {
                     font.drawString(name, drawX, y, textColor);

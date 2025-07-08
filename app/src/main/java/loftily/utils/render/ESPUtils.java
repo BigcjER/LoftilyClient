@@ -34,11 +34,11 @@ public class ESPUtils implements ClientUtils {
         
         GlStateManager.translate(x, y, z);
         if (rotateWithYaw) GlStateManager.rotate(-(entity.getRotationYawHead()), 0.0F, 1.0F, 0.0F);
-
+        
         AxisAlignedBB entityBox = entity.getEntityBoundingBox();
         double boxWidth = (entityBox.maxX - entityBox.minX);
         double bowHeight = (entityBox.maxY - entityBox.minY);
-
+        
         AxisAlignedBB axisAlignedBB = new AxisAlignedBB(
                 -boxWidth / 2 - 0.05,
                 0,
@@ -47,23 +47,23 @@ public class ESPUtils implements ClientUtils {
                 bowHeight + 0.15,
                 boxWidth / 2 + 0.05
         );
-
+        
         GlStateManager.color(
                 color.getRed() / 255.0f,
                 color.getGreen() / 255.0f,
                 color.getBlue() / 255.0f,
                 color.getAlpha() / 255.0f
         );
-
+        
         drawFilledBox(axisAlignedBB);
-
+        
         RenderUtils.resetColor();
         GlStateManager.enableTexture2D();
         GlStateManager.enableDepth();
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
     }
-
+    
     public static void drawEntityBox(EntityLivingBase entity, Color color, boolean positionalInterpolation, boolean rotateWithYaw) {
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();

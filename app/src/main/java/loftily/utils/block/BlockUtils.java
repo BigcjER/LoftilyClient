@@ -77,15 +77,15 @@ public class BlockUtils implements ClientUtils {
         // The slab will only return true if it's placed at a level that can be placed like any normal full block
         return box.maxX - box.minX == 1.0 && (box.maxY - box.minY == 1.0 || (supportSlabs && box.maxY % 1.0 == 0.0)) && box.maxZ - box.minZ == 1.0;
     }
-
+    
     public static Block getBlock(BlockPos blockPos) {
         return getBlockState(blockPos).getBlock();
     }
-
+    
     public static Block getBlock(double x, double y, double z) {
         return getBlockState(new BlockPos(x, y, z)).getBlock();
     }
-
+    
     public static IBlockState getBlockState(BlockPos blockPos) {
         return mc.world.getBlockState(blockPos);
     }

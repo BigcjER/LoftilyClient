@@ -8,12 +8,10 @@ import loftily.module.ModuleInfo;
 import loftily.utils.ItemUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.timer.DelayTimer;
-import loftily.value.impl.NumberValue;
 import loftily.value.impl.RangeSelectionNumberValue;
 import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
 import net.lenni0451.lambdaevents.EventHandler;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -26,15 +24,15 @@ import org.lwjgl.input.Mouse;
 
 @ModuleInfo(name = "ChestStealer", key = Keyboard.KEY_U, category = ModuleCategory.PLAYER)
 public class ChestStealer extends Module {
-    private final ModeValue modeValue = new ModeValue("Mode","Packet",this,
+    private final ModeValue modeValue = new ModeValue("Mode", "Packet", this,
             new StringMode("Packet"),
             new StringMode("Mouse")
     );
-    private final RangeSelectionNumberValue mouseXZMoveSpeed = new RangeSelectionNumberValue("MouseSpeedXZ",20,50,0,360)
-            .setVisible(()->modeValue.is("Mouse"));
-    private final RangeSelectionNumberValue mouseYMoveSpeed = new RangeSelectionNumberValue("MouseSpeedY",20,50,0,360)
-            .setVisible(()->modeValue.is("Mouse"));;
-
+    private final RangeSelectionNumberValue mouseXZMoveSpeed = new RangeSelectionNumberValue("MouseSpeedXZ", 20, 50, 0, 360)
+            .setVisible(() -> modeValue.is("Mouse"));
+    private final RangeSelectionNumberValue mouseYMoveSpeed = new RangeSelectionNumberValue("MouseSpeedY", 20, 50, 0, 360)
+            .setVisible(() -> modeValue.is("Mouse"));
+    
     private final RangeSelectionNumberValue openDelay = new RangeSelectionNumberValue("OpenDelay", 50, 100, 0, 1000);
     private final RangeSelectionNumberValue clickDelay = new RangeSelectionNumberValue("ClickDelay", 50, 100, 0, 1000);
     private final RangeSelectionNumberValue autoCloseDelay = new RangeSelectionNumberValue("AutoCloseDelay", 50, 100, 0, 1000);
@@ -67,7 +65,7 @@ public class ChestStealer extends Module {
         
         
         if (!hasUsefulItems) {
-            if(autoCloseTimer.hasTimeElapsed(RandomUtils.randomInt((int) autoCloseDelay.getFirst(), (int) autoCloseDelay.getSecond())))
+            if (autoCloseTimer.hasTimeElapsed(RandomUtils.randomInt((int) autoCloseDelay.getFirst(), (int) autoCloseDelay.getSecond())))
                 mc.player.closeScreen();
             return;
         }
@@ -87,10 +85,10 @@ public class ChestStealer extends Module {
                     !ItemUtils.isItemUsefulInContainer(containerChest, slot.getStack())) {
                 continue;
             }
-
-            if(modeValue.is("Mouse")){
+            
+            if (modeValue.is("Mouse")) {
                 GuiScreen gui = mc.currentScreen;
-                if(gui instanceof GuiChest) {
+                if (gui instanceof GuiChest) {
                     int guiLeft = (gui.width - 176) / 2;
                     int guiTop = (gui.height - 166) / 2;
                     ScaledResolution scaledResolution = new ScaledResolution(mc);
@@ -107,8 +105,8 @@ public class ChestStealer extends Module {
                     }
                 }
             }
-
-            if(!clickTimer.hasTimeElapsed(RandomUtils.randomInt((int) clickDelay.getFirst(), (int) clickDelay.getSecond()))){
+            
+            if (!clickTimer.hasTimeElapsed(RandomUtils.randomInt((int) clickDelay.getFirst(), (int) clickDelay.getSecond()))) {
                 break;
             }
             

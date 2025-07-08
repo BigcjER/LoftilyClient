@@ -14,15 +14,14 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
 public class MatrixBoostFly extends Mode<Fly> {
-    public MatrixBoostFly() {
-        super("MatrixBoost");
-    }
-    
     private final NumberValue height = new NumberValue("Height", 1, 0.42, 7, 0.1);
-    
     private int jumpCounter = 0;
     private boolean receivedFlag, canBoost;
     private double lastMotionX, lastMotionY, lastMotionZ;
+    
+    public MatrixBoostFly() {
+        super("MatrixBoost");
+    }
     
     @Override
     public void onEnable() {

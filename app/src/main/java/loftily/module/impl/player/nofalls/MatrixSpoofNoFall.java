@@ -10,12 +10,12 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
 
 public class MatrixSpoofNoFall extends Mode<NoFall> {
+    private final BooleanValue legitTimer = new BooleanValue("LegitTimer", false);
+    private boolean timered = false;
+    
     public MatrixSpoofNoFall() {
         super("MatrixSpoof");
     }
-    
-    private final BooleanValue legitTimer = new BooleanValue("LegitTimer", false);
-    private boolean timered = false;
     
     @Override
     public void onDisable() {

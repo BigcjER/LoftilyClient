@@ -44,7 +44,7 @@ public class MultiBooleanValue extends Value<Map<String, Boolean>, MultiBooleanV
         if (getValue().containsKey(name)) {
             throw new IllegalArgumentException(String.format("Key '%s' already exists!", name));
         }
-        if(StringUtils.PATTERN_WHITESPACE.matcher(name).find()) {
+        if (StringUtils.PATTERN_WHITESPACE.matcher(name).find()) {
             throw new IllegalArgumentException(String.format("Value name '%s' cannot contain spaces.", name));
         }
         getValue().put(name, value);

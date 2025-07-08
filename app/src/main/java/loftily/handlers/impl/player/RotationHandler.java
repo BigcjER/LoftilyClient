@@ -58,6 +58,14 @@ public class RotationHandler extends Handler {
         RotationHandler.moveFix = moveFix;
     }
     
+    public static Rotation getCurrentRotation() {
+        return clientRotation == null ? new Rotation(mc.player.rotationYaw, mc.player.rotationPitch) : clientRotation;
+    }
+    
+    public static Rotation getRotation() {
+        return serverRotation == null ? new Rotation(mc.player.rotationYaw, mc.player.rotationPitch) : serverRotation;
+    }
+    
     @EventHandler(priority = -100)
     public void onStrafe(StrafeEvent event) {
         if (clientRotation == null) return;
@@ -128,7 +136,6 @@ public class RotationHandler extends Handler {
         }
     }
     
-    
     @EventHandler(priority = -100)
     public void onRotation(RotationEvent event) {
         if (clientRotation == null) return;
@@ -154,14 +161,6 @@ public class RotationHandler extends Handler {
                 serverRotation = new Rotation(((CPacketPlayer) packet).yaw, ((CPacketPlayer) packet).pitch);
             }
         }
-    }
-    
-    public static Rotation getCurrentRotation() {
-        return clientRotation == null ? new Rotation(mc.player.rotationYaw, mc.player.rotationPitch) : clientRotation;
-    }
-    
-    public static Rotation getRotation() {
-        return serverRotation == null ? new Rotation(mc.player.rotationYaw, mc.player.rotationPitch) : serverRotation;
     }
     
     public enum MoveFix {

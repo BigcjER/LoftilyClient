@@ -23,9 +23,9 @@ public class AltAddOfflineMenu extends GuiScreen {
     private final DelayTimer timer = new DelayTimer();
     private final CustomTextField nameTextField;
     private final GuiScreen prevScreen;
+    private final Animation textAnimation;
     private GuiButton loginButton, addButon;
     private String currentText = "";
-    private final Animation textAnimation;
     
     public AltAddOfflineMenu(GuiScreen prevScreen, FontRenderer fontRendererObj) {
         this.prevScreen = prevScreen;

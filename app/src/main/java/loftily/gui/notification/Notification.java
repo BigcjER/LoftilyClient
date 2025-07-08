@@ -12,10 +12,10 @@ import lombok.Setter;
 public class Notification {
     public final Animation xAnimation, yAnimation;
     protected final float HEIGHT = 40, RADIUS = 2;
-    protected float width = 150;
     private final String icon, title, message;
     private final long duration;
     public boolean out;
+    protected float width = 150;
     protected float x, y;
     private long start;
     

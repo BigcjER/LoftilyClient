@@ -15,16 +15,17 @@ import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
 public class TeleportFly extends Mode<Fly> {
+    private final NumberValue packets = new NumberValue("PacketAmounts", 1, 1, 20);
+    private final NumberValue speed = new NumberValue("Speed", 0.5, 0, 20, 0.01);
+    private final BooleanValue tpWhenPacket = new BooleanValue("TPWhenPacketEvent", true);
+    private final BooleanValue reSendPacket = new BooleanValue("ReSendWhenPacketEvent", false);
+    private final NumberValue reSendAmounts = new NumberValue("ReSendAmounts", 1, 1, 20).setVisible(reSendPacket::getValue);
+    private final BooleanValue spoofGround = new BooleanValue("SpoofGround", false);
+    
     public TeleportFly() {
         super("TeleportFly");
     }
-    private final NumberValue packets = new NumberValue("PacketAmounts",1,1,20);
-    private final NumberValue speed = new NumberValue("Speed",0.5,0,20,0.01);
-    private final BooleanValue tpWhenPacket = new BooleanValue("TPWhenPacketEvent",true);
-    private final BooleanValue reSendPacket = new BooleanValue("ReSendWhenPacketEvent",false);
-    private final NumberValue reSendAmounts = new NumberValue("ReSendAmounts",1,1,20).setVisible(reSendPacket::getValue);
-    private final BooleanValue spoofGround = new BooleanValue("SpoofGround",false);
-
+    
     @EventHandler
     public void onLivingUpdate(LivingUpdateEvent event) {
         double yaw = Math.toRadians(mc.player.rotationYaw);
@@ -34,32 +35,33 @@ public class TeleportFly extends Mode<Fly> {
         double y = mc.player.posY;
         for (int i = 0; i < packets.getValue(); i++) {
             PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(
-                    x,y,z,
-                    mc.player.rotationYaw,mc.player.rotationPitch,spoofGround.getValue()
-            ),true);
+                    x, y, z,
+                    mc.player.rotationYaw, mc.player.rotationPitch, spoofGround.getValue()
+            ), true);
         }
-        if(!tpWhenPacket.getValue()) {
-            mc.player.setPosition(x,y,z);
+        if (!tpWhenPacket.getValue()) {
+            mc.player.setPosition(x, y, z);
         }
     }
+    
     @EventHandler
-    public void onPacket(PacketSendEvent event){
+    public void onPacket(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
-        if(packet instanceof CPacketPlayer.PositionRotation){
+        if (packet instanceof CPacketPlayer.PositionRotation) {
             double pSpeed = speed.getValue();
             double yaw = Math.toRadians(((CPacketPlayer.PositionRotation) packet).yaw);
             double x = ((CPacketPlayer.PositionRotation) packet).getX(mc.player.posX) + (-sin(yaw) * pSpeed);
             double z = ((CPacketPlayer.PositionRotation) packet).getZ(mc.player.posZ) + (cos(yaw) * pSpeed);
             double y = ((CPacketPlayer.PositionRotation) packet).getY(mc.player.posY);
-            if(reSendPacket.getValue()){
+            if (reSendPacket.getValue()) {
                 for (int i = 0; i < reSendAmounts.getValue(); i++) {
                     PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(
-                            x,y,z,
-                            mc.player.rotationYaw,mc.player.rotationPitch,spoofGround.getValue()
-                    ),false);
+                            x, y, z,
+                            mc.player.rotationYaw, mc.player.rotationPitch, spoofGround.getValue()
+                    ), false);
                 }
             }
-            if(tpWhenPacket.getValue()){
+            if (tpWhenPacket.getValue()) {
                 mc.player.setPosition(((CPacketPlayer.PositionRotation) packet).getX(mc.player.posX),
                         ((CPacketPlayer.PositionRotation) packet).getY(mc.player.posY),
                         ((CPacketPlayer.PositionRotation) packet).getZ(mc.player.posZ));

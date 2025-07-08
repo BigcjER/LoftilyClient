@@ -39,8 +39,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ModuleInfo(name = "BackTrack",category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "BackTrack", category = ModuleCategory.COMBAT)
 public class BackTrack extends Module {
+    public final static Queue<Packet<?>> packets = new LinkedList<>();
     private final ModeValue modeValue = new ModeValue("Mode", "Pulse", this,
             new StringMode("Pulse"),
             new StringMode("SimulatePing"),
@@ -65,10 +66,7 @@ public class BackTrack extends Module {
     private final NumberValue colorGreen = new NumberValue("ColorGreen", 27, 0, 255).setVisible(() -> renderMode.is("Box"));
     private final NumberValue colorBlue = new NumberValue("ColorBlue", 27, 0, 255).setVisible(() -> renderMode.is("Box"));
     private final NumberValue colorAlpha = new NumberValue("ColorAlpha", 80, 0, 255).setVisible(() -> renderMode.is("Box"));
-    
     private final Map<Integer, Vec3d> positionsMap = new ConcurrentHashMap<>();
-    public final static Queue<Packet<?>> packets = new LinkedList<>();
-    
     private final DelayTimer backTimer = new DelayTimer();
     private final DelayTimer everyBackTimer = new DelayTimer();
     private int backDelay, everyBackDelay;

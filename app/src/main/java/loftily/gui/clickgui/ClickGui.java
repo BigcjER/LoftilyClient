@@ -32,24 +32,22 @@ import java.util.stream.Collectors;
 public class ClickGui extends GuiScreen implements IDraggable {
     //Positions
     public static final int CORNER_RADIUS = 3, PADDING = 5;
+    //CategoryButtons,ModuleButtons
+    public final List<CategoryButton> categoryButtons;
     private final int width, height;
     private final Scrollable scrollableModuleButtons;
     private final float valuePanelWidth = 160;
-    private Draggable draggable;
-    private int x, y;
-    
-    //CategoryButtons,ModuleButtons
-    public final List<CategoryButton> categoryButtons;
-    public List<ModuleButton> currentModuleButtons;
-    public CategoryButton currentCategoryButton;
-    public CategoryButton prevCategoryButton;
-    @Getter
-    private ValuePanel currentValuePanel;
-    
     //Search
     private final CustomTextField searchBox;
     private final Animation searchButtonAnimation;
     private final Animation searchBoxInOutAnimation;
+    public List<ModuleButton> currentModuleButtons;
+    public CategoryButton currentCategoryButton;
+    public CategoryButton prevCategoryButton;
+    private Draggable draggable;
+    private int x, y;
+    @Getter
+    private ValuePanel currentValuePanel;
     private boolean isSearching, hoveringSearchButton;
     
     public ClickGui() {

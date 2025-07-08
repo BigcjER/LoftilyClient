@@ -8,11 +8,11 @@ import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.entity.EntityLivingBase;
 
 public class LowJumpCriticals extends Mode<Criticals> {
+    private final NumberValue lowJumpMotion = new NumberValue("LowJump-Motion", 0.3425, 0.1, 0.42, 0.01);
+    
     public LowJumpCriticals() {
         super("LowJump");
     }
-    
-    private final NumberValue lowJumpMotion = new NumberValue("LowJump-Motion", 0.3425, 0.1, 0.42, 0.01);
     
     @EventHandler
     public void onAttack(AttackEvent event) {

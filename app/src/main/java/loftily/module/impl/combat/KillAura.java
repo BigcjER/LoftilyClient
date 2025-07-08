@@ -297,7 +297,7 @@ public class KillAura extends Module {
                 for (double x = 0.3; x <= 0.8; x += 0.1) {
                     for (double z = 0.3; z <= 0.8; z += 0.1) {
                         Vec3d preCenter = targetBox.lerpWith(x, 1, z);
-
+                        
                         if (rayCast.getValue() && !rayCastThroughWalls.getValue()) {
                             Rotation rotation = RotationUtils.toRotation(preCenter, mc.player);
                             Entity entity = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (e -> e instanceof EntityLivingBase));
@@ -319,7 +319,7 @@ public class KillAura extends Module {
                     for (double y = 0.2; y <= 0.8; y += 0.1) {
                         for (double z = 0.2; z <= 0.8; z += 0.1) {
                             Vec3d preCenter = targetBox.lerpWith(x, y, z);
-
+                            
                             if (rayCast.getValue()) {
                                 Rotation rotation = RotationUtils.toRotation(preCenter, mc.player);
                                 Entity entity = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (e -> e instanceof EntityLivingBase));
@@ -354,33 +354,33 @@ public class KillAura extends Module {
         
         return currentRotation;
     }
-
+    
     @EventHandler
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.player == null) return;
-
+        
         target = getTarget();
-
+        
         if (!TargetsHandler.canAdd(target)) {
             target = null;
             target = getTarget();
         }
-
+        
         rotation(target);
-
+        
         if (attackTimeMode.is("Tick")) {
             attackTarget(target);
         }
-
+        
         if (blockTiming.is("Tick")) {
             runAutoBlock(target);
         }
     }
-
+    
     @EventHandler
     public void onMotion(MotionEvent event) {
         if (mc.player == null) return;
-
+        
         if ((blockTiming.is("Pre") && event.isPre())
                 || (blockTiming.is("Post") && event.isPost())) {
             runAutoBlock(target);
@@ -445,7 +445,7 @@ public class KillAura extends Module {
         }
         
         List<EntityLivingBase> filteredTargets = TargetsHandler.getTargets(rotationRange.getValue());
-
+        
         targets.clear();
         targets.addAll(filteredTargets);
         
@@ -476,14 +476,14 @@ public class KillAura extends Module {
             targetTimer.reset();
             return entity;
         }
-
+        
         if (blockingStatus && blockingTick) {
             PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
             mc.gameSettings.keyBindUseItem.setPressed(false);
             blockingStatus = false;
             blockingTick = false;
         }
-
+        
         return null;
     }
     
@@ -507,8 +507,8 @@ public class KillAura extends Module {
         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
-
-        if(autoBlockMode.is("AfterTick")){
+        
+        if (autoBlockMode.is("AfterTick")) {
             mc.gameSettings.keyBindUseItem.setPressed(true);
         }
     }
@@ -534,7 +534,7 @@ public class KillAura extends Module {
                     }
                     break;
                 case "Matrix":
-                    if(!blockingTick) {
+                    if (!blockingTick) {
                         blockingPacket(target);
                         blockingTick = true;
                     }
@@ -546,11 +546,11 @@ public class KillAura extends Module {
                             blockingTick = false;
                         }
                     } else {
-                        if(!noPacketShielded.getValue()) {
+                        if (!noPacketShielded.getValue()) {
                             blockingPacket(target);
                         }
                         if (!blockingTick) {
-                            if(noPacketShielded.getValue()){
+                            if (noPacketShielded.getValue()) {
                                 blockingPacket(target);
                             }
                             blockingTick = true;
@@ -564,15 +564,15 @@ public class KillAura extends Module {
             mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
         }
     }
-
+    
     @EventHandler
-    public void onPacketSend(PacketSendEvent event){
+    public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
-        if(packet instanceof CPacketUseEntity && ((CPacketUseEntity) packet).getAction() == CPacketUseEntity.Action.ATTACK) {
+        if (packet instanceof CPacketUseEntity && ((CPacketUseEntity) packet).getAction() == CPacketUseEntity.Action.ATTACK) {
             if (autoBlockMode.is("Matrix") && canBlock() && blockingTick) {
                 event.setCancelled(true);
                 PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
-                PacketUtils.sendPacket(packet,false);
+                PacketUtils.sendPacket(packet, false);
                 blockingTick = false;
                 runAutoBlock(target);
             }

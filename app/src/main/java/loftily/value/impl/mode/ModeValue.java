@@ -4,15 +4,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import loftily.core.AbstractModule;
 import loftily.module.Module;
-import loftily.utils.client.ClassUtils;
-import loftily.utils.client.ClientUtils;
 import loftily.value.Value;
 import lombok.Getter;
 import net.minecraft.util.text.TextFormatting;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +51,6 @@ public class ModeValue extends Value<Mode, ModeValue> {
     public boolean is(String mode) {
         return mode.equalsIgnoreCase(getValueByName());
     }
-    
     
     public void initModes() {
         for (Mode mode : modes) {
@@ -129,28 +124,5 @@ public class ModeValue extends Value<Mode, ModeValue> {
         update(mode);
         
         return String.format("%s is set to %s.", getName(), mode.getName());
-    }
-    
-    /**
-     * @param packageName Full package name
-     */
-    public static Mode[] getModes(String packageName) {
-        List<Mode> modes = new ArrayList<>();
-        
-        ClassUtils.resolvePackage(packageName).forEach(clazz -> {
-            try {
-                if (Mode.class.isAssignableFrom(clazz)) {
-                    modes.add((Mode) clazz.getDeclaredConstructor().newInstance());
-                }
-            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
-                     InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        
-        if (modes.isEmpty())
-            ClientUtils.LOGGER.warn("No mode found in '{}',please check that the packageName is existed!", packageName);
-        
-        return modes.toArray(new Mode[0]);
     }
 }

@@ -46,13 +46,12 @@ public class BedAura extends Module {
             new StringMode("None"),
             new StringMode("Strict"),
             new StringMode("Silent"));
+    private final DelayTimer delayTimer = new DelayTimer();
     private Rotation rotation;
     private BlockPos target = null;
-    
     private boolean fuckMatrix = false;
     private boolean disableMatrix = false;
     private boolean stop = false;
-    private final DelayTimer delayTimer = new DelayTimer();
     
     @Override
     public void onDisable() {

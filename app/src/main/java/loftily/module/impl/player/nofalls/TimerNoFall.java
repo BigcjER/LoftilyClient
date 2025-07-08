@@ -8,11 +8,11 @@ import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.network.play.client.CPacketPlayer;
 
 public class TimerNoFall extends Mode<NoFall> {
+    private boolean timer = false;
+    
     public TimerNoFall() {
         super("Timer");
     }
-    
-    private boolean timer = false;
     
     @Override
     public void onDisable() {

@@ -15,18 +15,6 @@ public class Teams extends Module {
     private final BooleanValue colorValue = new BooleanValue("NameColor", true);
     private final BooleanValue armorValue = new BooleanValue("ArmorColor", true);
     
-    public boolean isSameTeam(EntityPlayer entity) {
-        if (!isToggled()) return false;
-        
-        if (mc.player == null || mc.world == null || entity == null) return false;
-        
-        if (scoreboardValue.getValue() && mc.player.isOnSameTeam(entity)) return true;
-        
-        if (armorValue.getValue() && isSameTeamByArmor(entity)) return true;
-        
-        return colorValue.getValue() && isSameTeamByNameColor(entity);
-    }
-    
     private static boolean isSameTeamByNameColor(EntityPlayer entity) {
         String targetName = entity.getDisplayName().getFormattedText().replace("§r", "");
         String clientName = mc.player.getDisplayName().getFormattedText().replace("§r", "");
@@ -46,5 +34,17 @@ public class Teams extends Module {
             return myItemArmor.getColor(myHead) == entityItemArmor.getColor(entityHead);
         }
         return false;
+    }
+    
+    public boolean isSameTeam(EntityPlayer entity) {
+        if (!isToggled()) return false;
+        
+        if (mc.player == null || mc.world == null || entity == null) return false;
+        
+        if (scoreboardValue.getValue() && mc.player.isOnSameTeam(entity)) return true;
+        
+        if (armorValue.getValue() && isSameTeamByArmor(entity)) return true;
+        
+        return colorValue.getValue() && isSameTeamByNameColor(entity);
     }
 }

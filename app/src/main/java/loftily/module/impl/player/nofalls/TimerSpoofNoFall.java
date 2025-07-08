@@ -8,11 +8,11 @@ import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.network.play.client.CPacketPlayer;
 
 public class TimerSpoofNoFall extends Mode<NoFall> {
+    private boolean timer = false;
+    
     public TimerSpoofNoFall() {
         super("TimerSpoof");
     }
-    
-    private boolean timer = false;
     
     @Override
     public void onDisable() {

@@ -10,28 +10,28 @@ import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
 import net.lenni0451.lambdaevents.EventHandler;
 
-@ModuleInfo(name = "NoWeb",category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "NoWeb", category = ModuleCategory.MOVEMENT)
 public class NoWeb extends Module {
-    private final ModeValue mode = new ModeValue("Mode","Vanilla",this,
+    private final ModeValue mode = new ModeValue("Mode", "Vanilla", this,
             new StringMode("Matrix"),
             new StringMode("Vanilla"),
             new StringMode("Motion")
     );
-    private final NumberValue motionSpeed = new NumberValue("MotionSpeed",0.3,0.0,1.0,0.01).setVisible(()->mode.is("Motion"));
-
+    private final NumberValue motionSpeed = new NumberValue("MotionSpeed", 0.3, 0.0, 1.0, 0.01).setVisible(() -> mode.is("Motion"));
+    
     @EventHandler
     public void onPreUpdate(PreUpdateEvent event) {
-        if(!mc.player.isInWeb)return;
-
-        switch (mode.getValueByName()){
+        if (!mc.player.isInWeb) return;
+        
+        switch (mode.getValueByName()) {
             case "Motion":
-                MoveUtils.setSpeed(motionSpeed.getValue(),true);
+                MoveUtils.setSpeed(motionSpeed.getValue(), true);
                 break;
             case "Vanilla":
                 mc.player.isInWeb = false;
                 break;
             case "Matrix":
-                MoveUtils.setSpeed(0.45,true);
+                MoveUtils.setSpeed(0.45, true);
                 if (mc.gameSettings.keyBindSneak.isKeyDown() && !mc.gameSettings.keyBindJump.isKeyDown()) {
                     mc.player.motionY = -1.98D;
                 } else if (mc.gameSettings.keyBindJump.isKeyDown() && !mc.gameSettings.keyBindSneak.isKeyDown()) {

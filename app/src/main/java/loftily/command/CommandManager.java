@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CommandManager extends AbstractManager<Command> {
-    private final Map<String, Command> nameToCommandMap = new HashMap<>();
     public final String PreFix = ".";
+    private final Map<String, Command> nameToCommandMap = new HashMap<>();
     
     public CommandManager() {
         super("impl", Command.class);

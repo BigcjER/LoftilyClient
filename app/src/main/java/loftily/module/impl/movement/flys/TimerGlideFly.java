@@ -96,7 +96,7 @@ public class TimerGlideFly extends Mode<Fly> {
         
         if (!smartHurt.getValue() || (elapsedTicks <= flyTicks.getValue() && boosting)) {
             double speedF = boostDurationTicks > 0 ? speed.getValue() : 0.03;
-            if(!noSpeed.getValue()) {
+            if (!noSpeed.getValue()) {
                 MoveUtils.setSpeed(speedF, false);
             }
             

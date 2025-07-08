@@ -1,7 +1,6 @@
 package loftily.module.impl.world;
 
 import loftily.event.impl.world.PreUpdateEvent;
-import loftily.event.impl.world.UpdateEvent;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;

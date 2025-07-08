@@ -14,12 +14,10 @@ import java.util.Queue;
 
 public class BlinkHandler extends Handler {
     
+    public final static Queue<Packet<?>> packets = new LinkedList<>();
     public static boolean BLINK = false;
-    
     public static boolean BLINK_NOC0F = false;
     public static boolean BLINK_NOC00 = false;
-    
-    public final static Queue<Packet<?>> packets = new LinkedList<>();
     
     public static void setBlinkState(
             boolean Blink,
@@ -50,12 +48,12 @@ public class BlinkHandler extends Handler {
             }
         }
     }
-
+    
     @EventHandler
-    public void onWorld(WorldLoadEvent event){
+    public void onWorld(WorldLoadEvent event) {
         packets.clear();
     }
-
+    
     @EventHandler(priority = -1000)
     public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();

@@ -30,7 +30,7 @@ public class AnimationHandler extends Handler {
             Runnable runnable = entry.getValue();
             
             runnable.run();
-
+            
             if (animation.isFinished()) {
                 iterator.remove();
             }

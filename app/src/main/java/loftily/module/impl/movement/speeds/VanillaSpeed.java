@@ -9,13 +9,13 @@ import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
 
 public class VanillaSpeed extends Mode<Speed> {
-    public VanillaSpeed() {
-        super("Vanilla");
-    }
-    
     public NumberValue vanillaSpeed = new NumberValue("Speed", 0.4, 0.1, 2, 0.1);
     public BooleanValue vanillaJump = new BooleanValue("Jump", true);
     public BooleanValue vanillaFastStop = new BooleanValue("FastStop", true);
+    
+    public VanillaSpeed() {
+        super("Vanilla");
+    }
     
     @EventHandler
     public void onUpdate(UpdateEvent event) {

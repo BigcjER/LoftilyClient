@@ -17,19 +17,17 @@ import java.awt.*;
 public class Draggable implements ClientUtils {
     private final int margin;
     private final Runnable afterDrag;
+    private final Animation dragEffectAnimation = new Animation(Easing.EaseOutExpo, 250);
     @Getter
     private boolean isDragging = false;
     private int prevX = 0, prevY = 0;
     private int width, height;
-    
     /**
      * Between 0 - 1
      */
     @Getter
     @Setter
     private float relativeX, relativeY;
-    
-    private final Animation dragEffectAnimation = new Animation(Easing.EaseOutExpo, 250);
     
     public Draggable(int startX, int startY, int margin, int screenWidth, int screenHeight, Runnable afterDrag) {
         this.relativeX = (float) startX / screenWidth;

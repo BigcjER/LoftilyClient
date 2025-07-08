@@ -3,7 +3,6 @@ package loftily.config.impl.json;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import loftily.Client;
 import loftily.alt.Alt;
 import loftily.alt.AltType;
@@ -12,8 +11,6 @@ import loftily.config.api.JsonConfig;
 
 import java.io.File;
 import java.io.FileReader;
-import java.lang.reflect.Type;
-import java.util.List;
 
 public class AltJsonConfig extends JsonConfig {
     public AltJsonConfig() {
@@ -32,7 +29,7 @@ public class AltJsonConfig extends JsonConfig {
             String uuid = altObject.get("uuid").getAsString();
             String refreshToken = altObject.get("refreshToken").getAsString();
             
-            Client.INSTANCE.getAltManager().add(new Alt(name,uuid,refreshToken));
+            Client.INSTANCE.getAltManager().add(new Alt(name, uuid, refreshToken));
         }
         
         for (JsonElement offlineElement : offline.getAsJsonArray()) {

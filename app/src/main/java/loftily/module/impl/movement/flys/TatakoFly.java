@@ -17,36 +17,36 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
 public class TatakoFly extends Mode<Fly> {
+    private final NumberValue horizontalSpeed = new NumberValue("HorizontalSpeed", 1, 0, 5, 0.01);
+    private final NumberValue verticalSpeed = new NumberValue("VerticalSpeed", 1, 0, 5, 0.01);
+    private double x, y, z;
+    
     public TatakoFly() {
         super("Tatako");
     }
-
-    private final NumberValue horizontalSpeed = new NumberValue("HorizontalSpeed", 1, 0, 5, 0.01);
-    private final NumberValue verticalSpeed = new NumberValue("VerticalSpeed", 1, 0, 5, 0.01);
-
-    private double x, y, z;
-
+    
     @Override
-    public void onEnable(){
+    public void onEnable() {
         x = mc.player.posX;
         y = mc.player.posY;
         z = mc.player.posZ;
     }
-
+    
     @Override
-    public void onDisable(){
+    public void onDisable() {
         EntityPlayer player = mc.player;
-        PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(player.posX+0.05,player.posY,player.posZ,player.rotationYaw,player.rotationPitch,true));
-        PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(player.posX,player.posY+0.42,player.posZ,player.rotationYaw,player.rotationPitch,true));
-        PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(player.posX,player.posY+0.7532,player.posZ,player.rotationYaw,player.rotationPitch,true));
-        PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(player.posX,player.posY+1.0,player.posZ,player.rotationYaw,player.rotationPitch,true));
+        PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(player.posX + 0.05, player.posY, player.posZ, player.rotationYaw, player.rotationPitch, true));
+        PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(player.posX, player.posY + 0.42, player.posZ, player.rotationYaw, player.rotationPitch, true));
+        PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(player.posX, player.posY + 0.7532, player.posZ, player.rotationYaw, player.rotationPitch, true));
+        PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(player.posX, player.posY + 1.0, player.posZ, player.rotationYaw, player.rotationPitch, true));
     }
+    
     @EventHandler
     public void onPreUpdate(PreUpdateEvent event) {
         MoveUtils.stop(true);
-
+        
         MoveUtils.setSpeed(horizontalSpeed.getValue(), true);
-
+        
         if (GameSettings.isKeyDown(mc.gameSettings.keyBindJump)) {
             mc.player.motionY = verticalSpeed.getValue();
         }
@@ -54,7 +54,7 @@ public class TatakoFly extends Mode<Fly> {
             mc.player.motionY = -verticalSpeed.getValue();
         }
     }
-
+    
     @EventHandler
     public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
@@ -66,11 +66,11 @@ public class TatakoFly extends Mode<Fly> {
             ((CPacketPlayer) packet).onGround = true;
         }
     }
-
+    
     @EventHandler
     public void onPacketReceive(PacketReceiveEvent event) {
         Packet<?> packet = event.getPacket();
-        if(packet instanceof SPacketPlayerPosLook){
+        if (packet instanceof SPacketPlayerPosLook) {
             x = ((SPacketPlayerPosLook) packet).getX();
             y = ((SPacketPlayerPosLook) packet).getY();
             z = ((SPacketPlayerPosLook) packet).getZ();

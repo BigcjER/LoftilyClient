@@ -9,14 +9,14 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 
 public class CancelVelocity extends Mode<Velocity> {
-
+    
     private final BooleanValue cancelXZ = new BooleanValue("CancelHorizontal", true);
     private final BooleanValue cancelY = new BooleanValue("CancelVertical", true);
-
+    
     public CancelVelocity() {
         super("Cancel");
     }
-
+    
     @EventHandler
     public void onReceivePacket(PacketReceiveEvent event) {
         Packet<?> packet = event.getPacket();

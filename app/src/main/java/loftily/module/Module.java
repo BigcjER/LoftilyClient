@@ -15,12 +15,11 @@ import lombok.Setter;
 @Getter
 public abstract class Module extends AbstractModule {
     private final boolean defaultToggled, canBeToggled;
+    private final ModuleCategory moduleCategory;
+    private final int defaultKey;
     @Setter
     private AutoDisableType autoDisableType;
-    private final ModuleCategory moduleCategory;
     private boolean toggled;
-    
-    private final int defaultKey;
     private int key;
     
     public Module() {
@@ -105,8 +104,7 @@ public abstract class Module extends AbstractModule {
         Client.INSTANCE.getModuleManager().handelUpdateModuleKeybind(this, oldKey, key);
     }
     
-    @NonNull
-    public String getTag() {
+    public @NonNull String getTag() {
         return "";
     }
 }

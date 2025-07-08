@@ -7,12 +7,12 @@ import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
 
 public class NCPTower extends Mode<Scaffold> {
+    int jumpCounter = 0;
+    boolean awaitingGround;
+    
     public NCPTower(String name) {
         super(name);
     }
-    
-    int jumpCounter = 0;
-    boolean awaitingGround;
     
     @Override
     public void onToggle() {
@@ -26,7 +26,7 @@ public class NCPTower extends Mode<Scaffold> {
         if (!getParent().towerStatus) {
             return;
         }
-
+        
         if (mc.player.posY % 1 <= 0.0014) {
             if (MoveUtils.isMoving()) {
                 mc.player.setPosition(mc.player.posX, Math.floor(mc.player.posY), mc.player.posZ);

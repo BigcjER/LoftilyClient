@@ -48,11 +48,11 @@ public class Sprint extends Module {
             }
         }
     }
-
-    public void sprint(){
+    
+    public void sprint() {
         mc.player.setSprinting(true);
     }
-
+    
     @EventHandler(priority = -1000)
     public void onJump(JumpEvent event) {
         if (!allDirectionsJump.getValue()) return;
@@ -60,7 +60,7 @@ public class Sprint extends Module {
         event.setMovementYaw((float) Math.toDegrees(MoveUtils.getDirection()));
         
     }
-
+    
     @EventHandler(priority = -1000)
     public void onLivingUpdate(LivingUpdateEvent event) {
         Rotation rotation = RotationHandler.clientRotation;
@@ -82,7 +82,7 @@ public class Sprint extends Module {
                 sprint();
             }
         }
-
+        
         if (legitSprint.getValue()) {
             if (rotation != null) {
                 float calcForward = CalculateUtils.getMoveFixForward(rotation);

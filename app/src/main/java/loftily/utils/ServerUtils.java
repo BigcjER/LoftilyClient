@@ -39,7 +39,7 @@ public class ServerUtils implements ClientUtils {
         }
         return serverIp;
     }
-
+    
     public static List<String> getSidebarLines() {
         List<String> lines = new ArrayList<>();
         if (mc.world == null) {
@@ -55,21 +55,21 @@ public class ServerUtils implements ClientUtils {
                 } else {
                     Collection<Score> scores = scoreboard.getSortedScores(objective);
                     List<Score> list = new ArrayList<>();
-
+                    
                     for (Score input : scores) {
                         if (input != null && input.getPlayerName() != null && !input.getPlayerName().startsWith("#")) {
                             list.add(input);
                         }
                     }
-
+                    
                     if (list.size() > 15) {
                         scores = new ArrayList<>(Lists.newArrayList(Iterables.skip(list, list.size() - 15)));
                     } else {
                         scores = list;
                     }
-
+                    
                     int index = 0;
-
+                    
                     for (Score score : scores) {
                         index++;
                         ScorePlayerTeam team = scoreboard.getPlayersTeam(score.getPlayerName());
@@ -78,37 +78,27 @@ public class ServerUtils implements ClientUtils {
                             lines.add(objective.getDisplayName());
                         }
                     }
-
+                    
                     Collections.reverse(lines);
                     return lines;
                 }
             }
         }
     }
-
-    public static String getServerPing() {
-        if (mc.player == null || mc.getConnection().getPlayerInfo(mc.player.getUniqueID()) == null || mc.isIntegratedServerRunning())
-            return "0 ms";
-        
-        if (mc.world != null && mc.world.isRemote) {
-            return mc.getConnection().getPlayerInfo(mc.player.getUniqueID()).getResponseTime() + " ms";
-        }
-        return "";
-    }
-
+    
     public static String stripString(String s) {
         char[] nonValidatedString = StringUtils.stripControlCodes(s).toCharArray();
         StringBuilder validated = new StringBuilder();
-
+        
         for (char c : nonValidatedString) {
             if (c < 127 && c > 20) {
                 validated.append(c);
             }
         }
-
+        
         return validated.toString();
     }
-
+    
     public static int getLobbyStatus() {
         if (!PlayerUtils.nullCheck()) {
             return -1;
@@ -128,13 +118,13 @@ public class ServerUtils implements ClientUtils {
                             return 1;
                         }
                     }
-
+                    
                     return -1;
                 }
             }
         }
     }
-
+    
     public static int hypixelStatus() {
         if (!PlayerUtils.nullCheck()) {
             return -1;
@@ -153,13 +143,13 @@ public class ServerUtils implements ClientUtils {
                             return 1;
                         }
                     }
-
+                    
                     return -1;
                 }
             }
         }
     }
-
+    
     public static boolean isReplay() {
         if (isHypixel()) {
             if (!PlayerUtils.nullCheck()) {
@@ -177,11 +167,11 @@ public class ServerUtils implements ClientUtils {
             return false;
         }
     }
-
+    
     public static boolean isHypixel() {
         return !mc.isSingleplayer() && mc.getCurrentServerData() != null && (mc.getCurrentServerData().serverIP.contains("hypixel.net") || mc.getCurrentServerData().serverIP.contains("nyap.buzz"));
     }
-
+    
     public static boolean spectatorCheck() {
         return !mc.player.inventory.getStackInSlot(8).isEmptyStack() && mc.player.inventory.getStackInSlot(8).getDisplayName().contains("Return")
                 || stripString(mc.ingameGUI.displayedTitle).contains("YOU DIED");

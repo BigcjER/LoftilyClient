@@ -23,7 +23,7 @@ public class PlayerUtils implements ClientUtils {
     public static boolean nullCheck() {
         return mc.player != null && mc.world != null;
     }
-
+    
     public static boolean canBeSeenEntity(Entity player, Entity target) {
         AxisAlignedBB targetBB = target.getEntityBoundingBox();
         
@@ -78,25 +78,25 @@ public class PlayerUtils implements ClientUtils {
     public static boolean isBlocking() {
         return isBlocking(mc.player);
     }
-
+    
     public static boolean nearAir() {
         BlockPos blockPos = new BlockPos(mc.player).down();
         BlockPos blockPos2 = blockPos.offset(mc.player.getHorizontalFacing());
         Block block = Objects.requireNonNull(blockPos2.getState()).getBlock();
         return block instanceof BlockAir;
     }
-
+    
     public static boolean isDiagonally() {
         float directionDegree = mc.player.rotationYaw;
         float yaw = Math.round(Math.abs(MathHelper.wrapAngleTo180_float(directionDegree)) / 45f) * 45f;
         return yaw % 90 != 0f;
     }
-
+    
     public static boolean onRightSide(EntityPlayerSP player) {
         IBlockState blockState = mc.world.getBlockState(new BlockPos(player));
         AxisAlignedBB block = blockState.getSelectedBoundingBox(mc.world, new BlockPos(player));
         boolean right = false;
-
+        
         switch (player.getHorizontalFacing()) {
             case EAST:
                 right = player.posZ <= block.minZ + (block.maxZ - block.minZ) * 0.5;
@@ -113,20 +113,10 @@ public class PlayerUtils implements ClientUtils {
         }
         return right;
     }
-
-    public static boolean overVoid() {
-        for (int i = (int)mc.player.posY; i > -1; i--) {
-            if (!(mc.world.getBlockState(new BlockPos(mc.player.posX, i, mc.player.posZ)).getBlock() instanceof BlockAir)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
+    
     public static boolean isInVoid() {
         if (mc.player.posY <= 0) return true;
-
+        
         if (mc.player.isOnLadder() ||
                 mc.player.capabilities.allowFlying ||
                 mc.player.capabilities.disableDamage ||
@@ -135,15 +125,15 @@ public class PlayerUtils implements ClientUtils {
                 mc.player.isInLava() ||
                 mc.player.isInWeb ||
                 mc.player.onGround) return false;
-
+        
         for (int i = (int) mc.player.posY; i > -1; i--) {
             Block block = (new BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ).down(i)).getBlock();
-
+            
             if (block != Blocks.AIR) {
                 return false;
             }
         }
         return true;
     }
-
+    
 }
