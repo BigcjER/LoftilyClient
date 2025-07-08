@@ -204,7 +204,7 @@ public class BackTrack extends Module {
                         int size = RandomUtils.randomInt((int) sizeValue.getFirst(), (int) sizeValue.getSecond());
                         
                         while (!packets.isEmpty()) {
-                            if (i > size) return;
+                            if (i >= size) return;
                             
                             Packet<?> packet = packets.poll();
                             PacketReceiveEvent packetEvent = new PacketReceiveEvent(packet, PacketReceiveEvent.Type.BACKTRACK);

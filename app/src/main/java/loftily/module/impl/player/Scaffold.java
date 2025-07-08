@@ -83,6 +83,7 @@ public class Scaffold extends Module {
             new StringMode("AutoJump"),
             new StringMode("SlowJump"),
             new StringMode("TickJump"),
+            new StringMode("MatrixHop"),
             new StringMode("GodBridge"));
     //Place
     private final ModeValue placeTiming = new ModeValue("PlaceTiming", "Tick", this,
@@ -223,6 +224,9 @@ public class Scaffold extends Module {
     private boolean tickPlacement = false;
 
 
+    private boolean jumped;
+    private int jumpTimes;
+
     private final Animation blockCountAnimation = new Animation(Easing.EaseOutExpo, 300);
     private Runnable blockCounterRunnable;
     private boolean ableSneak = false;
@@ -247,6 +251,10 @@ public class Scaffold extends Module {
 
     @Override
     public void onEnable() {
+        if(scaffoldMode.is("MatrixHop") && mc.player.onGround){
+            mc.player.motionY = 0.42;
+            MoveUtils.stop(false);
+        }
         curExtraClickDelay = RandomUtils.randomInt((int) extraClickDelay.getFirst(), (int) extraClickDelay.getSecond());
         clickTimes = 0;
         lastY = mc.player.posY;
@@ -347,7 +355,7 @@ public class Scaffold extends Module {
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.player == null) return;
 
-        if (mc.player.onGround && MoveUtils.isMoving() && scaffoldMode.is("TickJump")) {
+        if (mc.player.onGround && MoveUtils.isMoving() && (scaffoldMode.is("TickJump") || scaffoldMode.is("MatrixHop"))) {
             mc.player.tryJump();
         }
 
@@ -578,6 +586,18 @@ public class Scaffold extends Module {
                     }
                 } else {
                     mc.gameSettings.keyBindJump.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindJump));
+                }
+                break;
+            case "MatrixHop":
+                if (!MoveUtils.isMoving()) return;
+                if (mc.player.onGround) {
+                    mc.player.tryJump();
+                }
+                if (MoveUtils.getSpeed() <= 0.19 && !mc.player.isCollidedHorizontally && !mc.player.onGround && !towerStatus) {
+                    MoveUtils.setSpeed(0.19, true);
+                }
+                if(mc.player.hurtTime <= 0) {
+                    mc.player.motionY -= 0.003;
                 }
                 break;
             case "AutoJump":

@@ -17,6 +17,8 @@ import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
 import lombok.Getter;
 import net.lenni0451.lambdaevents.EventHandler;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ClickType;
@@ -24,6 +26,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.*;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 
 import java.util.Arrays;
 import java.util.function.Predicate;
@@ -31,6 +34,15 @@ import java.util.function.Predicate;
 @ModuleInfo(name = "InvManager", category = ModuleCategory.PLAYER, key = Keyboard.KEY_I)
 public class InvManager extends Module {
     //Delay value
+    private final ModeValue modeValue = new ModeValue("Mode","Packet",this,
+            new StringMode("Packet"),
+            new StringMode("Mouse")
+    );
+    private final RangeSelectionNumberValue mouseXZMoveSpeed = new RangeSelectionNumberValue("MouseSpeedXZ",20,50,0,360)
+            .setVisible(()->modeValue.is("Mouse"));
+    private final RangeSelectionNumberValue mouseYMoveSpeed = new RangeSelectionNumberValue("MouseSpeedY",20,50,0,360)
+            .setVisible(()->modeValue.is("Mouse"));;
+
     private final RangeSelectionNumberValue openDelay = new RangeSelectionNumberValue("OpenDelay", 50, 100, 0, 1000);
     private final RangeSelectionNumberValue clickDelay = new RangeSelectionNumberValue("ClickDelay", 50, 100, 0, 1000);
     private final BooleanValue autoClose = new BooleanValue("AutoClose", true);
@@ -38,7 +50,7 @@ public class InvManager extends Module {
             .setVisible(autoClose::getValue);
     private final BooleanValue requiresInvOpened = new BooleanValue("RequiresInvOpened", true);
     private final BooleanValue throwUselessItems = new BooleanValue("ThrowUselessItems", true);
-    
+
     //Slots
     private final ModeValue slot1 = createSlotMode("Slot1", "Sword");
     private final ModeValue slot2 = createSlotMode("Slot2", "Block");
@@ -93,7 +105,29 @@ public class InvManager extends Module {
                 }
                 
                 if (!ItemUtils.isItemUsefulInContainer(mc.player.inventoryContainer, itemStack)) {
-                    this.throwItem(slot.slotNumber);
+                    if(modeValue.is("Mouse")){
+                        GuiScreen gui = mc.currentScreen;
+                        if (gui instanceof GuiInventory) {
+                            int guiLeft = (gui.width - 176) / 2;
+                            int guiTop = (gui.height - 166) / 2;
+                            ScaledResolution scaledResolution = new ScaledResolution(mc);
+                            int scaleFactor = scaledResolution.getScaleFactor();
+                            int x = (slot.xDisplayPosition + 8) * scaleFactor + guiLeft * scaleFactor;
+                            int y = ((slot.yDisplayPosition + 8) * -scaleFactor + guiTop * scaleFactor) + 166 * scaleFactor;
+                            int n1 = RandomUtils.randomInt((int) mouseXZMoveSpeed.getFirst(), (int) mouseXZMoveSpeed.getSecond());
+                            int n2 = RandomUtils.randomInt((int) mouseYMoveSpeed.getFirst(), (int) mouseYMoveSpeed.getSecond());
+                            int diffX = Math.max(-n1, Math.min(x - Mouse.getX(), n1));
+                            int diffY = Math.max(-n2, Math.min(y - Mouse.getY(), n2));
+                            Mouse.setCursorPosition(diffX + Mouse.getX(), diffY + Mouse.getY());
+                            if (Mouse.getX() != x || Mouse.getY() != y) {
+                                return;
+                            }
+                        }
+                    }
+                    this.throwItem(slot.slotNumber,slot);
+                    if(modeValue.is("Mouse") && !canBeClose){
+                        return;
+                    }
                 }
             }
         }
@@ -135,7 +169,29 @@ public class InvManager extends Module {
                 }
                 
                 if (targetSlot != -1) {
-                    moveItem(slotNumber, targetSlot);
+                    if(modeValue.is("Mouse")){
+                        GuiScreen gui = mc.currentScreen;
+                        if (gui instanceof GuiInventory) {
+                            int guiLeft = (gui.width - 176) / 2;
+                            int guiTop = (gui.height - 166) / 2;
+                            ScaledResolution scaledResolution = new ScaledResolution(mc);
+                            int scaleFactor = scaledResolution.getScaleFactor();
+                            int x = (slot.xDisplayPosition + 8) * scaleFactor + guiLeft * scaleFactor;
+                            int y = ((slot.yDisplayPosition + 8) * -scaleFactor + guiTop * scaleFactor) + 166 * scaleFactor;
+                            int n1 = RandomUtils.randomInt((int) mouseXZMoveSpeed.getFirst(), (int) mouseXZMoveSpeed.getSecond());
+                            int n2 = RandomUtils.randomInt((int) mouseYMoveSpeed.getFirst(), (int) mouseYMoveSpeed.getSecond());
+                            int diffX = Math.max(-n1, Math.min(x - Mouse.getX(), n1));
+                            int diffY = Math.max(-n2, Math.min(y - Mouse.getY(), n2));
+                            Mouse.setCursorPosition(diffX + Mouse.getX(), diffY + Mouse.getY());
+                            if (Mouse.getX() != x || Mouse.getY() != y) {
+                                return;
+                            }
+                        }
+                    }
+                    moveItem(slotNumber, targetSlot,slot);
+                    if(modeValue.is("Mouse") && !canBeClose){
+                        return;
+                    }
                 }
             }
         }
@@ -159,7 +215,30 @@ public class InvManager extends Module {
             }
             
             if (fromSlot != -1 && hotbarStack.isEmptyStack()) {
-                moveItem(fromSlot, hotBarSlot);
+                if(modeValue.is("Mouse")){
+                    GuiScreen gui = mc.currentScreen;
+                    Slot slot = mc.player.inventoryContainer.getSlot(fromSlot);
+                    if (gui instanceof GuiInventory) {
+                        int guiLeft = (gui.width - 176) / 2;
+                        int guiTop = (gui.height - 166) / 2;
+                        ScaledResolution scaledResolution = new ScaledResolution(mc);
+                        int scaleFactor = scaledResolution.getScaleFactor();
+                        int x = (slot.xDisplayPosition + 8) * scaleFactor + guiLeft * scaleFactor;
+                        int y = ((slot.yDisplayPosition + 8) * -scaleFactor + guiTop * scaleFactor) + 166 * scaleFactor;
+                        int n1 = RandomUtils.randomInt((int) mouseXZMoveSpeed.getFirst(), (int) mouseXZMoveSpeed.getSecond());
+                        int n2 = RandomUtils.randomInt((int) mouseYMoveSpeed.getFirst(), (int) mouseYMoveSpeed.getSecond());
+                        int diffX = Math.max(-n1, Math.min(x - Mouse.getX(), n1));
+                        int diffY = Math.max(-n2, Math.min(y - Mouse.getY(), n2));
+                        Mouse.setCursorPosition(diffX + Mouse.getX(), diffY + Mouse.getY());
+                        if (Mouse.getX() != x || Mouse.getY() != y) {
+                            return;
+                        }
+                    }
+                }
+                moveItem(fromSlot, hotBarSlot,mc.player.inventoryContainer.getSlot(fromSlot));
+                if(modeValue.is("Mouse") && !canBeClose){
+                    return;
+                }
             }
         }
         
@@ -171,7 +250,7 @@ public class InvManager extends Module {
     }
     
     
-    private void moveItem(int from, int to) {
+    private void moveItem(int from, int to,Slot slot) {
         canBeClose = false;
         if (clickTimer.hasTimeElapsed(currentClickDelay)) {
             mc.playerController.windowClick(mc.player.inventoryContainer.windowId, from, 0, ClickType.SWAP, mc.player);
@@ -183,10 +262,10 @@ public class InvManager extends Module {
         }
     }
     
-    private void throwItem(int slot) {
+    private void throwItem(int slotNumber,Slot slot) {
         canBeClose = false;
         if (clickTimer.hasTimeElapsed(currentClickDelay)) {
-            mc.playerController.windowClick(mc.player.inventoryContainer.windowId, slot, 1, ClickType.THROW, mc.player);
+            mc.playerController.windowClick(mc.player.inventoryContainer.windowId, slotNumber, 1, ClickType.THROW, mc.player);
             currentClickDelay = getRandomDelay(clickDelay.getFirst(), clickDelay.getSecond());
             currentAutoCloseDelay = getRandomDelay(autoCloseDelay.getFirst(), autoCloseDelay.getSecond());
             clickTimer.reset();

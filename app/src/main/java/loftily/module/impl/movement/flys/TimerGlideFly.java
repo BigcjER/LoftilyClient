@@ -127,7 +127,7 @@ public class TimerGlideFly extends Mode<Fly> {
                     getParent().toggle();
                 }
             } else {
-                if (elapsedTicks >= boostDurationTicks) {
+                if (boostDurationTicks <= 0) {
                     getParent().toggle();
                 }
             }

@@ -406,9 +406,9 @@ public class KillAura extends Module {
         if (blockingStatus && blockingTick) {
             PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
         }
-        mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
-        blockingTick = false;
+        mc.gameSettings.keyBindUseItem.setPressed(false);
         blockingStatus = false;
+        blockingTick = false;
     }
     
     @EventHandler
@@ -476,13 +476,13 @@ public class KillAura extends Module {
             targetTimer.reset();
             return entity;
         }
-        
+
         if (blockingStatus && blockingTick) {
             PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+            mc.gameSettings.keyBindUseItem.setPressed(false);
+            blockingStatus = false;
             blockingTick = false;
         }
-        
-        blockingStatus = false;
 
         return null;
     }
@@ -516,13 +516,16 @@ public class KillAura extends Module {
     private void runAutoBlock(Entity target) {
         if (target == null) return;
         if (autoBlockMode.is("None")) return;
-        
+        if (onlyWhileKeyBinding.getValue() && !GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
+            return;
+        }
         if (canBlock()) {
             switch (autoBlockMode.getValueByName()) {
                 case "Fake":
                     break;
                 case "HoldKey":
                     mc.gameSettings.keyBindUseItem.setPressed(true);
+                    blockingTick = true;
                     break;
                 case "Packet":
                     if (!blockingStatus) {
@@ -531,7 +534,7 @@ public class KillAura extends Module {
                     }
                     break;
                 case "Matrix":
-                    if(!blockingTick){
+                    if(!blockingTick) {
                         blockingPacket(target);
                         blockingTick = true;
                     }

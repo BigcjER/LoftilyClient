@@ -29,14 +29,14 @@ public class MatrixSpeed extends Mode<Speed> {
     public void onStrafe(StrafeEvent event) {
         if (!MoveUtils.isMoving()) return;
         if (mc.player.onGround) {
-            MoveUtils.strafe();
             mc.player.tryJump();
+            MoveUtils.strafe();
         }
-        if (MoveUtils.getSpeed() <= 0.19 && !mc.player.isCollidedHorizontally) {
-            MoveUtils.setSpeed(0.19, true);
+        if (MoveUtils.getSpeed() <= 0.2 && !mc.player.isCollidedHorizontally && !mc.player.onGround) {
+            MoveUtils.setSpeed(0.2, true);
         }
         if(mc.player.hurtTime <= 0) {
-            mc.player.motionY -= 0.0031;
+            mc.player.motionY -= 0.0032;
         }
     }
 }

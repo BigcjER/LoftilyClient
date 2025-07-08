@@ -111,7 +111,8 @@ public class NoSlow extends Module {
                                     }
                                     break;
                                 case "HandPacket":
-                                    if (event.isPre()) {
+                                    if(event.isPost()) {
+                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
                                         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
                                         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
                                     }
