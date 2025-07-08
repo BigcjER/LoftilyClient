@@ -28,6 +28,7 @@ import io.netty.util.concurrent.GenericFutureListener;
 import loftily.Client;
 import loftily.event.impl.packet.PacketReceiveEvent;
 import loftily.event.impl.packet.PacketSendEvent;
+import lombok.Getter;
 import net.minecraft.util.CryptManager;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.LazyLoadBase;
@@ -51,7 +52,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
     private static final Logger LOGGER = LogManager.getLogger();
     public static final Marker NETWORK_MARKER = MarkerManager.getMarker("NETWORK");
     public static final Marker NETWORK_PACKETS_MARKER = MarkerManager.getMarker("NETWORK_PACKETS", NETWORK_MARKER);
-    public static final AttributeKey<EnumConnectionState> PROTOCOL_ATTRIBUTE_KEY = AttributeKey.<EnumConnectionState>valueOf("protocol");
+    public static final AttributeKey<EnumConnectionState> PROTOCOL_ATTRIBUTE_KEY = AttributeKey.valueOf("protocol");
     public static final LazyLoadBase<NioEventLoopGroup> CLIENT_NIO_EVENTLOOP = new LazyLoadBase<NioEventLoopGroup>() {
         protected NioEventLoopGroup load() {
             return new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Client IO #%d").setDaemon(true).build());
@@ -68,7 +69,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
         }
     };
     private final EnumPacketDirection direction;
-    private final Queue<NetworkManager.InboundHandlerTuplePacketListener> outboundPacketsQueue = Queues.<NetworkManager.InboundHandlerTuplePacketListener>newConcurrentLinkedQueue();
+    private final Queue<NetworkManager.InboundHandlerTuplePacketListener> outboundPacketsQueue = Queues.newConcurrentLinkedQueue();
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     
     /**
@@ -90,6 +91,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
      * A String indicating why the network has shutdown.
      */
     private ITextComponent terminationReason;
+    @Getter
     private boolean isEncrypted;
     private boolean disconnected;
     
@@ -118,17 +120,17 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
         LOGGER.debug("Enabled auto read");
     }
     
-    public void channelInactive(ChannelHandlerContext p_channelInactive_1_) throws Exception {
-        this.closeChannel(new TextComponentTranslation("disconnect.endOfStream", new Object[0]));
+    public void channelInactive(ChannelHandlerContext p_channelInactive_1_) {
+        this.closeChannel(new TextComponentTranslation("disconnect.endOfStream"));
     }
     
-    public void exceptionCaught(ChannelHandlerContext p_exceptionCaught_1_, Throwable p_exceptionCaught_2_) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext p_exceptionCaught_1_, Throwable p_exceptionCaught_2_) {
         TextComponentTranslation textcomponenttranslation;
         
         if (p_exceptionCaught_2_ instanceof TimeoutException) {
-            textcomponenttranslation = new TextComponentTranslation("disconnect.timeout", new Object[0]);
+            textcomponenttranslation = new TextComponentTranslation("disconnect.timeout");
         } else {
-            textcomponenttranslation = new TextComponentTranslation("disconnect.genericReason", new Object[]{"Internal Exception: " + p_exceptionCaught_2_});
+            textcomponenttranslation = new TextComponentTranslation("disconnect.genericReason", "Internal Exception: " + p_exceptionCaught_2_);
         }
         
         LOGGER.debug(textcomponenttranslation.getUnformattedText(), p_exceptionCaught_2_);
@@ -138,7 +140,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
     public void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet<?> packet) {
         if (this.channel.isOpen()) {
             try {
-                PacketReceiveEvent event = new PacketReceiveEvent(packet,false);
+                PacketReceiveEvent event = new PacketReceiveEvent(packet, PacketReceiveEvent.Type.VANILLA);
                 Client.INSTANCE.getEventManager().call(event);
                 if (event.isCancelled()) return;
                 
@@ -153,7 +155,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
     public void receivePacket(Packet<?> packet) {
         if (this.channel.isOpen()) {
             try {
-                PacketReceiveEvent event = new PacketReceiveEvent(packet,false);
+                PacketReceiveEvent event = new PacketReceiveEvent(packet, PacketReceiveEvent.Type.BACKTRACK);
                 Client.INSTANCE.getEventManager().call(event);
                 if (event.isCancelled()) return;
                 
@@ -188,12 +190,12 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
     public void sendPacket(Packet<?> packetIn) {
         if (this.isChannelOpen()) {
             this.flushOutboundQueue();
-            this.dispatchPacket(packetIn, (GenericFutureListener[]) null);
+            this.dispatchPacket(packetIn, null);
         } else {
             this.readWriteLock.writeLock().lock();
             
             try {
-                this.outboundPacketsQueue.add(new NetworkManager.InboundHandlerTuplePacketListener(packetIn, new GenericFutureListener[0]));
+                this.outboundPacketsQueue.add(new NetworkManager.InboundHandlerTuplePacketListener(packetIn));
             } finally {
                 this.readWriteLock.writeLock().unlock();
             }
@@ -203,12 +205,12 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
     public void sendPacket(Packet<?> packetIn, GenericFutureListener<? extends Future<? super Void>> listener, GenericFutureListener<? extends Future<? super Void>>... listeners) {
         if (this.isChannelOpen()) {
             this.flushOutboundQueue();
-            this.dispatchPacket(packetIn, (GenericFutureListener[]) ArrayUtils.add(listeners, 0, listener));
+            this.dispatchPacket(packetIn, ArrayUtils.add(listeners, 0, listener));
         } else {
             this.readWriteLock.writeLock().lock();
             
             try {
-                this.outboundPacketsQueue.add(new NetworkManager.InboundHandlerTuplePacketListener(packetIn, (GenericFutureListener[]) ArrayUtils.add(listeners, 0, listener)));
+                this.outboundPacketsQueue.add(new NetworkManager.InboundHandlerTuplePacketListener(packetIn, ArrayUtils.add(listeners, 0, listener)));
             } finally {
                 this.readWriteLock.writeLock().unlock();
             }
@@ -229,7 +231,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
         }
         
         final EnumConnectionState enumconnectionstate = EnumConnectionState.getFromPacket(inPacket);
-        final EnumConnectionState enumconnectionstate1 = (EnumConnectionState) this.channel.attr(PROTOCOL_ATTRIBUTE_KEY).get();
+        final EnumConnectionState enumconnectionstate1 = this.channel.attr(PROTOCOL_ATTRIBUTE_KEY).get();
         
         if (enumconnectionstate1 != enumconnectionstate) {
             LOGGER.debug("Disabled auto read");
@@ -340,12 +342,11 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
             lazyloadbase = CLIENT_NIO_EVENTLOOP;
         }
         
-        ((Bootstrap) ((Bootstrap) ((Bootstrap) (new Bootstrap()).group(lazyloadbase.getValue())).handler(new ChannelInitializer<Channel>() {
-            protected void initChannel(Channel p_initChannel_1_) throws Exception {
+        (new Bootstrap()).group(lazyloadbase.getValue()).handler(new ChannelInitializer<Channel>() {
+            protected void initChannel(Channel p_initChannel_1_) {
                 try {
-                    p_initChannel_1_.config().setOption(ChannelOption.TCP_NODELAY, Boolean.valueOf(true));
+                    p_initChannel_1_.config().setOption(ChannelOption.TCP_NODELAY, Boolean.TRUE);
                 } catch (ChannelException var3) {
-                    ;
                 }
                 
                 p_initChannel_1_.pipeline().addLast("timeout", new ReadTimeoutHandler(30)).addLast("splitter", new NettyVarint21FrameDecoder()).addLast("decoder", new NettyPacketDecoder(EnumPacketDirection.CLIENTBOUND)).addLast("prepender", new NettyVarint21FrameEncoder()).addLast("encoder", new NettyPacketEncoder(EnumPacketDirection.SERVERBOUND)).addLast("packet_handler", networkmanager);
@@ -357,7 +358,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
                     p_initChannel_1_.pipeline().addLast(new MCPVLBPipeline(user));
                 }
             }
-        })).channel(oclass)).connect(address, serverPort).syncUninterruptibly();
+        }).channel(oclass).connect(address, serverPort).syncUninterruptibly();
         return networkmanager;
     }
     
@@ -367,11 +368,11 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
      */
     public static NetworkManager provideLocalClient(SocketAddress address) {
         final NetworkManager networkmanager = new NetworkManager(EnumPacketDirection.CLIENTBOUND);
-        ((Bootstrap) ((Bootstrap) ((Bootstrap) (new Bootstrap()).group(CLIENT_LOCAL_EVENTLOOP.getValue())).handler(new ChannelInitializer<Channel>() {
-            protected void initChannel(Channel p_initChannel_1_) throws Exception {
+        (new Bootstrap()).group(CLIENT_LOCAL_EVENTLOOP.getValue()).handler(new ChannelInitializer<Channel>() {
+            protected void initChannel(Channel p_initChannel_1_) {
                 p_initChannel_1_.pipeline().addLast("packet_handler", networkmanager);
             }
-        })).channel(LocalChannel.class)).connect(address).syncUninterruptibly();
+        }).channel(LocalChannel.class).connect(address).syncUninterruptibly();
         return networkmanager;
     }
     
@@ -382,10 +383,6 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
         this.isEncrypted = true;
         this.channel.pipeline().addBefore("splitter", "decrypt", new NettyEncryptingDecoder(CryptManager.createNetCipherInstance(2, key)));
         this.channel.pipeline().addBefore("prepender", "encrypt", new NettyEncryptingEncoder(CryptManager.createNetCipherInstance(1, key)));
-    }
-    
-    public boolean isEncrypted() {
-        return this.isEncrypted;
     }
     
     /**
@@ -479,7 +476,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
             this.readWriteLock.writeLock().lock();
             
             try {
-                this.outboundPacketsQueue.add(new NetworkManager.InboundHandlerTuplePacketListener(packetIn, new GenericFutureListener[0]));
+                this.outboundPacketsQueue.add(new NetworkManager.InboundHandlerTuplePacketListener(packetIn));
             } finally {
                 this.readWriteLock.writeLock().unlock();
             }
@@ -488,7 +485,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
     
     private void dispatchPacketNoEvent(Packet<?> inPacket, @Nullable final GenericFutureListener<? extends Future<? super Void>>[] futureListeners) {
         final EnumConnectionState enumconnectionstate = EnumConnectionState.getFromPacket(inPacket);
-        final EnumConnectionState enumconnectionstate1 = (EnumConnectionState) this.channel.attr(PROTOCOL_ATTRIBUTE_KEY).get();
+        final EnumConnectionState enumconnectionstate1 = this.channel.attr(PROTOCOL_ATTRIBUTE_KEY).get();
         
         if (enumconnectionstate1 != enumconnectionstate) {
             LOGGER.debug("Disabled auto read");
