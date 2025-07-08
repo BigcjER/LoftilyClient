@@ -169,7 +169,6 @@ public class KillAura extends Module {
     private int attackDelay = 0;
     private int canAttackTimes = 0;
     private boolean blockingTick = false;
-    private final Queue<Packet<?>> packets = new LinkedList<>();
     @Getter
     private boolean blockingStatus = false;
     
@@ -406,10 +405,10 @@ public class KillAura extends Module {
         targets.clear();
         if (blockingStatus && blockingTick) {
             PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
-            blockingStatus = false;
         }
         mc.gameSettings.keyBindUseItem.setPressed(GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem));
         blockingTick = false;
+        blockingStatus = false;
     }
     
     @EventHandler
@@ -477,12 +476,13 @@ public class KillAura extends Module {
             targetTimer.reset();
             return entity;
         }
-
+        
         if (blockingStatus && blockingTick) {
             PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
-            blockingStatus = false;
             blockingTick = false;
         }
+        
+        blockingStatus = false;
 
         return null;
     }
