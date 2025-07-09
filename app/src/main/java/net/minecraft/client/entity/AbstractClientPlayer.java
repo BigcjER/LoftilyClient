@@ -3,6 +3,7 @@ package net.minecraft.client.entity;
 import com.mojang.authlib.GameProfile;
 import loftily.Client;
 import loftily.event.impl.player.LookEvent;
+import loftily.handlers.impl.player.RotationHandler;
 import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.Rotation;
 import lombok.Getter;
@@ -217,7 +218,7 @@ public abstract class AbstractClientPlayer extends EntityPlayer
     
     @Override
     public Vec3d getLook(float partialTicks) {
-        Rotation rotation = new Rotation(this.rotationYaw, this.rotationPitch);
+        Rotation rotation = new Rotation(RotationHandler.getCurrentRotation().yaw, RotationHandler.getCurrentRotation().pitch);
         
         LookEvent event = new LookEvent(rotation);
         Client.INSTANCE.getEventManager().call(event);

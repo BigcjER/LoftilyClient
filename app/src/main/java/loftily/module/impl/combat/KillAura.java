@@ -33,6 +33,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -269,10 +270,9 @@ public class KillAura extends Module {
         
         if (!rotationMode.is("None")) {
             Rotation rotation = calculateRotation(target);
-            Rotation clientPlayerRotation = new Rotation(mc.player.rotationYaw, mc.player.rotationPitch);
             Rotation calculateRot = RotationUtils.smoothRotation(
-                    RotationHandler.getRotation() != null ? RotationHandler.getRotation() : clientPlayerRotation,
-                    rotation != null ? rotation : clientPlayerRotation,
+                    RotationHandler.getRotation(),
+                    rotation == null ? new Rotation(mc.player.rotationYaw,mc.player.rotationPitch) : rotation,
                     horizonSpeed,
                     pitchSpeed
             ).fixedSensitivity(0);
@@ -305,7 +305,7 @@ public class KillAura extends Module {
                             
                             if (rayCast.getValue() && !rayCastThroughWalls.getValue()) {
                                 Rotation rotation = RotationUtils.toRotation(preCenter, mc.player);
-                                Entity entity = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (e -> e instanceof EntityLivingBase));
+                                Entity entity = RayCastUtils.raycastEntity(rotationRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (e -> e instanceof EntityLivingBase));
                                 if (entity == null || (entity != target && rayCastOnlyTarget.getValue())) continue;
                             }
                             if (CalculateUtils.isVisible(preCenter) || throughWallsAim.getValue()) {
@@ -324,7 +324,7 @@ public class KillAura extends Module {
                         
                         if (rayCast.getValue() && !rayCastThroughWalls.getValue()) {
                             Rotation rotation = RotationUtils.toRotation(preCenter, mc.player);
-                            Entity entity = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (e -> e instanceof EntityLivingBase));
+                            Entity entity = RayCastUtils.raycastEntity(rotationRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (e -> e instanceof EntityLivingBase));
                             if (entity == null || (entity != target && rayCastOnlyTarget.getValue())) continue;
                         }
                         if (CalculateUtils.isVisible(preCenter) || throughWallsAim.getValue()) {
@@ -346,7 +346,7 @@ public class KillAura extends Module {
                             
                             if (rayCast.getValue()) {
                                 Rotation rotation = RotationUtils.toRotation(preCenter, mc.player);
-                                Entity entity = RayCastUtils.raycastEntity(attackRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (e -> e instanceof EntityLivingBase));
+                                Entity entity = RayCastUtils.raycastEntity(rotationRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (e -> e instanceof EntityLivingBase));
                                 if (entity == null || (entity != target && rayCastOnlyTarget.getValue())) continue;
                             }
                             if (CalculateUtils.isVisible(preCenter) || throughWallsAim.getValue()) {
@@ -376,8 +376,9 @@ public class KillAura extends Module {
                 break;
         }
 
-        randomizeRotation(currentRotation);
-        
+        if(currentRotation != null) {
+            randomizeRotation(currentRotation);
+        }
         return currentRotation;
     }
 
@@ -444,13 +445,12 @@ public class KillAura extends Module {
     @EventHandler
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.player == null) return;
-        
-        target = getTarget();
-        
+
         if (!TargetsHandler.canAdd(target)) {
             target = null;
-            target = getTarget();
         }
+
+        target = getTarget();
         
         rotation(target);
         
@@ -723,6 +723,7 @@ public class KillAura extends Module {
                         }
                     }
                 } else if (attackMode.is("Legit")) {
+                    mc.entityRenderer.getMouseOver(1f);
                     mc.clickMouse();
                 }
             } else {

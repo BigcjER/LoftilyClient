@@ -144,13 +144,6 @@ public class RotationHandler extends Handler {
     }
     
     @EventHandler(priority = -100)
-    public void onLook(LookEvent event) {
-        if (clientRotation == null) return;
-        
-        event.setRotation(clientRotation);
-    }
-    
-    @EventHandler(priority = -100)
     public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
         

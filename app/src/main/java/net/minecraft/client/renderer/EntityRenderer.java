@@ -10,6 +10,8 @@ import loftily.event.impl.render.DrawScreenEvent;
 import loftily.event.impl.render.FovModifierEvent;
 import loftily.event.impl.render.HurtCameraEvent;
 import loftily.event.impl.render.Render3DEvent;
+import loftily.handlers.impl.player.RotationHandler;
+import loftily.utils.math.CalculateUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.material.Material;
@@ -447,7 +449,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
                 d1 = this.mc.objectMouseOver.hitVec.distanceTo(vec3d);
             }
             
-            Vec3d vec3d1 = entity.getLook(1.0F);
+            Vec3d vec3d1 = CalculateUtils.getVectorForRotation(RotationHandler.getCurrentRotation());
             Vec3d vec3d2 = vec3d.addVector(vec3d1.xCoord * d0, vec3d1.yCoord * d0, vec3d1.zCoord * d0);
             /** Pointed entity */
             Entity pointedEntity = null;
@@ -505,6 +507,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
                 if (pointedEntity instanceof EntityLivingBase || pointedEntity instanceof EntityItemFrame)
                 {
                     this.mc.pointedEntity = pointedEntity;
+                    this.mc.objectMouseOver.entityHit = pointedEntity;
                 }
             }
 
