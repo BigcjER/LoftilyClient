@@ -242,7 +242,9 @@ public class Scaffold extends Module {
         }
         clickTimes = 0;
         
-        AnimationHandler.add(blockCountAnimation, blockCounterRunnable);
+        if(blockCountAnimation != null && blockCounterRunnable != null) {
+            AnimationHandler.add(blockCountAnimation, blockCounterRunnable);
+        }
     }
     
     @Override
