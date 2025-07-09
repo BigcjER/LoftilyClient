@@ -30,7 +30,7 @@ public class NoFall extends Module {
         if (!noVoid.getValue()) {
             return true;
         } else {
-            return PlayerUtils.isInVoid();
+            return !PlayerUtils.isInVoid();
         }
     }
     

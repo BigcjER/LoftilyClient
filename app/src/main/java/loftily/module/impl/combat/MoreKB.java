@@ -56,7 +56,7 @@ public class MoreKB extends Module {
         attackTimer.reset();
     }
     
-    @EventHandler(priority = 5000)
+    @EventHandler(priority = -1001)
     public void onLivingUpdate(LivingUpdateEvent event) {
         if (tickCancelSprint) {
             tickCancelSprint = false;

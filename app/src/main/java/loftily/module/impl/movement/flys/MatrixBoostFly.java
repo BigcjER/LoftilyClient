@@ -6,6 +6,7 @@ import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.module.impl.movement.Fly;
 import loftily.utils.player.MoveUtils;
+import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
 import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
@@ -14,14 +15,16 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
 public class MatrixBoostFly extends Mode<Fly> {
+    private final BooleanValue jumpDamage = new BooleanValue("JumpDamage", false);
+
     private final NumberValue height = new NumberValue("Height", 1, 0.42, 7, 0.1);
-    private int jumpCounter = 0;
-    private boolean receivedFlag, canBoost;
-    private double lastMotionX, lastMotionY, lastMotionZ;
-    
     public MatrixBoostFly() {
         super("MatrixBoost");
     }
+
+    private int jumpCounter = 0;
+    private boolean receivedFlag, canBoost;
+    private double lastMotionX, lastMotionY, lastMotionZ;
     
     @Override
     public void onEnable() {
@@ -32,23 +35,21 @@ public class MatrixBoostFly extends Mode<Fly> {
     
     @EventHandler
     public void onLivingUpdate(LivingUpdateEvent event) {
-        if (jumpCounter >= 4) {
-            if (canBoost) {
-                MoveUtils.setSpeed(1.97, false);
-                mc.player.motionY = height.getValue();
-            }
-            
-            if (mc.player.hurtTime >= 1 && mc.player.hurtTime <= 8) {
-                if (mc.player.onGround) {
-                    mc.player.tryJump();
-                } else {
-                    if (mc.player.motionY < 0.2) {
-                        canBoost = true;
-                    }
+        if (canBoost) {
+            MoveUtils.setSpeed(1.97, false);
+            mc.player.motionY = height.getValue();
+        }
+
+        if (mc.player.hurtTime >= 1 && mc.player.hurtTime <= 8) {
+            if (mc.player.onGround) {
+                mc.player.tryJump();
+            } else {
+                if (mc.player.motionY < 0.2) {
+                    canBoost = true;
                 }
             }
         }
-        if (jumpCounter < 4) {
+        if (jumpCounter < 4 && jumpDamage.getValue()) {
             if (mc.player.onGround) {
                 mc.player.tryJump();
                 jumpCounter += 1;
@@ -58,7 +59,7 @@ public class MatrixBoostFly extends Mode<Fly> {
     
     @EventHandler
     public void onMotion(MotionEvent event) {
-        if (jumpCounter < 4) {
+        if (jumpCounter < 4 && jumpDamage.getValue()) {
             event.setOnGround(false);
         }
     }

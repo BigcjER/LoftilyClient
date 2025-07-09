@@ -1,5 +1,6 @@
 package loftily.utils.player;
 
+import loftily.handlers.impl.player.RotationHandler;
 import loftily.utils.client.ClientUtils;
 import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.Rotation;
@@ -60,11 +61,11 @@ public class RotationUtils implements ClientUtils {
     }
     
     public static Rotation findBestRotationSimulatedAnnealing(Entity player, Entity target) {
-        AxisAlignedBB targetBB = target.getBox();
+        AxisAlignedBB targetBB = target.getBox().expandXyz(-0.05);
         
         Vec3d eyePos = player.getPositionEyes(1.0F);
-        float currentYaw = player.rotationYaw;
-        float currentPitch = player.rotationPitch;
+        float currentYaw = RotationHandler.getCurrentRotation().yaw;
+        float currentPitch = RotationHandler.getCurrentRotation().pitch;
         
         // 初始点：包围盒中心
         Vec3d currentPoint = new Vec3d(

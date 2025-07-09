@@ -67,7 +67,7 @@ public class RayCastUtils implements ClientUtils {
         Vec3d vec = eyePosition.add(entityLook.scale(blockReachDistance[0]));
         
         List<Entity> entityList = mc.world.getEntities(Entity.class, entity ->
-                entity != null && (entity instanceof EntityLivingBase || entity instanceof EntityLargeFireball) &&
+                (entity instanceof EntityLivingBase || entity instanceof EntityLargeFireball) &&
                         !(entity instanceof EntityPlayer && ((EntityPlayer) entity).isSpectator()) &&
                         entity.canBeCollidedWith() &&
                         entity != renderViewEntity

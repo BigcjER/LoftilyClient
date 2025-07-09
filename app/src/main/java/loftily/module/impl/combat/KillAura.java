@@ -15,13 +15,16 @@ import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
 import loftily.utils.client.PacketUtils;
 import loftily.utils.math.CalculateUtils;
+import loftily.utils.math.MathUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
+import loftily.utils.player.MoveUtils;
 import loftily.utils.player.PlayerUtils;
 import loftily.utils.player.RayCastUtils;
 import loftily.utils.player.RotationUtils;
 import loftily.utils.timer.DelayTimer;
 import loftily.value.impl.BooleanValue;
+import loftily.value.impl.MultiBooleanValue;
 import loftily.value.impl.NumberValue;
 import loftily.value.impl.RangeSelectionNumberValue;
 import loftily.value.impl.mode.ModeValue;
@@ -42,13 +45,11 @@ import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import org.lwjgl.input.Keyboard;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @ModuleInfo(name = "KillAura", key = Keyboard.KEY_R, category = ModuleCategory.COMBAT)
 public class KillAura extends Module {
@@ -138,6 +139,27 @@ public class KillAura extends Module {
     private final BooleanValue boxExpand = new BooleanValue("TargetBoxExpand", false);
     private final NumberValue expandSizeH = new NumberValue("BoxHExpandSize", 0.1, -1.5, 1.5, 0.01).setVisible(boxExpand::getValue);
     private final NumberValue expandSizeV = new NumberValue("BoxVExpandSize", 0.1, -1.5, 1.5, 0.01).setVisible(boxExpand::getValue);
+    //Randomize
+    private final BooleanValue randomize = new BooleanValue("Randomize", false);
+    private final MultiBooleanValue randomizeTime = new MultiBooleanValue("RandomizeTime")
+            .add("Always",true)
+            .add("Attack",false)
+            .add("Movement",false)
+            .add("Rotation",false);
+    private final ModeValue randomizeMode = new ModeValue("RandomizeMode","Normal",this,
+            new StringMode("Normal"),
+            new StringMode("Gaussian"),
+            new StringMode("Noise")
+    ).setVisible(randomize::getValue);
+    private final RangeSelectionNumberValue randomizeDelay = new RangeSelectionNumberValue("RandomizeDelay", 0, 50, 0, 1000).setVisible(randomize::getValue);
+    private final RangeSelectionNumberValue randomizeYaw = new RangeSelectionNumberValue("RandomizeYaw",0,10,-60,60,0.01)
+            .setVisible(randomize::getValue);
+    private final RangeSelectionNumberValue randomizePitch = new RangeSelectionNumberValue("RandomizePitch",0,10,-60,60,0.01)
+            .setVisible(randomize::getValue);
+    private final NumberValue gaussianAmplitude = new NumberValue("GaussianAmplitude", 1, 0, 5, 0.1).setVisible(()->randomizeMode.is("Gaussian"));
+    private final NumberValue gaussianMean = new NumberValue("GaussianMean", 0, 0, 5, 0.1).setVisible(()->randomizeMode.is("Gaussian"));
+    private final NumberValue gaussianDeviation = new NumberValue("GaussianDeviation", 1, 0, 5, 0.1).setVisible(()->randomizeMode.is("Gaussian"));
+    private final NumberValue noiseSigma = new NumberValue("Noise-Sigma", 2.5, 0.0, 10.0, 0.01).setVisible(() -> randomizeMode.is("Noise"));
     //Movement
     private final ModeValue moveFixMode = new ModeValue("MoveFixMode", "None", this,
             new StringMode("None"),
@@ -165,6 +187,8 @@ public class KillAura extends Module {
     private final List<EntityLivingBase> targets = new ArrayList<>();
     private final DelayTimer attackTimer = new DelayTimer();
     private final DelayTimer targetTimer = new DelayTimer();
+    private final DelayTimer randomizeTimer = new DelayTimer();
+    private int randomDelay = 0;
     public EntityLivingBase target = null;
     private int attackDelay = 0;
     private int canAttackTimes = 0;
@@ -351,8 +375,70 @@ public class KillAura extends Module {
                 currentRotation = RotationUtils.findBestRotationSimulatedAnnealing(mc.player, target);
                 break;
         }
+
+        randomizeRotation(currentRotation);
         
         return currentRotation;
+    }
+
+
+    public void randomizeRotation(Rotation rotation){
+        if(!randomize.getValue() || !randomizeTimer.hasTimeElapsed(randomDelay)){
+            return;
+        }
+        AtomicBoolean canRandomize = new AtomicBoolean(false);
+        randomizeTime.getValue().forEach(
+                (key,value)->{
+                    if(value) {
+                        switch (key) {
+                            case "Always":
+                                canRandomize.set(true);
+                                break;
+                            case "Attack":
+                                if(canAttackTimes > 0){
+                                    canRandomize.set(true);
+                                }
+                                break;
+                            case "Movement":
+                                if(MoveUtils.isMoving()){
+                                    canRandomize.set(true);
+                                }
+                                break;
+                            case "Rotation":
+                                if(RotationUtils.getRotationDifference(RotationHandler.getCurrentRotation(),RotationHandler.getRotation()) > 3F){
+                                    canRandomize.set(true);
+                                }
+                                break;
+                        }
+                    }
+                }
+        );
+        if(!canRandomize.get()){
+            return;
+        }
+        float yawBase = (float) RandomUtils.randomDouble(randomizeYaw.getFirst(),randomizeYaw.getSecond());
+        float pitchBase = (float) RandomUtils.randomDouble(randomizePitch.getFirst(),randomizePitch.getSecond());
+        switch (randomizeMode.getValueByName()){
+            case "Normal":
+                rotation.yaw += yawBase;
+                rotation.pitch = MathHelper.clamp(rotation.pitch+pitchBase, -90, 90);
+                break;
+            case "Gaussian":
+                float yaw = (float) MathUtils.gaussian(yawBase,gaussianAmplitude.getValue(),gaussianMean.getValue(),gaussianDeviation.getValue());
+                float pitch = (float) MathUtils.gaussian(pitchBase,gaussianAmplitude.getValue(),gaussianMean.getValue(),gaussianDeviation.getValue());
+                rotation.yaw += yaw;
+                rotation.pitch = MathHelper.clamp(rotation.pitch+pitch, -90, 90);
+                break;
+            case "Noise":
+                Random random = new Random();
+                float yaw1 = (float) (Math.sqrt(noiseSigma.getValue()) * random.nextGaussian()) + yawBase;
+                float pitch1 = (float) (Math.sqrt(noiseSigma.getValue()) * random.nextGaussian()) + pitchBase;
+                rotation.yaw += yaw1;
+                rotation.pitch = MathHelper.clamp(rotation.pitch+pitch1, -90, 90);
+                break;
+        }
+        randomDelay = RandomUtils.randomInt((int) randomizeDelay.getFirst(),(int) randomizeDelay.getSecond());
+        randomizeTimer.reset();
     }
     
     @EventHandler
