@@ -2,13 +2,10 @@ package net.minecraft.block;
 
 import com.google.common.collect.Sets;
 import com.google.common.collect.UnmodifiableIterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import javax.annotation.Nullable;
-
 import loftily.Client;
+import loftily.event.impl.player.BlockAABBEvent;
 import loftily.module.impl.player.NoSlowBreak;
+import loftily.utils.client.ClientUtils;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
@@ -34,25 +31,18 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ObjectIntIdentityMap;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraft.util.registry.RegistryNamespacedDefaultedByKey;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 public class Block
 {
@@ -569,10 +559,20 @@ public class Block
         return state.getBoundingBox(worldIn, pos).offset(pos);
     }
 
-    @Deprecated
     public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_)
     {
-        addCollisionBoxToList(pos, entityBox, collidingBoxes, state.getCollisionBoundingBox(worldIn, pos));
+        AxisAlignedBB blockBox = this.getCollisionBoundingBox(state, worldIn, pos);
+        
+        if (entityIn == ClientUtils.mc.player) {
+            
+            BlockAABBEvent event = new BlockAABBEvent(worldIn, this, pos, blockBox, entityBox);
+            
+            if (event.isCancelled()) return;
+            
+            addCollisionBoxToList(pos, entityBox, collidingBoxes, blockBox);
+            return;
+        }
+        addCollisionBoxToList(pos, entityBox, collidingBoxes, blockBox);
     }
 
     protected static void addCollisionBoxToList(BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable AxisAlignedBB blockBox)
