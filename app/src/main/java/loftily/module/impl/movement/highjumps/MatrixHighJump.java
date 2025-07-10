@@ -11,16 +11,19 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 
 public class MatrixHighJump extends Mode<HighJump> {
-    private boolean active, falling, moving, pressForward, pressBackward;
-    private int ticksSinceJump, movingTicks;
+    private boolean active;
+    private boolean falling;
+    private boolean moving;
+    private int ticksSinceJump;
+
     public MatrixHighJump() {
         super("Matrix");
     }
     
     @Override
     public void onEnable() {
-        ticksSinceJump = movingTicks = 0;
-        active = falling = pressBackward = pressForward = false;
+        ticksSinceJump = 0;
+        active = falling = false;
         
         moving = MoveUtils.isMoving();
     }
@@ -46,31 +49,9 @@ public class MatrixHighJump extends Mode<HighJump> {
     
     @EventHandler
     public void onPreUpdate(PreUpdateEvent event) {
-        //Moving backwards 1 tick then go forwards 1 tick if player doesn't move
-        if (!moving && ticksSinceJump <= 0) {
-            movingTicks++;
-            
-            switch (movingTicks) {
-                case 1:
-                    pressForward = false;
-                    pressBackward = true;
-                    break;
-                
-                case 2:
-                    pressForward = true;
-                    pressBackward = false;
-                    break;
-                
-                default:
-                    moving = true;
-                    pressBackward = pressForward = false;
-                    break;
-            }
-            
-            
-            mc.gameSettings.keyBindForward.setPressed(pressForward);
-            mc.gameSettings.keyBindBack.setPressed(pressBackward);
-            return;
+        if (!moving) {
+            MoveUtils.setSpeed(0.16, false);
+            moving = true;
         }
         
         
