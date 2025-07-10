@@ -16,13 +16,9 @@ public class FriendJsonConfig extends JsonConfig {
     
     @Override
     protected void read(JsonObject jsonObject, FileReader reader) {
-        
         jsonObject.entrySet().forEach(entry -> {
-            String uuidString = entry.getKey();
-            JsonObject friendDataJson = entry.getValue().getAsJsonObject();
-            
-            String name = friendDataJson.get("name").getAsString();
-            UUID uuid = UUID.fromString(uuidString);
+            UUID uuid = UUID.fromString(entry.getKey());
+            String name = entry.getValue().getAsJsonObject().get("name").getAsString();
             
             FriendsHandler.add(name, uuid);
         });

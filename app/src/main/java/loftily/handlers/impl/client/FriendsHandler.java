@@ -18,7 +18,9 @@ public class FriendsHandler extends Handler {
     }
     
     public static boolean contains(String name, UUID uuid) {
-        return friends.get(name) == uuid;
+        UUID storedUuid = friends.get(name);
+        
+        return storedUuid != null && storedUuid.equals(uuid);
     }
     
     public static void remove(String name, UUID uuid) {
