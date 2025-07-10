@@ -32,6 +32,8 @@ public class TargetsHandler extends Handler {
         if (!(target instanceof EntityLivingBase) || target == mc.player) return false;
         EntityLivingBase entityLivingBase = (EntityLivingBase) target;
         
+        if (FriendsHandler.contains(target.getName(), target.getUniqueID())) return false;
+        
         if (target instanceof EntityPlayer) {
             EntityPlayer entityPlayer = (EntityPlayer) target;
             if (entityPlayer.isSpectator() || Client.INSTANCE.getModuleManager().get(Teams.class).isSameTeam(entityPlayer)) {
