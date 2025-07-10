@@ -33,6 +33,7 @@ public class NoSlow extends Module {
             .add("NoGround", false)
             .add("Jump", false)
             .add("HandPacket", false)
+            .add("OffHandPlace",false)
             .add("Post", false);
     
     private final MultiBooleanValue foodMode = new MultiBooleanValue("FoodMode")
@@ -111,9 +112,7 @@ public class NoSlow extends Module {
                                     }
                                     break;
                                 case "HandPacket":
-                                    if (event.isPost()) {
-                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
-                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                                    if (event.isPre()) {
                                         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
                                     }
                                     break;
@@ -124,6 +123,13 @@ public class NoSlow extends Module {
                                         PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(
                                                 new BlockPos(-1, -1, -1),
                                                 EnumFacing.DOWN, EnumHand.MAIN_HAND, 0.0F, 0.0F, 0.0F));
+                                    }
+                                    break;
+                                case "OffHandPlace":
+                                    if(event.isPre()) {
+                                        PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(
+                                                new BlockPos(-1, -1, -1),
+                                                EnumFacing.DOWN, EnumHand.OFF_HAND, 0.0F, 0.0F, 0.0F));
                                     }
                                     break;
                             }

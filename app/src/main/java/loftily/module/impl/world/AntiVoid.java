@@ -17,7 +17,7 @@ public class AntiVoid extends Module {
     );
     
     private final BooleanValue voidOnly = new BooleanValue("VoidOnly", true);
-    private final NumberValue fallDistance = new NumberValue("MaxFallDistance", 5, 0, 20);
+    private final NumberValue fallDistance = new NumberValue("MaxFallDistance", 5, 0, 20,0.1);
     
     public boolean isSafe() {
         return !(mc.player.fallDistance >= fallDistance.getValue()) || (voidOnly.getValue() && !PlayerUtils.isInVoid());
