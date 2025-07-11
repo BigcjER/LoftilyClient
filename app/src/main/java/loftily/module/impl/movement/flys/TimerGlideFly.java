@@ -9,6 +9,8 @@ import loftily.utils.player.MoveUtils;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
 import loftily.value.impl.mode.Mode;
+import loftily.value.impl.mode.ModeValue;
+import loftily.value.impl.mode.StringMode;
 import net.lenni0451.lambdaevents.EventHandler;
 
 public class TimerGlideFly extends Mode<Fly> {
@@ -16,15 +18,13 @@ public class TimerGlideFly extends Mode<Fly> {
     private final NumberValue timerSpeed = new NumberValue("TimerSpeed", 20, 1, 100, 0.1);
     private final NumberValue speed = new NumberValue("Speed", 0.02, 0.0, 1.0, 0.01);
     private final BooleanValue noSpeed = new BooleanValue("NoSpeed", false);
-    private final BooleanValue customMotionY = new BooleanValue("CustomMotionY", false);
-    private final NumberValue motionSpeed = new NumberValue("MotionSpeed", -0.01, -0.2, 0.2, 0.01).setVisible(customMotionY::getValue);
     private final BooleanValue smartHurt = new BooleanValue("SmartHurt", false);
     private final BooleanValue smartTicks = new BooleanValue("SmartTicks", false);
     private final NumberValue flyTicks = new NumberValue("FlyTicks", 900, 0, 1600).setVisible(smartHurt::getValue);
-    private final BooleanValue startBoost = new BooleanValue("StartBoost", false);
-    private final NumberValue boostTicks = new NumberValue("BoostTicks", 7, 1, 300).setVisible(startBoost::getValue);
-    private final NumberValue boostSpeed = new NumberValue("BoostSpeed", 0.6, 0.2, 1.0, 0.01).setVisible(startBoost::getValue);
     private final BooleanValue jumpDamage = new BooleanValue("JumpDamage", false);
+    private final ModeValue customMotionY = new ModeValue("CustomMotionY", "None", this
+            , new StringMode("None"), new StringMode("Stable"), new StringMode("Multiply"));
+    private final NumberValue motionSpeed = new NumberValue("Motion", -0.01, -0.3, 0.3, 0.01).setVisible(() -> !customMotionY.is("None"));
     private Rotation lastRotation = new Rotation(0, 0);
     private int elapsedTicks, jumpCounter, boostDurationTicks;
     private boolean boosting;
@@ -100,18 +100,18 @@ public class TimerGlideFly extends Mode<Fly> {
                 MoveUtils.setSpeed(speedF, false);
             }
             
-            if (startBoost.getValue()) {
-                if (elapsedTicks <= boostTicks.getValue()) {
-                    MoveUtils.setSpeed(boostSpeed.getValue(), true);
-                }
-            }
-            
             mc.timer.timerSpeed = timerSpeed.getValue().floatValue();
-            
-            if (customMotionY.getValue()) {
-                mc.player.motionY = motionSpeed.getValue().floatValue();
-            } else {
-                mc.player.motionY *= 0.039;
+
+            switch (customMotionY.getValueByName()) {
+                case "None":
+                    mc.player.motionY *= 0.042;
+                    break;
+                case "Stable":
+                    mc.player.motionY = motionSpeed.getValue().floatValue();
+                    break;
+                case "Multiply":
+                    mc.player.motionY *= motionSpeed.getValue().floatValue();
+                    break;
             }
             
             if (boostDurationTicks > 0) {

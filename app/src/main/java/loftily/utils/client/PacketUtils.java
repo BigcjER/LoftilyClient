@@ -16,7 +16,7 @@ public class PacketUtils implements ClientUtils {
     }
     
     public static void receivePacket(Packet<?> packet) {
-        sendPacket(packet, true);
+        receivePacket(packet, true);
     }
     
     public static void receivePacket(Packet<?> packet, boolean callEvent) {

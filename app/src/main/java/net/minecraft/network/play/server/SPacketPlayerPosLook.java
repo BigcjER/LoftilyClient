@@ -74,6 +74,11 @@ public class SPacketPlayerPosLook implements Packet<INetHandlerPlayClient>
         return this.x;
     }
 
+    public void setY(double yIn)
+    {
+        this.y = yIn;
+    }
+
     public double getY()
     {
         return this.y;

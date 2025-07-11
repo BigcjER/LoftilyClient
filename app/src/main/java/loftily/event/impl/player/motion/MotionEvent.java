@@ -1,12 +1,13 @@
 package loftily.event.impl.player.motion;
 
 
+import loftily.event.CancellableEvent;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class MotionEvent {
+public class MotionEvent extends CancellableEvent {
     private final Type type;
     private double x, y, z;
     private boolean onGround;

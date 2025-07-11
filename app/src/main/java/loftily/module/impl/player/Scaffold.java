@@ -71,6 +71,7 @@ import static java.lang.Math.*;
 import static loftily.utils.math.CalculateUtils.getMoveFixForward;
 import static loftily.utils.math.CalculateUtils.getVectorForRotation;
 import static loftily.utils.player.PlayerUtils.nearAir;
+import static loftily.utils.player.RotationUtils.getAngleDifference;
 
 @ModuleInfo(name = "Scaffold", category = ModuleCategory.PLAYER)
 public class Scaffold extends Module {
@@ -116,7 +117,6 @@ public class Scaffold extends Module {
     //Rotation
     private final ModeValue rotationMode = new ModeValue("RotationMode", "None", this,
             new StringMode("Normal"),
-            new StringMode("Offset"),
             new StringMode("Sexy"),
             new StringMode("StaticGodBridge"),
             new StringMode("StaticBack"),
@@ -127,7 +127,8 @@ public class Scaffold extends Module {
     private final ModeValue advanceRotationYaw = new ModeValue("AdvanceRotationYaw", "Normal", this,
             new StringMode("Normal"),
             new StringMode("Other"),
-            new StringMode("Static"))
+            new StringMode("Static"),
+            new StringMode("Back"))
             .setVisible(() -> rotationMode.is("Advance"));
     private final NumberValue staticYawValue = new NumberValue("StaticYaw", 180, -180, 180, 0.01)
             .setVisible(() -> rotationMode.is("Advance") && advanceRotationYaw.is("Static"));
@@ -417,10 +418,17 @@ public class Scaffold extends Module {
             }
             tickPlacement = false;
         }
-        
-        if (staticRotation() != null) {
-            Rotation staRot = staticRotation();
-            setRotation(staRot);
+
+        if (placeInfo != null) {
+            Rotation staRot = staticRotation(placeInfo.rotation);
+            if (staRot != null) {
+                setRotation(staRot);
+            }
+        } else {
+            Rotation staRot = staticRotation(null);
+            if (staRot != null) {
+                setRotation(staRot);
+            }
         }
         
         searchBlock();
@@ -434,9 +442,9 @@ public class Scaffold extends Module {
         if (rotationMode.is("Sexy")) {
             setRotation(RotationUtils.toRotation(placeInfo.getHitVec(), mc.player));
         }
-        
-        if (staticRotation() != null) {
-            Rotation staRot = staticRotation();
+
+        if (staticRotation(placeInfo.rotation) != null) {
+            Rotation staRot = staticRotation(placeInfo.rotation);
             setRotation(staRot);
         }
         
@@ -514,8 +522,8 @@ public class Scaffold extends Module {
             }
         }
     }
-    
-    public Rotation staticRotation() {
+
+    public Rotation staticRotation(Rotation rot) {
         Rotation rotation = null;
         switch (rotationMode.getValueByName()) {
             case "StaticGodBridge":
@@ -527,7 +535,7 @@ public class Scaffold extends Module {
             case "StaticBack":
                 rotation = new Rotation(
                         MoveUtils.getMovingYaw() + 180,
-                        placeInfo == null ? 80.34F : placeInfo.rotation.pitch
+                        rot == null ? 80.34F : rot.pitch
                 );
                 break;
             case "Advance":
@@ -535,22 +543,36 @@ public class Scaffold extends Module {
                 float pitch = 0;
                 switch (advanceRotationYaw.getValueByName()) {
                     case "Normal":
-                        yaw = placeInfo == null ? MoveUtils.getMovingYaw() + 180F : placeInfo.rotation.yaw;
+                        yaw = rot == null ? MoveUtils.getMovingYaw() + 180F : rot.yaw;
                         break;
                     case "Other":
-                        if (placeInfo == null) {
+                        if (rot == null) {
                             yaw = MoveUtils.getMovingYaw() + 180F;
                         } else {
-                            yaw = Math.round((placeInfo.rotation.yaw - MoveUtils.getMovingYaw() + 180F) / 45) * 45 + MoveUtils.getMovingYaw() - 180F;
+                            yaw = Math.round((rot.yaw - MoveUtils.getMovingYaw() + 180F) / 45) * 45 + MoveUtils.getMovingYaw() - 180F;
                         }
                         break;
                     case "Static":
                         yaw = (float) (MoveUtils.getMovingYaw() + (smartDirection.getValue() ? PlayerUtils.onRightSide(mc.player) ? staticYawValue.getValue() : -staticYawValue.getValue() : staticYawValue.getValue()));
                         break;
+                    case "Back":
+                        if (rot == null) {
+                            yaw = MoveUtils.getMovingYaw() + 180F;
+                        } else {
+                            if (!PlayerUtils.isDiagonally()) {
+                                float round = (Math.round(rot.yaw / 90) * 90);
+                                float round2 = (Math.round((MoveUtils.getMotionYaw() + 180) / 45) * 45);
+                                float difference = getAngleDifference(round, round2);
+                                yaw = MoveUtils.getMovingYaw() + 180 + difference;
+                            } else {
+                                yaw = Math.round((rot.yaw - MoveUtils.getMovingYaw() + 180F) / 45) * 45 + MoveUtils.getMovingYaw() - 180F;
+                            }
+                        }
+                        break;
                 }
                 switch (advanceRotationPitch.getValueByName()) {
                     case "Normal":
-                        pitch = placeInfo == null ? 80.34F : placeInfo.rotation.pitch;
+                        pitch = rot == null ? 80.34F : rot.pitch;
                         break;
                     case "Static":
                         pitch = staticPitchValue.getValue().floatValue();
@@ -820,7 +842,7 @@ public class Scaffold extends Module {
         Vec3d blockVec = new Vec3d(blockPos);
         
         Rotation rotation;
-        PlaceInfo dPlaceInfo;
+        PlaceInfo dPlaceInfo = null;
         Vec3d directionVec = new Vec3d(enumFacing.getDirectionVec());
         
         center = (blockVec.addVector(vec3.xCoord, vec3.yCoord, vec3.zCoord)).addVector(
@@ -839,36 +861,37 @@ public class Scaffold extends Module {
             }
         }
         rotation = RotationUtils.toRotation(center, mc.player);
-        
+
         switch (rotationMode.getValueByName()) {
             case "None":
             case "Normal":
+            case "Sexy":
+                break;
             case "Advance":
             case "StaticGodBridge":
             case "StaticBack":
+                rotation = staticRotation(RotationUtils.toRotation(center, mc.player));
                 break;
         }
-        
+
         if (stableRotation.getValue()) {
             rotation.yaw = round(rotation.yaw / 45) * 45;
         }
-        
+
         if (!rayCastSearch.getValue()) {
             dPlaceInfo = new PlaceInfo(placePos, enumFacing.getOpposite(), center, rotation);
-            return dPlaceInfo;
         } else {
             RayTraceResult serverRayTrace = performBlockRaytrace(RotationHandler.getRotation());
             if (serverRayTrace.getBlockPos().equals(placePos) && (!raycast || serverRayTrace.sideHit.equals(enumFacing.getOpposite()))) {
                 dPlaceInfo = new PlaceInfo(serverRayTrace.getBlockPos(), enumFacing.getOpposite(), center, rotation);
-                return dPlaceInfo;
             }
             RayTraceResult rotationRayTrace = performBlockRaytrace(rotation);
             if (rotationRayTrace.getBlockPos().equals(placePos) && (!raycast || rotationRayTrace.sideHit.equals(enumFacing.getOpposite()))) {
                 dPlaceInfo = new PlaceInfo(rotationRayTrace.getBlockPos(), enumFacing.getOpposite(), center, rotation);
-                return dPlaceInfo;
             }
         }
-        return null;
+
+        return dPlaceInfo;
     }
     
     private PlaceInfo compareDifferences(
@@ -910,17 +933,6 @@ public class Scaffold extends Module {
         if (dPlaceInfo == null) return false;
         
         this.placeInfo = dPlaceInfo;
-        switch (rotationMode.getValueByName()) {
-            case "None":
-            case "Normal":
-            case "Offset":
-                break;
-            case "Advance":
-            case "StaticGodBridge":
-            case "StaticBack":
-                placeInfo.rotation = staticRotation();
-                break;
-        }
         if (rotationTiming.is("Normal")) {
             setRotation(placeInfo.rotation);
         }

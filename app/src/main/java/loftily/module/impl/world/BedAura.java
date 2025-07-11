@@ -4,7 +4,7 @@ import loftily.event.impl.packet.PacketSendEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.player.motion.MoveEvent;
 import loftily.event.impl.render.Render2DEvent;
-import loftily.event.impl.world.LivingUpdateEvent;
+import loftily.event.impl.world.PreUpdateEvent;
 import loftily.handlers.impl.player.RotationHandler;
 import loftily.module.Module;
 import loftily.module.ModuleCategory;
@@ -100,10 +100,7 @@ public class BedAura extends Module {
     }
     
     @EventHandler
-    public void onUpdate(LivingUpdateEvent event) {
-        if (rotationValue.getValue() && rotation != null) {
-            RotationHandler.setClientRotation(rotation, 2, 2, moveFixMode.getValueByName());
-        }
+    public void onPreUpdate(PreUpdateEvent event) {
         if (stop) {
             if (delayTimer.hasTimeElapsed(250)) {
                 delayTimer.reset();
@@ -112,7 +109,7 @@ public class BedAura extends Module {
                 stop = false;
             }
         }
-        
+
         if (target != null) {
             Block block = mc.world.getBlockState(target).getBlock();
             if (block instanceof BlockBed) {
@@ -130,10 +127,11 @@ public class BedAura extends Module {
                 }
                 if (rotationValue.getValue()) {
                     rotation = RotationUtils.getBlockRotation(target).fixedSensitivity(0);
+                    RotationHandler.setClientRotation(rotation, 2, 2, moveFixMode.getValueByName());
                 }
                 switch (breakMode.getValueByName()) {
                     case "Normal":
-                        mc.playerController.onPlayerDamageBlock(target, mc.objectMouseOver.sideHit);
+                        mc.playerController.onPlayerDamageBlock(target, EnumFacing.DOWN);
                         break;
                     case "Packet":
                         PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, target, EnumFacing.DOWN), true);
@@ -148,7 +146,7 @@ public class BedAura extends Module {
         } else {
             if (!fuckMatrix) {
                 delayTimer.reset();
-                
+
                 if (disableMatrix) {
                     disableMatrix = false;
                 }
@@ -157,30 +155,14 @@ public class BedAura extends Module {
                 stop = true;
             }
         }
-        
         final List<BlockPos> searchBlock = BlockUtils.searchBlocks(range.getValue().intValue());
         searchBlock.sort(Comparator.comparingDouble(blockPos -> mc.player.getDistance(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5)));
         boolean foundTarget = false;
-        
+
         for (BlockPos pos : searchBlock) {
             if (Objects.requireNonNull(pos.getState()).getBlock() instanceof BlockBed) {
                 target = pos;
                 foundTarget = true;
-                if (swing.getValue()) {
-                    mc.player.swingArm(EnumHand.MAIN_HAND);
-                }
-                if (rotationValue.getValue()) {
-                    rotation = RotationUtils.getBlockRotation(target).fixedSensitivity(0);
-                }
-                switch (breakMode.getValue().getName()) {
-                    case "Normal":
-                        mc.playerController.onPlayerDamageBlock(target, EnumFacing.DOWN);
-                        break;
-                    case "Packet":
-                        PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, target, EnumFacing.DOWN), true);
-                        PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, target, EnumFacing.DOWN));
-                        break;
-                }
                 break;
             }
         }

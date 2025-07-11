@@ -19,6 +19,8 @@ public class MoveHandler extends Handler {
     private static boolean setMovement = false;
     private static float forward = 0.0F;
     private static float strafe = 0.0F;
+    //Jump
+    public static boolean moveJump = false;
     
     public static void setSneak(boolean canSneak, int time) {
         if (!sneak) {
@@ -27,6 +29,10 @@ public class MoveHandler extends Handler {
             startSneak = true;
             sneakTimer.reset();
         }
+    }
+
+    public static void jump(){
+        moveJump = true;
     }
     
     public static void setMovement(float curForward, float curStrafe, int time) {
@@ -54,6 +60,10 @@ public class MoveHandler extends Handler {
             if (!startMovement) {
                 setMovement = false;
             }
+        }
+        if(moveJump){
+            event.setJump(true);
+            moveJump = false;
         }
     }
     

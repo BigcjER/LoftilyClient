@@ -19,11 +19,16 @@ public class Speed extends Module {
     private final ModeValue mode = new ModeValue("Mode", "Vanilla", this,
             ClassUtils.getModes(getClass().getPackage().getName() + ".speeds")
     );
+    private boolean jumped;
+    private int jumpTimes;
     
     @EventHandler
     public void onJump(JumpEvent event) {
-        if(mc.player.isAirBorne && jumpFix.getValue()){
+        if (!jumpFix.getValue()) return;
+        jumpTimes++;
+        while (jumpTimes > 1) {
             event.setCancelled(true);
+            jumpTimes = 0;
         }
     }
     
