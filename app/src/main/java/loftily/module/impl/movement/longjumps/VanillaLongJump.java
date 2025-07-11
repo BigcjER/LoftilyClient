@@ -9,8 +9,8 @@ import loftily.value.impl.mode.Mode;
 import net.lenni0451.lambdaevents.EventHandler;
 
 public class VanillaLongJump extends Mode<LongJump> {
-    private final NumberValue boostSpeed = new NumberValue("BoostSpeed", 3, 0, 5, 0.01);
-    private final NumberValue motion = new NumberValue("Motion", 0.42, -1, 1, 0.01);
+    private final NumberValue boostSpeed = new NumberValue("Vanilla-BoostSpeed", 3, 0, 5, 0.01);
+    private final NumberValue motion = new NumberValue("Vanilla-Motion", 0.42, -1, 1, 0.01);
     
     public VanillaLongJump() {
         super("Vanilla");

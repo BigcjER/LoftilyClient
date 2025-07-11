@@ -16,8 +16,8 @@ import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
 public class MatrixBoostFly extends Mode<Fly> {
     private final BooleanValue jumpDamage = new BooleanValue("JumpDamage", false);
-
-    private final NumberValue height = new NumberValue("Height", 1, 0.42, 7, 0.1);
+    private final NumberValue speedF = new NumberValue("Matrix-Speed", 1, 0.42, 7, 0.1);
+    private final NumberValue height = new NumberValue("Matrix-Height", 1, 0.42, 7, 0.1);
     public MatrixBoostFly() {
         super("MatrixBoost");
     }
@@ -36,7 +36,7 @@ public class MatrixBoostFly extends Mode<Fly> {
     @EventHandler
     public void onLivingUpdate(LivingUpdateEvent event) {
         if (canBoost) {
-            MoveUtils.setSpeed(1.97, false);
+            MoveUtils.setSpeed(speedF.getValue(), false);
             mc.player.motionY = height.getValue();
         }
 

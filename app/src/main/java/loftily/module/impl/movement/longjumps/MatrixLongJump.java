@@ -12,8 +12,8 @@ import net.lenni0451.lambdaevents.EventHandler;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
 public class MatrixLongJump extends Mode<LongJump> {
-    private final NumberValue boostSpeed = new NumberValue("BoostSpeed", 1.97, -1.97, 1.97, 0.01);
-    private final BooleanValue noGround = new BooleanValue("NoGround", false);
+    private final NumberValue boostSpeed = new NumberValue("Matrix-BoostSpeed", 1.97, -3.0, 3.0, 0.01);
+    private final BooleanValue noGround = new BooleanValue("Matrix-NoGround", false);
     private boolean receivedFlag, canBoost, boosted;
     
     public MatrixLongJump() {

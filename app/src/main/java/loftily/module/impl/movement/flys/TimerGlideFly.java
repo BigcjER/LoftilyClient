@@ -4,6 +4,7 @@ import loftily.event.impl.client.MoveInputEvent;
 import loftily.event.impl.player.motion.MotionEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.module.impl.movement.Fly;
+import loftily.utils.client.PacketUtils;
 import loftily.utils.math.Rotation;
 import loftily.utils.player.MoveUtils;
 import loftily.value.impl.BooleanValue;
@@ -12,6 +13,7 @@ import loftily.value.impl.mode.Mode;
 import loftily.value.impl.mode.ModeValue;
 import loftily.value.impl.mode.StringMode;
 import net.lenni0451.lambdaevents.EventHandler;
+import net.minecraft.network.play.client.CPacketPlayer;
 
 public class TimerGlideFly extends Mode<Fly> {
     
@@ -22,6 +24,7 @@ public class TimerGlideFly extends Mode<Fly> {
     private final BooleanValue smartTicks = new BooleanValue("SmartTicks", false);
     private final NumberValue flyTicks = new NumberValue("FlyTicks", 900, 0, 1600).setVisible(smartHurt::getValue);
     private final BooleanValue jumpDamage = new BooleanValue("JumpDamage", false);
+    private final BooleanValue disablePacket = new BooleanValue("PacketOnDisable", false);
     private final ModeValue customMotionY = new ModeValue("CustomMotionY", "None", this
             , new StringMode("None"), new StringMode("Stable"), new StringMode("Multiply"));
     private final NumberValue motionSpeed = new NumberValue("Motion", -0.01, -0.3, 0.3, 0.01).setVisible(() -> !customMotionY.is("None"));
@@ -45,6 +48,13 @@ public class TimerGlideFly extends Mode<Fly> {
         elapsedTicks = jumpCounter = boostDurationTicks = 0;
         boosting = false;
         mc.timer.timerSpeed = 1;
+        if(disablePacket.getValue()) {
+            PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, mc.player.posY, mc.player.posZ,
+                    mc.player.rotationYaw,mc.player.rotationPitch,false));
+            PacketUtils.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY, mc.player.posZ, false));
+            PacketUtils.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, mc.player.posY, mc.player.posZ,
+                    mc.player.rotationYaw,mc.player.rotationPitch,false));
+        }
     }
     
     @EventHandler

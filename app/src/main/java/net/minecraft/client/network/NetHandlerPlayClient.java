@@ -8,6 +8,7 @@ import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import io.netty.buffer.Unpooled;
 import loftily.Client;
+import loftily.handlers.impl.client.FlagHandler;
 import loftily.module.impl.player.NoRotationSet;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.block.Block;
@@ -586,7 +587,9 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         }
         else
         {
-            entityplayer.motionX = 0.0D;
+            if(!FlagHandler.flagSilentMotion) {
+                entityplayer.motionX = 0.0D;
+            }
         }
 
         if (packetIn.getFlags().contains(SPacketPlayerPosLook.EnumFlags.Y))
@@ -595,7 +598,9 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         }
         else
         {
-            entityplayer.motionY = 0.0D;
+            if(!FlagHandler.flagSilentMotion) {
+                entityplayer.motionY = 0.0D;
+            }
         }
 
         if (packetIn.getFlags().contains(SPacketPlayerPosLook.EnumFlags.Z))
@@ -604,7 +609,9 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         }
         else
         {
-            entityplayer.motionZ = 0.0D;
+            if(!FlagHandler.flagSilentMotion) {
+                entityplayer.motionZ = 0.0D;
+            }
         }
 
         if (packetIn.getFlags().contains(SPacketPlayerPosLook.EnumFlags.X_ROT))
@@ -616,15 +623,17 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         {
             f += entityplayer.rotationYaw;
         }
-
-        if(!noRotationSet.isToggled()) {
-            entityplayer.setPositionAndRotation(d0, d1, d2, f, f1);
-        }else{
-            entityplayer.setPositionAndRotation(d0, d1, d2, entityplayer.rotationYaw, entityplayer.rotationPitch);
+        if(!FlagHandler.flagSilentPos) {
+            if (!noRotationSet.isToggled()) {
+                entityplayer.setPositionAndRotation(d0, d1, d2, f, f1);
+            } else {
+                entityplayer.setPositionAndRotation(d0, d1, d2, entityplayer.rotationYaw, entityplayer.rotationPitch);
+            }
         }
         this.netManager.sendPacket(new CPacketConfirmTeleport(packetIn.getTeleportId()));
         this.netManager.sendPacket(new CPacketPlayer.PositionRotation(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, f, f1, false));
-
+        FlagHandler.flagSilentMotion = false;
+        FlagHandler.flagSilentPos = false;
         if (!this.doneLoadingTerrain)
         {
             this.gameController.player.prevPosX = this.gameController.player.posX;

@@ -99,6 +99,7 @@ public class Scaffold extends Module {
             new StringMode("None"),
             new StringMode("Normal")
     );
+    private final BooleanValue sneakCancelPlace = new BooleanValue("SneakCancelPlace",false);
     private final RangeSelectionNumberValue placeDelay = new RangeSelectionNumberValue("PlaceDelay", 40, 100, 0, 1000)
             .setVisible(() -> placeDelayMode.is("Normal"));
     private final BooleanValue placeDelayNoTower = new BooleanValue("PlaceDelay-NotTowering", false)
@@ -323,6 +324,10 @@ public class Scaffold extends Module {
     }
     
     public void doExtraClick(EnumHand hand) {
+        if(sneakCancelPlace.getValue() && mc.player.isSneaking()){
+            clickTimes = 1;
+            return;
+        }
         while (clickTimes > 0 && (!tickPlacement || !extraClickSmart.getValue())) {
             RayTraceResult rayTraceResult = performBlockRaytrace(RotationHandler.getCurrentRotation());
             BlockPos posIn = rayTraceResult.getBlockPos();
@@ -612,17 +617,19 @@ public class Scaffold extends Module {
                 if (mc.player.onGround) {
                     mc.player.tryJump();
                 }
-                if (MoveUtils.getSpeed() <= 0.19 && !mc.player.isCollidedHorizontally && !mc.player.onGround && !towerStatus) {
-                    MoveUtils.setSpeed(0.19, true);
+                if (MoveUtils.getSpeed() <= 0.2 && !mc.player.isCollidedHorizontally && !mc.player.onGround && !towerStatus) {
+                    MoveUtils.setSpeed(0.2,true);
                 }
                 if (mc.player.hurtTime <= 0) {
-                    mc.player.motionY -= 0.003;
+                    mc.player.motionY -= 0.0034999;
                 }
                 break;
             case "AutoJump":
                 if (mc.player.onGround && MoveUtils.isMoving()) {
                     mc.player.tryJump();
                 }
+                break;
+            case "Test":
                 break;
             case "SlowJump":
                 if (mc.player.onGround && MoveUtils.isMoving()) {
@@ -702,7 +709,7 @@ public class Scaffold extends Module {
     public void onMotion(MotionEvent event) {
         towerStatus = mc.gameSettings.keyBindJump.isKeyDown() &&
                 (!towerNoMove.getValue() || !MoveUtils.isMoving());
-        
+
         if (placeInfo != null) {
             if ((event.isPre() && placeTiming.is("Pre")) || (event.isPost() && placeTiming.is("Post"))) {
                 PlaceInfo targetInfo = null;
@@ -968,6 +975,10 @@ public class Scaffold extends Module {
         ItemStack heldItem = mc.player.getHeldItem(hand);
         
         if (!(heldItem.getItem() instanceof ItemBlock)) {
+            return false;
+        }
+
+        if(sneakCancelPlace.getValue() && mc.player.isSneaking()){
             return false;
         }
         

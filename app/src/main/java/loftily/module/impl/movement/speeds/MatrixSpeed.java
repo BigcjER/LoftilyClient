@@ -36,7 +36,7 @@ public class MatrixSpeed extends Mode<Speed> {
             MoveUtils.setSpeed(0.2, true);
         }
         if (mc.player.hurtTime <= 0) {
-            mc.player.motionY -= 0.0032;
+            mc.player.motionY -= 0.0034999;
         }
     }
 }
