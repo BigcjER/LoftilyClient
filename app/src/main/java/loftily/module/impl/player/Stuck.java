@@ -27,7 +27,7 @@ public class Stuck extends Module {
     
     @EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
-        if (isToggled() && autoDisable.getValue()) setToggled(false, true, true);
+        if (isToggled() && autoDisable.getValue()) setToggled(false, true, true, true);
     }
     
     @Override

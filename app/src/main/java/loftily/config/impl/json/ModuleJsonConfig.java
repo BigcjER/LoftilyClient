@@ -28,7 +28,7 @@ public class ModuleJsonConfig extends JsonConfig {
             
             JsonObject modJson = entry.getValue().getAsJsonObject();
             if (modJson.get("Toggled").getAsBoolean() && !module.isToggled())
-                module.setToggled(true, false, false);
+                module.setToggled(true, false, false, false);
             
             String autoDisable = modJson.get("AutoDisable").getAsString();
             if (!autoDisable.equals(AutoDisableType.NONE.name))
@@ -99,7 +99,7 @@ public class ModuleJsonConfig extends JsonConfig {
     
     public void load(File configFile) {
         write();
-        Client.INSTANCE.getModuleManager().getAll().forEach(module -> module.setToggled(false, false, false));
+        Client.INSTANCE.getModuleManager().getAll().forEach(module -> module.setToggled(false, false, false, false));
         this.file = configFile;
         read();
         

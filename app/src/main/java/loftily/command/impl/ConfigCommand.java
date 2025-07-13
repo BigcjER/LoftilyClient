@@ -122,7 +122,7 @@ public class ConfigCommand extends Command {
                         module.setKey(module.getDefaultKey());
                         module.getValues().forEach(value -> value.setValue(value.getDefaultValue()));
                         if (module.isToggled() != module.isDefaultToggled()) {
-                            module.setToggled(module.isDefaultToggled(), false, false);
+                            module.setToggled(module.isDefaultToggled(), false, false, false);
                         }
                     }
                     

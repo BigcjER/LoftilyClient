@@ -27,7 +27,7 @@ public class Spammer extends Module {
     public void onTick(ClientTickEvent event) {
         if (ServerUtils.getServerIp().contains("loyisa.cn")) {
             if (isToggled())
-                setToggled(false, true, false);
+                setToggled(false, true, false, true);
             
             Client.INSTANCE.getNotificationManager().add(NotificationType.WARNING, "Spammer", "Auto disabled Spammer on loyisa.cn", 0);
             
@@ -37,7 +37,7 @@ public class Spammer extends Module {
         if (text.getValue().isEmpty()) {
             MessageUtils.clientMessageWithWaterMark(TextFormatting.RED + "Text couldn't be empty!");
             if (isToggled())
-                setToggled(false, true, true);
+                setToggled(false, true, true, true);
             return;
         }
         

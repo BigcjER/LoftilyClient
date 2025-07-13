@@ -4,6 +4,7 @@ import loftily.Client;
 import loftily.config.impl.json.ModuleJsonConfig;
 import loftily.core.AbstractModule;
 import loftily.gui.notification.NotificationType;
+import loftily.module.impl.other.ToggleSound;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.mode.Mode;
 import loftily.value.impl.mode.ModeValue;
@@ -36,7 +37,7 @@ public abstract class Module extends AbstractModule {
         this.autoDisableType = moduleInfo.autoDisable();
     }
     
-    public void setToggled(boolean toggled, boolean save, boolean notification) {
+    public void setToggled(boolean toggled, boolean save, boolean notification, boolean sound) {
         this.toggled = toggled;
         
         if (!canBeToggled) {
@@ -44,6 +45,10 @@ public abstract class Module extends AbstractModule {
             this.toggled = false;
             if (mc.player != null) onDisable();
             return;
+        }
+        
+        if (sound) {
+            Client.INSTANCE.getModuleManager().get(ToggleSound.class).playToggleSound(toggled);
         }
         
         /* 注册Modes */
@@ -91,7 +96,7 @@ public abstract class Module extends AbstractModule {
     }
     
     public void toggle() {
-        setToggled(!toggled, true, true);
+        setToggled(!toggled, true, true, true);
     }
     
     public void setKey(int key) {

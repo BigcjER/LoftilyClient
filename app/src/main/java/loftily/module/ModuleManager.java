@@ -64,7 +64,7 @@ public class ModuleManager extends AbstractManager<Module> {
         //处理DefaultToggle
         this.getAll().stream()
                 .filter(Module::isDefaultToggled)
-                .forEach(module -> module.setToggled(true, false, false));
+                .forEach(module -> module.setToggled(true, false, false, false));
         
         Client.INSTANCE.getEventManager().register(this);
     }
