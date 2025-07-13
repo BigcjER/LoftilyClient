@@ -14,9 +14,9 @@ public class VanillaFly extends Mode<Fly> {
     
     public final BooleanValue spoofGround = new BooleanValue("SpoofGround", false);
     public final BooleanValue noClip = new BooleanValue("NoClip", false);
-    private final NumberValue horizontalSpeed = new NumberValue("HorizontalSpeed", 1, 0, 5, 0.01);
-    private final NumberValue verticalSpeed = new NumberValue("VerticalSpeed", 1, 0, 5, 0.01);
-    private final NumberValue keepY = new NumberValue("KeepYSpeed", 0.0, -0.2, 0.2, 0.01);
+    private final NumberValue horizontalSpeed = new NumberValue("Vanilla-HorizontalSpeed", 1, 0, 5, 0.01);
+    private final NumberValue verticalSpeed = new NumberValue("Vanilla-VerticalSpeed", 1, 0, 5, 0.01);
+    private final NumberValue keepY = new NumberValue("Vanilla-KeepYSpeed", 0.0, -0.2, 0.2, 0.01);
     private final BooleanValue resetMotion = new BooleanValue("ResetMotion", false);
     
     public VanillaFly() {

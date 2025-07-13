@@ -2,7 +2,7 @@ package loftily.module.impl.movement.highjumps;
 
 import loftily.event.impl.packet.PacketReceiveEvent;
 import loftily.event.impl.player.motion.MotionEvent;
-import loftily.event.impl.world.PreUpdateEvent;
+import loftily.event.impl.world.UpdateEvent;
 import loftily.module.impl.movement.HighJump;
 import loftily.utils.player.MoveUtils;
 import loftily.value.impl.mode.Mode;
@@ -48,12 +48,11 @@ public class MatrixHighJump extends Mode<HighJump> {
     }
     
     @EventHandler
-    public void onPreUpdate(PreUpdateEvent event) {
+    public void onUpdate(UpdateEvent event) {
         if (!moving) {
             MoveUtils.setSpeed(0.16, false);
             moving = true;
         }
-        
         
         if (mc.player.isCollidedVertically) {
             active = true;

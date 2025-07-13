@@ -19,7 +19,7 @@ import net.minecraft.network.play.server.SPacketPlayerPosLook;
 public class Stuck extends Module {
     private final BooleanValue autoDisable = new BooleanValue("AutoDisable", false);
     private final BooleanValue resetPosition = new BooleanValue("ResetPositionOnFlag", false);
-    private final BooleanValue lastMotion = new BooleanValue("LastMotion", false);
+    public final BooleanValue lastMotion = new BooleanValue("LastMotion", false);
     
     
     private double x, y, z;
@@ -41,6 +41,8 @@ public class Stuck extends Module {
         this.motionX = mc.player.motionX;
         this.motionY = mc.player.motionY;
         this.motionZ = mc.player.motionZ;
+        println(mc.player.offGroundTicks);
+        println(mc.player.motionY);
     }
     
     @Override

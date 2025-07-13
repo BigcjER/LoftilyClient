@@ -17,8 +17,8 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
 public class TatakoFly extends Mode<Fly> {
-    private final NumberValue horizontalSpeed = new NumberValue("HorizontalSpeed", 1, 0, 5, 0.01);
-    private final NumberValue verticalSpeed = new NumberValue("VerticalSpeed", 1, 0, 5, 0.01);
+    private final NumberValue horizontalSpeed = new NumberValue("Tatako-HorizontalSpeed", 1, 0, 5, 0.01);
+    private final NumberValue verticalSpeed = new NumberValue("Tatako-VerticalSpeed", 1, 0, 5, 0.01);
     private double x, y, z;
     
     public TatakoFly() {

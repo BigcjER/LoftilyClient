@@ -617,19 +617,17 @@ public class Scaffold extends Module {
                 if (mc.player.onGround) {
                     mc.player.tryJump();
                 }
-                if (MoveUtils.getSpeed() <= 0.2 && !mc.player.isCollidedHorizontally && !mc.player.onGround && !towerStatus) {
-                    MoveUtils.setSpeed(0.2,true);
+                if (MoveUtils.getSpeed() <= 0.19 && !mc.player.isCollidedHorizontally && !mc.player.onGround && !towerStatus) {
+                    MoveUtils.setSpeed(0.19,true);
                 }
                 if (mc.player.hurtTime <= 0) {
-                    mc.player.motionY -= 0.0034999;
+                    mc.player.motionY -= 0.0032;
                 }
                 break;
             case "AutoJump":
                 if (mc.player.onGround && MoveUtils.isMoving()) {
                     mc.player.tryJump();
                 }
-                break;
-            case "Test":
                 break;
             case "SlowJump":
                 if (mc.player.onGround && MoveUtils.isMoving()) {

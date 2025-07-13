@@ -17,7 +17,7 @@ public class NoGroundNoFall extends Mode<NoFall> {
     public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
         if(packet instanceof CPacketPlayer){
-            ((CPacketPlayer) packet).onGround = true;
+            ((CPacketPlayer) packet).onGround = false;
         }
     }
 }

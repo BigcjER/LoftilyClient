@@ -27,9 +27,8 @@ public class JumpCriticals extends Mode<Criticals> {
                 if (mc.player.onGround) {
                     mc.player.tryJump();
                 }
-            } else {
-                jump = false;
             }
+            jump = false;
         }
     }
 }

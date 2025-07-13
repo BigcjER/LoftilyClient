@@ -20,13 +20,10 @@ import java.util.Queue;
 
 public class HighViaFly extends Mode<Fly> {
     public final Queue<Packet<?>> packetBus = new LinkedList<>();
-    /*Only works in high version server!!!
-     *Bypass grim,matrix and most other AC!!!
-     */
-    private final NumberValue horizontalSpeed = new NumberValue("HorizontalSpeed", 1, 0, 5, 0.01);
-    private final NumberValue verticalSpeed = new NumberValue("VerticalSpeed", 1, 0, 5, 0.01);
+
+    private final NumberValue horizontalSpeed = new NumberValue("HighVia-HorizontalSpeed", 1, 0, 5, 0.01);
+    private final NumberValue verticalSpeed = new NumberValue("HighVia-VerticalSpeed", 1, 0, 5, 0.01);
     private final BooleanValue noClip = new BooleanValue("NoClip", false);
-    //private final NumberValue ySpeed = new NumberValue("YSpeed",2,0,10,0.01);
     
     private final NumberValue packets = new NumberValue("OffsetPackets", 1, 0, 10);
     private final NumberValue yPackets = new NumberValue("InvalidYPackets", 1, 0, 10);

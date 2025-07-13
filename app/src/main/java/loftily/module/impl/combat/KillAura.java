@@ -116,6 +116,7 @@ public class KillAura extends Module {
             new StringMode("Lower"),
             new StringMode("Normal"),
             new StringMode("Advance"),
+            new StringMode("Test"),
             new StringMode("None"));
     private final RangeSelectionNumberValue yawTurnSpeed = new RangeSelectionNumberValue("YawTurnSpeed", 100, 150, 0, 360, 0.1);
     private final RangeSelectionNumberValue pitchTurnSpeed = new RangeSelectionNumberValue("PitchTurnSpeed", 100, 150, 0, 360, 0.1);
@@ -298,9 +299,9 @@ public class KillAura extends Module {
                 center = targetBox.lerpWith(0.5, 0.5, 0.5);
                 break;
             case "Lower":
-                for (double x = 0.2; x <= 0.8; x += 0.1) {
-                    for (double y = 0.1; y <= 0.4; y += 0.1) {
-                        for (double z = 0.2; z <= 0.8; z += 0.1) {
+                for (double x = 0.4; x <= 0.6; x += 0.025) {
+                    for (double y = 0.2; y <= 0.6; y += 0.1) {
+                        for (double z = 0.4; z <= 0.6; z += 0.025) {
                             Vec3d preCenter = targetBox.lerpWith(x, y, z);
                             
                             if (rayCast.getValue() && !rayCastThroughWalls.getValue()) {
@@ -334,6 +335,12 @@ public class KillAura extends Module {
                         }
                     }
                 }
+                break;
+            case "Test":
+                center = CalculateUtils.getClosestPoint(mc.player.getPositionEyes(2.1478F).addVector(0.0,-0.199,0.0),targetBox.offset(
+                        -mc.player.motionX-mc.player.posX+mc.player.prevPosX,
+                        -mc.player.motionY-mc.player.posY+mc.player.prevPosY,
+                        -mc.player.motionZ-mc.player.posZ+mc.player.prevPosZ));
                 break;
             case "NearestCenter":
                 center = CalculateUtils.getClosestPoint(mc.player.getEyes(), targetBox);
