@@ -359,7 +359,9 @@ public class ItemRenderer {
         if (hand == EnumHand.OFF_HAND && (isSwordBlocking || (hasSword && hasShield)) && blockAnimation) return;
         if (Config.isShaders() && Shaders.isSkipRenderHand(hand)) return;
         
+        boolean viewModelToggled = ViewModel.getInstance().isToggled();
         boolean isMainHand = hand == EnumHand.MAIN_HAND;
+        
         EnumHandSide enumHandSide = isMainHand ? abstractClientPlayer.getPrimaryHand() : abstractClientPlayer.getPrimaryHand().opposite();
         GlStateManager.pushMatrix();
         
@@ -376,14 +378,25 @@ public class ItemRenderer {
         } else {
             if (blockAnimation && (isMainHand && isSwordBlocking || Client.INSTANCE.getModuleManager().get(KillAura.class).isBlockingStatus())) {
                 //BlockAnimation
+                
                 float f = 1.0F - (this.prevEquippedProgressMainHand + (this.equippedProgressMainHand - this.prevEquippedProgressMainHand) * partialTicks);
                 if (AnimationModule.getInstance().getBlockAnimationMode().is("1.7like")) {
                     transformFirstPersonItem(f, swingProgress);
                     GlStateManager.rotate(-90.0F, 15F, -0.3F, 2F);
                 }
                 
-                boolean isRightHand = enumHandSide == EnumHandSide.RIGHT;
-                this.renderItemSide(abstractClientPlayer, stack, isRightHand ? ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !isRightHand);
+                if (viewModelToggled) {
+                    double scale = ViewModel.getInstance().getItemMainHandScale().getValue();
+                    
+                    GlStateManager.translate(
+                            ViewModel.getInstance().getItemMainHandPosXOffset().getValue(),
+                            ViewModel.getInstance().getItemMainHandPosYOffset().getValue(),
+                            ViewModel.getInstance().getItemMainHandPosZOffset().getValue());
+                    
+                    GlStateManager.scale(scale, scale, scale);
+                }
+                
+                this.renderItemSide(abstractClientPlayer, stack, ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND, false);
             } else {
                 boolean isRightHand = enumHandSide == EnumHandSide.RIGHT;
                 
@@ -439,9 +452,6 @@ public class ItemRenderer {
                     this.transformSideFirstPerson(enumHandSide, equippedProgress);
                     this.transformFirstPerson(enumHandSide, swingProgress);
                 }
-                
-                boolean viewModelToggled = ViewModel.getInstance().isToggled();
-                
                 
                 if (viewModelToggled) {
                     
