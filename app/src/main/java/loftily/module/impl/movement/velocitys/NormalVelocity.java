@@ -1,6 +1,7 @@
 package loftily.module.impl.movement.velocitys;
 
 import loftily.event.impl.packet.PacketReceiveEvent;
+import loftily.module.impl.movement.Velocity;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
 import loftily.value.impl.mode.Mode;
@@ -9,10 +10,9 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 
-public class NormalVelocity extends Mode {
+public class NormalVelocity extends Mode<Velocity> {
     public final NumberValue horizontal = new NumberValue("Horizontal", 0.0, -100.0, 100.0, 0.1);
     public final NumberValue vertical = new NumberValue("Vertical", 100.0, -100.0, 100.0, 0.1);
-    public BooleanValue noExplosion = new BooleanValue("NoExplosion", true);
     
     public NormalVelocity() {
         super("Normal");
@@ -38,20 +38,6 @@ public class NormalVelocity extends Mode {
                 velocity.motionY *= (int) (vertical / 100);
                 velocity.motionZ *= (int) (horizontal / 100);
             }
-        }
-        
-        if (packet instanceof SPacketExplosion && noExplosion.getValue()) {
-            SPacketExplosion explosion = (SPacketExplosion) packet;
-            
-            if (horizontal == 0 && vertical == 0) {
-                event.setCancelled(true);
-                return;
-            }
-            
-            explosion.posX *= horizontal / 100;
-            explosion.posY *= vertical / 100;
-            explosion.posZ *= horizontal / 100;
-            
         }
     }
 }
