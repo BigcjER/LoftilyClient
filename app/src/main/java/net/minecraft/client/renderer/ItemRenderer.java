@@ -440,17 +440,37 @@ public class ItemRenderer {
                     this.transformFirstPerson(enumHandSide, swingProgress);
                 }
                 
-                double scale = ViewModel.getInstance().getItemScale().getValue();
                 boolean viewModelToggled = ViewModel.getInstance().isToggled();
                 
                 
                 if (viewModelToggled) {
-                    GlStateManager.translate(
-                            ViewModel.getInstance().getItemPosXOffset().getValue(),
-                            ViewModel.getInstance().getItemPosYOffset().getValue(),
-                            ViewModel.getInstance().getItemPosZOffset().getValue());
                     
-                    GlStateManager.scale(scale, scale, scale);
+                    switch (hand) {
+                        case MAIN_HAND: {
+                            double scale = ViewModel.getInstance().getItemMainHandScale().getValue();
+                            
+                            GlStateManager.translate(
+                                    ViewModel.getInstance().getItemMainHandPosXOffset().getValue(),
+                                    ViewModel.getInstance().getItemMainHandPosYOffset().getValue(),
+                                    ViewModel.getInstance().getItemMainHandPosZOffset().getValue());
+                            
+                            GlStateManager.scale(scale, scale, scale);
+                            
+                            break;
+                        }
+                        case OFF_HAND: {
+                            double scale = ViewModel.getInstance().getItemOffHandScale().getValue();
+                            
+                            GlStateManager.translate(
+                                    ViewModel.getInstance().getItemOffHandPosXOffset().getValue(),
+                                    ViewModel.getInstance().getItemOffHandPosYOffset().getValue(),
+                                    ViewModel.getInstance().getItemOffHandPosZOffset().getValue());
+                            
+                            GlStateManager.scale(scale, scale, scale);
+                            
+                            break;
+                        }
+                    }
                 }
                 this.renderItemSide(abstractClientPlayer, stack,
                         isRightHand ? ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND
