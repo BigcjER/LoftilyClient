@@ -6,15 +6,15 @@ A free Minecraft 1.12.2 hacked client
 
 ## Download
 
-* Stable Version: Download the latest stable release from [Release Page](https://github.com/liuedg1/LoftilyClient/releases/latest).  
-* Development Version: Get the latest builds with new features ~~and bugs~~ from [GitHub Actions](https://github.com/liuedg1/LoftilyClient/actions) or [Loftily Artifacts Download Page](https://liuedg1.github.io/).
+* Stable Version: Download the latest stable release from [Release Page](https://github.com/BigcjER/LoftilyClient/releases/latest).  
+* Development Version: Get the latest builds with new features ~~and bugs~~ from [GitHub Actions](https://github.com/BigcjER/LoftilyClient/actions).
 
 ## Setting up a Workspace
 
 ### This project uses the Gradle wrapper, so you set it up easily.
 ### 1.Open terminal and clone the repository
 ```
-git clone https://github.com/liuedg1/LoftilyClient.git
+git clone https://github.com/BigcjER/LoftilyClient.git
 ```
 
 ### 2.Build with gradle
@@ -39,6 +39,6 @@ Then
 
 ## License
 
-This project is subject to the [GNU General Public License v3.0](https://github.com/liuedg1/LoftilyClient/blob/main/LICENSE).
+This project is subject to the [GNU General Public License v3.0](https://github.com/BigcjER/LoftilyClient/blob/main/LICENSE).
 
 It means you are free to use, share, and modify this client. However, any derivative works you distribute must also be licensed under the same GPLv3 terms. Please see the full license text for more details.
