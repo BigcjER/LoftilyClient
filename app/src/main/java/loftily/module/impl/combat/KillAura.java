@@ -580,7 +580,7 @@ public class KillAura extends Module {
         }
         
         if (blockingStatus && blockingTick) {
-            mc.playerController.onStoppedUsingItem(mc.player);
+            PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
             mc.gameSettings.keyBindUseItem.setPressed(false);
             blockingStatus = false;
             blockingTick = false;
@@ -606,7 +606,6 @@ public class KillAura extends Module {
             return;
         }
         sendInteractPacket(target);
-        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
         PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
         
@@ -661,16 +660,9 @@ public class KillAura extends Module {
                     }
                     break;
                 case "Matrix":
+                case "Verus":
                     if (!blockingTick) {
                         blockingPacket(target);
-                        blockingTick = true;
-                    }
-                    break;
-                case "Verus":
-                    if(!blockingTick) {
-                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
-                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
-                        PacketUtils.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND));
                         blockingTick = true;
                     }
                     break;

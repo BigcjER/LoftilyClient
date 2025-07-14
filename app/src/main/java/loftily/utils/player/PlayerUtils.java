@@ -69,10 +69,14 @@ public class PlayerUtils implements ClientUtils {
     
     public static boolean isBlocking(EntityLivingBase entity) {
         if (!isUsingItem(entity)) return false;
+        if(Client.INSTANCE.getModuleManager().get(KillAura.class).isBlockingTick()){
+            return true;
+        }
         if (ViaLoadingBase.getInstance().getTargetVersion().olderThanOrEqualTo(ProtocolVersion.v1_8)) {
             return entity.getHeldItemMainhand().getItem() instanceof ItemSword;
         } else {
-            return entity.getHeldItemOffhand().getItem() instanceof ItemShield || entity.getHeldItemMainhand().getItem() instanceof ItemShield;
+            return entity.getHeldItemOffhand().getItem() instanceof ItemShield || entity.getHeldItemMainhand().getItem() instanceof ItemShield
+                    || (entity.getHeldItemMainhand().getItem() instanceof ItemSword);
         }
     }
     
