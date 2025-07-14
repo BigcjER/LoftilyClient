@@ -147,7 +147,7 @@ public class TimerRange extends Module {
     public void onRender3D(Render3DEvent event) {
         if (runTimer) {
             if (timerStatus.equals(Status.LOW)) {
-                if (!timerRangeHelper.hasTimeElapsed(curTime)) {
+                if (!timerRangeHelper.hasTimeElapsed(Math.round(times == 1 ? (curTime - (curTime / fastTimer)) : curTime - ((curTime - curTime * slowTimer) / fastTimer)))) {
                     mc.timer.timerSpeed = slowTimer;
                 } else {
                     times++;
@@ -158,7 +158,7 @@ public class TimerRange extends Module {
                     }
                 }
             } else if (timerStatus.equals(Status.FAST)) {
-                if (!timerRangeHelper.hasTimeElapsed((int) (curTime / fastTimer))) {
+                if (!timerRangeHelper.hasTimeElapsed(Math.round(times == 1 ? (curTime - curTime * slowTimer) / fastTimer : curTime / fastTimer))) {
                     mc.timer.timerSpeed = fastTimer;
                 } else {
                     times++;
@@ -182,7 +182,7 @@ public class TimerRange extends Module {
                 if ((runLastTimerWhenHurt.getValue() && mc.player.hurtTime >= 8)
                         || (runLastTimerWhenOverRange.getValue() && (range < activeRange.getFirst() || range > activeRange.getSecond()))) {
                     times = 1;
-                    curTime = (int) timerRangeHelper.getElapsedTime();
+                    curTime = Math.round(timerRangeHelper.getElapsedTime());
                     timerRangeHelper.reset();
                     timerStatus = timerStatus.equals(Status.LOW) ? Status.FAST : Status.LOW;
                 }
