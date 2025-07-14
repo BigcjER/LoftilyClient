@@ -78,7 +78,7 @@ public class NoSlow extends Module {
     public void onMotion(MotionEvent event) {
         if (mc.player == null || !PlayerUtils.isUsingItem() || getUseItem() == null) return;
         
-        if (getUseItem() instanceof ItemSword || getUseItem() instanceof ItemShield) {
+        if (PlayerUtils.isBlocking()) {
             blockingMode.getValue().forEach(
                     (mode, value) -> {
                         if (value) {

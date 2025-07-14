@@ -128,7 +128,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
     private String serverBrand;
     private int horseJumpPowerCounter;
     private float horseJumpPower;
-    private boolean handActive;
+    public boolean handActive;
     private EnumHand activeHand;
     private boolean rowingBoat;
     private boolean autoJumpEnabled = true;
