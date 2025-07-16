@@ -13,22 +13,12 @@ public class JumpCriticals extends Mode<Criticals> {
         super("Jump");
     }
 
-    public boolean jump = false;
-
-    @EventHandler
-    public void onJump(JumpEvent event) {
-        jump = true;
-    }
-
     @EventHandler
     public void onAttack(AttackEvent event) {
         if (event.getTarget() instanceof EntityLivingBase) {
-            if (!jump) {
-                if (mc.player.onGround) {
-                    mc.player.tryJump();
-                }
+            if (mc.player.onGround) {
+                mc.player.tryJump();
             }
-            jump = false;
         }
     }
 }

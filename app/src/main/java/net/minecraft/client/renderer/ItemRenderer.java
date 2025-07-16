@@ -336,13 +336,13 @@ public class ItemRenderer {
         GlStateManager.disableRescaleNormal();
         RenderHelper.disableStandardItemLighting();
     }
-    
+
     private void transformFirstPersonItem(float equipProgress, float swingProgress) {
         GlStateManager.translate(0.56F, -0.42F, -0.71999997F);
         GlStateManager.translate(0.0F, equipProgress * -0.6F, 0.0F);
-        GlStateManager.rotate(60.0F, 0.0F, 1.0F, 0.0F);
-        float f = MathHelper.sin(swingProgress * swingProgress * (float) Math.PI);
-        float f1 = MathHelper.sin(MathHelper.sqrt(swingProgress) * (float) Math.PI);
+        GlStateManager.rotate(45.0F, 0.0F, 1.0F, 0.0F);
+        float f = MathHelper.sin(swingProgress * swingProgress * 3.1415927F);
+        float f1 = MathHelper.sin((float) (Math.sqrt(swingProgress) * 3.1415927F));
         GlStateManager.rotate(f * -20.0F, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(f1 * -20.0F, 0.0F, 0.0F, 1.0F);
         GlStateManager.rotate(f1 * -80.0F, 1.0F, 0.0F, 0.0F);
@@ -356,7 +356,8 @@ public class ItemRenderer {
         boolean hasSword = abstractClientPlayer.getHeldItemMainhand().getItem() instanceof ItemSword;
         boolean blockAnimation = AnimationModule.getInstance().getBlockAnimation().getValue();
         
-        if (hand == EnumHand.OFF_HAND && (isSwordBlocking || (hasSword && hasShield)) && blockAnimation) return;
+        //if ((hasShield && hasSword) && blockAnimation) return;
+        if (hand == EnumHand.OFF_HAND && ((hasSword && hasShield) || PlayerUtils.isBlocking()) && blockAnimation) return;
         if (Config.isShaders() && Shaders.isSkipRenderHand(hand)) return;
         
         boolean viewModelToggled = ViewModel.getInstance().isToggled();
@@ -376,13 +377,19 @@ public class ItemRenderer {
                 this.renderMapFirstPersonSide(equippedProgress, enumHandSide, swingProgress, stack);
             }
         } else {
-            if (blockAnimation && (isMainHand && isSwordBlocking || Client.INSTANCE.getModuleManager().get(KillAura.class).isBlockingStatus())) {
+            if (blockAnimation && (isMainHand && (isSwordBlocking || (hasSword && mc.player.isHandActive()) || Client.INSTANCE.getModuleManager().get(KillAura.class).isBlockingStatus()))) {
                 //BlockAnimation
                 
                 float f = 1.0F - (this.prevEquippedProgressMainHand + (this.equippedProgressMainHand - this.prevEquippedProgressMainHand) * partialTicks);
-                if (AnimationModule.getInstance().getBlockAnimationMode().is("1.7like")) {
-                    transformFirstPersonItem(f, swingProgress);
-                    GlStateManager.rotate(-90.0F, 15F, -0.3F, 2F);
+                switch (AnimationModule.getInstance().getBlockAnimationMode().getValueByName()){
+                    case "1.7Like":
+                        transformFirstPersonItem(f, swingProgress);
+                        GlStateManager.rotate(-90F, 15F, -0.3F,2F);
+                        break;
+                    case "None":
+                        transformFirstPersonItem(f, 0);
+                        GlStateManager.rotate(-85F, 160F, -40F,20F);
+                        break;
                 }
                 
                 if (viewModelToggled) {

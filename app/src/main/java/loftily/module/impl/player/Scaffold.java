@@ -108,13 +108,17 @@ public class Scaffold extends Module {
     private final BooleanValue extraClick = new BooleanValue("ExtraClick", false);
     private final RangeSelectionNumberValue extraClickDelay = new RangeSelectionNumberValue("ExtraClickDelay", 40, 100, 0, 200).setVisible(extraClick::getValue);
     private final BooleanValue extraClickNoTower = new BooleanValue("ExtraClick-NotTowering", false).setVisible(extraClick::getValue);
+    private final BooleanValue extraClickOnlyData = new BooleanValue("ExtraClick-OnlyData",false).setVisible(extraClick::getValue);
     private final BooleanValue extraClickOnlyFaceBlock = new BooleanValue("ExtraClick-OnlyFaceBlock", false).setVisible(extraClick::getValue);
     private final BooleanValue extraClickOnlyMove = new BooleanValue("ExtraClick-OnlyMove", false).setVisible(extraClick::getValue);
     private final BooleanValue extraClickDoubleClickAble = new BooleanValue("ExtraClick-DoubleClickAble", false).setVisible(extraClick::getValue);
+    private final ModeValue extraClickMode = new ModeValue("ExtraClickMode","OnlyFail",this,
+            new StringMode("OnlyFail"),new StringMode("Always"));
     private final ModeValue extraClickTime = new ModeValue("ExtraClickTime", "BeforePlace", this,
             new StringMode("BeforePlace"),
+            new StringMode("AfterPlace"),
             new StringMode("Legit")).setVisible(extraClick::getValue);
-    private final BooleanValue extraClickSmart = new BooleanValue("ExtraClick-Smart", false);
+    private final NumberValue maxExtraClicks = new NumberValue("MaxExtraClicks",10,1,50).setVisible(extraClick::getValue);
     //Rotation
     private final ModeValue rotationMode = new ModeValue("RotationMode", "None", this,
             new StringMode("Normal"),
@@ -209,6 +213,9 @@ public class Scaffold extends Module {
             .setVisible(() -> blockCounter.getValue() && blockCounterCustomOpacity.getValue());
     private final DelayTimer placeTimer = new DelayTimer();
     //Other
+    private final BooleanValue useLargestStack = new BooleanValue("UseLargestStack", false);
+    private final BooleanValue earlySwitch = new BooleanValue("EarlySwitch", false);
+    private final NumberValue earlySwitchAmounts = new NumberValue("EarlySwitchAmounts",2,1,64).setVisible(earlySwitch::getValue);
     private final ModeValue swingMode = new ModeValue("Swing", "Vanilla", this,
             new StringMode("Vanilla"),
             new StringMode("Packet"),
@@ -223,7 +230,6 @@ public class Scaffold extends Module {
     private int prevSlot;
     private int curExtraClickDelay = 0;
     private int clickTimes = 0;
-    private boolean tickPlacement = false;
     private Runnable blockCounterRunnable;
     private boolean ableSneak = false;
     
@@ -243,7 +249,6 @@ public class Scaffold extends Module {
             mc.player.inventory.currentItem = prevSlot;
         }
         clickTimes = 0;
-        
         if(blockCountAnimation != null && blockCounterRunnable != null) {
             AnimationHandler.add(blockCountAnimation, blockCounterRunnable);
         }
@@ -293,8 +298,8 @@ public class Scaffold extends Module {
             
             //Draw stack
             ItemStack stack;
-            if (InventoryUtils.findBlockInHotBar() != -1) {
-                stack = mc.player.inventory.getStackInSlot(InventoryUtils.findBlockInHotBar());
+            if (InventoryUtils.findBlockInHotBar(useLargestStack.getValue()) != -1) {
+                stack = mc.player.inventory.getStackInSlot(InventoryUtils.findBlockInHotBar(useLargestStack.getValue()));
             } else {
                 stack = new ItemStack(Blocks.BARRIER);
             }
@@ -323,35 +328,36 @@ public class Scaffold extends Module {
         blockCounterRunnable.run();
     }
     
-    public void doExtraClick(EnumHand hand) {
+    public void runExtraClick(EnumHand hand) {
+        RayTraceResult rayTraceResult = performBlockRaytrace(RotationHandler.getCurrentRotation());
         if(sneakCancelPlace.getValue() && mc.player.isSneaking()){
-            clickTimes = 1;
+            clickTimes--;
             return;
         }
-        while (clickTimes > 0 && (!tickPlacement || !extraClickSmart.getValue())) {
-            RayTraceResult rayTraceResult = performBlockRaytrace(RotationHandler.getCurrentRotation());
+        while (clickTimes > 0) {
             BlockPos posIn = rayTraceResult.getBlockPos();
-            if (rayTraceResult.typeOfHit == RayTraceResult.Type.MISS) {
-                PacketUtils.sendPacket(new CPacketPlayerTryUseItem(hand));
-            } else if (rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK && !(mc.world.getBlockState(posIn).getBlock() instanceof BlockAir)) {
-                ItemBlock itemBlock = (ItemBlock) mc.player.getHeldItem(hand).getItem();
-                float f = (float) (rayTraceResult.hitVec.xCoord - (double) rayTraceResult.getBlockPos().getX());
-                float f1 = (float) (rayTraceResult.hitVec.yCoord - (double) rayTraceResult.getBlockPos().getY());
-                float f2 = (float) (rayTraceResult.hitVec.zCoord - (double) rayTraceResult.getBlockPos().getZ());
-                if (!itemBlock.canPlaceBlockOnSide(mc.world, posIn, rayTraceResult.sideHit, mc.player, mc.player.getHeldItem(hand))) {
-                    PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(
-                            posIn,
-                            rayTraceResult.sideHit,
-                            hand,
-                            f, f1, f2
-                    ));
+            ItemBlock itemBlock = (ItemBlock) mc.player.getHeldItem(hand).getItem();
+            Vec3d facing = rayTraceResult.hitVec;
+            BlockPos stack = rayTraceResult.getBlockPos();
+            float f = (float)(facing.xCoord - (double)stack.getX());
+            float f1 = (float)(facing.yCoord - (double)stack.getY());
+            float f2 = (float)(facing.zCoord - (double)stack.getZ());
+            if(rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK) {
+                if ((!extraClickOnlyData.getValue() || (placeInfo != null && rayTraceResult.getBlockPos().equals(placeInfo.blockPos))) && (!itemBlock.canPlaceBlockOnSide(mc.world, posIn, rayTraceResult.sideHit, mc.player, mc.player.getHeldItem(hand)) || !extraClickMode.is("OnlyFail"))) {
+                    PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(stack,rayTraceResult.sideHit,hand,f,f1,f2));
+                }else {
+                    break;
                 }
+            } else if(rayTraceResult.typeOfHit == RayTraceResult.Type.MISS){
+                PacketUtils.sendPacket(new CPacketPlayerTryUseItem(hand));
+            }else {
+                break;
             }
-            clickTimes--;
             if (!extraClickDoubleClickAble.getValue()) {
                 clickTimes = 0;
                 break;
             }
+            clickTimes--;
         }
     }
     
@@ -403,25 +409,27 @@ public class Scaffold extends Module {
             }
         }
         
-        if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && !(mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock)) {
+        if ((!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && !(mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock))
+        || (mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock && mc.player.getHeldItemMainhand().getStackSize() <= earlySwitchAmounts.getValue())
+        || (mc.player.getHeldItemOffhand().getItem() instanceof ItemBlock && mc.player.getHeldItemOffhand().getStackSize() <= earlySwitchAmounts.getValue())) {
             if (autoSwitchToBlock.getValue()) {
-                int slot = InventoryUtils.findBlockInHotBar();
+                int slot = InventoryUtils.findBlockInHotBar(useLargestStack.getValue());
                 
-                if (slot != -1)
+                if (slot != -1) {
                     mc.player.inventory.currentItem = slot;
+                }else {
+                    return;
+                }
             }
-            
-            return;
         }
         
         if (extraClick.getValue() && extraClickTime.is("BeforePlace")) {
             if (canExtraClick() && clickTimes > 0) {
                 EnumHand hand = mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
                 if (mc.player.getHeldItem(hand).getItem() instanceof ItemBlock) {
-                    doExtraClick(hand);
+                    runExtraClick(hand);
                 }
             }
-            tickPlacement = false;
         }
 
         if (placeInfo != null) {
@@ -512,17 +520,13 @@ public class Scaffold extends Module {
                 }
             }
         }
-        
-        if (targetInfo != null) {
-            if (!click(targetInfo.blockPos, targetInfo.facing, targetInfo.hitVec)) {
-                if (extraClick.getValue() && extraClickTime.is("Legit")) {
-                    if (canExtraClick() && clickTimes > 0) {
-                        EnumHand hand = mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
-                        if (mc.player.getHeldItem(hand).getItem() instanceof ItemBlock) {
-                            doExtraClick(hand);
-                        }
+        EnumHand hand = mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
+        if ((!click(targetInfo) && extraClickTime.is("Legit")) || extraClickTime.is("AfterPlace")) {
+            if (extraClick.getValue()) {
+                if (canExtraClick() && clickTimes > 0) {
+                    if (mc.player.getHeldItem(hand).getItem() instanceof ItemBlock) {
+                        runExtraClick(hand);
                     }
-                    tickPlacement = false;
                 }
             }
         }
@@ -668,7 +672,7 @@ public class Scaffold extends Module {
                         ableSneak = true;
                     }
                     
-                    if ((ableSneak || (!MoveUtils.isMoving()) || (InventoryUtils.findBlockInHotBar() == -1)) && nearAir()) {
+                    if ((ableSneak || (!MoveUtils.isMoving()) || (InventoryUtils.findBlockInHotBar(useLargestStack.getValue()) == -1)) && nearAir()) {
                         MoveHandler.setSneak(true, 20);
                     }
                     
@@ -732,17 +736,13 @@ public class Scaffold extends Module {
                         }
                     }
                 }
-                
-                if (targetInfo != null) {
-                    if (!click(targetInfo.blockPos, targetInfo.facing, targetInfo.hitVec)) {
-                        if (extraClick.getValue() && extraClickTime.is("Legit")) {
-                            if (canExtraClick() && clickTimes > 0) {
-                                EnumHand hand = mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
-                                if (mc.player.getHeldItem(hand).getItem() instanceof ItemBlock) {
-                                    doExtraClick(hand);
-                                }
+                EnumHand hand = mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
+                if ((!click(targetInfo) && extraClickTime.is("Legit")) || extraClickTime.is("AfterPlace")) {
+                    if (extraClick.getValue()) {
+                        if (canExtraClick() && clickTimes > 0) {
+                            if (mc.player.getHeldItem(hand).getItem() instanceof ItemBlock) {
+                                runExtraClick(hand);
                             }
-                            tickPlacement = false;
                         }
                     }
                 }
@@ -967,7 +967,13 @@ public class Scaffold extends Module {
         }
     }
     
-    private boolean click(BlockPos placePos, EnumFacing facing, Vec3d hitVec) {
+    private boolean click(PlaceInfo placeInfo) {
+        if(placeInfo == null)return false;
+
+        BlockPos placePos = placeInfo.getBlockPos();
+        EnumFacing facing = placeInfo.getFacing();
+        Vec3d hitVec = placeInfo.hitVec;
+
         EnumHand hand = mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
         
         ItemStack heldItem = mc.player.getHeldItem(hand);
@@ -1007,7 +1013,6 @@ public class Scaffold extends Module {
             } else if (swingMode.is("Packet")) {
                 PacketUtils.sendPacket(new CPacketAnimation(hand));
             }
-            tickPlacement = true;
             placeTimer.reset();
             currentPlaceDelay = RandomUtils.randomInt((int) placeDelay.getFirst(), (int) placeDelay.getSecond());
             return true;
@@ -1018,7 +1023,7 @@ public class Scaffold extends Module {
     
     @EventHandler
     public void onRender3D(Render3DEvent event) {
-        if (extraClickTimer.hasTimeElapsed(curExtraClickDelay) && canExtraClick()) {
+        if (extraClickTimer.hasTimeElapsed(curExtraClickDelay) && canExtraClick() && clickTimes <= maxExtraClicks.getValue()) {
             extraClickTimer.reset();
             curExtraClickDelay = RandomUtils.randomInt((int) extraClickDelay.getFirst(), (int) extraClickDelay.getSecond());
             clickTimes++;

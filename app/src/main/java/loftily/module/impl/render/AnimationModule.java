@@ -17,7 +17,9 @@ public class AnimationModule extends Module {
     
     private final BooleanValue blockAnimation = new BooleanValue("BlockAnimation", true);
     private final ModeValue blockAnimationMode = new ModeValue("BlockAnimationMode", "1.7Like", this,
-            new StringMode("1.7Like"));
+            new StringMode("1.7Like"),
+            new StringMode("None")
+    );
     private final BooleanValue swingAnimation1_8 = new BooleanValue("1.8SwingAnimation", false);
     
     private final BooleanValue hotbarAnimation = new BooleanValue("HotbarAnimation", true);

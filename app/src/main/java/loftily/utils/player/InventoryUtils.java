@@ -8,6 +8,10 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class InventoryUtils implements ClientUtils {
     public static final int[] HOTBAR_SLOT_IDS = new int[]{36, 37, 38, 39, 40, 41, 42, 43, 44, 45};
     
@@ -27,17 +31,33 @@ public class InventoryUtils implements ClientUtils {
         
         return blocks;
     }
-    
-    public static int findBlockInHotBar() {
-        for (int i = 0; i < 9; ++i) {
-            if (mc.player.inventory.getStackInSlot(i).getItem() instanceof ItemBlock) {
-                ItemBlock itemBlock = (ItemBlock) mc.player.inventory.getStackInSlot(i).getItem();
-                if (!ItemUtils.BLOCK_BLACKLIST.contains(itemBlock.getBlock())) {
-                    return i;
+
+    public static int findBlockInHotBar(boolean biggest) {
+        if (biggest) {
+            int slot = -1;
+            int size = 0;
+            for (int i = 0 ; i < 9; i++) {
+                if (mc.player.inventory.getStackInSlot(i).getItem() instanceof ItemBlock) {
+                    ItemStack stack = mc.player.inventory.getStackInSlot(i);
+                    ItemBlock block = (ItemBlock) stack.getItem();
+                    if (!ItemUtils.BLOCK_BLACKLIST.contains(block.getBlock()) && stack.getStackSize() > size) {
+                        size = stack.getStackSize();
+                        slot = i;
+                    }
                 }
             }
+            return slot;
+        } else {
+            for (int i = 0; i < 9; ++i) {
+                if (mc.player.inventory.getStackInSlot(i).getItem() instanceof ItemBlock) {
+                    ItemBlock itemBlock = (ItemBlock) mc.player.inventory.getStackInSlot(i).getItem();
+                    if (!ItemUtils.BLOCK_BLACKLIST.contains(itemBlock.getBlock())) {
+                        return i;
+                    }
+                }
+            }
+            return -1;
         }
-        return -1;
     }
     
     public static int findBestToolInHotBar(BlockPos blockPos) {

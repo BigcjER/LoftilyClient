@@ -22,10 +22,11 @@ public class MatrixVelocity extends Mode<Velocity> {
     private final RangeSelectionNumberValue strafeHurtTime = new RangeSelectionNumberValue("StrafeHurtTime",6,10,1,10);
     private final BooleanValue boost = new BooleanValue("Matrix-Boost",false);
     private final NumberValue boostSpeed = new NumberValue("Matrix-BoostSpeed",0,0.1,0.7,0.01);
+    private boolean received;
 
     @EventHandler
     public void onStrafe(StrafeEvent event){
-        if(CombatHandler.inCombat && strafe.getValue()){
+        if(CombatHandler.inCombat && strafe.getValue() && received){
             if(mc.player.hurtTime >= strafeHurtTime.getFirst() && mc.player.hurtTime <= strafeHurtTime.getSecond()){
                 if(boost.getValue()) {
                     MoveUtils.setSpeed(boostSpeed.getValue(), true);
@@ -33,6 +34,9 @@ public class MatrixVelocity extends Mode<Velocity> {
                     MoveUtils.strafe();
                 }
             }
+        }
+        if(mc.player.hurtTime <= 0){
+            received = false;
         }
     }
 
@@ -42,7 +46,7 @@ public class MatrixVelocity extends Mode<Velocity> {
         if (packet instanceof SPacketEntityVelocity) {
             if (((SPacketEntityVelocity) packet).getEntityID() == mc.player.getEntityId()) {
                 event.setCancelled(true);
-                if (((SPacketEntityVelocity) packet).getMotionY() / 8000f > 0.22) {
+                if (((SPacketEntityVelocity) packet).getMotionY() / 8000f > 0.16) {
                     mc.player.motionY = ((SPacketEntityVelocity) packet).getMotionY() / 8000f;
                     if (!MoveUtils.isMoving()) {
                         MoveUtils.setSpeed(Math.max(
@@ -53,6 +57,7 @@ public class MatrixVelocity extends Mode<Velocity> {
                     } else {
                         MoveUtils.strafe();
                     }
+                    received = true;
                 }
             }
         }
