@@ -19,6 +19,7 @@ public class CancelVelocity extends Mode<Velocity> {
     
     @EventHandler
     public void onReceivePacket(PacketReceiveEvent event) {
+        if (event.isCancelled())return;
         Packet<?> packet = event.getPacket();
         if (packet instanceof SPacketEntityVelocity) {
             if (((SPacketEntityVelocity) packet).getEntityID() == mc.player.getEntityId()) {

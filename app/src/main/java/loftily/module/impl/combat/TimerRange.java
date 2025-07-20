@@ -12,6 +12,7 @@ import loftily.module.ModuleCategory;
 import loftily.module.ModuleInfo;
 import loftily.utils.math.CalculateUtils;
 import loftily.utils.math.RandomUtils;
+import loftily.utils.player.MoveUtils;
 import loftily.utils.timer.DelayTimer;
 import loftily.value.impl.BooleanValue;
 import loftily.value.impl.NumberValue;
@@ -46,6 +47,8 @@ public class TimerRange extends Module {
     private final BooleanValue lagReset = new BooleanValue("LagReset", false);
     private final BooleanValue attackToStart = new BooleanValue("AttackToStart", false);
     private final BooleanValue onlyKillAura = new BooleanValue("OnlyKillAura", false);
+    private final BooleanValue onlyMove = new BooleanValue("OnlyMove", false);
+    private final BooleanValue onlySprint = new BooleanValue("OnlySprint", false);
 
     private final DelayTimer timerRangeHelper = new DelayTimer();
     private final DelayTimer everyTimerHelper = new DelayTimer();
@@ -76,6 +79,8 @@ public class TimerRange extends Module {
 
     @EventHandler
     public void onAttack(AttackEvent event) {
+        if((onlySprint.getValue() && !mc.player.isSprinting()) || (onlyMove.getValue() && !MoveUtils.isMoving()))return;
+
         if (runTimer || !attackToStart.getValue() || !everyTimerHelper.hasTimeElapsed(curDelay)
                 || (onlyKillAura.getValue() && !Client.INSTANCE.getModuleManager().get(KillAura.class).isToggled())) {
             return;
@@ -104,6 +109,7 @@ public class TimerRange extends Module {
 
     @EventHandler
     public void onUpdate(UpdateEvent event) {
+        if((onlySprint.getValue() && !mc.player.isSprinting()) || (onlyMove.getValue() && !MoveUtils.isMoving()))return;
         if (runTimer || !everyTimerHelper.hasTimeElapsed(curDelay)
                 || (onlyKillAura.getValue() && !Client.INSTANCE.getModuleManager().get(KillAura.class).isToggled())) {
             return;

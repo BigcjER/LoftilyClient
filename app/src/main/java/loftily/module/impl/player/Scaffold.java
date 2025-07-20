@@ -86,6 +86,8 @@ public class Scaffold extends Module {
             new StringMode("TickJump"),
             new StringMode("MatrixHop"),
             new StringMode("GodBridge"));
+    private final BooleanValue moveHelperGod = new BooleanValue("MoveHelper-GodBridge", false).setVisible(()->scaffoldMode.is("GodBridge"));
+    private final BooleanValue matrixHopLow = new BooleanValue("MatrixHop-Low", false).setVisible(()->scaffoldMode.is("MatrixHop"));
     //Place
     private final ModeValue placeTiming = new ModeValue("PlaceTiming", "Tick", this,
             new StringMode("Pre"),
@@ -104,7 +106,6 @@ public class Scaffold extends Module {
             .setVisible(() -> placeDelayMode.is("Normal"));
     private final BooleanValue placeDelayNoTower = new BooleanValue("PlaceDelay-NotTowering", false)
             .setVisible(() -> placeDelayMode.is("Normal"));
-    private final BooleanValue moveHelperGod = new BooleanValue("MoveHelper-GodBridge", false);
     private final BooleanValue extraClick = new BooleanValue("ExtraClick", false);
     private final RangeSelectionNumberValue extraClickDelay = new RangeSelectionNumberValue("ExtraClickDelay", 40, 100, 0, 200).setVisible(extraClick::getValue);
     private final BooleanValue extraClickNoTower = new BooleanValue("ExtraClick-NotTowering", false).setVisible(extraClick::getValue);
@@ -624,7 +625,7 @@ public class Scaffold extends Module {
                 if (MoveUtils.getSpeed() <= 0.19 && !mc.player.isCollidedHorizontally && !mc.player.onGround && !towerStatus) {
                     MoveUtils.setSpeed(0.19,true);
                 }
-                if (mc.player.hurtTime <= 0) {
+                if (mc.player.hurtTime <= 0 && matrixHopLow.getValue()) {
                     mc.player.motionY -= 0.0032;
                 }
                 break;

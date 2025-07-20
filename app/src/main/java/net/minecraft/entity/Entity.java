@@ -25,7 +25,6 @@ import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.crash.ICrashReportDetail;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.EnchantmentProtection;
 import net.minecraft.entity.effect.EntityLightningBolt;
@@ -48,8 +47,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.*;
 import net.minecraft.util.datafix.DataFixer;
 import net.minecraft.util.datafix.FixTypes;
-import net.minecraft.util.datafix.IDataFixer;
-import net.minecraft.util.datafix.IDataWalker;
 import net.minecraft.util.math.*;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
@@ -2635,7 +2632,7 @@ public abstract class Entity implements ICommandSender
     /**
      * Enable or disable a entity flag, see getEntityFlag to read the know flags.
      */
-    protected void setFlag(int flag, boolean set)
+    public void setFlag(int flag, boolean set)
     {
         byte b0 = (Byte) this.dataManager.get(FLAGS);
 

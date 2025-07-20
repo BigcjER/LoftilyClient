@@ -17,12 +17,12 @@ import net.minecraft.entity.EntityLivingBase;
 import java.awt.*;
 
 @ModuleInfo(name = "ESP", category = ModuleCategory.RENDER, defaultToggled = true)
-public class ESP extends Module {
+public class  ESP extends Module {
     private final ModeValue mode = new ModeValue("Mode", "Box", this,
-            new StringMode("Box"));
-    
-    private final BooleanValue positionalInterpolation = new BooleanValue("PositionalInterpolation", true);
-    private final BooleanValue rotateWithYaw = new BooleanValue("RotateWithYaw", true);
+            new StringMode("Box"),new StringMode("VanillaGlow"));
+    private final NumberValue glowRadius = new NumberValue("GlowRadius",6,1,20).setVisible(()->mode.is("VanillaGlow"));
+    private final BooleanValue positionalInterpolation = new BooleanValue("PositionalInterpolation", true).setVisible(()->mode.is("Box"));
+    private final BooleanValue rotateWithYaw = new BooleanValue("RotateWithYaw", true).setVisible(()->mode.is("Box"));
     
     private final NumberValue colorRed = new NumberValue("ColorRed", 27, 0, 255);
     private final NumberValue colorGreen = new NumberValue("ColorGreen", 27, 0, 255);
@@ -57,6 +57,9 @@ public class ESP extends Module {
             switch (mode.getValueByName().toLowerCase()) {
                 case "box":
                     ESPUtils.drawEntityBox(entity, color, positionalInterpolation.getValue(), rotateWithYaw.getValue());
+                    break;
+                case "vanillaglow":
+                    entity.setGlowing(true);
                     break;
             }
         }

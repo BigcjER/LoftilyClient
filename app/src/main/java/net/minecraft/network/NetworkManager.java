@@ -28,7 +28,9 @@ import io.netty.util.concurrent.GenericFutureListener;
 import loftily.Client;
 import loftily.event.impl.packet.PacketReceiveEvent;
 import loftily.event.impl.packet.PacketSendEvent;
+import loftily.module.impl.exploit.disablers.GrimDisabler;
 import lombok.Getter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.CryptManager;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.LazyLoadBase;
@@ -140,13 +142,17 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
     public void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet<?> packet) {
         if (this.channel.isOpen()) {
             try {
-                PacketReceiveEvent event = new PacketReceiveEvent(packet, PacketReceiveEvent.Type.VANILLA);
-                Client.INSTANCE.getEventManager().call(event);
-                if (event.isCancelled()) return;
-                
-                packet = event.getPacket();
-                ((Packet<INetHandler>) packet).processPacket(this.packetListener);
-                
+                if (GrimDisabler.INSTANCE.getGrimPost() && GrimDisabler.INSTANCE.grimPostDelay(packet)) {
+                    Packet<?> finalPacket = packet;
+                    Minecraft.getMinecraft().addScheduledTask(() -> GrimDisabler.storedPackets.add(finalPacket));
+                }else {
+                    PacketReceiveEvent event = new PacketReceiveEvent(packet, PacketReceiveEvent.Type.VANILLA);
+                    Client.INSTANCE.getEventManager().call(event);
+                    if (event.isCancelled()) return;
+
+                    packet = event.getPacket();
+                    ((Packet<INetHandler>) packet).processPacket(this.packetListener);
+                }
             } catch (ThreadQuickExitException var4) {
             }
         }

@@ -10,6 +10,7 @@ import loftily.event.impl.player.slowdown.ItemSlowDownEvent;
 import loftily.event.impl.world.LivingUpdateEvent;
 import loftily.event.impl.world.PreUpdateEvent;
 import loftily.event.impl.world.UpdateEvent;
+import loftily.module.impl.exploit.disablers.GrimDisabler;
 import loftily.utils.math.Rotation;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -198,7 +199,11 @@ public class EntityPlayerSP extends AbstractClientPlayer {
      */
     public void onUpdate() {
         if (this.world.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ))) {
-            Client.INSTANCE.getEventManager().call(new UpdateEvent());
+            UpdateEvent updateEvent = new UpdateEvent();
+            Client.INSTANCE.getEventManager().call(updateEvent);
+            if (updateEvent.isCancelled()) {
+                return;
+            }
             super.onUpdate();
 
             if (this.isRiding()) {
@@ -271,8 +276,9 @@ public class EntityPlayerSP extends AbstractClientPlayer {
             
             if (!olderThanOrEqualTo1_8)
                 ++this.positionUpdateTicks;
-            
-            boolean isMovingSignificantly = diffX * diffX + diffY * diffY + diffZ * diffZ > 9.0E-4D || this.positionUpdateTicks >= 20;
+
+            double zeroZero3 = ViaLoadingBase.getInstance().getTargetVersion().newerThanOrEqualTo(ProtocolVersion.v1_18_2) ? 4.0E-8D : 9.0E-4D;
+            boolean isMovingSignificantly = diffX * diffX + diffY * diffY + diffZ * diffZ > zeroZero3 || this.positionUpdateTicks >= 20;
             boolean isRotating = diffYaw != 0.0D || diffPitch != 0.0D;
             
             if (olderThanOrEqualTo1_8) {
@@ -286,6 +292,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
                     } else {
                         this.connection.sendPacket(new CPacketPlayer(ground));
                     }
+                    GrimDisabler.INSTANCE.processPackets();
                 }
             } else {
                 if (this.isRiding()) {
@@ -300,6 +307,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
                 } else if (this.prevOnGround != ground) {
                     this.connection.sendPacket(new CPacketPlayer(ground));
                 }
+                GrimDisabler.INSTANCE.processPackets();
             }
             
             if (olderThanOrEqualTo1_8)

@@ -43,6 +43,7 @@ public class MatrixVelocity extends Mode<Velocity> {
     @EventHandler
     public void onReceivePacket(PacketReceiveEvent event) {
         Packet<?> packet = event.getPacket();
+        if (event.isCancelled())return;
         if (packet instanceof SPacketEntityVelocity) {
             if (((SPacketEntityVelocity) packet).getEntityID() == mc.player.getEntityId()) {
                 event.setCancelled(true);

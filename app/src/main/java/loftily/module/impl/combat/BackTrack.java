@@ -52,7 +52,7 @@ public class BackTrack extends Module {
     private final BooleanValue predictValue = new BooleanValue("Predict", false);
     private final NumberValue maxPredictRange = new NumberValue("MaxPredictRange", 3, 0, 6, 0.01).setVisible(predictValue::getValue);
     private final NumberValue chanceValue = new NumberValue("Chance", 100, 1, 100);
-    private final NumberValue maxActiveRangeValue = new NumberValue("MaxActiveRange", 6, 3, 10, 0.01);
+    private final RangeSelectionNumberValue activeRangeValue = new RangeSelectionNumberValue("MaxActiveRange",3, 6, 0, 10, 0.01);
     private final NumberValue maxTargetHurtTime = new NumberValue("MaxTargetHurtTime", 10, 0, 10);
     private final BooleanValue attackToStart = new BooleanValue("AttackToStart", false);
     private final BooleanValue cancelWhenNotInCombat = new BooleanValue("CancelWhenNotInCombat", false);
@@ -240,7 +240,7 @@ public class BackTrack extends Module {
                 
                 Vec3d vec3d = new Vec3d(targetVec3d.xCoord, targetVec3d.yCoord, targetVec3d.zCoord);
                 double realRange = mc.player.getEyes().distanceTo(vec3d);
-                if (realRange > maxActiveRangeValue.getValue() || (cancelWhenNotInCombat.getValue() && !CombatHandler.inCombat)) {
+                if ((realRange > activeRangeValue.getSecond() || realRange < activeRangeValue.getFirst()) || (cancelWhenNotInCombat.getValue() && !CombatHandler.inCombat)) {
                     releaseNormally();
                 }
             }
@@ -305,7 +305,7 @@ public class BackTrack extends Module {
         }
     }
     
-    @EventHandler(priority = 2000)
+    @EventHandler(priority = 5000)
     public void onPacketReceive(PacketReceiveEvent event) {
         Packet<?> packet = event.getPacket();
         if (mc.world == null || mc.player == null) {
@@ -332,7 +332,8 @@ public class BackTrack extends Module {
             }
             
             if ((packet instanceof SPacketUpdateHealth && ((SPacketUpdateHealth) packet).getHealth() <= 0) || packet instanceof SPacketRespawn) {
-                clearPackets();
+                releaseNormally();
+                canStart = false;
                 return;
             }
             

@@ -21,6 +21,7 @@ public class NormalVelocity extends Mode<Velocity> {
     @EventHandler
     public void onPacket(PacketReceiveEvent event) {
         if (mc.player == null) return;
+        if (event.isCancelled())return;
         Packet<?> packet = event.getPacket();
         
         final double horizontal = this.horizontal.getValue();

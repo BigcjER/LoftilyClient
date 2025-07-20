@@ -21,6 +21,7 @@ import loftily.event.impl.client.DisplayScreenEvent;
 import loftily.event.impl.client.KeyboardEvent;
 import loftily.event.impl.player.BlockDigEvent;
 import loftily.event.impl.world.GameLoopEvent;
+import loftily.event.impl.world.TickEvent;
 import loftily.event.impl.world.WorldLoadEvent;
 import loftily.gui.font.FontManager;
 import loftily.gui.menu.mainmenu.MainMenu;
@@ -938,7 +939,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
      * Called repeatedly from run()
      */
     private void runGameLoop() throws IOException {
-        Client.INSTANCE.getEventManager().call(new GameLoopEvent());
         long i = System.nanoTime();
         this.mcProfiler.startSection("root");
         
@@ -958,8 +958,14 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
         this.mcProfiler.endSection();
         long l = System.nanoTime();
         this.mcProfiler.startSection("tick");
-        
+
+        GameLoopEvent event = new GameLoopEvent();
+        Client.INSTANCE.getEventManager().call(event);
+
         for (int j = 0; j < Math.min(10, this.timer.elapsedTicks); ++j) {
+            if(event.isCancelled()){
+                continue;
+            }
             this.runTick();
         }
         
@@ -1581,11 +1587,11 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
         if (this.world != null) {
             if (this.player != null) {
                 ++this.joinPlayerCounter;
-                
                 if (this.joinPlayerCounter == 30) {
                     this.joinPlayerCounter = 0;
                     this.world.joinEntityInSurroundings(this.player);
                 }
+                Client.INSTANCE.getEventManager().call(new TickEvent());
             }
             
             this.mcProfiler.endStartSection("gameRenderer");

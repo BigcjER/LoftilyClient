@@ -1,4 +1,6 @@
 package loftily.event.impl.world;
 
-public class GameLoopEvent {
+import loftily.event.CancellableEvent;
+
+public class GameLoopEvent extends CancellableEvent {
 }

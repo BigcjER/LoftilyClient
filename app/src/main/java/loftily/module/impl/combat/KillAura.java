@@ -173,8 +173,9 @@ public class KillAura extends Module {
             new StringMode("Packet"),
             new StringMode("Fake"),
             new StringMode("Matrix"),
-            new StringMode("None"),
-            new StringMode("Verus"));
+            new StringMode("Verus"),
+            new StringMode("Attack"),
+            new StringMode("None"));
     private final ModeValue blockTiming = new ModeValue("AutoBlockTiming", "Normal", this,
             new StringMode("Normal"),
             new StringMode("Tick"),
@@ -621,6 +622,12 @@ public class KillAura extends Module {
                         PacketUtils.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
                         blockingTick = false;
                         break;
+                    case "Attack":
+                        if(canAttackTimes > 0){
+                            PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+                            blockingTick = false;
+                        }
+                        break;
 
                     case "HoldKey":
                     case "Packet":
@@ -664,12 +671,12 @@ public class KillAura extends Module {
                 }
             }
         }
+
         if (onlyWhileKeyBinding.getValue() && !mc.gameSettings.keyBindUseItem.isKeyDown() ) {
             return;
         }
         switch (autoBlockMode.getValueByName()) {
             case "Fake":
-
             case "AfterTick":
                 break;
             case "HoldKey":
@@ -684,6 +691,7 @@ public class KillAura extends Module {
                 break;
             case "Matrix":
             case "Verus":
+            case "Attack":
                 if (!blockingTick) {
                     blockingPacket(target);
                     blockingTick = true;
