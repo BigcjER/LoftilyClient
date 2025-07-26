@@ -28,6 +28,7 @@ import loftily.gui.menu.mainmenu.MainMenu;
 import loftily.module.impl.combat.KillAura;
 import loftily.module.impl.render.MotionBlur;
 import loftily.module.impl.render.NoToasts;
+import loftily.utils.player.PlayerUtils;
 import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
 import lombok.Getter;
@@ -1909,7 +1910,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
         }
         
         if (this.player.isHandActive()) {
-            if (!this.gameSettings.keyBindUseItem.isKeyDown() && !Client.INSTANCE.getModuleManager().get(KillAura.class).isBlockingStatus()) {
+            if (!this.gameSettings.keyBindUseItem.isKeyDown() && !Client.INSTANCE.getModuleManager().get(KillAura.class).isBlockingStatus() && !PlayerUtils.serverSideBlocking) {
                 this.playerController.onStoppedUsingItem(this.player);
             }
             

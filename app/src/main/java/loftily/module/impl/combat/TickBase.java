@@ -40,6 +40,7 @@ public class TickBase extends Module {
     private final NumberValue startChance = new NumberValue("StartChance", 100, 0, 100);
     private final RangeSelectionNumberValue everyTimerDelay = new RangeSelectionNumberValue("NextLagDelay", 100, 500, 0, 5000);
     private final RangeSelectionNumberValue targetHurtTime = new RangeSelectionNumberValue("TargetHurtTime", 0, 10, 0, 10);
+    private final BooleanValue calculateTicksWithRange = new BooleanValue("CalculateTicksWithRange",true);
     private final BooleanValue lagReset = new BooleanValue("LagReset", false);
     private final BooleanValue attackToStart = new BooleanValue("AttackToStart", false);
     private final BooleanValue onlyKillAura = new BooleanValue("OnlyKillAura", false);
@@ -84,7 +85,8 @@ public class TickBase extends Module {
                 if (range >= startRange.getFirst() && range <= startRange.getSecond()) {
                     runTimer = startChance.getValue() >= RandomUtils.randomInt(0, 100);
                     if (runTimer) {
-                        skipTicks = RandomUtils.randomInt((int) lagTicks.getFirst(), (int) lagTicks.getSecond());
+                        skipTicks = calculateTicksWithRange.getValue() ? (int)(lagTicks.getFirst() + Math.min(1,range / 10 + RandomUtils.randomDouble(0,1-range/10)) * (lagTicks.getSecond() - lagTicks.getFirst()))
+                    :RandomUtils.randomInt((int) lagTicks.getFirst(), (int) lagTicks.getSecond());
                         boostTicks = skipTicks;
                         curDelay = RandomUtils.randomInt((int) everyTimerDelay.getFirst(), (int) everyTimerDelay.getSecond());
                     }
@@ -146,7 +148,9 @@ public class TickBase extends Module {
                     if (range >= startRange.getFirst() && range <= startRange.getSecond()) {
                         runTimer = startChance.getValue() >= RandomUtils.randomInt(0, 100);
                         if (runTimer) {
-                            skipTicks = RandomUtils.randomInt((int) lagTicks.getFirst(), (int) lagTicks.getSecond());
+                            skipTicks = calculateTicksWithRange.getValue() ? (int)
+                                    (lagTicks.getFirst() + Math.min(1,range / 10 + RandomUtils.randomDouble(0,1-range/10)) * (lagTicks.getSecond() - lagTicks.getFirst()))
+                                    :RandomUtils.randomInt((int) lagTicks.getFirst(), (int) lagTicks.getSecond());
                             boostTicks = skipTicks;
                             curDelay = RandomUtils.randomInt((int) everyTimerDelay.getFirst(), (int) everyTimerDelay.getSecond());
                         }

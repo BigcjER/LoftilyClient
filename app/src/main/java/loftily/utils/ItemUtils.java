@@ -31,7 +31,7 @@ public class ItemUtils implements ClientUtils {
             Blocks.NOTEBLOCK, Blocks.DROPPER, Blocks.STANDING_BANNER, Blocks.WALL_BANNER, Blocks.REDSTONE_TORCH,
             Blocks.GLASS_PANE, Blocks.STAINED_GLASS_PANE, Blocks.LEVER, Blocks.CACTUS, Blocks.LADDER, Blocks.BROWN_MUSHROOM, Blocks.RED_MUSHROOM,
             Blocks.OAK_FENCE_GATE, Blocks.ACACIA_FENCE_GATE, Blocks.BIRCH_FENCE_GATE, Blocks.JUNGLE_FENCE_GATE, Blocks.SPRUCE_FENCE_GATE, Blocks.DARK_OAK_FENCE_GATE,
-            Blocks.END_GATEWAY, Blocks.GLASS
+            Blocks.END_GATEWAY, Blocks.GLASS,Blocks.TNT,Blocks.WATER,Blocks.AIR,Blocks.VINE,Blocks.SKULL
     );
     
     public static boolean isItemUsefulInContainer(Container container, ItemStack itemStack) {

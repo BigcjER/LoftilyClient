@@ -25,6 +25,7 @@ public class PlayerUtils implements ClientUtils {
     public static boolean nullCheck() {
         return mc.player != null && mc.world != null;
     }
+    public static boolean serverSideBlocking = false;
     
     public static boolean canBeSeenEntity(Entity player, Entity target) {
         AxisAlignedBB targetBB = target.getEntityBoundingBox();

@@ -115,7 +115,10 @@ public class KillAura extends Module {
             new StringMode("Normal"),
             new StringMode("Advance"),
             new StringMode("Test"),
+            new StringMode("Proportion"),
             new StringMode("None"));
+    private final RangeSelectionNumberValue distancePro = new RangeSelectionNumberValue("DistanceProportion",0.0,1.0,0,1.0,0.01).setVisible(()->rotationMode.is("Proportion"));
+    private final RangeSelectionNumberValue anglePro = new RangeSelectionNumberValue("AngleProportion",0.0,1.0,0,1.0,0.01).setVisible(()->rotationMode.is("Proportion"));
     private final RangeSelectionNumberValue yawTurnSpeed = new RangeSelectionNumberValue("YawTurnSpeed", 100, 150, 0, 360, 0.1);
     private final RangeSelectionNumberValue pitchTurnSpeed = new RangeSelectionNumberValue("PitchTurnSpeed", 100, 150, 0, 360, 0.1);
     private final RangeSelectionNumberValue keepTicks = new RangeSelectionNumberValue("KeepRotationTicks", 1, 2, 0, 20);
@@ -349,6 +352,34 @@ public class KillAura extends Module {
                         }
                     }
                 }
+                break;
+            case "Proportion":
+                double d = RandomUtils.randomDouble(distancePro.getFirst(),distancePro.getSecond());
+                double a = RandomUtils.randomDouble(anglePro.getFirst(),anglePro.getSecond());
+                double lastD = 0D;
+                double lastA = 0D;
+                for (double x = 0.2; x <= 0.8; x += 0.1) {
+                    for (double y = 0.2; y <= 0.8; y += 0.1) {
+                        for (double z = 0.2; z <= 0.8; z += 0.1) {
+                            Vec3d preCenter = targetBox.lerpWith(x, y, z);
+                            if (rayCast.getValue()) {
+                                Rotation rotation = RotationUtils.toRotation(preCenter, mc.player);
+                                Entity entity = RayCastUtils.raycastEntity(rotationRange.getValue(), rotation.yaw, rotation.pitch, rayCastThroughWalls.getValue(), (e -> e instanceof EntityLivingBase));
+                                if (entity == null || (entity != target && rayCastOnlyTarget.getValue())) continue;
+                            }
+                            double distance = mc.player.getEyes().distanceTo(preCenter) * d;
+                            double angle = RotationUtils.getRotationDifference(RotationUtils.toRotation(preCenter, mc.player), RotationHandler.getRotation()) * a;
+                            if (CalculateUtils.isVisible(preCenter) || throughWallsAim.getValue()) {
+                                if (center == null || ((distance + angle) < (lastD + lastA))) {
+                                    center = preCenter;
+                                    lastD = distance;
+                                    lastA = angle;
+                                }
+                            }
+                        }
+                    }
+                }
+
         }
         
         if (center != null) {
@@ -672,7 +703,7 @@ public class KillAura extends Module {
             }
         }
 
-        if (onlyWhileKeyBinding.getValue() && !mc.gameSettings.keyBindUseItem.isKeyDown() ) {
+        if (onlyWhileKeyBinding.getValue() && !GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
             return;
         }
         switch (autoBlockMode.getValueByName()) {
@@ -690,6 +721,9 @@ public class KillAura extends Module {
                 }
                 break;
             case "Matrix":
+                mc.rightClickMouse();
+                blockingTick = true;
+                break;
             case "Verus":
             case "Attack":
                 if (!blockingTick) {
@@ -710,6 +744,7 @@ public class KillAura extends Module {
                 PacketUtils.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
                 PacketUtils.sendPacket(packet, false);
                 blockingTick = false;
+                blockingStatus = false;
                 runAutoBlock(target);
             }
         }

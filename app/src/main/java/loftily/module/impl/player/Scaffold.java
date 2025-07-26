@@ -25,10 +25,7 @@ import loftily.utils.block.BlockUtils;
 import loftily.utils.client.PacketUtils;
 import loftily.utils.math.RandomUtils;
 import loftily.utils.math.Rotation;
-import loftily.utils.player.InventoryUtils;
-import loftily.utils.player.MoveUtils;
-import loftily.utils.player.PlayerUtils;
-import loftily.utils.player.RotationUtils;
+import loftily.utils.player.*;
 import loftily.utils.render.ColorUtils;
 import loftily.utils.render.Colors;
 import loftily.utils.render.RenderUtils;
@@ -148,6 +145,11 @@ public class Scaffold extends Module {
     private final ModeValue rotationTiming = new ModeValue("RotationTiming", "Normal", this,
             new StringMode("Normal"), new StringMode("Always")
     );
+    private final ModeValue centerMode = new ModeValue("CenterMode","Angle",this,
+            new StringMode("Angle"),new StringMode("Distance"),new StringMode("Proportion")
+    );
+    private final RangeSelectionNumberValue distancePro = new RangeSelectionNumberValue("DistanceProportion",0.0,1.0,0,1.0,0.01).setVisible(()->centerMode.is("Proportion"));
+    private final RangeSelectionNumberValue anglePro = new RangeSelectionNumberValue("AngleProportion",0.0,1.0,0,1.0,0.01).setVisible(()->centerMode.is("Proportion"));
     private final NumberValue distValue = new NumberValue("Dist", 0.0, 0.0, 0.3, 0.01);
     private final BooleanValue rayCastSearch = new BooleanValue("RayCast", false);
     private final BooleanValue keepRotation = new BooleanValue("KeepRotation", false);
@@ -346,6 +348,7 @@ public class Scaffold extends Module {
             if(rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK) {
                 if ((!extraClickOnlyData.getValue() || (placeInfo != null && rayTraceResult.getBlockPos().equals(placeInfo.blockPos))) && (!itemBlock.canPlaceBlockOnSide(mc.world, posIn, rayTraceResult.sideHit, mc.player, mc.player.getHeldItem(hand)) || !extraClickMode.is("OnlyFail"))) {
                     PacketUtils.sendPacket(new CPacketPlayerTryUseItemOnBlock(stack,rayTraceResult.sideHit,hand,f,f1,f2));
+
                 }else {
                     break;
                 }
@@ -368,12 +371,6 @@ public class Scaffold extends Module {
         
         if (mc.player.onGround && MoveUtils.isMoving() && (scaffoldMode.is("TickJump") || scaffoldMode.is("MatrixHop"))) {
             mc.player.tryJump();
-        }
-        
-        if (motionModifier.getValue()) {
-            if (!motionSpeedSetOnlyGround.getValue() || mc.player.onGround) {
-                MoveUtils.setSpeed(motionSpeedSet.getValue(), true);
-            }
         }
         
         if (mc.player.ticksExisted % adStrafeDelay.getValue() == 0) {
@@ -601,6 +598,12 @@ public class Scaffold extends Module {
     
     @EventHandler
     public void onStrafe(StrafeEvent event) {
+        if (motionModifier.getValue()) {
+            if (!motionSpeedSetOnlyGround.getValue() || mc.player.onGround) {
+                MoveUtils.setSpeed(motionSpeedSet.getValue(), true);
+            }
+        }
+
         switch (scaffoldMode.getValueByName()) {
             case "Telly":
                 if (MoveUtils.isMoving()) {
@@ -902,6 +905,7 @@ public class Scaffold extends Module {
     
     private PlaceInfo compareDifferences(
             PlaceInfo newPlaceRotation, PlaceInfo oldPlaceRotation, Rotation rotation) {
+
         if (oldPlaceRotation == null || RotationUtils.getRotationDifference(newPlaceRotation.getRotation(), rotation) <
                 RotationUtils.getRotationDifference(oldPlaceRotation.getRotation(), rotation)
         ) {
@@ -917,28 +921,42 @@ public class Scaffold extends Module {
             return false;
         }
         
-        PlaceInfo dPlaceInfo = null;
-        PlaceInfo ePlaceInfo;
-        
+        PlaceInfo oldPlaceInfo = null;
+        PlaceInfo newPlaceInfo;
+
+        double d = RandomUtils.randomDouble(distancePro.getFirst(),distancePro.getSecond());
+        double a = RandomUtils.randomDouble(anglePro.getFirst(),anglePro.getSecond());
+        Vec3d oldRotationVec = new Vec3d(0,0,0);
         for (EnumFacing enumFacing : EnumFacing.VALUES) {
             BlockPos placePos = blockPos.offset(enumFacing);
             if (!BlockUtils.canBeClick(placePos)) continue;
             for (double x = 0.2; x <= 0.8; x += 0.1) {
                 for (double y = 0.2; y <= 0.8; y += 0.1) {
                     for (double z = 0.2; z <= 0.8; z += 0.1) {
-                        ePlaceInfo = getPlaceInfo(blockPos, placePos, new Vec3d(x, y, z), enumFacing, raycast);
-                        if (ePlaceInfo == null) {
+                        newPlaceInfo = getPlaceInfo(blockPos, placePos, new Vec3d(x, y, z), enumFacing, raycast);
+                        if (newPlaceInfo == null) {
                             continue;
                         }
-                        dPlaceInfo = compareDifferences(ePlaceInfo, dPlaceInfo, RotationHandler.getRotation());
+                        Vec3d newRotationVec = RayCastUtils.rayTraceWithCustomRotation(mc.player,mc.playerController.getBlockReachDistance(),newPlaceInfo.getRotation()).hitVec;
+                        double distance = mc.player.getEyes().distanceTo(newRotationVec);
+                        double angle = RotationUtils.getRotationDifference(newPlaceInfo.getRotation(), RotationHandler.getRotation());
+                        if(oldPlaceInfo == null || (
+                                (centerMode.is("Angle") && angle < RotationUtils.getRotationDifference(oldPlaceInfo.getRotation(), RotationHandler.getRotation()))
+                                || (centerMode.is("Distance") && distance < mc.player.getEyes().distanceTo(oldRotationVec))
+                                || (centerMode.is("Proportion") && (distance * d + angle * a) < (mc.player.getEyes().distanceTo(oldRotationVec) * d +
+                                        RotationUtils.getRotationDifference(oldPlaceInfo.getRotation(), RotationHandler.getRotation()) * a))
+                        )){
+                            oldPlaceInfo = newPlaceInfo;
+                            oldRotationVec = newRotationVec;
+                        }
                     }
                 }
             }
         }
         
-        if (dPlaceInfo == null) return false;
+        if (oldPlaceInfo == null) return false;
         
-        this.placeInfo = dPlaceInfo;
+        this.placeInfo = oldPlaceInfo;
         if (rotationTiming.is("Normal")) {
             setRotation(placeInfo.rotation);
         }
